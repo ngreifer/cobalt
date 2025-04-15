@@ -13,7 +13,7 @@ In order to use the thresholds argument with bal.tab() with multiply imputed dat
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@ In order to use the thresholds argument with bal.tab() with multiply imputed dat
 
 <p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multiply imputed data: <code>imp</code>, <code>which.imp</code>, <code>imp.summary</code>, and <code>imp.fun</code>.</p>
 <dl><dt><code>imp</code></dt>
-<dd><p>A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href="bal.tab.html">bal.tab()</a></code> know that the data is multiply imputed unless <span class="pkg">MatchThem</span> objects are used. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains imputation membership. If the <code>data</code> argument is a <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice()</a></code>, <code>imp</code> does not need to be specified and will automatically be extracted from the <code>mids</code> object.</p></dd>
+<dd><p>A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href="bal.tab.html">bal.tab()</a></code> know that the data is multiply imputed unless <span class="pkg">MatchThem</span> objects are used. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains imputation membership. If the <code>data</code> argument is a <code>mids</code> object, the output of a call to <code>mice()</code>, <code>imp</code> does not need to be specified and will automatically be extracted from the <code>mids</code> object.</p></dd>
 
 <dt><code>which.imp</code></dt>
 <dd><p>This is a display option that does not affect computation. If <code>.all</code>, all imputations in <code>imp</code> will be displayed. If <code>.none</code> (the default), no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance.</p></dd>

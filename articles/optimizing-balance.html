@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,7 +135,7 @@ difference among the included covariates, which is specified as
 sample prior to weighting.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/cobalt/">cobalt</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt;  cobalt (Version 4.5.6, Build Date: 2025-04-11)</span></span>
+<span><span class="co">#&gt;  cobalt (Version 4.6.0, Build Date: 2025-04-15)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">race</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -300,6 +300,12 @@ statistics are appended with <code>".mean"</code>, <code>".max"</code>,
 or <code>".rms"</code>, which correspond to the mean (or L1-norm),
 maximum (or L-infinity norm), and root mean square (or L2-norm) of the
 absolute univariate balance statistic computed for each covariate.</p>
+<p>In addition, balance statistics can be compute between a sample and
+the same sample but weighted; this is known as “target balance” and is
+important when assessing the quality of weights for continuous
+treatments or for selecting a representative subset. To assess target
+balance, the treatment variable should be omitted from
+<code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>.</p>
 <div class="section level4">
 <h4 id="smd-mean-smd-max-smd-rms">
 <code>smd.mean</code>, <code>smd.max</code>,
@@ -315,7 +321,8 @@ the estimand and the treatment has more than two categories, and
 computed between each pair of treatment groups or between each treatment
 group and the target group identified by <code>estimand</code> (default
 <code>TRUE</code>). Can be used with binary and multi-category
-treatments.</p>
+treatments and for target balance (where the standardization factor is
+computed using the full original sample).</p>
 </div>
 <div class="section level4">
 <h4 id="ks-mean-ks-max-ks-rms">
@@ -330,7 +337,7 @@ the estimand and the treatment has more than two categories, and
 between each pair of treatment groups or between each treatment group
 and the target group identified by <code>estimand</code> (default
 <code>TRUE</code>). Can be used with binary and multi-category
-treatments.</p>
+treatments and for target balance.</p>
 </div>
 <div class="section level4">
 <h4 id="ovl-mean-ovl-max-ovl-rms">
@@ -346,7 +353,7 @@ and <code>pairwise</code> to select whether statistics should be
 computed between each pair of treatment groups or between each treatment
 group and the target group identified by <code>estimand</code> (default
 <code>TRUE</code>). Can be used with binary and multi-category
-treatments.</p>
+treatments and for target balance.</p>
 </div>
 <div class="section level4">
 <h4 id="mahalanobis">
@@ -370,7 +377,8 @@ de-emphasize redundant covariates. The other allowable arguments include
 <code>estimand</code> (ATE, ATC, or ATT) to select the estimand, which
 determines how the covariance matrix is calculated, and
 <code>focal</code> to identify the focal treatment group when the ATT is
-the estimand. Can only be used with binary treatments.</p>
+the estimand. Can only be used with binary treatments and for target
+balance.</p>
 </div>
 <div class="section level4">
 <h4 id="energy-dist">
@@ -388,7 +396,7 @@ select whether the “improved” energy distance should be used, which
 emphasizes difference between treatment groups in addition to difference
 between each treatment group and the target sample (default
 <code>TRUE</code>). Can be used with binary and multi-category
-treatments.</p>
+treatments and for target balance.</p>
 </div>
 <div class="section level4">
 <h4 id="kernel-dist">
@@ -461,7 +469,9 @@ treatments.</p>
 <p>The distance covariance or distance correlation between the scaled
 covariates and treatment, which is a scalar measure of the independence
 of two possibly multivariate distributions. See <span class="citation">Huling, Greifer, and Chen (<a href="#ref-hulingIndependenceWeightsCausal2023a">2023</a>)</span> for
-details. Can only be used with continuous treatments.</p>
+details. Can only be used with continuous treatments. The distance
+correlation is a scaled version of the distance covariance to range from
+0 to 1.</p>
 </div>
 <div class="section level3">
 <h3 id="choosing-a-balance-statistic">Choosing a balance statistic<a class="anchor" aria-label="anchor" href="#choosing-a-balance-statistic"></a>
@@ -514,7 +524,8 @@ described in <span class="citation">McCaffrey, Ridgeway, and Morral (<a href="#r
 selecting the number of trees using a balance criterion. Here, we will
 do so manually both to understand the internals of these functions and
 illustrate the uses of <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and
-<code><a href="../reference/bal.compute.html">bal.init()</a></code>.</p>
+<code><a href="../reference/bal.compute.html">bal.init()</a></code> to select the ideal number of trees for
+propensity score weighting with a binary treatment.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span><span class="op">)</span></span>
 <span></span>
@@ -581,7 +592,7 @@ see what it looks like:</p>
 <p>We can see that <code><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit()</a></code> also selects 1408 trees as
 the optimum and the resulting maximum KS statistic computed using the
 returned weights is equal to the one we computed manually. Using
-<code>twang</code> also produces the same results.</p>
+<code><a href="https://rdrr.io/pkg/twang/man/ps.html" class="external-link">twang::ps()</a></code> also produces the same results.</p>
 </div>
 </div>
 <div class="section level2 unnumbered">

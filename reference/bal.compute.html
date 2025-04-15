@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,9 +54,9 @@
 <span><span class="fu">bal.compute</span><span class="op">(</span><span class="va">x</span>, weights <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Default S3 method</span></span>
-<span><span class="fu">bal.compute</span><span class="op">(</span><span class="va">x</span>, <span class="va">treat</span>, <span class="va">stat</span>, s.weights <span class="op">=</span> <span class="cn">NULL</span>, weights <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">bal.compute</span><span class="op">(</span><span class="va">x</span>, treat <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">stat</span>, s.weights <span class="op">=</span> <span class="cn">NULL</span>, weights <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">bal.init</span><span class="op">(</span><span class="va">x</span>, <span class="va">treat</span>, <span class="va">stat</span>, s.weights <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">bal.init</span><span class="op">(</span><span class="va">x</span>, treat <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">stat</span>, s.weights <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">available.stats</span><span class="op">(</span>treat.type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -78,7 +78,7 @@
 
 
 <dt id="arg-treat">treat<a class="anchor" aria-label="anchor" href="#arg-treat"></a></dt>
-<dd><p>a vector containing the treatment variable.</p></dd>
+<dd><p>a vector containing the treatment variable. Can be <code>NULL</code> to compute target balance statistics.</p></dd>
 
 
 <dt id="arg-stat">stat<a class="anchor" aria-label="anchor" href="#arg-stat"></a></dt>
@@ -90,7 +90,7 @@
 
 
 <dt id="arg-treat-type">treat.type<a class="anchor" aria-label="anchor" href="#arg-treat-type"></a></dt>
-<dd><p>string; the treatment type, either <code>"binary"</code>, <code>"multinomial"</code>, or <code>"continuous"</code>. Abbreviations allowed.</p></dd>
+<dd><p>string; the treatment type, either <code>"binary"</code>, <code>"multinomial"</code>, <code>"continuous"</code>, or <code>"target"</code>. Abbreviations allowed.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -99,20 +99,20 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The following list contains the allowable balance statistics that can be supplied to <code>bal.init()</code> or the default method of <code>bal.compute()</code>, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance.</p><dl><dt><code>smd.mean</code>, <code>smd.max</code>, <code>smd.rms</code></dt>
-<dd><p>The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using <code><a href="balance-summary.html">col_w_smd()</a></code>. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>pairwise</code> to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by <code>estimand</code> (default <code>TRUE</code>). Can be used with binary and multi-category treatments.</p></dd>
+    <p>The following list contains the allowable balance statistics that can be supplied to <code>bal.init()</code> or the default method of <code>bal.compute()</code>, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance. Target balance refers to the similarity between a sample and the same sample but weighted.</p><dl><dt><code>smd.mean</code>, <code>smd.max</code>, <code>smd.rms</code></dt>
+<dd><p>The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using <code><a href="balance-summary.html">col_w_smd()</a></code>. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>pairwise</code> to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by <code>estimand</code> (default <code>TRUE</code>). Can be used with binary and multi-category treatments and for target balance.</p></dd>
 
 <dt><code>ks.mean</code>, <code>ks.max</code>, <code>ks.rms</code></dt>
-<dd><p>The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using <code><a href="balance-summary.html">col_w_ks()</a></code>. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>pairwise</code> to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by <code>estimand</code> (default <code>TRUE</code>). Can be used with binary and multi-category treatments.</p></dd>
+<dd><p>The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using <code><a href="balance-summary.html">col_w_ks()</a></code>. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>pairwise</code> to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by <code>estimand</code> (default <code>TRUE</code>). Can be used with binary and multi-category treatments and for target balance.</p></dd>
 
 <dt><code>ovl.mean</code>, <code>ovl.max</code>, <code>ovl.rms</code></dt>
-<dd><p>The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using <code><a href="balance-summary.html">col_w_ovl()</a></code>. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>), <code>integrate</code> to select whether integration is done using using <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> (<code>TRUE</code>) or a Riemann sum (<code>FALSE</code>, the default), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, <code>pairwise</code> to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by <code>estimand</code> (default <code>TRUE</code>). Can be used with binary and multi-category treatments.</p></dd>
+<dd><p>The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using <code><a href="balance-summary.html">col_w_ovl()</a></code>. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>), <code>integrate</code> to select whether integration is done using using <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> (<code>TRUE</code>) or a Riemann sum (<code>FALSE</code>, the default), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, <code>pairwise</code> to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by <code>estimand</code> (default <code>TRUE</code>). Can be used with binary and multi-category treatments and for target balance.</p></dd>
 
 <dt><code>mahalanobis</code></dt>
-<dd><p>The Mahalanobis distance between the treatment group means. This is similar to <code>smd.rms</code> but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>) and <code>focal</code> to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.</p></dd>
+<dd><p>The Mahalanobis distance between the treatment group means. This is similar to <code>smd.rms</code> but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, or <code>"ATC"</code>) to select the estimand (default is <code>"ATE"</code>) and <code>focal</code> to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments and for target balance.</p></dd>
 
 <dt><code>energy.dist</code></dt>
-<dd><p>The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, <code>"ATC"</code>, or <code>NULL</code>) to select the estimand (default is <code>NULL</code>), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>improved</code> to select whether the "improved" energy distance should be used when <code>estimand = "ATE"</code>, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default <code>TRUE</code>). When <code>estimand = NULL</code>, only the energy distance between the treatment groups will be computed (i.e., as opposed to the energy distance between each treatment groups and the target sample). Can be used with binary and multi-category treatments.</p></dd>
+<dd><p>The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include <code>estimand</code> (<code>"ATE"</code>, <code>"ATT"</code>, <code>"ATC"</code>, or <code>NULL</code>) to select the estimand (default is <code>NULL</code>), <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>improved</code> to select whether the "improved" energy distance should be used when <code>estimand = "ATE"</code>, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default <code>TRUE</code>). When <code>estimand = NULL</code>, only the energy distance between the treatment groups will be computed (i.e., as opposed to the energy distance between each treatment groups and the target sample). Can be used with binary and multi-category treatments and for target balance.</p></dd>
 
 <dt><code>kernel.dist</code></dt>
 <dd><p>The kernel distance between the treatment groups, which is a scalar measure of the similarity between two multivariate distributions. Can only be used with binary treatments.</p></dd>
@@ -162,11 +162,12 @@
 <span class="r-in"><span>                          method <span class="op">=</span> <span class="st">"subclass"</span>,</span></span>
 <span class="r-in"><span>                          estimand <span class="op">=</span> <span class="st">"ATE"</span>,</span></span>
 <span class="r-in"><span>                          subclass <span class="op">=</span> <span class="va">nsub</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">weights</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">m</span><span class="op">$</span><span class="va">weights</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Initialize balance statistic; largest KS statistic</span></span></span>
-<span class="r-in"><span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu">bal.init</span><span class="op">(</span><span class="va">lalonde</span><span class="op">[</span><span class="va">covs</span><span class="op">]</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, </span></span>
+<span class="r-in"><span><span class="va">init</span> <span class="op">&lt;-</span> <span class="fu">bal.init</span><span class="op">(</span><span class="va">lalonde</span><span class="op">[</span><span class="va">covs</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, </span></span>
 <span class="r-in"><span>                 stat <span class="op">=</span> <span class="st">"ks.max"</span>,</span></span>
 <span class="r-in"><span>                 estimand <span class="op">=</span> <span class="st">"ATE"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -200,6 +201,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "smd.mean"    "smd.max"     "smd.rms"     "ks.mean"     "ks.max"     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "ks.rms"      "ovl.mean"    "ovl.max"     "ovl.rms"     "energy.dist"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [11] "l1.med"     </span>
+<span class="r-in"><span><span class="fu">available.stats</span><span class="op">(</span><span class="st">"continuous"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "p.mean"       "p.max"        "p.rms"        "s.mean"       "s.max"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "s.rms"        "r2"           "r2.2"         "r2.3"         "distance.cov"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "distance.cor"</span>
+<span class="r-in"><span><span class="fu">available.stats</span><span class="op">(</span><span class="st">"target"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "smd.mean"    "smd.max"     "smd.rms"     "ks.mean"     "ks.max"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "ks.rms"      "ovl.mean"    "ovl.max"     "ovl.rms"     "mahalanobis"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "energy.dist"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

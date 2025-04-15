@@ -27,7 +27,7 @@ col_w_dcov() and col_w_dcorr() compute the (weighted) treatment-covariate distan
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,7 +140,7 @@ col_w_dcov() and col_w_dcorr() compute the (weighted) treatment-covariate distan
 <span>  <span class="va">bin.vars</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  integrate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  integrate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  steps <span class="op">=</span> <span class="fl">1001L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -262,7 +262,7 @@ col_w_dcov() and col_w_dcorr() compute the (weighted) treatment-covariate distan
 
 
 <dt id="arg-integrate">integrate<a class="anchor" aria-label="anchor" href="#arg-integrate"></a></dt>
-<dd><p><code>logical</code>; for <code>col_w_ovl()</code>, whether to use <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> to calculate the area of overlap or the distance between the densities, respectively. If <code>FALSE</code>, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts), but the integral can fail sometimes and thus is less stable. The default (<code>FALSE</code>) is to use the Riemann sum.</p></dd>
+<dd><p><code>logical</code>; for <code>col_w_ovl()</code>, whether to use <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> to calculate the area of overlap for continuous variables. If <code>FALSE</code>, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When <code>TRUE</code>, <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (<code>TRUE</code>) is to use <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> when possible.</p></dd>
 
 
 <dt id="arg-steps">steps<a class="anchor" aria-label="anchor" href="#arg-steps"></a></dt>
