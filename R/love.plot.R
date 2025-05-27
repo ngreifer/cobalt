@@ -1254,7 +1254,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         ggplot2::labs(color = "Sample") 
     }
     
-    plot.list[[s]] <- set_class(lp, "love.plot", .replace = FALSE)
+    plot.list[[s]] <- set_class(lp, "love.plot", .replace = FALSE, .last = FALSE)
   }
   
   # If just one stat (and use.grid not TRUE), return plot
@@ -1367,12 +1367,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   p <- gridExtra::arrangeGrob(p, top = title.grob)
   
-  grid::grid.newpage()
-  grid::grid.draw(p)
-  
   attr(p, "plots") <- plot.list
   
-  invisible(set_class(p, "love.plot"))
+  invisible(set_class(p, "love.plot", .replace = FALSE, .last = FALSE))
 }
 
 #' @exportS3Method autoplot bal.tab
@@ -1383,6 +1380,11 @@ autoplot.bal.tab <- function(object, ...) {
 #' @exportS3Method plot bal.tab
 plot.bal.tab <- function(x, ...) {
   love.plot(x, ...)
+}
+
+#' @exportS3Method print love.plot
+print.love.plot <- function(x, ...) {
+   plot(x, ...)
 }
 
 # Helper functions

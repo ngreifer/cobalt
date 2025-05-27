@@ -119,7 +119,7 @@ ordinal <- function(x) {
 }
 firstup <- function(x) {
   #Capitalize first letter
-  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  substr(x, 1L, 1L) <- toupper(substr(x, 1L, 1L))
   x
 }
 round_df_char <- function(df, digits, pad = "0", na_vals = "") {

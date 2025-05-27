@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Fixed a bug when using `love.plot()` with multiple `stat`s supplied. Thanks to @jjharden for the report. (#93)
+
 # cobalt 4.6.0
 
 * Added two new functions, `col_w_dcov()` and `col_w_dcorr()` for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates. 
@@ -11,7 +15,7 @@
 
   * `"distance.cov"` now returns the distance covariance; previously it returned the squared distance covariance. This should not affect the relative ordering of any sets of weights evaluated on this measure.
 
-  * `bal.compute()` and `bal.init()` can now compute target balance statistics representing the similarity between a weighted sample and the same sample but unweighted, e.g., to ensure representativeness. This can be requested by omitting the `treat` argument to `bal.compute()` and `bal.init()`. Allowable target balance statistics include those based on the standardized mean difference, KS statistic, overlapping coefficient, Mahalanobis distance, and energy distance. See `?bal.compute` or `vignette("optimizing-balance")` for details. `available.stats()` now accepts `"target"` as an argument to `treat.type` to display the abvailable statistics for assessing target balance.
+  * `bal.compute()` and `bal.init()` can now compute target balance statistics representing the similarity between a weighted sample and the same sample but unweighted, e.g., to ensure representativeness. This can be requested by omitting the `treat` argument to `bal.compute()` and `bal.init()`. Allowable target balance statistics include those based on the standardized mean difference, KS statistic, overlapping coefficient, Mahalanobis distance, and energy distance. See `?bal.compute` or `vignette("optimizing-balance")` for details. `available.stats()` now accepts `"target"` as an argument to `treat.type` to display the available statistics for assessing target balance.
   
   * Fixed some bugs in computing the energy distance. Now, the complete energy distance is computed, including the constant term that does not depend on the weights. Previously, the constant term was omitted.
 
