@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,13 +42,17 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="4.6.0" id="cobalt-460">cobalt 4.6.0<a class="anchor" aria-label="anchor" href="#cobalt-460"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="cobalt-development-version">cobalt (development version)<a class="anchor" aria-label="anchor" href="#cobalt-development-version"></a></h2>
+<ul><li>Fixed a bug when using <code><a href="../reference/love.plot.html">love.plot()</a></code> with multiple <code>stat</code>s supplied. Thanks to <a href="https://github.com/jjharden" class="external-link">@jjharden</a> for the report. (<a href="https://github.com/ngreifer/cobalt/issues/93" class="external-link">#93</a>)</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="4.6.0" id="cobalt-460">cobalt 4.6.0<a class="anchor" aria-label="anchor" href="#cobalt-460"></a></h2><p class="text-muted">CRAN release: 2025-04-15</p>
 <ul><li><p>Added two new functions, <code><a href="../reference/balance-summary.html">col_w_dcov()</a></code> and <code><a href="../reference/balance-summary.html">col_w_dcorr()</a></code> for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates.</p></li>
 <li>
 <p>Changes to <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>:</p>
 <ul><li><p><code>"distance.cor"</code> can be requested as an argument to <code>stat</code> to compute the weighted distance correlation between the treatment and the full covariate distribution.</p></li>
 <li><p><code>"distance.cov"</code> now returns the distance covariance; previously it returned the squared distance covariance. This should not affect the relative ordering of any sets of weights evaluated on this measure.</p></li>
-<li><p><code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> can now compute target balance statistics representing the similarity between a weighted sample and the same sample but unweighted, e.g., to ensure representativeness. This can be requested by omitting the <code>treat</code> argument to <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>. Allowable target balance statistics include those based on the standardized mean difference, KS statistic, overlapping coefficient, Mahalanobis distance, and energy distance. See <code><a href="../reference/bal.compute.html">?bal.compute</a></code> or <code><a href="../articles/optimizing-balance.html">vignette("optimizing-balance")</a></code> for details. <code><a href="../reference/bal.compute.html">available.stats()</a></code> now accepts <code>"target"</code> as an argument to <code>treat.type</code> to display the abvailable statistics for assessing target balance.</p></li>
+<li><p><code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> can now compute target balance statistics representing the similarity between a weighted sample and the same sample but unweighted, e.g., to ensure representativeness. This can be requested by omitting the <code>treat</code> argument to <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>. Allowable target balance statistics include those based on the standardized mean difference, KS statistic, overlapping coefficient, Mahalanobis distance, and energy distance. See <code><a href="../reference/bal.compute.html">?bal.compute</a></code> or <code><a href="../articles/optimizing-balance.html">vignette("optimizing-balance")</a></code> for details. <code><a href="../reference/bal.compute.html">available.stats()</a></code> now accepts <code>"target"</code> as an argument to <code>treat.type</code> to display the available statistics for assessing target balance.</p></li>
 <li><p>Fixed some bugs in computing the energy distance. Now, the complete energy distance is computed, including the constant term that does not depend on the weights. Previously, the constant term was omitted.</p></li>
 </ul></li>
 <li><p>In <code><a href="../reference/balance-summary.html">col_w_ovl()</a></code>, <code>integrate</code> is now <code>TRUE</code> by default to use <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> to compute the overlapping coefficient. When <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> fails, a midpoint Riemann sum will be used as a fallback.</p></li>
@@ -503,7 +507,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

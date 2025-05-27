@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,7 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>the output of a call to designmatchbmatch or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></dd>
+<dd><p>the output of a call to <code><a href="https://rdrr.io/pkg/designmatch/man/bmatch.html" class="external-link">designmatch::bmatch()</a></code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></dd>
 
 
 <dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
@@ -179,8 +179,8 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code><a href="bal.tab.html">bal.tab()</a></code> generates a list of balance summaries for the object given, and functions similarly to designmatchmeantab. Note that output objects from <span class="pkg">designmatch</span> do not have their own class; <code><a href="bal.tab.html">bal.tab()</a></code> first checks whether the object meets the criteria to be treated as a <code>designmatch</code> object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.</p>
-<p>The input to <code>bal.tab.designmatch()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>covs</code> + <code>treat</code> input mirrors how designmatchmeantab is used (note that to see identical results to <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">meantab()</a></code>, <code>s.d.denom</code> must be set to <code>"pooled"</code>).</p>
+    <p><code><a href="bal.tab.html">bal.tab()</a></code> generates a list of balance summaries for the object given, and functions similarly to <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">designmatch::meantab()</a></code>. Note that output objects from <span class="pkg">designmatch</span> do not have their own class; <code><a href="bal.tab.html">bal.tab()</a></code> first checks whether the object meets the criteria to be treated as a <code>designmatch</code> object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.</p>
+<p>The input to <code>bal.tab.designmatch()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>covs</code> + <code>treat</code> input mirrors how <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">designmatch::meantab()</a></code> is used (note that to see identical results to <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">meantab()</a></code>, <code>s.d.denom</code> must be set to <code>"pooled"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -216,7 +216,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

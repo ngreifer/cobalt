@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>a <code>ps</code>, <code>mnps</code>, <code>iptw</code>, or <code>ps.cont</code> object; the output of a call to twangps, twangmnps, twangiptw or twangContinuousps.cont.</p></dd>
+<dd><p>a <code>ps</code>, <code>mnps</code>, <code>iptw</code>, or <code>ps.cont</code> object; the output of a call to <code><a href="https://rdrr.io/pkg/twang/man/ps.html" class="external-link">twang::ps()</a></code>, <code><a href="https://rdrr.io/pkg/twang/man/mnps.html" class="external-link">twang::mnps()</a></code>, <code><a href="https://rdrr.io/pkg/twang/man/iptw.html" class="external-link">twang::iptw()</a></code> or <code><a href="https://rdrr.io/pkg/twangContinuous/man/ps.cont.html" class="external-link">twangContinuous::ps.cont()</a></code>.</p></dd>
 
 
 <dt id="arg-stop-method">stop.method<a class="anchor" aria-label="anchor" href="#arg-stop-method"></a></dt>
@@ -170,7 +170,7 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab.ps()</code> generates a list of balance summaries for the input object given, and functions similarly to twangbal.table. The variances used in the denominator of the standardized mean differences computed in <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code> are weighted and computed using <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svyvar()</a></code> and are unweighted here (except when <code>s.weights</code> are specified, in which case <code><a href="balance-summary.html">col_w_sd()</a></code> is used). <span class="pkg">twang</span> also uses "all" as the default <code>s.d.denom</code> when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.</p>
+    <p><code>bal.tab.ps()</code> generates a list of balance summaries for the input object given, and functions similarly to <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code>. The variances used in the denominator of the standardized mean differences computed in <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code> are weighted and computed using <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svyvar()</a></code> and are unweighted here (except when <code>s.weights</code> are specified, in which case <code><a href="balance-summary.html">col_w_sd()</a></code> is used). <span class="pkg">twang</span> also uses "all" as the default <code>s.d.denom</code> when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -235,7 +235,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

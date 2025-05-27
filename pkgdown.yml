@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   cobalt: cobalt.html
@@ -9,7 +9,7 @@ articles:
   optimizing-balance: optimizing-balance.html
   other-packages: other-packages.html
   segmented-data: segmented-data.html
-last_built: 2025-04-15T19:56Z
+last_built: 2025-05-27T19:36Z
 urls:
   reference: https://ngreifer.github.io/cobalt/reference
   article: https://ngreifer.github.io/cobalt/articles
