@@ -40,8 +40,7 @@
 #' 604-620.
 #'
 #' Dehejia, R.H. and Wahba, S. (1999).  Causal Effects in Nonexperimental
-#' Studies: Re-Evaluating the Evaluation of Training Programs.  *Journal of the
-#' American Statistical Association* 94: 1053-1062.
+#' Studies: Re-Evaluating the Evaluation of Training Programs.  *Journal of the American Statistical Association* 94: 1053-1062.
 #' @keywords datasets
 "lalonde"
 

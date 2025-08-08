@@ -155,7 +155,7 @@ If there is missing data in the covariates (i.e., \code{NA}s in the covariates p
 \references{
 Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R vignette. RAND.
 
-Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1-21. \doi{10.1214/09-STS313}
+Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. \emph{Statistical Science}, 25(1), 1-21. \doi{10.1214/09-STS313}
 }
 \seealso{
 For information on the use of \code{bal.tab()} with specific types of objects, use the following links:
