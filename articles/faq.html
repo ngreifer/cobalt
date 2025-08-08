@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Frequently Asked Questions • cobalt</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -86,32 +92,24 @@ request SMDs for binary covariates, set <code>binary = "std"</code> in
 the call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or <code><a href="../reference/love.plot.html">love.plot()</a></code>. See also
 the question below.</p>
 <p>For continuous covariates, the standardized mean difference is
-computed as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">SMD</mtext><mo>=</mo><mfrac><mrow><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub></mrow><msup><mi>s</mi><mo>*</mo></msup></mfrac></mrow><annotation encoding="application/x-tex">
+computed as <span class="math display">\[
 \text{SMD} = \frac{\bar{x}_1 - \bar{x}_0}{s^*}
-</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><annotation encoding="application/x-tex">\bar{x}_1</annotation></semantics></math>
-is the mean of the covariate in the treated group,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><annotation encoding="application/x-tex">\bar{x}_0</annotation></semantics></math>
-is the mean of the covariate in the control group, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mo>*</mo></msup><annotation encoding="application/x-tex">s^*</annotation></semantics></math>
-is a standardization factor (not necessarily a standard deviation!).
-After matching or weighting, the weighted standardized mean difference
-is computed as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mtext mathvariant="normal">SMD</mtext><mi>w</mi></msup><mo>=</mo><mfrac><mrow><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mrow><mn>1</mn><mi>w</mi></mrow></msub><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mrow><mn>0</mn><mi>w</mi></mrow></msub></mrow><msup><mi>s</mi><mo>*</mo></msup></mfrac></mrow><annotation encoding="application/x-tex">
+\]</span> where <span class="math inline">\(\bar{x}_1\)</span> is the
+mean of the covariate in the treated group, <span class="math inline">\(\bar{x}_0\)</span> is the mean of the covariate in
+the control group, and <span class="math inline">\(s^*\)</span> is a
+standardization factor (not necessarily a standard deviation!). After
+matching or weighting, the weighted standardized mean difference is
+computed as <span class="math display">\[
 \text{SMD}^w = \frac{\bar{x}_{1w} - \bar{x}_{0w}}{s^*}
-</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mrow><mn>1</mn><mi>w</mi></mrow></msub><annotation encoding="application/x-tex">\bar{x}_{1w}</annotation></semantics></math>
-is the weighted mean of the covariate in the treated group, i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mrow><mn>1</mn><mi>w</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mrow><msub><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>A</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow></msub><msub><mi>w</mi><mi>i</mi></msub></mrow></mfrac><msub><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>A</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow></msub><mrow><msub><mi>w</mi><mi>i</mi></msub><msub><mi>x</mi><mi>i</mi></msub></mrow></mrow><annotation encoding="application/x-tex">\bar{x}_{1w} = \frac{1}{\sum_{i:A_i = 1}{w_i}}\sum_{i:A_i=1}{w_ix_i}</annotation></semantics></math>,
-and similarly for the control group. Critically, the standardization
-factor
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mo>*</mo></msup><annotation encoding="application/x-tex">s^*</annotation></semantics></math>
-is the same before and after weighting. I will repeat, <strong>the
-standardization factor</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mo>*</mo></msup><annotation encoding="application/x-tex">s^*</annotation></semantics></math><strong>is the same before and after weighting</strong>. I don’t mean it
-has the same formula, it mean it is literally the same value. I explain
-in more detail in a question below why this is the case.</p>
+\]</span> where <span class="math inline">\(\bar{x}_{1w}\)</span> is the
+weighted mean of the covariate in the treated group, i.e., <span class="math inline">\(\bar{x}_{1w} = \frac{1}{\sum_{i:A_i =
+1}{w_i}}\sum_{i:A_i=1}{w_ix_i}\)</span>, and similarly for the control
+group. Critically, the standardization factor <span class="math inline">\(s^*\)</span> is the same before and after
+weighting. I will repeat, <strong>the standardization factor</strong>
+<span class="math inline">\(s^*\)</span> <strong>is the same before and
+after weighting</strong>. I don’t mean it has the same formula, it mean
+it is literally the same value. I explain in more detail in a question
+below why this is the case.</p>
 <p>How is the standardization factor computed? This depends on the
 argument to <code>s.d.denom</code> supplied to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or
 <code><a href="../reference/love.plot.html">love.plot()</a></code>. When <code>s.d.denom</code> is not supplied,
@@ -128,68 +126,52 @@ automatically.</p>
 to each value of <code>s.d.denom</code>:</p>
 <ul>
 <li>
-<code>"pooled"</code>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mo>*</mo></msup><mo>=</mo><msqrt><mfrac><mrow><msubsup><mi>s</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>s</mi><mn>0</mn><mn>2</mn></msubsup></mrow><mn>2</mn></mfrac></msqrt></mrow><annotation encoding="application/x-tex">s^* = \sqrt{\frac{s_1^2 + s_0^2}{2}}</annotation></semantics></math>
+<code>"pooled"</code>: <span class="math inline">\(s^* =
+\sqrt{\frac{s_1^2 + s_0^2}{2}}\)</span>
 </li>
 <li>
-<code>"treated"</code>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mo>*</mo></msup><mo>=</mo><msub><mi>s</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">s^* = s_1</annotation></semantics></math>
+<code>"treated"</code>: <span class="math inline">\(s^* =
+s_1\)</span>
 </li>
 <li>
-<code>"control"</code>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mo>*</mo></msup><mo>=</mo><msub><mi>s</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">s^* = s_0</annotation></semantics></math>
+<code>"control"</code>: <span class="math inline">\(s^* =
+s_0\)</span>
 </li>
 <li>
-<code>"all"</code>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mo>*</mo></msup><mo>=</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">s^* = s</annotation></semantics></math>
+<code>"all"</code>: <span class="math inline">\(s^* =
+s\)</span>
 </li>
 <li>
-<code>"weighted"</code>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mo>*</mo></msup><mo>=</mo><msub><mi>s</mi><mi>w</mi></msub></mrow><annotation encoding="application/x-tex">s^* = s_w</annotation></semantics></math>
+<code>"weighted"</code>: <span class="math inline">\(s^* =
+s_w\)</span>
 </li>
 <li>
-<code>"hedges"</code>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>s</mi><mo>*</mo></msup><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><mfrac><mn>3</mn><mrow><mn>4</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>1</mn></mrow></mfrac></mrow></mfrac><msqrt><mfrac><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>s</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>0</mn></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>s</mi><mn>0</mn><mn>2</mn></msubsup></mrow><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></mfrac></msqrt></mrow><annotation encoding="application/x-tex">s^* = \frac{1}{1 - \frac{3}{4(n - 2) - 1}}\sqrt{\frac{(n_1 - 1)s_1^2 + (n_0 - 1)s_0^2}{n - 2}}</annotation></semantics></math>
+<code>"hedges"</code>: <span class="math inline">\(s^* = \frac{1}{1
+- \frac{3}{4(n - 2) - 1}}\sqrt{\frac{(n_1 - 1)s_1^2 + (n_0 - 1)s_0^2}{n
+- 2}}\)</span>
 </li>
 </ul>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>1</mn></msub><annotation encoding="application/x-tex">s_1</annotation></semantics></math>
-is the standard deviation of the treated group,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mn>0</mn></msub><annotation encoding="application/x-tex">s_0</annotation></semantics></math>
-is the standard deviation of the control group,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
-is the standard deviation of the whole sample ignoring treatment group
-membership,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>w</mi></msub><annotation encoding="application/x-tex">s_w</annotation></semantics></math>
-is the weighted standard deviation of the whole sample,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>1</mn></msub><annotation encoding="application/x-tex">n_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>0</mn></msub><annotation encoding="application/x-tex">n_0</annotation></semantics></math>
-are sizes of the treated and control groups, respectively, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">n = n_1 + n_0</annotation></semantics></math>.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;For multi-category treatments, all standardization
+<p>where <span class="math inline">\(s_1\)</span> is the standard
+deviation of the treated group, <span class="math inline">\(s_0\)</span>
+is the standard deviation of the control group, <span class="math inline">\(s\)</span> is the standard deviation of the whole
+sample ignoring treatment group membership, <span class="math inline">\(s_w\)</span> is the weighted standard deviation of
+the whole sample, <span class="math inline">\(n_1\)</span> and <span class="math inline">\(n_0\)</span> are sizes of the treated and control
+groups, respectively, and <span class="math inline">\(n = n_1 +
+n_0\)</span>.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;For multi-category treatments, all standardization
 factors are computed using the full data, not just the groups being
 compared. For example, the pooled standard deviation involves computing
 the mean of all the group-specific variances, not just the two being
-compared. Similarly, in the &lt;code&gt;"hedges"&lt;/code&gt; formula,
-&lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mo&gt;−&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/mrow&gt;&lt;annotation encoding="application/x-tex"&gt;n-2&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;
-is replaced with
-&lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mo&gt;−&lt;/mo&gt;&lt;mi&gt;k&lt;/mi&gt;&lt;/mrow&gt;&lt;annotation encoding="application/x-tex"&gt;n-k&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;,
-where
-&lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;mi&gt;k&lt;/mi&gt;&lt;annotation encoding="application/x-tex"&gt;k&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;
-is the number of treatment groups.&lt;/p&gt;'><sup>1</sup></a> For
-continuous covariates, the unweighted standard deviation is computed as
-usual, i.e., as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msqrt><mrow><mfrac><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></mfrac><munder><mo>∑</mo><mi>i</mi></munder><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover><mi>x</mi><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">
+compared. Similarly, in the &lt;code&gt;"hedges"&lt;/code&gt; formula, &lt;span class="math inline"&gt;\(n-2\)&lt;/span&gt; is replaced with &lt;span class="math inline"&gt;\(n-k\)&lt;/span&gt;, where &lt;span class="math inline"&gt;\(k\)&lt;/span&gt; is the number of treatment groups.&lt;/p&gt;'><sup>1</sup></a> For continuous covariates, the unweighted
+standard deviation is computed as usual, i.e., as <span class="math display">\[
 s = \sqrt{\frac{1}{n-1}\sum_i{(x_i - \bar{x})^2}}
-</annotation></semantics></math> and the weighted standard deviation is
-computed as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msqrt><mrow><mfrac><mrow><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>w</mi><mi>i</mi></msub></mrow><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>−</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>w</mi><mi>i</mi><mn>2</mn></msubsup></mrow></mfrac><munder><mo>∑</mo><mi>i</mi></munder><mrow><msub><mi>w</mi><mi>i</mi></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow></mrow></msqrt></mrow><annotation encoding="application/x-tex">
-s = \sqrt{\frac{\sum_{i} w_{i}}{(\sum_{i} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}}\sum_i{w_i(x_i - \bar{x}_w)^2}}
-</annotation></semantics></math>For binary covariates, the unweighted
-standard deviation is computed as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msqrt><mrow><mover><mi>x</mi><mo accent="true">‾</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mover><mi>x</mi><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt></mrow><annotation encoding="application/x-tex">s = \sqrt{\bar{x}(1-\bar{x})}</annotation></semantics></math>
-and the weighted standard deviation is computed as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msqrt><mrow><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt></mrow><annotation encoding="application/x-tex">s = \sqrt{\bar{x}_w(1-\bar{x}_w)}</annotation></semantics></math>.</p>
+\]</span> and the weighted standard deviation is computed as <span class="math display">\[
+s = \sqrt{\frac{\sum_{i} w_{i}}{(\sum_{i} w_{i})^2 - \sum_{i=1}^{n}
+w^2_{i}}\sum_i{w_i(x_i - \bar{x}_w)^2}}
+\]</span>For binary covariates, the unweighted standard deviation is
+computed as <span class="math inline">\(s =
+\sqrt{\bar{x}(1-\bar{x})}\)</span> and the weighted standard deviation
+is computed as <span class="math inline">\(s =
+\sqrt{\bar{x}_w(1-\bar{x}_w)}\)</span>.</p>
 <p>When sampling weights are supplied, all standard deviations in the
 standardization factor are computed incorporating the sampling weights.
 When <code>s.d.denom = "weighted"</code>, the standardization factor is
@@ -264,16 +246,12 @@ standardized mean differences vary by a huge amount, with
 <span><span class="co">#&gt;     Control Treated</span></span>
 <span><span class="co">#&gt; All      20      20</span></span></code></pre></div>
 <p>Why does this happen? The standard deviation of a binary variable is
-a function of its mean (in particular, it is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><msqrt><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt></mrow><annotation encoding="application/x-tex">s = \sqrt{p(1-p)}</annotation></semantics></math>)
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
-is the mean of the variable). That means information about the mean of
-the variable, which is unrelated to imbalance, contaminates the
-standardized mean difference, which is supposed to measure imbalance. In
-this case, standardizing the mean difference only adds confusion and
-reduces interpretability. That is why mean differences for binary
-variables are unstandardized by default.</p>
+a function of its mean (in particular, it is <span class="math inline">\(s = \sqrt{p(1-p)}\)</span>) where <span class="math inline">\(p\)</span> is the mean of the variable). That
+means information about the mean of the variable, which is unrelated to
+imbalance, contaminates the standardized mean difference, which is
+supposed to measure imbalance. In this case, standardizing the mean
+difference only adds confusion and reduces interpretability. That is why
+mean differences for binary variables are unstandardized by default.</p>
 <p>You can always change this by setting <code>binary = "std"</code> in
 the call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or setting
 <code>set.cobalt.options(binary = "std")</code> to change the option for

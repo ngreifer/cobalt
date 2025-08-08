@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Covariate Balance Tables and Plots: A Guide to the `cobalt` Package • cobalt</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -1714,8 +1720,11 @@ use in variance ratios, sample standard deviations, or other statistics
 in the presence of sampling weights, there are two formulas that have
 been proposed:</p>
 <ol style="list-style-type: decimal">
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>w</mi><mi>i</mi></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>1</mn></mrow></mfrac><annotation encoding="application/x-tex">\frac{\sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}</annotation></semantics></math></p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>w</mi><mi>i</mi></msub></mrow><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>−</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msubsup><mi>w</mi><mi>i</mi><mn>2</mn></msubsup></mrow></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>w</mi><mi>i</mi></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\frac{\sum_{i=1}^{n} w_{i}}{(\sum_{i=1}^{n} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}} \sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2</annotation></semantics></math></p></li>
+<li><p><span class="math inline">\(\frac{\sum_{i=1}^{n} w_{i}(x_{i} -
+\bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}\)</span></p></li>
+<li><p><span class="math inline">\(\frac{\sum_{i=1}^{n}
+w_{i}}{(\sum_{i=1}^{n} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}} \sum_{i=1}^{n}
+w_{i}(x_{i} - \bar{x}_{w})^2\)</span></p></li>
 </ol>
 <p>The weights used in the first formula are often called “frequency
 weights”, while the weights in the second formula are often called
@@ -1730,11 +1739,8 @@ version 2.0.0, the second formula is used to remain in line with
 recommended practice. For some applications (e.g., when all weights are
 either 0 or 1, as in 1:1 matching), the two formulas yield the same
 variance estimate. In other cases, the estimates are nearly the same.
-For binary variables, the weighted variance is computed as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\bar{x}_{w}(1-\bar{x}_{w})</annotation></semantics></math>
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>x</mi><mo accent="true">‾</mo></mover><mi>w</mi></msub><annotation encoding="application/x-tex">\bar{x}_{w}</annotation></semantics></math>
-is the weighted proportion of 1s in the sample.</p>
+For binary variables, the weighted variance is computed as <span class="math inline">\(\bar{x}_{w}(1-\bar{x}_{w})\)</span> where <span class="math inline">\(\bar{x}_{w}\)</span> is the weighted proportion of
+1s in the sample.</p>
 </div>
 <div class="section level3">
 <h3 id="effective-sample-size-for-weighting">Effective Sample Size for Weighting<a class="anchor" aria-label="anchor" href="#effective-sample-size-for-weighting"></a>
@@ -1752,8 +1758,8 @@ sample size” (ESS) is a measure of the sample size a non-weighted sample
 would have to have to achieve the same level of precision as the
 weighted sample <span class="citation">(<a href="#ref-ridgewayAssessingEffectRace2006">Ridgeway 2006</a>)</span>.
 This measure is implemented in <code>twang</code> using the following
-formula:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>S</mi><mi>S</mi><mo>=</mo><mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>w</mi><mi>i</mi><mn>2</mn></msubsup></mrow></mfrac></mrow><annotation encoding="application/x-tex">ESS = \frac{(\sum_{i=1}^{n} w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}</annotation></semantics></math><span class="citation">Shook-Sa and Hudgens (<a href="#ref-shook-saPowerSampleSize2020b">2020</a>)</span> derived the
+formula: <span class="math display">\[ESS = \frac{(\sum_{i=1}^{n}
+w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}\]</span> <span class="citation">Shook-Sa and Hudgens (<a href="#ref-shook-saPowerSampleSize2020b">2020</a>)</span> derived the
 specific relationship between the ESS and the standard error of a
 propensity score-weighted mean.</p>
 </div>
@@ -1903,21 +1909,15 @@ the proportion difference of a binary variable involve dividing the
 proportion difference by a variance, but the variance of a binary
 variable is a function of its proportion <span class="citation">(<a href="#ref-austin2009">Austin 2009</a>)</span>. Standardizing the
 proportion difference of a binary variable can yield the following
-counterintuitive result: if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>T</mi></msub><mo>=</mo><mn>.2</mn></mrow><annotation encoding="application/x-tex">X_{T} = .2</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>C</mi></msub><mo>=</mo><mn>.3</mn></mrow><annotation encoding="application/x-tex">X_{C} = .3</annotation></semantics></math>,
-the standardized difference in proportion would be different from that
-if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>T</mi></msub><mo>=</mo><mn>.5</mn></mrow><annotation encoding="application/x-tex">X_{T} = .5</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>C</mi></msub><mo>=</mo><mn>.6</mn></mrow><annotation encoding="application/x-tex">X_{C} = .6</annotation></semantics></math>,
-even though the expectation is that the balance statistic should be the
-same for both scenarios because both would yield the same degree of bias
-in the effect estimate. In addition, <span class="citation">Ali et al.
-(<a href="#ref-aliPropensityScoreBalance2014">2014</a>)</span> found
-that the raw difference in proportion was a better predictor of bias
-than the standardized mean difference for binary variables<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Ali et al. (2014) compared the KS statistic to
+counterintuitive result: if <span class="math inline">\(X_{T} =
+.2\)</span> and <span class="math inline">\(X_{C} = .3\)</span>, the
+standardized difference in proportion would be different from that if
+<span class="math inline">\(X_{T} = .5\)</span> and <span class="math inline">\(X_{C} = .6\)</span>, even though the expectation
+is that the balance statistic should be the same for both scenarios
+because both would yield the same degree of bias in the effect estimate.
+In addition, <span class="citation">Ali et al. (<a href="#ref-aliPropensityScoreBalance2014">2014</a>)</span> found that
+the raw difference in proportion was a better predictor of bias than the
+standardized mean difference for binary variables<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Ali et al. (2014) compared the KS statistic to
 standardized mean differences, but the KS statistic is equivalent to the
 raw difference in proportion for binary variables.&lt;/p&gt;"><sup>6</sup></a>.</p>
 <p><code>MatchIt</code> allows users to view either standardized mean

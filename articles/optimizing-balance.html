@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Optimizing Tuning Parameters for Balance • cobalt</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -360,17 +366,13 @@ treatments and for target balance.</p>
 <code>mahalanobis</code><a class="anchor" aria-label="anchor" href="#mahalanobis"></a>
 </h4>
 <p>The Mahalanobis distance between the treatment group means, which is
-computed as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐱</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mover><mi>𝐱</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><msup><mi>Σ</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐱</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mover><mi>𝐱</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt><annotation encoding="application/x-tex">
-\sqrt{(\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0) \Sigma^{-1} (\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0)}
-</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝐱</mi><mo accent="true">‾</mo></mover><mn>1</mn></msub><annotation encoding="application/x-tex">\mathbf{\bar{x}}_1</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝐱</mi><mo accent="true">‾</mo></mover><mn>0</mn></msub><annotation encoding="application/x-tex">\mathbf{\bar{x}}_0</annotation></semantics></math>
-are the vectors of covariate means in the two treatment groups,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Σ</mi><mo>−</mo></msup><mn>1</mn></mrow><annotation encoding="application/x-tex">\Sigma^-1</annotation></semantics></math>
-is the (generalized) inverse of the covariance matrix of the covariates
-<span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014">Franklin et al.
+computed as <span class="math display">\[
+\sqrt{(\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0) \Sigma^{-1}
+(\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0)}
+\]</span> where <span class="math inline">\(\mathbf{\bar{x}}_1\)</span>
+and <span class="math inline">\(\mathbf{\bar{x}}_0\)</span> are the
+vectors of covariate means in the two treatment groups, <span class="math inline">\(\Sigma^-1\)</span> is the (generalized) inverse of
+the covariance matrix of the covariates <span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014">Franklin et al.
 2014</a>)</span>. This is similar to <code>"smd.rms"</code> but the
 covariates are standardized to remove correlations between and
 de-emphasize redundant covariates. The other allowable arguments include
@@ -427,9 +429,8 @@ treatments.</p>
 <h4 id="r2-r2-2-r2-3">
 <code>r2</code>, <code>r2.2</code>, <code>r2.3</code><a class="anchor" aria-label="anchor" href="#r2-r2-2-r2-3"></a>
 </h4>
-<p>The post-weighting
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
-of a model for the treatment given the covariates. <span class="citation">Franklin et al. (<a href="#ref-franklinMetricsCovariateBalance2014">2014</a>)</span>
+<p>The post-weighting <span class="math inline">\(R^2\)</span> of a
+model for the treatment given the covariates. <span class="citation">Franklin et al. (<a href="#ref-franklinMetricsCovariateBalance2014">2014</a>)</span>
 describe a similar but less generalizable metric, the “post-matching
 c-statistic”. The other allowable arguments include <code>poly</code> to
 add polynomial terms of the supplied order to the model and
@@ -438,11 +439,8 @@ interactions between covariates into the model. Using
 <code>"r2.2"</code> is a shortcut to requesting squares, and using
 <code>"r2.3"</code> is a shortcut to requesting cubes. Can be used with
 binary and continuous treatments. For binary treatments, the McKelvey
-and Zavoina
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
-from a logistic regression is used; for continuous treatments, the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
-from a linear regression is used.</p>
+and Zavoina <span class="math inline">\(R^2\)</span> from a logistic
+regression is used; for continuous treatments, the <span class="math inline">\(R^2\)</span> from a linear regression is used.</p>
 </div>
 <div class="section level4">
 <h4 id="p-mean-p-max-p-rms">
