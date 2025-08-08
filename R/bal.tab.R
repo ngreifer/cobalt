@@ -145,7 +145,6 @@
 #' ## See individual pages above for examples with
 #' ## different inputs, or see `vignette("cobalt")`
 
-#' @rdname bal.tab
 #' @export 
 bal.tab <- function(x, ...) {
   

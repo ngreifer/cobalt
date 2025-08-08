@@ -49,13 +49,11 @@ The rest of this guide explains how to use `cobalt` with some of the above packa
 
 #### Citing `cobalt`
 
-When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
-
-`r paste0("Greifer, N. (", format(Sys.Date(), "%Y"), "). cobalt: Covariate Balance Tables and Plots. R package version ", packageVersion("cobalt"), ".")`
-
-For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows:
+When using `cobalt`, please cite your use of it along with the conditioning package used. For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows:
 
 > Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, `r R.version$year`).
+
+ Use `citation("cobalt")` to generate the correct citation for `cobalt`.
 
 ## Why `cobalt`?
 
@@ -569,7 +567,9 @@ The weights used in the first formula are often called "frequency weights", whil
 
 ### Effective Sample Size for Weighting
 
-Knowledge of the sample size after adjustment is important not just for outcome analysis but also for assessing the adequacy of a conditioning specification. For example, pruning many units through common support cutoffs, caliper matching, or matching with replacement can yield very small sample sizes that hurt both the precision of the outcome estimate and the external validity of the conclusion. In both matching and weighting, the adjusted sample size is not so straightforward because the purpose of weighting is to down- and up-weight observations to create two similar samples. The "effective sample size" (ESS) is a measure of the sample size a non-weighted sample would have to have to achieve the same level of precision as the weighted sample [@ridgewayAssessingEffectRace2006]. This measure is implemented in `twang` using the following formula: $$ESS = \frac{(\sum_{i=1}^{n} w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}$$@shook-saPowerSampleSize2020b derived the specific relationship between the ESS and the standard error of a propensity score-weighted mean.
+Knowledge of the sample size after adjustment is important not just for outcome analysis but also for assessing the adequacy of a conditioning specification. For example, pruning many units through common support cutoffs, caliper matching, or matching with replacement can yield very small sample sizes that hurt both the precision of the outcome estimate and the external validity of the conclusion. In both matching and weighting, the adjusted sample size is not so straightforward because the purpose of weighting is to down- and up-weight observations to create two similar samples. The "effective sample size" (ESS) is a measure of the sample size a non-weighted sample would have to have to achieve the same level of precision as the weighted sample [@ridgewayAssessingEffectRace2006]. This measure is implemented in `twang` using the following formula:
+$$ESS = \frac{(\sum_{i=1}^{n} w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}$$
+@shook-saPowerSampleSize2020b derived the specific relationship between the ESS and the standard error of a propensity score-weighted mean.
 
 ## What's Missing in `cobalt`
 
