@@ -1,5 +1,6 @@
 template:
   bootstrap: 5
+    math-rendering: mathjax
 remote_theme: wowchemy/starter-hugo-academic
 url: https://ngreifer.github.io/cobalt/
 reference:
