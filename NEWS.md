@@ -1,9 +1,11 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.6.1
 
 * Fixed a bug when using `love.plot()` with multiple `stat`s supplied. Thanks to @jjharden for the report. (#93)
+
+* Fixed a bug in which the actual R version required was 4.4.0 due to the use of `Tailcall()`. This functionality has be rewritten to avoid `Tailcall()`. Thanks to Tanvi Shinkre.
 
 # cobalt 4.6.0
 

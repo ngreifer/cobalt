@@ -87,7 +87,7 @@ w.out <- weightit(treat ~ age + educ + married + nodegree +
 bal.compute(smd.init, get.w(w.out))
 ```
 
-After weighting, our balance statistic is `r round(bal.compute(smd.init, get.w(w.out)), 4)`, indicating a significant improvement. Let's try again with logistic regression:
+After weighting, our balance statistic is `r if (weightit.ok) round(bal.compute(smd.init, get.w(w.out)), 4) else 0.0694`, indicating a significant improvement. Let's try again with logistic regression:
 
 ```{r, eval = weightit.ok}
 w.out <- weightit(treat ~ age + educ + married + nodegree +

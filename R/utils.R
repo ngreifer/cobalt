@@ -287,28 +287,47 @@ trim_string <- function(x, char = " ", symmetrical = TRUE, recursive = TRUE) {
   ew <- endsWith(x, char)
   
   if (symmetrical) {
-    if (!any(sw & ew)) {
-      return(x)
+    while (any(sw & ew)) {
+      x[sw & ew] <- gsub("^.|.$", "", x[sw & ew])
+      
+      if (!recursive) {
+        break
+      }
+      
+      sw <- startsWith(x, char)
+      ew <- endsWith(x, char)
     }
-    
-    x[sw & ew] <- gsub("^.|.$", "", x[sw & ew])
   }
   else {
     asw <- any(sw)
     aew <- any(ew)
-    if (!asw && !aew) {
-      return(x)
-    }
     
-    if (asw) x[sw] <- gsub("^.", "", x[sw])
-    if (aew) x[ew] <- gsub(".$", "", x[ew])
+    while (asw || aew) {
+      if (asw) {
+        x[sw] <- gsub("^.", "", x[sw])
+      }
+      
+      if (aew) {
+        x[ew] <- gsub(".$", "", x[ew])
+      }
+      
+      if (!recursive) {
+        break
+      }
+      
+      if (asw) {
+        sw <- startsWith(x, char)
+        asw <- any(sw)
+      }
+      
+      if (aew) {
+        ew <- endsWith(x, char)
+        aew <- any(ew)
+      }
+    }
   }
   
-  if (!recursive) {
-    return(x)
-  }
-  
-  Tailcall(trim_string, x, char, symmetrical, recursive)
+  x
 }
 space <- function(n) {
   strrep(" ", n)
@@ -604,7 +623,7 @@ mean_fast <- function(x, nas.possible = FALSE) {
 }
 bw.nrd <- function(x) {
   #R's bw.nrd doesn't always work, but bw.nrd0 does
-  bw.nrd0(x) * 1.06 / .9
+  stats::bw.nrd0(x) * 1.06 / .9
 }
 ave_w.m <- function(x, ..., w = NULL) {
   #ave() version of w.m() since ave() doesn't do well with multiple variables to split

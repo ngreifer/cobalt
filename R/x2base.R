@@ -3611,7 +3611,6 @@ x2base.weightitMSM <- function(x, ...) {
   setNames(X[X.names], X.names)
 }
 
-
 #' @exportS3Method NULL
 x2base.default <- function(x, ...) {
   

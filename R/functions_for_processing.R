@@ -1422,6 +1422,7 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL,
   A[["treat"]] <- NULL
   
   weights <- list()
+  
   if (is_not_null(obj)) {
     if (any(has_method(class(obj), "get.w"))) {
       weights <- do.call("get.w", c(list(obj, treat = treat), A))
