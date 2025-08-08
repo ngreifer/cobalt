@@ -46,7 +46,7 @@ f.build <- function(y = NULL, rhs = NULL) {
   }
   
   f <- formula(paste(
-    paste(as.character(y), collapse = " + ") , "~", paste(vars, collapse = " + ")
+    paste(as.character(y), collapse = " + "), "~", paste(vars, collapse = " + ")
   ))
   # f <- reformulate(vars, y)
   f

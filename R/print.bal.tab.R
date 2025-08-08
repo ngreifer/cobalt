@@ -176,12 +176,12 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
     nn <- nn[!drop.nn, , drop = FALSE]
     
     if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-        all(check_if_zero(nn["All (ESS)",] - nn["All (Unweighted)",]))) {
+        all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
       nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
       rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
     }
     if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-        all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+        all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
       nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
       rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
     }
@@ -276,12 +276,12 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
       ss.type <- attr(nn, "ss.type")[!drop.nn]
       nn <- nn[!drop.nn, , drop = FALSE]
       if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["All (ESS)",] - nn["All (Unweighted)",]))) {
+          all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
         nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
         rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
       }
       if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+          all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
         nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
         rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
       }
@@ -371,12 +371,12 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
       ss.type <- attr(nn, "ss.type")[!drop.nn]
       nn <- nn[!drop.nn, , drop = FALSE]
       if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["All (ESS)",] - nn["All (Unweighted)",]))) {
+          all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
         nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
         rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
       }
       if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+          all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
         nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
         rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
       }
@@ -487,12 +487,12 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
       ss.type <- attr(nn, "ss.type")[!drop.nn]
       nn <- nn[!drop.nn, , drop = FALSE]
       if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["All (ESS)",] - nn["All (Unweighted)",]))) {
+          all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
         nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
         rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
       }
       if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+          all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
         nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
         rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
       }
@@ -603,12 +603,12 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
         ss.type <- attr(nn[[ti]], "ss.type")[!drop.nn]
         nn[[ti]] <- nn[[ti]][!drop.nn, , drop = FALSE]
         if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-            all(check_if_zero(nn["All (ESS)",] - nn["All (Unweighted)",]))) {
+            all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
           nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
           rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
         }
         if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn[[ti]])) && 
-            all(check_if_zero(nn[[ti]]["Matched (ESS)",] - nn[[ti]]["Matched (Unweighted)",]))) {
+            all(check_if_zero(nn[[ti]]["Matched (ESS)", ] - nn[[ti]]["Matched (Unweighted)", ]))) {
           nn[[ti]] <- nn[[ti]][rownames(nn[[ti]]) != "Matched (Unweighted)", , drop = FALSE]
           rownames(nn[[ti]])[rownames(nn[[ti]]) == "Matched (ESS)"] <- "Matched"
         }

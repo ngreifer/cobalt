@@ -51,7 +51,7 @@ get.w <- function(x, ...) {
 
 #' @rdname get.w
 #' @exportS3Method get.w matchit
-get.w.matchit <- function(x,...) {
+get.w.matchit <- function(x, ...) {
   x[["weights"]]
 }
 
@@ -123,7 +123,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
       w[[p]][t1] <- (1 - x$ps[t1, p]) / x$ps[t1, p]
     }
     else {
-      w[[p]] <- x$w[,p]
+      w[[p]] <- x$w[, p]
     }
     
     if (s.weights) w[[p]] <- w[[p]] * x$sampw

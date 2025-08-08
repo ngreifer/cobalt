@@ -82,10 +82,7 @@ base.bal.tab.msm <- function(X,
     
     X_ti <- .assign_X_class(X_ti)
     
-    X_ti$s.d.denom <- {
-      if (attr(X_ti, "X.class") == "cont") "all"
-      else "pooled"
-    }
+    X_ti$s.d.denom <- switch(attr(X_ti, "X.class"), cont = "all", "pooled")
     
     do.call("base.bal.tab", c(list(X_ti), A[setdiff(names(A), names(X_ti))]), quote = TRUE)
   })

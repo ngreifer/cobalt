@@ -2271,6 +2271,7 @@ x2base.mimids <- function(x, ...) {
   
   imp <- m.data[[".imp"]]
   data <- ...get("data")
+  
   if (is_not_null(data)) {
     if (inherits(data, "mids")) {
       data <- .mids_complete(data)
@@ -3272,7 +3273,7 @@ x2base.CBMSM <- function(x, ...) {
   #Process CBMSM
   ID <- sort(unique(x[["id"]]))
   times <- sort(unique(x[["time"]]))
-  x[["data"]] <- x[["data"]][order(x[["id"]], x[["time"]]), ,drop = FALSE]
+  x[["data"]] <- x[["data"]][order(x[["id"]], x[["time"]]), , drop = FALSE]
   
   #Process data and get imp
   cbmsm.data <- x[["data"]][x[["time"]] == 1, , drop = FALSE]

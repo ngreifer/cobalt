@@ -50,15 +50,13 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
   
   .chk_flag(minimal)
   vars <- {
-    if (minimal) {
+    if (minimal)
       unique(unlist(lapply(attr(b, "print.options")[["co.names"]],
                            function(x) x[["component"]][x[["type"]] == "base"])))
-    }
-    else {
+    else
       vapply(attr(b, "print.options")[["co.names"]],
              function(x) paste(x[["component"]], collapse = ""),
              character(1L))
-    }
   }
   
   .chk_null_or(file, .chk_string)

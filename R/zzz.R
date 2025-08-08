@@ -2,7 +2,8 @@
   v <- utils::packageVersion(pkgname)
   b <- utils::packageDate(pkgname)
   
-  foo <- sprintf(" %s (Version %s, Build Date: %s)", pkgname, v, if (!anyNA(b)) format(b, "%F") else "unknown")
+  foo <- sprintf(" %s (Version %s, Build Date: %s)",
+                 pkgname, v, if (anyNA(b)) "unknown" else format(b, "%F"))
   packageStartupMessage(foo)
 }
 

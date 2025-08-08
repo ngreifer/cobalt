@@ -474,8 +474,8 @@ col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
   if (is_null(w)) w <- rep.int(1, nrow(mat))
   
   w.sum <- {
-    if (!na.rm || !anyNA(mat)) sum(w)
-    else colSums(w * !is.na(mat))
+    if (na.rm && anyNA(mat)) colSums(w * !is.na(mat))
+    else sum(w)
   }
   
   colSums(mat * w, na.rm = na.rm) / w.sum
@@ -941,8 +941,8 @@ ifelse_ <- function(...) {
     yes <- ...elt(2 * i)
     if (length(yes) == 1) yes <- rep.int(yes, n)
     if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
-    if (!is.logical(test)) stop(paste("The", ordinal(2 * i - 1), "entry to `ifelse_()` must be logical."))
-    if (!is.atomic(yes)) stop(paste("The", ordinal(2 * i), "entry to `ifelse_()` must be atomic."))
+    if (!is.logical(test)) stop(sprintf("The %s entry to `ifelse_()` must be logical.", ordinal(2 * i - 1)))
+    if (!is.atomic(yes)) stop(paste("The %s entry to `ifelse_()` must be atomic.", ordinal(2 * i)))
     pos <- which(test)
     out[pos] <- yes[pos]
   }

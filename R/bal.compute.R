@@ -379,7 +379,7 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
         treat.all <- last(make.unique(unique.treats, "All"))
         treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
                         levels = c(unique.treats, treat.all))
-        x <- x[rep(seq_row(x), 2L), ,]
+        x <- x[rep(seq_row(x), 2L), , drop = FALSE]
         s.weights <- rep.int(s.weights, 2L)
         focal <- treat.all
       }
@@ -464,7 +464,7 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
         treat.all <- last(make.unique(unique.treats, "All"))
         treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
                         levels = c(unique.treats, treat.all))
-        x <- x[rep(seq_row(x), 2L), ,]
+        x <- x[rep.int(seq_row(x), 2L), ,]
         s.weights <- rep.int(s.weights, 2L)
         focal <- treat.all
       }
@@ -683,7 +683,7 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
     
     n <- length(s.weights)
     
-    P <- -d/(n^2)
+    P <- -d / (n^2)
     q <- drop(s.weights_n %*% d) * 2 / n
     k <- -sum(q * s.weights_n) * n / 2
     
@@ -718,7 +718,7 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
     treat_t <- vapply(unique.treats, function(t) treat == t, logical(n))
     n_t <- colSums(treat_t)
     
-    treat_n_t <- vapply(unique.treats, function(t) treat_t[,t] / n_t[t],
+    treat_n_t <- vapply(unique.treats, function(t) treat_t[, t] / n_t[t],
                         numeric(n))
     
     if (is_null(estimand)) {
@@ -865,7 +865,7 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
   }
   
   for (i in seq_col(x)[!bin.vars[i]]) {
-    x[,i] <- rank(x[,i], na.last = "keep")
+    x[, i] <- rank(x[, i], na.last = "keep")
   }
   treat <- rank(treat, na.last = "keep")
   
@@ -1069,7 +1069,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
       nbins <- sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1L)
       
       #Randomly assign bin numbers to levels of covariate
-      bin.assignments <- sample(seq_len(nbins), nu, replace = TRUE)
+      bin.assignments <- sample.int(nbins, nu, replace = TRUE)
       
       #Group levels with same bin number
       lapply(unique(bin.assignments, nmax = nbins),

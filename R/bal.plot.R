@@ -117,7 +117,9 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         .err("please specify an argument to `var.name`")
       }
       
-      .msg(sprintf("no `var.name` was provided. Displaying balance for %s", var.name))
+      if (length(co.names) > 1L) {
+        .msg(sprintf("no `var.name` was provided. Displaying balance for %s", var.name))
+      }
     }
     
     var.name_in_name <- vapply(co.names, function(x) {
@@ -130,14 +132,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }, logical(1L))
     
     if (any(var.name_in_name_and_factor)) {
-      X$var <- unsplitfactor(as.data.frame(X$covs[,var.name_in_name_and_factor, drop = FALSE]), 
+      X$var <- unsplitfactor(as.data.frame(X$covs[, var.name_in_name_and_factor, drop = FALSE]), 
                              var.name, sep = attr(co.names, "seps")["factor"])[[1L]]
     }
     else if (any(var.name_in_name)) {
-      X$var <- X$covs[,var.name]
+      X$var <- X$covs[, var.name]
     }
     else {
-      .err(sprintf("%s is not the name of an available covariate", add_quotes(var.name, 2)))
+      .err(sprintf("%s is not the name of an available covariate",
+                   add_quotes(var.name)))
     }
     
     if (get.treat.type(X$treat) != "continuous") {
@@ -178,6 +181,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
           .err("please specify an argument to `var.name`")
         }
       }
+      
       .msg(sprintf("no `var.name` was provided. Displaying balance for %s", var.name))
     }
     
@@ -194,11 +198,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }, logical(1L))
       
       if (any(var.name_in_name_and_factor)) {
-        var.list[[i]] <- unsplitfactor(as.data.frame(X$covs.list[[i]][,var.name_in_name_and_factor, drop = FALSE]), 
+        var.list[[i]] <- unsplitfactor(as.data.frame(X$covs.list[[i]][, var.name_in_name_and_factor, drop = FALSE]), 
                                        var.name, sep = attr(co.names.list[[i]], "seps")["factor"])[[1L]]
       }
       else if (any(var.name_in_name)) {
-        var.list[[i]] <- X$covs.list[[i]][,var.name]
+        var.list[[i]] <- X$covs.list[[i]][, var.name]
       }
       else {
         appears.in.time[i] <- FALSE
@@ -215,7 +219,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     X$time <- rep(which(appears.in.time), times = lengths(var.list[appears.in.time]))
     
     X$treat.list[appears.in.time] <- lapply(X$treat.list[appears.in.time], function(t) {
-      if (get.treat.type(t) != "continuous") treat_vals(t)[t] else t
+      switch(get.treat.type(t), continuous = t, treat_vals(t)[t])
     })
     X$treat <- unlist(X$treat.list[appears.in.time])
     
@@ -327,7 +331,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     if (missing(sample.names)) {
       sample.names <- NULL
     }
-    else if (!is.vector(sample.names, "character")) {
+    else if (!is.character(sample.names)) {
       .wrn("the argument to `sample.names` must be a character vector. Ignoring `sample.names`")
       sample.names <- NULL
     }
@@ -349,7 +353,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         }
         
         if (!all(which.imp %in% seq_len(nlevels(X$imp)))) {
-          .err(paste0("The following inputs to `which.imp` do not correspond to given imputations:\n\t",
+          .err(sprintf("The following inputs to `which.imp` do not correspond to given imputations:\n\t%s",
                       word_list(setdiff(which.imp, seq_len(nlevels(X$imp))))),
                tidy = FALSE)
         }
@@ -371,7 +375,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       else if (!all(is.na(which.cluster))) {
         if (is.numeric(which.cluster)) {
           if (!all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
-            .err(paste0("The following inputs to `which.cluster` do not correspond to given clusters:\n\t",
+            .err(sprintf("The following inputs to `which.cluster` do not correspond to given clusters:\n\t%s",
                         word_list(setdiff(which.cluster, seq_len(nlevels(X$cluster))))),
                  tidy = FALSE)
           }
@@ -405,7 +409,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       else if (is.numeric(which.time)) {
         if (!all(which.time %in% seq_along(X$covs.list))) {
-          .err(paste0("The following inputs to `which.time` do not correspond to given time periods:\n\t",
+          .err(sprintf("The following inputs to `which.time` do not correspond to given time periods:\n\t%s",
                       word_list(setdiff(which.time, seq_along(X$covs.list)))),
                tidy = FALSE)
         }
@@ -475,7 +479,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       if ("cluster" %in% facet) D[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time])
       if ("time" %in% facet) D[[i]]$time <- factor(paste("Time", X$time[in.imp & in.cluster & in.time]))
     }
-    D <- do.call(rbind, D)
+    D <- do.call("rbind", D)
     
     D$which <- factor(D$which, levels = which)
     
@@ -507,7 +511,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       .wrn('`sample.names` can only be used with `which = "both"` or `"unadjusted"` to rename the unadjusted sample when called with subclasses. Ignoring `sample.names`')
       sample.names <- NULL
     }
-    else if (!is.vector(sample.names, "character")) {
+    else if (!is.character(sample.names)) {
       .wrn("the argument to `sample.names` must be a character vector. Ignoring `sample.names`")
       sample.names <- NULL
     }
@@ -579,7 +583,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   
   treat.type <- get.treat.type(assign.treat.type(D$treat))
   
-  D <- na.omit(D[order(D$var),])
+  D <- na.omit(D[order(D$var), ])
   # D <- D[D$weights > 0,]
   
   if (treat.type == "continuous") { #Continuous treatments
@@ -710,7 +714,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     
     if (is_not_null(which.treat) && !anyNA(which.treat)) {
-      D <- D[D$treat %in% which.treat,]
+      D <- D[D$treat %in% which.treat, ]
     }
     
     for (i in which(vapply(D, is.factor, logical(1L)))) {
@@ -791,7 +795,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         bins <- ...get("bins", 12L)
         
         geom_fun <- function(t) {
-          out <- list(ggplot2::geom_histogram(data = D[D$treat == levels(D$treat)[t],],
+          out <- list(ggplot2::geom_histogram(data = D[D$treat == levels(D$treat)[t], ],
                                               mapping = aes(x = .data$var,
                                                             y = posneg[t] * ggplot2::after_stat(`count`), 
                                                             weight = .data$weights,
@@ -821,7 +825,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                         FUN = function(x) cumsum(x) / sum(x))
         
         #Pad 0 and 1
-        extra <- setNames(do.call(expand.grid, c(list(c("top", "bottom")),
+        extra <- setNames(do.call("expand.grid", c(list(c("top", "bottom")),
                                                  lapply(c("treat", facet), function(i) levels(D[[i]])))),
                           c("pos_", "treat", facet))
         
@@ -836,7 +840,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         D <- rbind(extra[names(D)], D)
         
         geom_fun <- function(t) {
-          ggplot2::geom_step(data = D[D$treat == levels(D$treat)[t],],
+          ggplot2::geom_step(data = D[D$treat == levels(D$treat)[t], ],
                              mapping = aes(x = .data$var,
                                            y = .data$cum.pt,
                                            color = names(colors)[t]))
@@ -870,7 +874,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         geom_fun <- function(t) {
           out <- list(
-            ggplot2::geom_density(data = D[D$treat == levels(D$treat)[t],],
+            ggplot2::geom_density(data = D[D$treat == levels(D$treat)[t], , drop = FALSE],
                                   mapping = aes(x = .data$var,
                                                 y = posneg[t] * ggplot2::after_stat(`density`),
                                                 weight = .data$weights,

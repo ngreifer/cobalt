@@ -53,4 +53,3 @@ bal.tab.cem.match <-  function(x, data,
   do.call("base.bal.tab", c(list(X), args),
           quote = TRUE)
 }
-

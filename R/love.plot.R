@@ -286,29 +286,29 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             vs.combs <- vs.combs[vs.combs[, 3L] %in% facet_mat[, i], , drop = FALSE]
             
             facet_subset <- {
-              if (length(which.) == 1L) vs.combs[,3L][vs.combs[,1L] == which. | vs.combs[,2L] == which.]
-              else vs.combs[,3L][vs.combs[,1L] %in% which. & vs.combs[,2L] %in% which.]
+              if (length(which.) == 1L) vs.combs[, 3L][vs.combs[, 1L] == which. | vs.combs[, 2L] == which.]
+              else vs.combs[, 3L][vs.combs[, 1L] %in% which. & vs.combs[, 2L] %in% which.]
             }
           }
           else {
             vs.tmp <- as.matrix(data.frame("Others", treat_levels, stringsAsFactors = FALSE))
             vs.combs <- cbind(vs.tmp, apply(vs.tmp, 1L, paste, collapse = " vs. "))
-            vs.combs <- vs.combs[vs.combs[,3L] %in% facet_mat[, i], , drop = FALSE]
+            vs.combs <- vs.combs[vs.combs[, 3L] %in% facet_mat[, i], , drop = FALSE]
             
-            facet_subset <- vs.combs[,3L][vs.combs[,2L] %in% which.]
+            facet_subset <- vs.combs[, 3L][vs.combs[, 2L] %in% which.]
           }
           
-          facet_mat <- facet_mat[facet_mat[,i] %in% facet_subset, , drop = FALSE]
+          facet_mat <- facet_mat[facet_mat[, i] %in% facet_subset, , drop = FALSE]
         }
-        else if (is.numeric(which.) && max(which.) <= nunique(facet_mat[,i])) {
+        else if (is.numeric(which.) && max(which.) <= nunique(facet_mat[, i])) {
           if (i == "imp") {
-            facet_mat <- facet_mat[facet_mat[,i] %in% as.character(which.), ,drop = FALSE]
+            facet_mat <- facet_mat[facet_mat[, i] %in% as.character(which.), , drop = FALSE]
           }
           
-          facet_mat <- facet_mat[facet_mat[,i] %in% sort(unique(facet_mat[,i]))[which.], ,drop = FALSE]
+          facet_mat <- facet_mat[facet_mat[, i] %in% sort(unique(facet_mat[, i]))[which.], , drop = FALSE]
         }
-        else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
-          facet_mat <- facet_mat[facet_mat[,i] %in% which., ,drop = FALSE]
+        else if (is.character(which.) && all(which. %in% unique(facet_mat[, i]))) {
+          facet_mat <- facet_mat[facet_mat[, i] %in% which., , drop = FALSE]
         }
         else {
           .err(sprintf("the argument to `which.%s` must be `.none`, `.all`, or the desired levels or indices of %s",
@@ -363,16 +363,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           B_agged
         }
         
-        B <- {
-          if (agg.fun == "range")
-            Reduce(function(x, y) merge(x, y, by = c("variable.names", "Type", facet), 
-                                        sort = FALSE),
-                   lapply(c("min", "mean", "max"), aggregate_B, B_stack))
-          else
-            aggregate_B(agg.fun, B_stack)
-        }
+        B <- switch(agg.fun,
+                    range = Reduce(function(x, y) merge(x, y, by = c("variable.names", "Type", facet), 
+                                                        sort = FALSE),
+                                   lapply(c("min", "mean", "max"), aggregate_B, B_stack)),
+                    aggregate_B(agg.fun, B_stack))
         
-        B <- B[order(B[["variable.names"]]),]
+        B <- B[order(B[["variable.names"]]), ]
         
         subtitle1 <- sprintf("%s across %s",
                              Agg.Fun,
@@ -792,7 +789,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             .wrn("unadjusted values are missing. This can occur when `un = FALSE` and `quick = TRUE` in the original call to `bal.tab()`")
           }
           
-          SS <- SS[SS[["Sample"]] != i,]
+          SS <- SS[SS[["Sample"]] != i, ]
         }
       }
       
@@ -906,7 +903,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           if (!adj_only && i == sample.names["Unadjusted"]) {
             .wrn("unadjusted values are missing. This can occur when `un = FALSE` and `quick = TRUE` in the original call to `bal.tab()`")
           }
-          SS <- SS[SS[["Sample"]] != i,]
+          SS <- SS[SS[["Sample"]] != i, ]
         }
       }
       
@@ -1008,7 +1005,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       }
     }
     
-    SS <- SS[order(SS[["var"]], na.last = FALSE),]
+    SS <- SS[order(SS[["var"]], na.last = FALSE), ]
     SS[["var"]] <- SS[["var"]][, drop = TRUE]
     
     #Make the plot
@@ -1165,10 +1162,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     else {
       if (is_not_null(sub.B)) {
         in_subclass.names <- SS[["Sample"]] %in% subclass.names
-        SS.sub <- SS[in_subclass.names,]
+        SS.sub <- SS[in_subclass.names, ]
         SS.sub[["Sample"]] <- SS.sub[["Sample"]][, drop = TRUE]
         
-        SS <- SS[!in_subclass.names,]
+        SS <- SS[!in_subclass.names, ]
         SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
       }
       
@@ -1384,7 +1381,7 @@ plot.bal.tab <- function(x, ...) {
 
 #' @exportS3Method print love.plot
 print.love.plot <- function(x, ...) {
-   plot(x, ...)
+  plot(x, ...)
 }
 
 # Helper functions
@@ -1450,7 +1447,7 @@ ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
   #A thin version of egg:ggarrange
   
   gtable_frame <- function(g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
-    panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]], fixed = TRUE),]
+    panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]], fixed = TRUE), ]
     ll <- unique(panels$l)
     tt <- unique(panels$t)
     fixed_ar <- g$respect

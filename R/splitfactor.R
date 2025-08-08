@@ -408,12 +408,10 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
     .chk_flag(dropped.na)
     if (!dropped.na) {
       NA.column <- {
-        if (v.is.split) {
+        if (v.is.split)
           names(var.to.combine)[na.dummy]
-        }
-        else {
+        else
           paste0(v, sep[v], {if (isFALSE(dropped.na)) "NA" else dropped.na})
-        }
       }
       
       if (length(NA.column) > 1L) {
