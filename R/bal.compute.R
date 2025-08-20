@@ -374,6 +374,14 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
     
+    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat,
+                                focal = focal, quietly = TRUE)
+    
+    denoms <- .compute_s.d.denom(x, treat = treat,
+                                 s.d.denom = s.d.denom,
+                                 s.weights = s.weights,
+                                 bin.vars = bin.vars)
+    
     if (treat.type == "binary" && is_not_null(focal)) {
       pairwise <- TRUE
     }
@@ -385,17 +393,7 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
       else unique(treat)
     }
     
-    if (!pairwise) {
-      treat.all <- last(make.unique(c(unique.treats, "All")))
-      treat <- factor(c(as.character(treat), rep_with(treat.all, treat)),
-                      levels = c(unique.treats, treat.all))
-      x <- x[rep(seq_row(x), 2L), , drop = FALSE]
-      s.weights <- rep.int(s.weights, 2L)
-      focal <- treat.all
-      
-      treatment.pairs <- lapply(unique.treats, c, treat.all)
-    }
-    else if (treat.type == "multinomial") {
+    if (pairwise) {
       treatment.pairs <- {
         if (is_null(focal))
           utils::combn(unique.treats, 2L, simplify = FALSE)
@@ -404,16 +402,14 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
       }
     }
     else {
-      treatment.pairs <- list(unique.treats)
+      treat.all <- last(make.unique(c(unique.treats, "All")))
+      treat <- factor(c(as.character(treat), rep_with(treat.all, treat)),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), , drop = FALSE]
+      s.weights <- rep.int(s.weights, 2L)
+      
+      treatment.pairs <- lapply(unique.treats, c, treat.all)
     }
-    
-    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat,
-                                focal = focal, quietly = TRUE)
-    
-    denoms <- .compute_s.d.denom(x, treat = treat,
-                                 s.d.denom = s.d.denom,
-                                 s.weights = s.weights,
-                                 bin.vars = bin.vars)
   }
   
   out <- list(treat = treat,
@@ -451,7 +447,7 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
   }
   else {
     .chk_atomic(treat)
-
+    
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
@@ -539,7 +535,7 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
   }
   else {
     .chk_atomic(treat)
-
+    
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
@@ -1171,16 +1167,31 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
 ## binary
 smd.binary <- function(init, weights = NULL) {
   .check_init(init, "init_smd")
+  
+  if (!init$pairwise) {
+    return(smd.multinomial(init, weights))
+  }
+  
   col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
             bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
 }
 ks.binary <- function(init, weights = NULL) {
   .check_init(init, "init_ks")
+  
+  if (!init$pairwise) {
+    return(ks.multinomial(init, weights))
+  }
+  
   col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
            bin.vars = init$bin.vars)
 }
 ovl.binary <- function(init, weights = NULL) {
   .check_init(init, "init_ovl")
+  
+  if (!init$pairwise) {
+    return(ovl.multinomial(init, weights))
+  }
+  
   col_w_ovl(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
             bin.vars = init$bin.vars, integrate = init$integrate)
 }
@@ -1266,7 +1277,7 @@ l1.med.binary <- function(init, weights = NULL) {
 smd.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_smd")
   
-  if (!init$pairwise) {
+  if (!init$pairwise && is_not_null(weights)) {
     weights <- c(weights, rep_with(1, weights))
   }
   
@@ -1274,17 +1285,18 @@ smd.multinomial <- function(init, weights = NULL) {
     t_in_x <- which(init$treat %in% x)
     
     col_w_smd(init$covs[t_in_x, , drop = FALSE],
-              treat = init$treat[t_in_x],
+              treat = as.integer(init$treat[t_in_x] == x[1L]),
               weights = weights[t_in_x],
               s.weights = init$s.weights[t_in_x],
               bin.vars = init$bin.vars,
-              s.d.denom = init$s.d.denom, abs = TRUE)
+              s.d.denom = init$s.d.denom,
+              abs = TRUE)
   }))
 }
 ks.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_ks")
   
-  if (!init$pairwise) {
+  if (!init$pairwise && is_not_null(weights)) {
     weights <- c(weights, rep_with(1, weights))
   }
   
@@ -1292,7 +1304,7 @@ ks.multinomial <- function(init, weights = NULL) {
     t_in_x <- which(init$treat %in% x)
     
     col_w_ks(init$covs[t_in_x, , drop = FALSE],
-             treat = init$treat[t_in_x],
+             treat = as.integer(init$treat[t_in_x] == x[1L]),
              weights = weights[t_in_x],
              s.weights = init$s.weights[t_in_x],
              bin.vars = init$bin.vars)
@@ -1301,7 +1313,7 @@ ks.multinomial <- function(init, weights = NULL) {
 ovl.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_ovl")
   
-  if (!init$pairwise) {
+  if (!init$pairwise && is_not_null(weights)) {
     weights <- c(weights, rep_with(1, weights))
   }
   
@@ -1309,7 +1321,7 @@ ovl.multinomial <- function(init, weights = NULL) {
     t_in_x <- which(init$treat %in% x)
     
     col_w_ovl(init$covs[t_in_x, , drop = FALSE],
-              treat = init$treat[t_in_x],
+              treat = as.integer(init$treat[t_in_x] == x[1L]),
               weights = weights[t_in_x],
               s.weights = init$s.weights[t_in_x],
               bin.vars = init$bin.vars,

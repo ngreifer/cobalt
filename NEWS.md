@@ -7,7 +7,7 @@
 
 * Fixed a bug in which the actual R version required was 4.4.0 due to the use of `Tailcall()`. This functionality has be rewritten to avoid `Tailcall()`. Thanks to Tanvi Shinkre.
 
-* Fixed a bug when using `pairwise = FALSE` with `bal.compute()`.
+* Fixed bugs when using `pairwise = FALSE` with `bal.compute()`.
 
 # cobalt 4.6.0
 

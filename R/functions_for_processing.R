@@ -706,7 +706,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   }
   
   if (check.focal) {
-    if (is_not_null(focal) && NCOL(weights) == 1L) {
+    if (is_not_null(focal) && NCOL(weights) <= 1L) {
       s.d.denom <- focal
     }
     else {
