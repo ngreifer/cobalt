@@ -1,4 +1,5 @@
-#' @title Balance Statistics for `designmatch` Objects
+#' Balance Statistics for `designmatch` Objects
+#' 
 #' @description Generates balance statistics for output objects from \pkg{designmatch}.
 #' 
 #' @inheritParams bal.tab.Match
@@ -13,7 +14,8 @@
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
-#' @examplesIf (requireNamespace("designmatch", quietly = TRUE) && FALSE)
+#' @examplesIf (requireNamespace("designmatch", quietly = TRUE))
+#' \donttest{
 #' data("lalonde", package = "cobalt")
 #' 
 #' library(designmatch)
@@ -28,6 +30,7 @@
 #' 
 #' ## Using treat and covs
 #' bal.tab(dmout, treat = treat, covs = covariates)
+#' }
 
 #' @exportS3Method bal.tab designmatch
 bal.tab.designmatch <- bal.tab.Match
