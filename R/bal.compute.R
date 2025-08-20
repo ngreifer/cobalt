@@ -180,6 +180,9 @@ bal.init <- function(x,
 #' @export
 available.stats <- function(treat.type = "binary") {
   .chk_string(treat.type)
+  if (identical(treat.type, "multi-category")) {
+    treat.type <- "multinomial"
+  }
   treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous", "target"))
   
   switch(
@@ -356,7 +359,6 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
   }
   else {
     .chk_atomic(treat)
-    .chk_flag(pairwise)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -372,20 +374,30 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
     
-    unique.treats <- unique(treat)
+    if (treat.type == "binary" && is_not_null(focal)) {
+      pairwise <- TRUE
+    }
     
-    if (treat.type == "multinomial") {
-      if (is_null(focal) && !pairwise) {
-        treat.all <- last(make.unique(unique.treats, "All"))
-        treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
-                        levels = c(unique.treats, treat.all))
-        x <- x[rep(seq_row(x), 2L), , drop = FALSE]
-        s.weights <- rep.int(s.weights, 2L)
-        focal <- treat.all
-      }
+    .chk_flag(pairwise)
+    
+    unique.treats <- {
+      if (is.factor(treat)) levels(droplevels(treat))
+      else unique(treat)
+    }
+    
+    if (!pairwise) {
+      treat.all <- last(make.unique(c(unique.treats, "All")))
+      treat <- factor(c(as.character(treat), rep_with(treat.all, treat)),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), , drop = FALSE]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
       
+      treatment.pairs <- lapply(unique.treats, c, treat.all)
+    }
+    else if (treat.type == "multinomial") {
       treatment.pairs <- {
-        if (is_null(focal) || pairwise)
+        if (is_null(focal))
           utils::combn(unique.treats, 2L, simplify = FALSE)
         else 
           lapply(setdiff(unique.treats, focal), c, focal)
@@ -393,7 +405,6 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
     }
     else {
       treatment.pairs <- list(unique.treats)
-      pairwise <- TRUE
     }
     
     s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat,
@@ -440,7 +451,7 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
   }
   else {
     .chk_atomic(treat)
-    
+
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
@@ -449,28 +460,38 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
     }
     
     .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
+    if (is_null(estimand)) {
+      estimand <- "ATE"
+    }
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
     
-    unique.treats <- unique(treat)
+    if (treat.type == "binary" && is_not_null(focal)) {
+      pairwise <- TRUE
+    }
     
-    if (treat.type == "multinomial") {
-      .chk_flag(pairwise)
+    .chk_flag(pairwise)
+    
+    unique.treats <- {
+      if (is.factor(treat)) levels(droplevels(treat))
+      else unique(treat)
+    }
+    
+    if (!pairwise) {
+      treat.all <- last(make.unique(c(unique.treats, "All")))
+      treat <- factor(c(as.character(treat), rep_with(treat.all, treat)),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), , drop = FALSE]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
       
-      if (is_null(focal) && !pairwise) {
-        treat.all <- last(make.unique(unique.treats, "All"))
-        treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
-                        levels = c(unique.treats, treat.all))
-        x <- x[rep.int(seq_row(x), 2L), ,]
-        s.weights <- rep.int(s.weights, 2L)
-        focal <- treat.all
-      }
-      
+      treatment.pairs <- lapply(unique.treats, c, treat.all)
+    }
+    else if (treat.type == "multinomial") {
       treatment.pairs <- {
-        if (is_null(focal) || pairwise)
+        if (is_null(focal))
           utils::combn(unique.treats, 2L, simplify = FALSE)
         else 
           lapply(setdiff(unique.treats, focal), c, focal)
@@ -478,7 +499,6 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
     }
     else {
       treatment.pairs <- list(unique.treats)
-      pairwise <- TRUE
     }
   }
   
@@ -519,6 +539,7 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
   }
   else {
     .chk_atomic(treat)
+
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
@@ -533,22 +554,30 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
     
-    unique.treats <- unique(treat)
+    if (treat.type == "binary" && is_not_null(focal)) {
+      pairwise <- TRUE
+    }
     
-    if (treat.type == "multinomial") {
-      .chk_flag(pairwise)
+    .chk_flag(pairwise)
+    
+    unique.treats <- {
+      if (is.factor(treat)) levels(droplevels(treat))
+      else unique(treat)
+    }
+    
+    if (!pairwise) {
+      treat.all <- last(make.unique(c(unique.treats, "All")))
+      treat <- factor(c(as.character(treat), rep_with(treat.all, treat)),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), , drop = FALSE]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
       
-      if (is_null(focal) && !pairwise) {
-        treat.all <- last(make.unique(unique.treats, "All"))
-        treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
-                        levels = c(unique.treats, treat.all))
-        x <- x[rep(seq_row(x), 2L), ,]
-        s.weights <- rep.int(s.weights, 2L)
-        focal <- treat.all
-      }
-      
+      treatment.pairs <- lapply(unique.treats, c, treat.all)
+    }
+    else if (treat.type == "multinomial") {
       treatment.pairs <- {
-        if (is_null(focal) || pairwise)
+        if (is_null(focal))
           utils::combn(unique.treats, 2L, simplify = FALSE)
         else 
           lapply(setdiff(unique.treats, focal), c, focal)
@@ -556,7 +585,6 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
     }
     else {
       treatment.pairs <- list(unique.treats)
-      pairwise <- TRUE
     }
   }
   
@@ -623,18 +651,18 @@ init_mahalanobis <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
     }
     
     if (s.d.denom %in% as.character(treat)) {
-      sigma <- cov.wt(x[treat == s.d.denom,,drop = FALSE], s.weights[treat == s.d.denom])$cov
+      sigma <- cov.wt(x[treat == s.d.denom, , drop = FALSE], s.weights[treat == s.d.denom])$cov
       zeros <- diag(sigma) == 0
       if (any(zeros)) {
         sigma_all <- cov.wt(x, s.weights)$cov
-        sigma[zeros,] <- sigma_all[zeros,]
-        sigma[,zeros] <- sigma_all[,zeros]
+        sigma[zeros, ] <- sigma_all[zeros, ]
+        sigma[, zeros] <- sigma_all[, zeros]
         
       }
     }
     else if (s.d.denom == "pooled") {
-      sigma <- .5 * (cov.wt(x[treat == treat[1L],,drop = FALSE], s.weights[treat == treat[1L]])$cov +
-                       cov.wt(x[treat != treat[1L],,drop = FALSE], s.weights[treat != treat[1L]])$cov)
+      sigma <- .5 * (cov.wt(x[treat == treat[1L], , drop = FALSE], s.weights[treat == treat[1L]])$cov +
+                       cov.wt(x[treat != treat[1L], , drop = FALSE], s.weights[treat != treat[1L]])$cov)
     }
     else {
       sigma <- cov.wt(x, s.weights)$cov
@@ -782,7 +810,9 @@ init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
   
   check_arg_lengths(x, treat, s.weights)
   
-  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  if (is_null(s.weights)) {
+    s.weights <- rep.int(1, NROW(x))
+  }
   
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
@@ -823,7 +853,9 @@ init_p <- function(x, treat, s.weights = NULL, ...) {
   
   check_arg_lengths(x, treat, s.weights)
   
-  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  if (is_null(s.weights)) {
+    s.weights <- rep.int(1, NROW(x))
+  }
   
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
@@ -855,7 +887,9 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
   
   check_arg_lengths(x, treat, s.weights)
   
-  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  if (is_null(s.weights)) {
+    s.weights <- rep.int(1, NROW(x))
+  }
   
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
@@ -896,7 +930,9 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
   
   check_arg_lengths(x, treat, s.weights)
   
-  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  if (is_null(s.weights)) {
+    s.weights <- rep.int(1, NROW(x))
+  }
   
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
@@ -946,11 +982,15 @@ init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
   
   dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
   
-  Xdist <- unname(as.matrix(dist(dist.covs)))
+  Xdist <- dist(dist.covs) |>
+    as.matrix() |>
+    unname()
   
   n <- length(treat)
   
-  Adist <- unname(as.matrix(dist(treat / sqrt(col.w.v(treat, s.weights)))))
+  Adist <- dist(treat / sqrt(col.w.v(treat, s.weights))) |>
+    as.matrix() |>
+    unname()
   
   Xmeans <- colMeans(Xdist)
   Xgrand_mean <- mean(Xmeans)
@@ -979,9 +1019,14 @@ init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
 init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL,
                         .covs = NULL, l1.min.bin = 2, l1.max.bin = 12, l1.n = 101, ...) {
   
-  if (is_not_null(.covs)) x <- .covs
+  if (is_not_null(.covs)) {
+    x <- .covs
+  }
+  
   if (!is.data.frame(x)) {
-    if (is.atomic(x) && is_null(dim(x))) x <- data.frame(x)
+    if (is.atomic(x) && is_null(dim(x))) {
+      x <- data.frame(x)
+    }
     else if (!is.matrix(x)) {
       .err("`x` must be a data.frame or matrix")
     }
@@ -997,7 +1042,9 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   
   check_arg_lengths(x, treat, s.weights)
   
-  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  if (is_null(s.weights)) {
+    s.weights <- rep.int(1, NROW(x))
+  }
   
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
@@ -1009,7 +1056,9 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   coarsen <- function(covs, cutpoints = NULL, grouping = NULL) {
     is.numeric.cov <- setNames(vapply(covs, is.numeric, logical(1L)), names(covs))
     for (i in names(cutpoints)) {
-      if (cutpoints[[i]] == 0) is.numeric.cov[i] <- FALSE #Will not be binned
+      if (cutpoints[[i]] == 0) {
+        is.numeric.cov[i] <- FALSE #Will not be binned
+      }
     }
     
     #Process grouping
@@ -1042,7 +1091,9 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   }
   
   .chk_null_or(estimand, .chk_string)
-  if (is_null(estimand)) estimand <- "ATE"
+  if (is_null(estimand)) {
+    estimand <- "ATE"
+  }
   
   f.e <- process_focal_and_estimand(focal, estimand, treat)
   focal <- f.e[["focal"]]
@@ -1145,8 +1196,10 @@ mahalanobis.binary <- function(init, weights = NULL) {
 energy.dist.binary <- function(init, weights = NULL) {
   .check_init(init, "init_energy.dist")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   for (t in init[["unique.treats"]]) {
     weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / mean_fast(weights[init[["treat"]] == t])
@@ -1157,8 +1210,10 @@ energy.dist.binary <- function(init, weights = NULL) {
 kernel.dist.binary <- function(init, weights = NULL) {
   .check_init(init, "init_kernel.dist")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   for (t in 0:1) {
     weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / mean_fast(weights[init[["treat"]] == t])
@@ -1171,13 +1226,15 @@ kernel.dist.binary <- function(init, weights = NULL) {
 r2.binary <- function(init, weights = NULL) {
   .check_init(init, "init_r2")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   fit <- glm.fit(x = init$x, y = init$treat, weights = weights,
                  family = quasibinomial())
   
-  wmtreat <- sum(weights * fit$linear.predictors) / sum(weights)
+  wmtreat <- w.m(fit$linear.predictors, weights)
   
   SSmodel <- sum(weights * (fit$linear.predictors - wmtreat)^2)
   
@@ -1186,8 +1243,10 @@ r2.binary <- function(init, weights = NULL) {
 l1.med.binary <- function(init, weights = NULL) {
   .check_init(init, "init_l1.med")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   for (t in init[["unique.treats"]]) {
     weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / sum(weights[init[["treat"]] == t])
@@ -1208,7 +1267,7 @@ smd.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_smd")
   
   if (!init$pairwise) {
-    weights <- c(weights, rep.int(1, length(weights)))
+    weights <- c(weights, rep_with(1, weights))
   }
   
   unlist(lapply(init$treatment.pairs, function(x) {
@@ -1226,7 +1285,7 @@ ks.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_ks")
   
   if (!init$pairwise) {
-    weights <- c(weights, rep.int(1, length(weights)))
+    weights <- c(weights, rep_with(1, weights))
   }
   
   unlist(lapply(init$treatment.pairs, function(x) {
@@ -1243,7 +1302,7 @@ ovl.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_ovl")
   
   if (!init$pairwise) {
-    weights <- c(weights, rep.int(1, length(weights)))
+    weights <- c(weights, rep_with(1, weights))
   }
   
   unlist(lapply(init$treatment.pairs, function(x) {
@@ -1263,8 +1322,10 @@ energy.dist.multinomial <- function(init, weights = NULL) {
 l1.med.multinomial <- function(init, weights = NULL) {
   .check_init(init, "init_l1.med")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   for (t in init[["unique.treats"]]) {
     weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / sum(weights[init[["treat"]] == t])
@@ -1308,8 +1369,10 @@ spearman.corr.continuous <- function(init, weights = NULL) {
 r2.continuous <- function(init, weights = NULL) {
   .check_init(init, "init_r2")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   fit <- lm.wfit(x = init$x, y = init$treat, w = weights)
   
@@ -1341,7 +1404,7 @@ smd.target <- function(init, weights = NULL) {
   .check_init(init, "init_smd")
   
   col_w_smd(init$covs, treat = init$treat,
-            weights = c(rep.int(1, length(weights)), weights),
+            weights = c(rep_with(1, weights), weights),
             s.weights = init$s.weights,
             bin.vars = init$bin.vars,
             s.d.denom = init$s.d.denom,
@@ -1350,14 +1413,14 @@ smd.target <- function(init, weights = NULL) {
 ks.target <- function(init, weights = NULL) {
   .check_init(init, "init_ks")
   col_w_ks(init$covs, treat = init$treat,
-           weights = c(rep.int(1, length(weights)), weights),
+           weights = c(rep_with(1, weights), weights),
            s.weights = init$s.weights,
            bin.vars = init$bin.vars)
 }
 ovl.target <- function(init, weights = NULL) {
   .check_init(init, "init_ovl")
   col_w_ovl(init$covs, treat = init$treat,
-            weights = c(rep.int(1, length(weights)), weights),
+            weights = c(rep_with(1, weights), weights),
             s.weights = init$s.weights,
             bin.vars = init$bin.vars, integrate = init$integrate)
 }
@@ -1365,7 +1428,7 @@ mahalanobis.target <- function(init, weights = NULL) {
   .check_init(init, "init_mahalanobis")
   
   mean.diffs <- col_w_smd(init$covs, treat = init$treat,
-                          weights = c(rep.int(1, length(weights)), weights),
+                          weights = c(rep_with(1, weights), weights),
                           s.weights = init$s.weights,
                           bin.vars = init$bin.vars,
                           std = FALSE, abs = TRUE)
@@ -1375,8 +1438,10 @@ mahalanobis.target <- function(init, weights = NULL) {
 energy.dist.target <- function(init, weights = NULL) {
   .check_init(init, "init_energy.dist")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
   weights <- weights / mean_fast(weights)
   
