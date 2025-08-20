@@ -6,7 +6,8 @@ test_that("(#71) `addl` argument not throwing correct error when variable not av
   
   data("lalonde")
   
-  m <- MatchIt::matchit(treat ~ age + educ, data = lalonde, distance = "scaled_euclidean")
+  m <- MatchIt::matchit(treat ~ age + educ, data = lalonde,
+                        distance = "scaled_euclidean")
   
   expect_error(bal.tab(m, addl = "race"),
                .w("The variable \"race\" cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`."))
@@ -94,7 +95,7 @@ test_that("(#89) love.plot() doesn't throw any error when manually removing rows
   covs <- subset(lalonde_mis, select = -c(treat, re78, nodegree, married))
   
   expect_warning({
-  b <- bal.tab(treat ~ covs, data = lalonde_mis, binary = "std")
+  b <- bal.tab(treat ~ covs, data = lalonde_mis, binary = "std", estimand = "ATE")
   }, .w("Missing values exist in the covariates. Displayed values omit these observations"))
   
   b$Balance <- b$Balance[!endsWith(rownames(b$Balance), "<NA>"),]
