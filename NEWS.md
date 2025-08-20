@@ -7,6 +7,8 @@
 
 * Fixed a bug in which the actual R version required was 4.4.0 due to the use of `Tailcall()`. This functionality has be rewritten to avoid `Tailcall()`. Thanks to Tanvi Shinkre.
 
+* Fixed a bug when using `pairwise = FALSE` with `bal.compute()`.
+
 # cobalt 4.6.0
 
 * Added two new functions, `col_w_dcov()` and `col_w_dcorr()` for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates. 
