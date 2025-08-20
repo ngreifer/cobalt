@@ -98,7 +98,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     .err(sprintf("`estimand` must be %s", word_list(allowable.estimands, "or", quotes = 1L)))
   }
   else if (length(estimand) == 1L) {
-    estimand <- setNames(toupper(rep.int(estimand, length(s))), s)
+    estimand <- setNames(toupper(rep_with(estimand, s)), s)
   }
   else if (length(estimand) >= length(s)) {
     estimand <- setNames(toupper(estimand[seq_along(s)]), s)
@@ -306,7 +306,7 @@ get.w.CBPS <- function(x, estimand, ...) {
   
   estimand <- match_arg(tolower(estimand), c("att", "atc", "ate"))
   
-  w <- rep.int(1, length(tr))
+  w <- rep_with(1, tr)
   
   if (estimand == "att") {
     w[!t1] <- ps[!t1] / (1 - ps[!t1])
@@ -341,7 +341,7 @@ get.w.ebalance <- function(x, treat, ...) {
     .err("there are more control units in `treat` than weights in the `ebalance` object.")
   }
   
-  weights <- rep.int(1, length(treat))
+  weights <- rep_with(1, treat)
   
   weights[treat == treat_vals(treat)["Control"]] <- x$w
   

@@ -1150,7 +1150,7 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
       }
       
       if (length(disp.thresholds) == 1L) {
-        disp.thresholds <- rep.int(disp.thresholds, length(p.ops[["thresholds"]]))
+        disp.thresholds <- rep_with(disp.thresholds, p.ops[["thresholds"]])
       }
       
       names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
@@ -1333,7 +1333,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
       }
       
       if (length(disp.thresholds) == 1L) {
-        disp.thresholds <- rep.int(disp.thresholds, length(p.ops[["thresholds"]]))
+        disp.thresholds <- rep_with(disp.thresholds, p.ops[["thresholds"]])
       }
       
       names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]

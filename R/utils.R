@@ -674,7 +674,9 @@ assign.treat.type <- function(treat, use.multi = FALSE) {
   }
   else if (use.multi || chk::vld_character_or_factor(treat)) {
     treat.type <- "multinomial"
-    if (!inherits(treat, "processed.treat")) treat <- factor(treat)
+    if (!inherits(treat, "processed.treat")) {
+      treat <- factor(treat)
+    }
   }
   else {
     treat.type <- "continuous"
@@ -684,7 +686,13 @@ assign.treat.type <- function(treat, use.multi = FALSE) {
   treat
 }
 get.treat.type <- function(treat) {
-  attr(treat, "treat.type")
+  out <- attr(treat, "treat.type")
+  
+  if (identical(out, "multi-category")) {
+    return("multinomial")
+  }
+  
+  out
 }
 has.treat.type <- function(treat) {
   is_not_null(get.treat.type(treat))
@@ -914,6 +922,10 @@ make_df <- function(ncol, nrow = 0L, types = "numeric") {
   
   df
 }
+rep_with <- function(x, y) {
+  #Helper function to fill named vectors with x and given names of y
+  setNames(rep.int(x, length(y)), names(y))
+}
 ifelse_ <- function(...) {
   dotlen <- ...length()
   if (dotlen %% 2 == 0) {
@@ -942,7 +954,7 @@ ifelse_ <- function(...) {
     if (length(yes) == 1) yes <- rep.int(yes, n)
     if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
     if (!is.logical(test)) stop(sprintf("The %s entry to `ifelse_()` must be logical.", ordinal(2 * i - 1)))
-    if (!is.atomic(yes)) stop(paste("The %s entry to `ifelse_()` must be atomic.", ordinal(2 * i)))
+    if (!is.atomic(yes)) stop(sprintf("The %s entry to `ifelse_()` must be atomic.", ordinal(2 * i)))
     pos <- which(test)
     out[pos] <- yes[pos]
   }

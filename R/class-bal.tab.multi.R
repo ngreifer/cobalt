@@ -76,7 +76,7 @@ base.bal.tab.multi <- function(X,
   if (is_null(X$focal)) {
     treat.combinations <- {
       if (pairwise) utils::combn(treat_names(X$treat), 2L, simplify = FALSE)
-      else lapply(treat_names(X$treat), function(x) c(x, "All"))
+      else lapply(treat_names(X$treat), c, "All")
     }
   }
   else {
@@ -94,7 +94,7 @@ base.bal.tab.multi <- function(X,
     
     treat.combinations <- {
       if (pairwise) utils::combn(treat_names(X$treat), 2L, simplify = FALSE)
-      else lapply(setdiff(treat_names(X$treat), X$focal), function(x) c(x, X$focal))
+      else lapply(setdiff(treat_names(X$treat), X$focal), c, X$focal)
     }
   }
   
@@ -157,7 +157,7 @@ base.bal.tab.multi <- function(X,
         process_treat()
       
       if (is_not_null(X_t$weights)) {
-        X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
+        X_t$weights[X_t$treat == "All", ] <- 1 #Uncomment to compare each group to unweighted dist.
       }
       
       X_t <- .assign_X_class(X_t)

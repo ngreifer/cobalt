@@ -58,7 +58,7 @@ base.bal.tab.base <- function(X,
   }
   
   if (is_null(X$s.weights)) {
-    X$s.weights <- rep.int(1, length(X$treat))
+    X$s.weights <- rep_with(1, X$treat)
   }
   
   disp <- process_disp(disp, ...)

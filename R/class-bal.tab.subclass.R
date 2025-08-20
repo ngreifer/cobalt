@@ -82,7 +82,7 @@ base.bal.tab.subclass <- function(X,
   no.adj <- FALSE
   
   if (is_null(X$s.weights)) {
-    X$s.weights <- rep.int(1, length(X$treat))
+    X$s.weights <- rep_with(1, X$treat)
   }
   
   disp <- process_disp(disp, ...)
@@ -91,7 +91,9 @@ base.bal.tab.subclass <- function(X,
   
   out <- list()
   
-  C <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))], list(int = int, poly = poly)), quote = TRUE)
+  C <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))],
+                            list(int = int, poly = poly)),
+               quote = TRUE)
   co.names <- attr(C, "co.names")
   
   var_types <- attr(C, "var_types")

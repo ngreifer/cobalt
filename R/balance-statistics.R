@@ -121,7 +121,7 @@ STATS[["mean.diffs"]] <- {list(
           star_char <- "*"
         }
         
-        vars_to_star <- setNames(rep.int(FALSE, length(variable.names)), variable.names)
+        vars_to_star <- setNames(rep_with(FALSE, variable.names), variable.names)
         
         if (stars == "std") {
           if (binary == "std") vars_to_star[variable.names[var_type == "Binary"]] <- TRUE
@@ -405,7 +405,7 @@ STATS[["mean.diffs.target"]] <- {list(
           star_char <- "*"
         }
         
-        vars_to_star <- setNames(rep.int(FALSE, length(variable.names)), variable.names)
+        vars_to_star <- setNames(rep_with(FALSE, variable.names), variable.names)
         if (stars == "std") {
           if (binary == "std") vars_to_star[variable.names[var_type == "Binary"]] <- TRUE
           if (continuous == "std") vars_to_star[variable.names[var_type != "Binary"]] <- TRUE

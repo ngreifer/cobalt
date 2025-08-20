@@ -251,7 +251,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   }
   
   if (is_null(X$s.weights)) {
-    X$s.weights <- rep.int(1, length(X$treat))
+    X$s.weights <- rep_with(1, X$treat)
   }
   
   if (missing(which)) {
@@ -307,7 +307,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     which <- unique(which)
     
     if (is_null(X$weights)) {
-      X$weights <- setNames(data.frame(rep.int(1, length(X$treat))),
+      X$weights <- setNames(data.frame(rep_with(1, X$treat)),
                             "Unadjusted Sample")
     }
     else {
@@ -317,7 +317,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       
       if ("Unadjusted Sample" %in% which) {
-        X$weights <- setNames(data.frame(rep.int(max(X$weights), length(X$treat)),
+        X$weights <- setNames(data.frame(rep_with(max(X$weights), X$treat),
                                          X$weights),
                               c("Unadjusted Sample", names(X$weights)))
       }
@@ -341,7 +341,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     
     #NULL: all; NA: none
-    in.imp <- rep.int(TRUE, length(X$var))
+    in.imp <- rep_with(TRUE, X$var)
     if (is_not_null(X$imp)) {
       if (is_null(which.imp)) {
         in.imp <- !is.na(X$imp)
@@ -366,7 +366,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       .wrn("`which.imp` was specified but no `imp` values were supplied. Ignoring `which.imp`")
     }
     
-    in.cluster <- rep.int(TRUE, length(X$var))
+    in.cluster <- rep_with(TRUE, X$var)
     if (is_not_null(X$cluster)) {
       if (is_null(which.cluster)) {
         in.cluster <- !is.na(X$cluster)
@@ -402,7 +402,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       .wrn("`which.cluster` was specified but no `cluster` values were supplied. Ignoring `which.cluster`")
     }
     
-    in.time <- rep.int(TRUE, length(X$var))
+    in.time <- rep_with(TRUE, X$var)
     if (is_not_null(X$time)) {
       if (is_null(which.time) || all(is.na(which.time))) {
         in.time <- !is.na(X$time)
@@ -568,7 +568,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       D$s.weights <- X$s.weights
       D2$treat <- X$treat
       D2$var <- X$var
-      D2$subclass <- rep.int("Unadjusted Sample", length(X$treat))
+      D2$subclass <- rep_with("Unadjusted Sample", X$treat)
       D <- rbind(D2, D, stringsAsFactors = TRUE)
       D$subclass <- relevel(factor(D$subclass), "Unadjusted Sample")
     }
@@ -831,7 +831,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         merge.extra <- data.frame(pos_ = c("top", "bottom"),
                                   var = c(-Inf, Inf),
-                                  cum.pt = c(0, 1))
+                                  cum.pt = c(0, 1),
+                                  stringsAsFactors = FALSE)
         extra <- merge(extra, merge.extra)
         extra[["pos_"]] <- NULL
         

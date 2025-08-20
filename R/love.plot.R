@@ -1419,7 +1419,7 @@ assign.shapes <- function(colors, default.shape = "circle") {
     shape_names[seq_int_cycle(1L, length(colors), max = length(shape_names))]
   }
   else {
-    rep.int(default.shape, length(colors))
+    rep_with(default.shape, colors)
   }
 }
 

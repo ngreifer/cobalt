@@ -12,6 +12,9 @@ linters: all_linters(
     implicit_integer_linter = NULL,
     cyclocomp_linter = NULL,
     trailing_whitespace_linter = NULL,
-    unnecessary_concatenation_linter = NULL
+    unnecessary_concatenation_linter = NULL,
+    unnecessary_nesting_linter = NULL,
+    condition_call_linter = NULL,
+    if_switch_linter = if_switch_linter(max_branch_expressions = 1L)
   )
 encoding: "UTF-8"

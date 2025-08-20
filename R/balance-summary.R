@@ -568,7 +568,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
   type <- match_arg(type, c("pearson", "spearman"))
   if (type == "spearman") {
     for (i in which(!bin.vars)) {
-      mat[,i] <- rank(mat[,i], na.last = "keep")
+      mat[, i] <- rank(mat[, i], na.last = "keep")
     }
     treat <- rank(treat, na.last = "keep")
   }
@@ -673,7 +673,7 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
   }
   
   out <- vapply(seq_col(mat), function(i) {
-    Xdist <- abs(outer(mat[,i], mat[,i], "-"))
+    Xdist <- abs(outer(mat[, i], mat[, i], "-"))
     Xmeans <- colMeans(Xdist)
     Xgrand_mean <- mean(Xmeans)
     XX <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")

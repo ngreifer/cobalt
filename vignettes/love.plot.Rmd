@@ -33,7 +33,8 @@ data("lalonde", package = "cobalt")
 
 w.out1 <- WeightIt::weightit(
     treat ~ age + educ + married + nodegree + race + re74 + re75,
-    data = lalonde, estimand = "ATE", method = "ps")
+    data = lalonde, estimand = "ATE",
+    method = "glm")
 ```
 
 Next, because in this example we want to display standardized mean difference for all of the covariates, let's set the global `binary` option to `"std"` so we don't have to type it every time.
@@ -128,7 +129,8 @@ Perhaps we want to display balance for a second set of weights, maybe using a di
 ```{r}
 w.out2 <- WeightIt::weightit(
     treat ~ age + educ + married + nodegree + race + re74 + re75,
-    data = lalonde, estimand = "ATE", method = "cbps")
+    data = lalonde, estimand = "ATE",
+    method = "cbps", over = TRUE)
 
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           data = lalonde, estimand = "ATE",
@@ -143,12 +145,13 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           shapes = c("triangle filled", "circle filled", "square filled"),
           sample.names = c("Unweighted", "PS Weighted", "CBPS Weighted"),
           limits = c(0, .82)) +
-  theme(legend.position = c(.75, .3),
+  theme(legend.position = "inside",
+        legend.position.inside = c(.75, .3),
         legend.box.background = element_rect(), 
         legend.box.margin = margin(1, 1, 1, 1))
 ```
 
-We can see there is little benefit to using these weights over standard logistic regression weights, although significant imbalance remains for both sets of weights. (Try using entropy balancing by setting `method = "ebal"` in `weightit()` if you want to see the power of modern weighting methods.)
+We can see there is little benefit to using these weights over standard logistic regression weights, although significant imbalance remains for both sets of weights.
 
 Perhaps balance on mean differences is not enough, and you want to display balance on KS statistics. In general, this is good practice; mean differences don't tell the whole story. We can simply request `stats = ks.statistics"` in `love.plot()`. We could also request `"variance.ratios"` to get variance ratios, another potentially useful balance measure. Below we'll use similar formatting to request KS statistics:
 
@@ -167,7 +170,8 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           shapes = c("triangle filled", "circle filled", "square filled"),
           sample.names = c("Unweighted", "PS Weighted", "CBPS Weighted"),
           limits = c(0, .45)) +
-  theme(legend.position = c(.75, .25),
+  theme(legend.position = "inside",
+        legend.position.inside = c(.75, .25),
         legend.box.background = element_rect(), 
         legend.box.margin = margin(1, 1, 1, 1))
 ```
@@ -209,7 +213,8 @@ love.plot(w.out1, abs = FALSE,
           labels = TRUE,
           title = NULL,
           wrap = 20,
-          themes = list(v = theme(legend.position = c(.75, 1.09), 
+          themes = list(v = theme(legend.position = "inside",
+                                  legend.position.inside = c(.75, 1.09), 
                                   legend.title = element_blank(), 
                                   legend.key.size = unit(.02, "npc"))))
 
