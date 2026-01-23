@@ -90,7 +90,7 @@ jobs:
         with:
           job-config: ${{ matrix.config.job-config }}
           token: ${{ secrets.RHUB_TOKEN }}
-          extra-packages: any::pkgdown, local::., designmatch=?ignore, any::.
+          extra-packages: any::pkgdown, local::., designmatch=?ignore
       - uses: r-hub/actions/run-check@v1
         with:
           job-config: ${{ matrix.config.job-config }}
