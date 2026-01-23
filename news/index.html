@@ -95,7 +95,7 @@
 <ul><li><p>Fixed a bug when missing values were present in continuous covariates. Thanks to <a href="https://github.com/vnusinfo" class="external-link">@vnusinfo</a>. (<a href="https://github.com/ngreifer/cobalt/issues/76" class="external-link">#76</a>)</p></li>
 <li><p>Fixed a bug when using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with the <code>cluster</code> argument supplied with the <code>caret</code> package loaded. Thanks to <a href="https://github.com/BorgeJorge" class="external-link">@BorgeJorge</a>. (<a href="https://github.com/ngreifer/cobalt/issues/77" class="external-link">#77</a>)</p></li>
 <li><p>When <code>cluster</code> is specified, categorical variables that perfectly coincide with the cluster variable are now correctly removed.</p></li>
-<li><p>Perfectly colinear variables are no longer removed (unless they are binary variables split from the same factor). This should speed up evaluation and reduce the probability of false positives being removed.</p></li>
+<li><p>Perfectly collinear variables are no longer removed (unless they are binary variables split from the same factor). This should speed up evaluation and reduce the probability of false positives being removed.</p></li>
 <li><p>Variables with a single value are now more reliably categorized as “binary” in tables and calculations.</p></li>
 </ul></div>
     <div class="section level2">
