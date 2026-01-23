@@ -1117,7 +1117,7 @@ match_arg <- function(arg, choices, several.ok = FALSE, context = NULL) {
       else "one of"
     }
     
-    .err("{context} the argument to {.arg {arg.name}} should be {one_of} {.or {add_quotes(choices)}}")
+    .err("{context} the argument to {.arg {arg.name}} should be {one_of} {.or {.val {choices}}}")
   }
   
   i <- i[i > 0L]
