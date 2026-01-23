@@ -152,39 +152,46 @@ test_that("splictfactor() and unsplitfactor() work", {
   #Bad inputs
   expect_warning({
     d_s <- splitfactor(d, c("x1", "x2", "bad"), drop.first = "if2")
-  }, .w('"bad" is not the name of a factor variable in `data` and will not be split.'))
+  }, .w('"bad" is not the name of a factor variable in `data` and will not be split.'),
+  perl = TRUE)
   expect_identical(names(d_s),
                    c("x1_B", "x2_A", "x2_B", "x2_C", "x3", "x4a", "x4b", "x5"))
   
   expect_warning({
     d_s <- splitfactor(d, c("x1", "x2", "x3"), drop.first = "if2")
-  }, .w('"x3" is not the name of a factor variable in `data` and will not be split.'))
+  }, .w('"x3" is not the name of a factor variable in `data` and will not be split.'),
+  perl = TRUE)
   expect_identical(names(d_s),
                    c("x1_B", "x2_A", "x2_B", "x2_C", "x3", "x4a", "x4b", "x5"))
   
   expect_warning({
     d_s <- splitfactor(d, c("x1", "x2", "x3", "bad"), drop.first = "if2")
-  }, .w('"x3" and "bad" are not the names of factor variables in `data` and will not be split.'))
+  }, .w('"x3" and "bad" are not the names of factor variables in `data` and will not be split.'),
+  perl = TRUE)
   expect_identical(names(d_s),
                    c("x1_B", "x2_A", "x2_B", "x2_C", "x3", "x4a", "x4b", "x5"))
   
   expect_error({
     d_s <- splitfactor(d, 1)
-  }, .w("`var.name` must be a character vector of the names of one or more factor variables in `data`."))
+  }, .w("`var.name` must be a character vector of the names of one or more factor variables in `data`."),
+  perl = TRUE)
   
   expect_error({
     d_s <- splitfactor(d, "bad_x")
-  }, .w("No names in `var.name` are names of factor variables in `data`."))
+  }, .w("No names in `var.name` are names of factor variables in `data`."),
+  perl = TRUE)
   
   expect_warning({
     d_s <- splitfactor(d, c("x1", "x2"), drop.level = "B")
-  }, .w("`drop.level` cannot be used with multiple entries to `var.name`. Ignoring `drop.level`."))
+  }, .w("`drop.level` cannot be used with multiple entries to `var.name`. Ignoring `drop.level`."),
+  perl = TRUE)
   expect_identical(names(d_s),
                    c("x1_B", "x2_B", "x2_C", "x3", "x4a", "x4b", "x5"))
   
   expect_error({
     d_s <- splitfactor(d, drop.first = 3)
-  }, .w('`drop.first` must be `TRUE`, `FALSE`, or "if2".'))
+  }, .w('`drop.first` must be TRUE, FALSE, or "if2".'),
+  perl = TRUE)
   
   expect_no_condition({
     d_s <- splitfactor(d, "x1", drop.level = "B", drop.first = 3)
@@ -194,7 +201,8 @@ test_that("splictfactor() and unsplitfactor() work", {
   
   expect_warning({
     d_s <- splitfactor(m)
-  }, .w('There are no factor variables to split in `data`.'))
+  }, .w('There are no factor variables to split in `data`.'),
+  perl = TRUE)
   expect_s3_class(d_s, "data.frame")
   
   m[] <- as.character(m)

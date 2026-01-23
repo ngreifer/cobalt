@@ -12,7 +12,8 @@ test_that("`s.d.denom` processes correctly", {
     f <- reformulate(cov_names, "treat")
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std"),
-                   .w('Note: `s.d.denom` not specified; assuming "pooled".'))
+                   .w('Note: `s.d.denom` not specified; assuming "pooled".'),
+                   perl = TRUE)
     
     #No message when no variables are to be standardized
     expect_no_message(bal.tab(f, data = lalonde, binary = "raw", continuous = "raw"))
@@ -23,7 +24,8 @@ test_that("`s.d.denom` processes correctly", {
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std",
                            s.d.denom = "weighted"),
-                   .w('Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".'))
+                   .w('Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".'),
+                   perl = TRUE)
     
     expect_equal(bal.tab(f, data = lalonde, binary = "std", continuous = "std", s.d.denom = "pooled")$Balance$Diff.Un,
                  unname(col_w_smd(lalonde[cov_names], treat = lalonde$treat, s.d.denom = "pooled")))
@@ -36,14 +38,16 @@ test_that("`s.d.denom` processes correctly", {
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std",
                            weights = weights$wATE),
-                   .w('Note: `s.d.denom` not specified; assuming "pooled".'))
+                   .w('Note: `s.d.denom` not specified; assuming "pooled".'),
+                   perl = TRUE)
     
     expect_no_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std",
                               weights = weights$wATT))
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std",
                            weights = weights),
-                   .w('Note: `s.d.denom` not specified; assuming "pooled" for wATE and "treated" for wATT.'))
+                   .w('Note: `s.d.denom` not specified; assuming "pooled" for `wATE` and "treated" for `wATT`.'),
+                   perl = TRUE)
     
     #bal.tab() used the first s.d.denom for the unadjusted differences
     expect_equal(suppressMessages(bal.tab(f, data = lalonde, binary = "std", continuous = "std", 
@@ -60,7 +64,8 @@ test_that("`s.d.denom` processes correctly", {
     f <- reformulate(cov_names, "re75")
     
     expect_message(bal.tab(f, data = lalonde, s.d.denom = "weighted"),
-                   .w('Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".'))
+                   .w('Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".'),
+                   perl = TRUE)
     
     expect_equal(bal.tab(f, data = lalonde)$Balance$Corr.Un,
                  unname(col_w_corr(lalonde[cov_names], treat = lalonde$re75)))
@@ -75,7 +80,8 @@ test_that("`s.d.denom` processes correctly", {
     f <- reformulate(cov_names, "race")
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std"),
-                   .w('Note: `s.d.denom` not specified; assuming "pooled".'))
+                   .w('Note: `s.d.denom` not specified; assuming "pooled".'),
+                   perl = TRUE)
     
     #No message when no variables are to be standardized
     expect_no_message(bal.tab(f, data = lalonde, binary = "raw", continuous = "raw"))
@@ -86,7 +92,8 @@ test_that("`s.d.denom` processes correctly", {
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std",
                            s.d.denom = "weighted"),
-                   .w('Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".'))
+                   .w('Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".'),
+                   perl = TRUE)
     
     expect_equal(bal.tab(f, data = lalonde, binary = "std", continuous = "std", s.d.denom = "pooled")$Pair.Balance[["hispan vs. black"]]$Balance$Diff.Un,
                  unname(col_w_smd(lalonde[cov_names], treat = lalonde$race, s.d.denom = "pooled",
@@ -102,7 +109,8 @@ test_that("`s.d.denom` processes correctly", {
     
     expect_message(bal.tab(f, data = lalonde, binary = "std", continuous = "std",
                            cluster = "race"),
-                   .w('Note: `s.d.denom` not specified; assuming "pooled".'))
+                   .w('Note: `s.d.denom` not specified; assuming "pooled".'),
+                   perl = TRUE)
     
     expect_no_message(bal.tab(f, data = lalonde, binary = "raw", continuous = "raw",
                               cluster = "race"))
