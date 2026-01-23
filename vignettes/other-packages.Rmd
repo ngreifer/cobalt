@@ -299,7 +299,7 @@ The goal of the `default` method is to allow package authors to rely on *cobalt*
 
 Below, we demonstrate this capability with the output of *optweight*, which performs a version of propensity score weighting using optimization, similar to *sbw*. No `bal.tab()` method has been written with *optweight* output in mind; rather, *optweight* was written to have output compatible with the `default` method of `bal.tab()`.
 
-```{r, eval = rlang::is_installed("optweight")}
+```{r, eval = rlang::is_installed(c("optweight", "osqp"))}
 #Optimization-based weighting
 data("lalonde", package = "cobalt")
 
