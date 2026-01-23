@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,9 +48,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+<li><a class="dropdown-item" href="articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="articles/faq.html">Frequently Asked Questions</a></li>
@@ -72,7 +72,8 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="cobalt-covariate-balance-tables-and-plots-">cobalt: Covariate Balance Tables and Plots <a class="anchor" aria-label="anchor" href="#cobalt-covariate-balance-tables-and-plots-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="cobalt-covariate-balance-tables-and-plots-">
+<em>cobalt</em>: Covariate Balance Tables and Plots <a class="anchor" aria-label="anchor" href="#cobalt-covariate-balance-tables-and-plots-"></a>
 </h1>
 </div>
 <div class="section level2">
@@ -83,21 +84,21 @@
 <div class="section level3">
 <h3 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h3>
-<p>Welcome to <code>cobalt</code>, which stands for <strong>Co</strong>variate <strong>Bal</strong>ance <strong>T</strong>ables (and Plots). <code>cobalt</code> allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. <code>cobalt</code>’s primary function is <code><a href="reference/bal.tab.html">bal.tab()</a></code>, which stands for “balance table”, and is meant to replace (or supplement) the balance assessment tools found in other R packages. To examine how <code><a href="reference/bal.tab.html">bal.tab()</a></code> integrates with these packages and others, see the help file for <code><a href="reference/bal.tab.html">bal.tab()</a></code> with <code><a href="reference/bal.tab.html">?bal.tab</a></code>, which links to the methods used for each package. Each page has examples of how <code><a href="reference/bal.tab.html">bal.tab()</a></code> is used with the package. There are also several vignettes detailing the use of <code>cobalt</code>, which can be accessed at <code><a href="articles/cobalt.html">vignette("cobalt")</a></code>: one for basic uses of <code>cobalt</code>, one for the use of <code>cobalt</code> with additional packages, one for the use of <code>cobalt</code> with multiply imputed and/or clustered data, one for the use of <code>cobalt</code> with longitudinal treatments, and one for the use of <code>cobalt</code> to generate publication-ready plots. Currently, <code>cobalt</code> is compatible with output from <code>MatchIt</code>, <code>twang</code>, <code>Matching</code>, <code>optmatch</code>, <code>CBPS</code>, <code>ebal</code>, <code>WeightIt</code>, <code>designmatch</code>, <code>sbw</code>, <code>MatchThem</code>, and <code>cem</code> as well as data not processed through these packages.</p>
-<p>For more information, check out the <code>cobalt</code> <a href="https://ngreifer.github.io/cobalt/">website</a>!</p>
+<p>Welcome to <em>cobalt</em>, which stands for <strong>Co</strong>variate <strong>Bal</strong>ance <strong>T</strong>ables (and Plots). <em>cobalt</em> allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. <em>cobalt</em>’s primary function is <code><a href="reference/bal.tab.html">bal.tab()</a></code>, which stands for “balance table”, and is meant to replace (or supplement) the balance assessment tools found in other R packages. To examine how <code><a href="reference/bal.tab.html">bal.tab()</a></code> integrates with these packages and others, see the help file for <code><a href="reference/bal.tab.html">bal.tab()</a></code> with <code><a href="reference/bal.tab.html">?bal.tab</a></code>, which links to the methods used for each package. Each page has examples of how <code><a href="reference/bal.tab.html">bal.tab()</a></code> is used with the package. There are also several vignettes detailing the use of <em>cobalt</em>, which can be accessed at <code><a href="articles/cobalt.html">vignette("cobalt")</a></code>: one for basic uses of <em>cobalt</em>, one for the use of <em>cobalt</em> with additional packages, one for the use of <em>cobalt</em> with multiply imputed and/or clustered data, one for the use of <em>cobalt</em> with longitudinal treatments, and one for the use of <em>cobalt</em> to generate publication-ready plots. Currently, <em>cobalt</em> is compatible with output from <em>MatchIt</em>, <em>twang</em>, <em>Matching</em>, <em>optmatch</em>, <em>CBPS</em>, <em>ebal</em>, <em>WeightIt</em>, <em>designmatch</em>, <em>sbw</em>, <em>MatchThem</em>, and <em>cem</em> as well as data not processed through these packages.</p>
+<p>For more information, check out the <em>cobalt</em> <a href="https://ngreifer.github.io/cobalt/">website</a>!</p>
 </div>
 <div class="section level3">
 <h3 id="why-cobalt">Why cobalt?<a class="anchor" aria-label="anchor" href="#why-cobalt"></a>
 </h3>
-<p>Most of the major conditioning packages contain functions to assess balance; so why use <code>cobalt</code> at all? <code>cobalt</code> arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. In addition, <code>cobalt</code> has unique plotting capabilities that make use of <code>ggplot2</code> in R for balance assessment and reporting.</p>
-<p>Because conditioning methods are spread across several packages which each have their idiosyncrasies in how they report balance (if at all), comparing the resulting balance from various conditioning methods can be a challenge. <code>cobalt</code> unites these packages by providing a single, flexible tool that intelligently processes output from any of the conditioning packages and provides the user with both useful defaults and customizable options for display and calculation. <code>cobalt</code> also allows for balance assessment on data not generated through any of the conditioning packages. In addition, <code>cobalt</code> has tools for assessing and reporting balance for clustered data sets, data sets generated through multiple imputation, and data sets with a continuous treatment variable, all features that exist in very limited capacities or not at all in other packages.</p>
-<p>A large focus in developing <code>cobalt</code> was to streamline output so that only the most useful, non-redundant, and complete information is displayed, all at the user’s choice. Balance statistics are intuitive, methodologically informed, and simple to interpret. Visual displays of balance reflect the goals of balance assessment rather than being steps removed. While other packages have focused their efforts on processing data, <code>cobalt</code> only assesses balance, and does so particularly well.</p>
-<p>New features are being added all the time, following the cutting edge of methodological work on balance assessment. As new packages and methods are developed, <code>cobalt</code> will be ready to integrate them to further our goal of simple, unified balance assessment.</p>
+<p>Most of the major conditioning packages contain functions to assess balance; so why use <em>cobalt</em> at all? <em>cobalt</em> arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. In addition, <em>cobalt</em> has unique plotting capabilities that make use of <em>ggplot2</em> in R for balance assessment and reporting.</p>
+<p>Because conditioning methods are spread across several packages which each have their idiosyncrasies in how they report balance (if at all), comparing the resulting balance from various conditioning methods can be a challenge. <em>cobalt</em> unites these packages by providing a single, flexible tool that intelligently processes output from any of the conditioning packages and provides the user with both useful defaults and customizable options for display and calculation. <em>cobalt</em> also allows for balance assessment on data not generated through any of the conditioning packages. In addition, <em>cobalt</em> has tools for assessing and reporting balance for clustered data sets, data sets generated through multiple imputation, and data sets with a continuous treatment variable, all features that exist in very limited capacities or not at all in other packages.</p>
+<p>A large focus in developing <em>cobalt</em> was to streamline output so that only the most useful, non-redundant, and complete information is displayed, all at the user’s choice. Balance statistics are intuitive, methodologically informed, and simple to interpret. Visual displays of balance reflect the goals of balance assessment rather than being steps removed. While other packages have focused their efforts on processing data, <em>cobalt</em> only assesses balance, and does so particularly well.</p>
+<p>New features are being added all the time, following the cutting edge of methodological work on balance assessment. As new packages and methods are developed, <em>cobalt</em> will be ready to integrate them to further our goal of simple, unified balance assessment.</p>
 </div>
 <div class="section level3">
 <h3 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h3>
-<p>Below are examples of <code>cobalt</code>’s primary functions:</p>
+<p>Below are examples of <em>cobalt</em>’s primary functions:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
@@ -141,17 +142,20 @@
 <span><span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"educ"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"distance"</span>,</span>
 <span>         mirror <span class="op">=</span> <span class="cn">TRUE</span>, type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-3-1.png" data-display="inline"><img src="reference/figures/README-unnamed-chunk-3-2.png" data-display="inline"></p>
+<center>
+<img src="reference/figures/README-unnamed-chunk-3-1.png" data-display="inline"><img src="reference/figures/README-unnamed-chunk-3-2.png" data-display="inline">
+</center>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Generating a Love plot to report balance:</span></span>
 <span><span class="fu"><a href="reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>,</span>
 <span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>          binary <span class="op">=</span> <span class="st">"std"</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span><span class="op">)</span></span></code></pre></div>
-<p>Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: “Matching was performed using the <em>Matching</em> package (Sekhon, 2011), and covariate balance was assessed using <em>cobalt</em> (Greifer, 2025), both in R (R Core Team, 2025).” Use <code>citation("cobalt")</code> to generate a bibliographic reference for the <code>cobalt</code> package.</p>
-<p>Bugs appear in <code>cobalt</code> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="external-link uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <code>cobalt</code>, which may have removed a bug you’re experiencing, use the following code:</p>
+<p><img src="reference/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;"></p>
+<p>Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: “Matching was performed using the <em>Matching</em> package (Sekhon, 2011), and covariate balance was assessed using <em>cobalt</em> (Greifer, 2026), both in R (R Core Team, 2025).” Use <code>citation("cobalt")</code> to generate a bibliographic reference for the <em>cobalt</em> package.</p>
+<p>Bugs appear in <em>cobalt</em> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="external-link uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <em>cobalt</em>, which may have removed a bug you’re experiencing, use the following code:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/cobalt"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"ngreifer/cobalt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -197,7 +201,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

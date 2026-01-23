@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,9 +25,9 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -199,7 +199,8 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab.formula.list()</code> and <code>bal.tab.data.frame.list()</code> generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the <code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">WeightIt::weightitMSM()</a></code> documentation for an example of how to transform long data into wide data using <code><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">reshape()</a></code>.</p>
+    <p><code>bal.tab.formula.list()</code> and <code>bal.tab.data.frame.list()</code> generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the <code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">WeightIt::weightitMSM()</a></code>
+ documentation for an example of how to transform long data into wide data using <code><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">reshape()</a></code>.</p>
 <p>Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in <code>data</code> or a list thereof. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of <code><a href="bal.tab.html">bal.tab()</a></code>.</p>
     </div>
     <div class="section level2">
@@ -327,7 +328,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

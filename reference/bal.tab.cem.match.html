@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,9 +25,9 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -84,11 +84,12 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>a <code>cem.match</code> or <code>cem.match.list</code> object; the output of a call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem::cem()</a></code>.</p></dd>
+<dd><p>a <code>cem.match</code> or <code>cem.match.list</code> object; the output of a call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem::cem()</a></code>
+.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>a data frame containing variables named in other arguments. An argument to <code>data</code> is <strong>required</strong>. It must be the same data used in the call to <code>cem()</code> or a <code>mids</code> object from which the data supplied to <code>datalist</code> in the <code>cem()</code> call originated.</p></dd>
+<dd><p>a data frame containing variables named in other arguments. An argument to <code>data</code> is <strong>required</strong>. It must be the same data used in the call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code> or a <code>mids</code> object from which the data supplied to <code>datalist</code> in the <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code> call originated.</p></dd>
 
 
 <dt id="arg-stats">stats<a class="anchor" aria-label="anchor" href="#arg-stats"></a></dt>
@@ -120,7 +121,7 @@
 
 
 <dt id="arg-s-d-denom">s.d.denom<a class="anchor" aria-label="anchor" href="#arg-s-d-denom"></a></dt>
-<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance-summary.html">col_w_smd()</a></code> for allowable options. Abbreviations allowed. If not specified, will be set to <code>"treated"</code>, where the treated group corresponds to the <code>baseline.group</code> in the call to <code>cem()</code>.</p></dd>
+<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance-summary.html">col_w_smd()</a></code> for allowable options. Abbreviations allowed. If not specified, will be set to <code>"treated"</code>, where the treated group corresponds to the <code>baseline.group</code> in the call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code>.</p></dd>
 
 
 <dt id="arg-thresholds">thresholds<a class="anchor" aria-label="anchor" href="#arg-thresholds"></a></dt>
@@ -167,12 +168,13 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>If clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>cem.match</code> object. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
 <p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code> for details.</p>
-<p>If <code>cem()</code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p>
+<p>If <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab.cem.match()</code> generates a list of balance summaries for the <code>cem.match</code> object given, and functions similarly to <code><a href="https://rdrr.io/pkg/cem/man/imbalance.html" class="external-link">cem::imbalance()</a></code>.</p>
+    <p><code>bal.tab.cem.match()</code> generates a list of balance summaries for the <code>cem.match</code> object given, and functions similarly to <code><a href="https://rdrr.io/pkg/cem/man/imbalance.html" class="external-link">cem::imbalance()</a></code>
+.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -181,11 +183,14 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># requireNamespace("cem", quietly = TRUE) &amp;&amp; FALSE</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># rlang::is_installed("cem") &amp;&amp; FALSE</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Coarsened exact matching</span></span></span>
-<span class="r-in"><span><span class="va">cem.out</span> <span class="op">&lt;-</span> <span class="fu">cem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem</a></span><span class="op">(</span><span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, drop <span class="op">=</span> <span class="st">"re78"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gking.harvard.edu/cem" class="external-link">cem</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cem.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem</a></span><span class="op">(</span><span class="st">"treat"</span>,</span></span>
+<span class="r-in"><span>               data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
+<span class="r-in"><span>               drop <span class="op">=</span> <span class="st">"re78"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out</span>, data <span class="op">=</span> <span class="va">lalonde</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
 <span class="r-in"><span>        stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"k"</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -201,7 +206,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

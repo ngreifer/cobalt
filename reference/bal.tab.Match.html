@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,9 +25,9 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -87,7 +87,9 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>a <code>Match</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code> or <code><a href="https://rdrr.io/pkg/Matching/man/Matchby.html" class="external-link">Matching::Matchby()</a></code>).</p></dd>
+<dd><p>a <code>Match</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code>
+ or <code><a href="https://rdrr.io/pkg/Matching/man/Matchby.html" class="external-link">Matching::Matchby()</a></code>
+).</p></dd>
 
 
 <dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
@@ -185,7 +187,9 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code><a href="bal.tab.html">bal.tab()</a></code> generates a list of balance summaries for the object given, and functions similarly to <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">Matching::MatchBalance()</a></code>. The input to <code>bal.tab.Match()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>formula</code> + <code>data</code> inputs mirrors how <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">Matching::MatchBalance()</a></code> is used.</p>
+    <p><code><a href="bal.tab.html">bal.tab()</a></code> generates a list of balance summaries for the object given, and functions similarly to <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">Matching::MatchBalance()</a></code>
+. The input to <code>bal.tab.Match()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>formula</code> + <code>data</code> inputs mirrors how <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">Matching::MatchBalance()</a></code>
+ is used.</p>
 <p><code>cobalt</code> functions do not support <code>Match</code> object with sampling weights, i.e., with an argument passed to the <code>weights</code> argument of <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code>.</p>
     </div>
     <div class="section level2">
@@ -195,8 +199,8 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/JasjeetSekhon/Matching" class="external-link">Matching</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: MASS</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/JasjeetSekhon/Matching" class="external-link">Matching</a></span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ## </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Matching (Version 4.10-15, Build Date: 2024-10-14)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##  See https://www.jsekhon.com for additional documentation.</span>
@@ -206,14 +210,19 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Journal of Statistical Software, 42(7): 1-52. </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span></span>
-<span class="r-in"><span>                   <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
-<span class="r-in"><span>               data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span></span>
-<span class="r-in"><span><span class="va">Match.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Match</a></span><span class="op">(</span>Tr <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, X <span class="op">=</span> <span class="va">p.score</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Estimate propensity score</span></span></span>
+<span class="r-in"><span><span class="va">p.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span>               <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
+<span class="r-in"><span>             data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
+<span class="r-in"><span>             family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">Match.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Match</a></span><span class="op">(</span>Tr <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>,</span></span>
+<span class="r-in"><span>                   X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">p.fit</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Using formula and data</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">Match.out</span>, formula <span class="op">=</span> <span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span></span>
-<span class="r-in"><span>            <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span></span>
+<span class="r-in"><span>          <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span></span>
+<span class="r-in"><span>        data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.   0.2106</span>
@@ -243,7 +252,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

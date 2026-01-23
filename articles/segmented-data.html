@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data • cobalt</title>
+<title>Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data • cobalt</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -21,7 +21,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +45,9 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+<li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -72,11 +72,11 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</h1>
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2025-08-21</h4>
+            <h4 data-toc-skip class="date">2026-01-23</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/segmented-data.Rmd" class="external-link"><code>vignettes/segmented-data.Rmd</code></a></small>
       <div class="d-none name"><code>segmented-data.Rmd</code></div>
@@ -84,18 +84,18 @@ Greifer</h4>
 
     
     
-<p>This is a guide for the use of <code>cobalt</code> with more
-complicated data than is typical in studies using propensity scores and
-similar methods. In particular, this guide will explain
-<code>cobalt</code>’s features for handling multilevel or grouped data
-and data arising from multiple imputation. The features described here
-set <code>cobalt</code> apart from other packages that assess balance
-because they exist only in <code>cobalt</code>. It will be assumed that
-the basic functions of <code>cobalt</code> are understood; this guide
-will only address issues that are unique to these data scenarios.</p>
+<p>This is a guide for the use of <em>cobalt</em> with more complicated
+data than is typical in studies using propensity scores and similar
+methods. In particular, this guide will explain <em>cobalt</em>’s
+features for handling multilevel or grouped data and data arising from
+multiple imputation. The features described here set <em>cobalt</em>
+apart from other packages that assess balance because they exist only in
+<em>cobalt</em>. It will be assumed that the basic functions of
+<em>cobalt</em> are understood; this guide will only address issues that
+are unique to these data scenarios.</p>
 <div class="section level2">
 <h2 id="cobalt-and-segmented-data">
-<code>cobalt</code> and Segmented Data<a class="anchor" aria-label="anchor" href="#cobalt-and-segmented-data"></a>
+<em>cobalt</em> and Segmented Data<a class="anchor" aria-label="anchor" href="#cobalt-and-segmented-data"></a>
 </h2>
 <p>First, let’s understand segmented data. Segmented data arises when
 the data involved in balance assessment needs to be split into segments
@@ -105,8 +105,8 @@ each cluster; data arising from a sequential study, in which case
 balance should be assessed at each time point; multi-category
 treatments, in which case balance should be assessed for each pair of
 treatments; and multiply imputed data, in which case balance should be
-assessed within each imputation. <code>cobalt</code> can handle all
-these scenarios simultaneously, but how it does so may be a little
+assessed within each imputation. <em>cobalt</em> can handle all these
+scenarios simultaneously, but how it does so may be a little
 complicated. This vignette explains how these scenarios are handled.</p>
 <p>At the core is the idea that the most basic unit of balance
 assessment is a balance statistic for a covariate. For binary treatments
@@ -121,7 +121,7 @@ dataset (e.g., with clustered and multiply imputed data, or with
 longitudinal data with multi-category treatments), balance assessment
 should reflect each layer of segmentation.</p>
 <p>Although the idea of simply splitting data into segments is simple,
-there are a few options and limitations in <code>cobalt</code> that are
+there are a few options and limitations in <em>cobalt</em> that are
 important to consider. The basic idea is the same regardless of how the
 data are segmented: for each layer of segmentation, balance is assessed
 within segments of that layer, and the layers stack hierarchically. For
@@ -133,14 +133,14 @@ produced to simplify balance assessment. Matching and weighting are
 compatible with segmented data, but subclassification is its own special
 form of segmentation that is treated differently and will not be
 considered here.</p>
-<p>Each of <code>cobalt</code>’s primary functions
-(<code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and
-<code><a href="../reference/love.plot.html">love.plot()</a></code>) has features to handle segmented data sets.
-The following sections describe for each data scenario the relevant
-features of each function. We’ll take a look at a few common examples of
-segmented data: clustered data, multiply imputed data, and
-multi-category and multiply imputed data. For longitudinal treatments,
-see <code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>.</p>
+<p>Each of <em>cobalt</em>’s primary functions (<code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
+<code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>) has features to
+handle segmented data sets. The following sections describe for each
+data scenario the relevant features of each function. We’ll take a look
+at a few common examples of segmented data: clustered data, multiply
+imputed data, and multi-category and multiply imputed data. For
+longitudinal treatments, see
+<code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="clustered-data">Clustered Data<a class="anchor" aria-label="anchor" href="#clustered-data"></a>
@@ -155,17 +155,21 @@ below, we will imagine that we are interested in the ATT of
 Thus, we will condition on the propensity score within each cluster.</p>
 <p>First, let’s estimate propensity scores and perform matching within
 each race group. We can do this by performing separate analyses within
-each cluster, but we can also use exact matching in <code>MatchIt</code>
-to ensure matches occur within clusters. It is important to note that
-this analysis does not necessarily represent a sound statistical
-analysis and is being used for illustrative purposes only.</p>
+each cluster, but we can also use exact matching in <em>MatchIt</em> to
+ensure matches occur within clusters. It is important to note that this
+analysis does not necessarily represent a sound statistical analysis and
+is being used for illustrative purposes only.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">race</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>, </span>
-<span>                          data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span>, exact <span class="op">=</span> <span class="st">"race"</span>, </span>
-<span>                          replace <span class="op">=</span> <span class="cn">TRUE</span>, ratio <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">"MatchIt"</a></span><span class="op">)</span></span>
+<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">race</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>, </span>
+<span>                 data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>                 method <span class="op">=</span> <span class="st">"nearest"</span>,</span>
+<span>                 exact <span class="op">=</span> <span class="st">"race"</span>, </span>
+<span>                 replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                 ratio <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bal-tab">
 <code>bal.tab()</code><a class="anchor" aria-label="anchor" href="#bal-tab"></a>
@@ -351,7 +355,7 @@ to change <code><a href="../reference/bal.tab.html">bal.tab()</a></code> output.
 <p>These can also be set as global options by using, for example,
 <code>set.cobalt.options(cluster.fun = "mean")</code>, which allows
 users not to type a non-default option every time they call
-<code>bal.tab</code>.</p>
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="bal-plot">
@@ -365,7 +369,7 @@ the same as those for <code><a href="../reference/bal.tab.html">bal.tab()</a></c
 of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> with clustered data:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-6-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="480"></p>
 <p>Balance plots for each cluster are displayed next to each other. You
 can specify <code>which.cluster</code> as with <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to
 restrict plotting to a subset of clusters.</p>
@@ -375,7 +379,7 @@ restrict plotting to a subset of clusters.</p>
 <code>love.plot()</code><a class="anchor" aria-label="anchor" href="#love-plot"></a>
 </h3>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> shines with clustered data because there are
-several options that are unique to <code>cobalt</code> and help with the
+several options that are unique to <em>cobalt</em> and help with the
 visual display of balance. One way to display cluster balance with
 <code><a href="../reference/love.plot.html">love.plot()</a></code> is to produce different plots for each cluster,
 as <code><a href="../reference/bal.plot.html">bal.plot()</a></code> does. This method should not be used with
@@ -387,7 +391,7 @@ names or indices of the clusters for which balance is to be plotted. If
 all clusters will be plotted. Below is an example:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="480"></p>
 <p>These plots function like those from using <code><a href="../reference/love.plot.html">love.plot()</a></code>
 with non-clustered data, except that they cannot be sorted based on the
 values of the balance statistics (they can still be sorted
@@ -404,14 +408,14 @@ or “max”. Below is an example:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>,</span>
 <span>          which.cluster <span class="op">=</span> <span class="va">.none</span>,</span>
 <span>          agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-8-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="480"></p>
 <p>A third option is to set <code>agg.fun = "range"</code> (the
 default), which produces a similar plot as above except that the minimum
 and maximum values of the balance statistics for each covariate are
 displayed as well. See below for an example:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, agg.fun <span class="op">=</span> <span class="st">"range"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-9-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="480"></p>
 <p>Each point represents the mean balance statistic, and the bars
 represent intervals bounded by the minimum and maximum of each balance
 statistic. This display can be especially helpful with many clusters
@@ -441,12 +445,12 @@ reduced the size of each differently), but it is preferred that they are
 the same size and weights are used to indicate which units belong to the
 sample and which do not.</p>
 <p>In the example below, we will use a version of the Lalonde data set
-with some values missing. We will use the <code>mice</code> package to
+with some values missing. We will use the <em>mice</em> package to
 implement multiple imputation with chained equations. We will perform
-the “within” approach using the <code>MatchThem</code> to perform
-propensity score weighting within each imputation with <code>educ</code>
-as the continuous treatment (substantively this analysis makes no sense
-and is just for illustration).</p>
+the “within” approach using the <em>MatchThem</em> to perform propensity
+score weighting within each imputation with <code>educ</code> as the
+continuous treatment (substantively this analysis makes no sense and is
+just for illustration).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
@@ -466,16 +470,15 @@ and is just for illustration).</p>
 </h3>
 <p>There are a few ways to use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with our imputed
 data sets. When using the <code>mimids</code> or <code>wimids</code>
-methods for <code>MatchThem</code> objects, only the output object needs
-to be supplied. When using other methods, an argument to
-<code>imp</code> can be supplied; this should contain the imputation
-identifiers for each unit or the name of a variable in a supplied
-dataset (e.g., through the <code>data</code> argument) that contains the
-imputation identifiers. Alternatively, the <code>mids</code> object
-resulting from the call to <code>mice</code> can be supplied to the
-<code>data</code> argument, which automatically populates
-<code>imp</code>. There are four arguments that are only relevant to
-imputed data:</p>
+methods for <em>MatchThem</em> objects, only the output object needs to
+be supplied. When using other methods, an argument to <code>imp</code>
+can be supplied; this should contain the imputation identifiers for each
+unit or the name of a variable in a supplied dataset (e.g., through the
+<code>data</code> argument) that contains the imputation identifiers.
+Alternatively, the <code>mids</code> object resulting from the call to
+<em>mice</em> can be supplied to the <code>data</code> argument, which
+automatically populates <code>imp</code>. There are four arguments that
+are only relevant to imputed data:</p>
 <ul>
 <li><p><code>imp</code> is a vector of imputation numbers for each unit
 or the name of a variable in an available data set containing the
@@ -532,12 +535,12 @@ the imputed data set must be sorted by imputation and unit ID.</p>
 table presents the minimum, mean, and maximum balance statistics for
 each variable across imputations. Setting <code>un = TRUE</code> will
 also display the same values for the adjusted data set. Setting
-<code>abs = TRUE</code> will make <code>bal.tab</code> report summaries
-of the absolute values of the balance statistics. This table functions
-in the same way as the table for balance across clusters. Below is the
-average sample size across imputations; in some matching and weighting
-schemes, the sample size (or effective sample size) may differ across
-imputations.</p>
+<code>abs = TRUE</code> will make <code><a href="../reference/bal.tab.html">bal.tab()</a></code> report
+summaries of the absolute values of the balance statistics. This table
+functions in the same way as the table for balance across clusters.
+Below is the average sample size across imputations; in some matching
+and weighting schemes, the sample size (or effective sample size) may
+differ across imputations.</p>
 <p>When requesting the balance summary across imputations, the
 <code>thresholds</code> argument needs special care. Because multiple
 balance summaries are produced for each covariate by default, simply
@@ -615,11 +618,11 @@ balance for multiple imputations at a time. The arguments to
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code> are the same as those for
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, except that <code>imp.summary</code> is absent.
 Below is an example of the use of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> with imputed
-and weighted data from <code>MatchThem</code>, examining balance in the
+and weighted data from <em>MatchThem</em>, examining balance in the
 first imputation:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-14-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="480"></p>
 <p>When many imputations are generated, it is recommended not to plot
 all at the same time by specifying an argument to
 <code>which.imp</code>, as done above. When <code>which.imp</code> is
@@ -638,7 +641,7 @@ imputations at a time, and rather to display balance summarized across
 imputations:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>c <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-15-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="480"></p>
 <p>Often these ranges will be small if the imputed data sets are very
 similar to each other, but the more imputations are generated, the wider
 the ranges tend to be. Unlike with <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
@@ -649,17 +652,17 @@ without specifying an argument to <code>agg.fun</code>.</p>
 <div class="section level2">
 <h2 id="multi-category-treatments-with-multiply-imputed-data">Multi-Category Treatments with Multiply Imputed Data<a class="anchor" aria-label="anchor" href="#multi-category-treatments-with-multiply-imputed-data"></a>
 </h2>
-<p>So far we’ve seen how <code>cobalt</code> functions work with one
-layer of data segmentation, but now let’s see what it’s like to work
-with two or more layers of segmentation. As an example, we’ll first look
-at multiply imputed data with a multi-category treatment. With
+<p>So far we’ve seen how <em>cobalt</em> functions work with one layer
+of data segmentation, but now let’s see what it’s like to work with two
+or more layers of segmentation. As an example, we’ll first look at
+multiply imputed data with a multi-category treatment. With
 multi-category treatments, balance is typically assessed by examining
 balance statistics computed for pairs of treatments. With multi-category
 and multiply imputed data, the data is segmented both by imputation and
 by treatment pair.</p>
 <p>We’ll use the three-category <code>race</code> variable as our
 multi-category treatment and use the same imputed data as above. Again,
-the <code>MatchThem</code> package can be used to estimate weights in
+the <em>MatchThem</em> package can be used to estimate weights in
 multiply imputed data. We’ll use propensity score weighting to estimate
 the ATE of <code>race</code>. As before, this analysis makes no sense
 substantively and is just for illustration.</p>
@@ -742,7 +745,7 @@ examined on one or more imputations at a time.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, var.name <span class="op">=</span> <span class="st">"married"</span>, which.imp <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>         which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-18-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="480"></p>
 </div>
 <div class="section level3">
 <h3 id="love-plot-2">
@@ -759,7 +762,7 @@ segment of the layer). Here we’ll demonstrate aggregating across
 imputations while faceting on treatment pairs.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, threshold <span class="op">=</span> <span class="fl">.1</span>, agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="segmented-data_files/figure-html/unnamed-chunk-19-1.png" width="480"></p>
+<p><img src="segmented-data_files/figure-html/unnamed-chunk-19-1.png" class="r-plt" alt="" width="480"></p>
 <p>The arguments to <code>which.treat</code>, <code>which.imp</code>,
 <code>abs</code>, and <code>agg.fun</code> can be used to control how
 the plots are faceted and aggregated as they can with single-layer
@@ -769,14 +772,14 @@ data.</p>
 <div class="section level2">
 <h2 id="concluding-remarks">Concluding Remarks<a class="anchor" aria-label="anchor" href="#concluding-remarks"></a>
 </h2>
-<p>We have demonstrated the use of <code>cobalt</code> with clustered
-data, multiply imputed data, and multiply imputed data with a
-multi-category treatment. Though there are few published recommendations
-for the display of balance in some of these cases, we believe these
-tools may encourage development in this area. In general, we believe in
-displaying the most relevant information as compactly as possible, and
-thus recommend using <code><a href="../reference/love.plot.html">love.plot()</a></code> with some degree of
-aggregation for inclusion in published work.</p>
+<p>We have demonstrated the use of <em>cobalt</em> with clustered data,
+multiply imputed data, and multiply imputed data with a multi-category
+treatment. Though there are few published recommendations for the
+display of balance in some of these cases, we believe these tools may
+encourage development in this area. In general, we believe in displaying
+the most relevant information as compactly as possible, and thus
+recommend using <code><a href="../reference/love.plot.html">love.plot()</a></code> with some degree of aggregation
+for inclusion in published work.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -789,7 +792,7 @@ aggregation for inclusion in published work.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

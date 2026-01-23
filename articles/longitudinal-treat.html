@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Using `cobalt` with Longitudinal Treatments • cobalt</title>
+<title>Using cobalt with Longitudinal Treatments • cobalt</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -21,7 +21,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using `cobalt` with Longitudinal Treatments">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using cobalt with Longitudinal Treatments">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +45,9 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+<li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -72,11 +72,11 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Using `cobalt` with Longitudinal Treatments</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Using cobalt with Longitudinal Treatments</h1>
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2025-08-21</h4>
+            <h4 data-toc-skip class="date">2026-01-23</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/longitudinal-treat.Rmd" class="external-link"><code>vignettes/longitudinal-treat.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-treat.Rmd</code></div>
@@ -84,7 +84,7 @@ Greifer</h4>
 
     
     
-<p>This is an introduction to the use of <code>cobalt</code> with
+<p>This is an introduction to the use of <em>cobalt</em> with
 longitudinal treatments. These occur when there are multiple treatment
 periods spaced over time, with the potential for time-dependent
 confounding to occur. A common way to estimate treatment effects in
@@ -96,7 +96,7 @@ covariate and treatment history. For introduction to MSMs in general,
 see <span class="citation">Thoemmes and Ong (<a href="#ref-thoemmesPrimerInverseProbability2016">2016</a>)</span>, <span class="citation">VanderWeele, Jackson, and Li (<a href="#ref-vanderweeleCausalInferenceLongitudinal2016">2016</a>)</span>,
 <span class="citation">Cole and Hernán (<a href="#ref-coleConstructingInverseProbability2008">2008</a>)</span>, or
 <span class="citation">Robins, Hernán, and Brumback (<a href="#ref-robinsMarginalStructuralModels2000">2000</a>)</span>. The key
-issue addressed by this guide and <code>cobalt</code> in general is
+issue addressed by this guide and <em>cobalt</em> in general is
 assessing balance before each treatment period to ensure the removal of
 confounding.</p>
 <p>In preprocessing for MSMs, three types of variables are relevant:
@@ -104,9 +104,9 @@ baseline covariates, treatments, and intermediate outcomes/time-varying
 covariates. The goal of balance assessment is to assess whether after
 preprocessing, the resulting sample is one in which each treatment is
 independent of baseline covariates, treatment history, and time-varying
-covariates. The tools in <code>cobalt</code> have been developed to
-satisfy these goals.</p>
-<p>The next section describe how to use <code>cobalt</code>’s tools to
+covariates. The tools in <em>cobalt</em> have been developed to satisfy
+these goals.</p>
+<p>The next section describe how to use <em>cobalt</em>’s tools to
 assess balance with longitudinal treatments. First, we’ll examine an
 example data set and identify some tools that can be used to generate
 weights for MSMs. Next we’ll use <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
@@ -116,9 +116,10 @@ present balance.</p>
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <p>We’re going to use the <code>msmdata</code> data set in the
-<code>WeightIt</code> package.</p>
+<em>WeightIt</em> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">"WeightIt"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"msmdata"</span>, package <span class="op">=</span> <span class="st">"WeightIt"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   X1_0 X2_0 A_1 X1_1 X2_1 A_2 X1_2 X2_2 A_3 Y_B</span></span>
@@ -168,17 +169,17 @@ interface requires a list of formulas, one for each treatment, and a
 data set containing the relevant variables. The data set must be in the
 “wide” setup, where each time point receives its own columns and each
 unit has exactly one row of data. The formula interface is similar to
-the <code>WeightIt</code> input seen above. The data frame interface
+the <em>WeightIt</em> input seen above. The data frame interface
 requires a list of treatment values for each time point and a data frame
 or list of covariates for each time point. We’ll use the formula
 interface here.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
 <span>             <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
-<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
 <span>             <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
-<span>                 <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
-<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>               <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
 <span>        data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all time points</span></span></span>
 <span><span class="co">##        Times    Type Max.Diff.Un</span></span>
@@ -215,10 +216,10 @@ across time points, but this can be requested again by setting
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
 <span>             <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
-<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
 <span>             <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
-<span>                 <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
-<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>               <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
 <span>        data <span class="op">=</span> <span class="va">msmdata</span>,</span>
 <span>        which.time <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by Time Point</span></span></span>
@@ -271,19 +272,17 @@ or when the treatment types vary or for multiply imputed data, no
 balance summary will be computed or displayed.</p>
 <p>To estimate the weights, we’ll use
 <code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">WeightIt::weightitMSM()</a></code> to fit a series of logistic
-regressions that generate the weights. See the <code>WeightIt</code>
-documentation for more information on how to use <code>WeightIt</code>
-with longitudinal treatments.</p>
+regressions that generate the weights. See the <em>WeightIt</em>
+documentation for more information on how to use <em>WeightIt</em> with
+longitudinal treatments.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Wmsm</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
-<span>         <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
-<span>             <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
-<span>         <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
-<span>             <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
-<span>             <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">msmdata</span>,</span>
-<span>    method <span class="op">=</span> <span class="st">"glm"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">Wmsm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>                         <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                           <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>                         <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>                           <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                           <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>                    data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
 <p>We can use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with the <code>weightitMSM</code>
 object generated above. Setting <code>un = TRUE</code> would produce
 balance statistics before adjustment, like we did before. We’ll set
@@ -381,12 +380,12 @@ point treatments.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, var.name <span class="op">=</span> <span class="st">"X1_0"</span>, which <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>         type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="480"></p>
 <p>Balance for variables that only appear in certain time points will
 only be displayed at those time points:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, var.name <span class="op">=</span> <span class="st">"X2_1"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-8-1.png" width="480"></p>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="480"></p>
 <p>As with <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code>which.time</code> can be
 specified to limit output to chosen time points.</p>
 <p>Finally, we’ll examine using <code><a href="../reference/love.plot.html">love.plot()</a></code> with
@@ -408,33 +407,32 @@ is displayed. The <code>agg.fun</code> argument is set to
 <code>"max"</code> by default.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-9-1.png" width="480"></p>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="480"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, binary <span class="op">=</span> <span class="st">"std"</span>, which.time <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
-<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png" width="480"></p>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="480"></p>
 </div>
 <div class="section level2">
 <h2 id="other-packages">Other Packages<a class="anchor" aria-label="anchor" href="#other-packages"></a>
 </h2>
-<p>Here we used <code>WeightIt</code> to generate our MSM weights, but
-<code>cobalt</code> is compatible with other packages for longitudinal
-treatments as well. <code>CBMSM</code> objects from the
-<code>CBPS</code> package and <code>iptw</code> objects from the
-<code>twang</code> package can be used in place of the
-<code>weightitMSM</code> object in the above examples. In addition,
-users who have generated balancing weights outside any of these package
-can specify an argument to <code>weights</code> in
-<code><a href="../reference/bal.tab.html">bal.tab()</a></code> with the formula or data frame methods to assess
-balance using those weights, or they can use the default method of
-<code><a href="../reference/bal.tab.html">bal.tab()</a></code> to supply an object containing any of the objects
-required for balance assessment.</p>
-<p>Note that <code>CBPS</code> estimates and assesses balance on MSM
-weights differently from <code>twang</code> and <code>cobalt</code>. Its
-focus is on ensuring balance across all treatment history permutations,
-whereas <code>cobalt</code> focuses on evaluating the similarity to
-sequential randomization. For this reason, it may appear that
-<code>CBMSM</code> objects have different balance qualities as measured
-by the two packages.</p>
+<p>Here we used <em>WeightIt</em> to generate our MSM weights, but
+<em>cobalt</em> is compatible with other packages for longitudinal
+treatments as well. <code>CBMSM</code> objects from the <em>CBPS</em>
+package and <code>iptw</code> objects from the <em>twang</em> package
+can be used in place of the <code>weightitMSM</code> object in the above
+examples. In addition, users who have generated balancing weights
+outside any of these package can specify an argument to
+<code>weights</code> in <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with the formula or data
+frame methods to assess balance using those weights, or they can use the
+default method of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to supply an object containing
+any of the objects required for balance assessment.</p>
+<p>Note that <em>CBPS</em> estimates and assesses balance on MSM weights
+differently from <em>twang</em> and <em>cobalt</em>. Its focus is on
+ensuring balance across all treatment history permutations, whereas
+<em>cobalt</em> focuses on evaluating the similarity to sequential
+randomization. For this reason, it may appear that <code>CBMSM</code>
+objects have different balance qualities as measured by the two
+packages.</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -480,7 +478,7 @@ Epidemiology</em> 51 (11): 1457–66. <a href="https://doi.org/10.1007/s00127-01
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

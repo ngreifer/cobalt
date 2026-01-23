@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +45,9 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+<li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -83,7 +83,7 @@
     
 <div class="section level3">
 <h3 id="how-are-standardized-mean-differences-computed-in-cobalt">How are standardized mean differences computed in
-<code>cobalt</code>?<a class="anchor" aria-label="anchor" href="#how-are-standardized-mean-differences-computed-in-cobalt"></a>
+<em>cobalt</em>?<a class="anchor" aria-label="anchor" href="#how-are-standardized-mean-differences-computed-in-cobalt"></a>
 </h3>
 <p>Most questions below are related to this one, so here I will try to
 explain in complete detail how standardized mean differences (SMDs) are
@@ -172,7 +172,7 @@ s = \sqrt{\frac{1}{n-1}\sum_i{(x_i - \bar{x})^2}}
 \]</span> and the weighted standard deviation is computed as <span class="math display">\[
 s = \sqrt{\frac{\sum_{i} w_{i}}{(\sum_{i} w_{i})^2 - \sum_{i=1}^{n}
 w^2_{i}}\sum_i{w_i(x_i - \bar{x}_w)^2}}
-\]</span>For binary covariates, the unweighted standard deviation is
+\]</span> For binary covariates, the unweighted standard deviation is
 computed as <span class="math inline">\(s =
 \sqrt{\bar{x}(1-\bar{x})}\)</span> and the weighted standard deviation
 is computed as <span class="math inline">\(s =
@@ -364,7 +364,7 @@ subclasses.</p>
 <p>One must always remember that the standardized mean difference uses
 the standardization factor computed in the original sample, i.e., prior
 to subclassification. Let’s take a look below using
-<code>MatchIt</code>:</p>
+<em>MatchIt</em>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># PS Subclassification</span></span>
 <span><span class="va">msub</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>,</span>
@@ -454,13 +454,12 @@ covariate:</p>
 <span><span class="co">#&gt; Treated   4   4  9  30  62  76 185</span></span>
 <span><span class="co">#&gt; Total   106 104 97 102 101 104 614</span></span></code></pre></div>
 <p>This works for mean differences but not other statistics. So the way
-<code>cobalt</code> actually does this is compute stratification
-weights, and then compute the balance statistics using the
-stratification weights in the full sample. Stratification weights are
-first computed by computing the proportion of treated units in each
-sample, and then using the formulas to compute propensity score weights
-from propensity scores. Here’s how I do that manually for
-<code>age</code>:</p>
+<em>cobalt</em> actually does this is compute stratification weights,
+and then compute the balance statistics using the stratification weights
+in the full sample. Stratification weights are first computed by
+computing the proportion of treated units in each sample, and then using
+the formulas to compute propensity score weights from propensity scores.
+Here’s how I do that manually for <code>age</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute proportion of treated units in each subclass</span></span>
 <span><span class="va">prop1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span><span class="op">[</span><span class="va">msub</span><span class="op">$</span><span class="va">subclass</span> <span class="op">==</span> <span class="va">s</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
@@ -496,58 +495,56 @@ from propensity scores. Here’s how I do that manually for
 </div>
 <div class="section level3">
 <h3 id="why-dont-i-get-the-same-balance-statistics-when-using-cobalt-as-i-do-when-using-tableone">Why don’t I get the same balance statistics when using
-<code>cobalt</code> as I do when using <code>tableone</code>?<a class="anchor" aria-label="anchor" href="#why-dont-i-get-the-same-balance-statistics-when-using-cobalt-as-i-do-when-using-tableone"></a>
+<em>cobalt</em> as I do when using <em>tableone</em>?<a class="anchor" aria-label="anchor" href="#why-dont-i-get-the-same-balance-statistics-when-using-cobalt-as-i-do-when-using-tableone"></a>
 </h3>
-<p><code>tableone</code> is another package that provides tools for
-balance assessment. One strength that the package has is its beautiful,
+<p><em>tableone</em> is another package that provides tools for balance
+assessment. One strength that the package has is its beautiful,
 publication-ready tables that include summary statistics for the
 covariates, clean variable names, and clean headings. But it does not
 incorporate best practices in balance assessment in favor of
-transparency. This differs from the ethos of <code>cobalt</code>, which
-is to provide highly customizable balance statistics that reflect best
+transparency. This differs from the ethos of <em>cobalt</em>, which is
+to provide highly customizable balance statistics that reflect best
 practices and use well-reasoned decisions. This is not an insult to
-<code>tableone</code> but is meant to reflect the different purposes
-<code>cobalt</code> and <code>tableone</code> have. They should not be
-used interchangeably or expect to yield identical results because they
-use different formulas for computing certain statistics, most notably
-the SMD.</p>
+<em>tableone</em> but is meant to reflect the different purposes
+<em>cobalt</em> and <em>tableone</em> have. They should not be used
+interchangeably or expect to yield identical results because they use
+different formulas for computing certain statistics, most notably the
+SMD.</p>
 <p>Below are some of the reasons why SMDs might differ between
-<code>tableone</code> and <code>cobalt</code>:</p>
+<em>tableone</em> and <em>cobalt</em>:</p>
 <ul>
 <li>
-<code>tableone</code> always uses the pooled standard deviation
-(i.e., the standardizaton factor setting
-<code>s.d.denom = "pooled"</code>) as the standardization factor, while
-<code>cobalt</code> determines the standardization factor based on the
-estimand (though by default or when the ATE is the estimand, the two
-should be aligned).</li>
+<em>tableone</em> always uses the pooled standard deviation (i.e.,
+the standardizaton factor setting <code>s.d.denom = "pooled"</code>) as
+the standardization factor, while <em>cobalt</em> determines the
+standardization factor based on the estimand (though by default or when
+the ATE is the estimand, the two should be aligned).</li>
 <li>
-<code>tableone</code> uses the weighted standardization factor in
-the SMD, whereas <code>cobalt</code> always uses the standardization
-factor computed in the unadjusted sample. For matching, this means
-<code>tableone</code> computes the standardization factor in the matched
-sample, while <code>cobalt</code> uses the original sample.</li>
+<em>tableone</em> uses the weighted standardization factor in the
+SMD, whereas <em>cobalt</em> always uses the standardization factor
+computed in the unadjusted sample. For matching, this means
+<em>tableone</em> computes the standardization factor in the matched
+sample, while <em>cobalt</em> uses the original sample.</li>
 <li>
-<code>tableone</code> uses <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svyvar()</a></code> to compute
-weighted variances, whereas <code>cobalt</code> uses the formula
-described previously (and implemented in <code><a href="../reference/balance-summary.html">col_w_sd()</a></code>). These
-values will differ by small amounts when the weights are not
-constant.</li>
-<li>For multi-category covariates, <code>tableone</code> uses a single
+<em>tableone</em> uses <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svyvar()</a></code> to compute
+weighted variances, whereas <em>cobalt</em> uses the formula described
+previously (and implemented in <code><a href="../reference/balance-summary.html">col_w_sd()</a></code>). These values
+will differ by small amounts when the weights are not constant.</li>
+<li>For multi-category covariates, <em>tableone</em> uses a single
 statistic described by <span class="citation">Yang and Dalton (<a href="#ref-yangUnifiedApproachMeasuring2012">2012</a>)</span> to
-summarize balance, whereas <code>cobalt</code> provides a balance
-statistic for each level of the covariate. There is no reason to prefer
-the statistic used by <code>tableone</code>; it does not have any
-relationship to the bias of the estimate and can mask large differences
-in some categories when there are many categories. See <a href="https://stats.stackexchange.com/a/496608/116195" class="external-link">here</a> for a
+summarize balance, whereas <em>cobalt</em> provides a balance statistic
+for each level of the covariate. There is no reason to prefer the
+statistic used by <em>tableone</em>; it does not have any relationship
+to the bias of the estimate and can mask large differences in some
+categories when there are many categories. See <a href="https://stats.stackexchange.com/a/496608/116195" class="external-link">here</a> for a
 more detailed answer.</li>
 </ul>
 <p>In practice, these differences will be small. Obviously, I recommend
-using <code>cobalt</code> instead for balance assessment, and I
-recommend reporting the balance statistics <code>cobalt</code> produces.
-That said, if you understand what <code>tableone</code> is doing and are
-okay with the choices it makes, there is no denying that it can produce
-beautiful tables.</p>
+using <em>cobalt</em> instead for balance assessment, and I recommend
+reporting the balance statistics <em>cobalt</em> produces. That said, if
+you understand what <em>tableone</em> is doing and are okay with the
+choices it makes, there is no denying that it can produce beautiful
+tables.</p>
 </div>
 <div class="section level3">
 <h3 id="why-doesnt-thresholds-work-with-bal-tab-with-multiply-imputed-or-clustered-data">Why doesn’t <code>thresholds</code> work with <code>bal.tab()</code>
@@ -601,7 +598,7 @@ Measuring the Effect Size Between Two Groups Using SAS®,”</span> 6.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

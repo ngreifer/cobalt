@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Covariate Balance Tables and Plots: A Guide to the `cobalt` Package • cobalt</title>
+<title>Covariate Balance Tables and Plots: A Guide to the *cobalt* Package • cobalt</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -21,7 +21,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Covariate Balance Tables and Plots: A Guide to the `cobalt` Package">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Covariate Balance Tables and Plots: A Guide to the *cobalt* Package">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +45,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a></li>
-    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a></li>
+<li><a class="dropdown-item" href="../articles/other-packages.html">Using cobalt with Other Preprocessing Packages</a></li>
+    <li><a class="dropdown-item" href="../articles/segmented-data.html">Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-treat.html">Using cobalt with Longitudinal Treatments</a></li>
     <li><a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a></li>
     <li><a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a></li>
     <li><a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a></li>
@@ -72,11 +72,11 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Covariate Balance Tables and Plots: A Guide to the `cobalt` Package</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Covariate Balance Tables and Plots: A Guide to the *cobalt* Package</h1>
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2025-08-21</h4>
+            <h4 data-toc-skip class="date">2026-01-23</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -84,11 +84,11 @@ Greifer</h4>
 
     
     
-<p>This is an introductory guide for the use of <code>cobalt</code> in
-most common scenarios. Several appendices are available for its use with
-more complicated data scenarios and packages not demonstrated here.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If none of the examples are working, this may be because
-&lt;code&gt;MatchIt&lt;/code&gt;, &lt;code&gt;twang&lt;/code&gt;, or &lt;code&gt;WeightIt&lt;/code&gt; are
-missing. Such issues should be fixed soon.&lt;/p&gt;"><sup>1</sup></a></p>
+<p>This is an introductory guide for the use of <em>cobalt</em> in most
+common scenarios. Several appendices are available for its use with more
+complicated data scenarios and packages not demonstrated here.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If none of the examples are working, this may be because
+&lt;em&gt;MatchIt&lt;/em&gt;, &lt;em&gt;twang&lt;/em&gt;, or &lt;em&gt;WeightIt&lt;/em&gt; are missing. Such
+issues should be fixed soon.&lt;/p&gt;"><sup>1</sup></a></p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
@@ -106,17 +106,16 @@ discussed here, and reader’s knowledge of the causal assumption of
 strong ignorability is assumed.</p>
 <p>Several packages in R exist to perform preprocessing and causal
 effect estimation, and some were reviewed by <span class="citation">Keller and Tipton (<a href="#ref-kellerPropensityScoreAnalysis2016">2016</a>)</span>. These
-include <code>MatchIt</code> <span class="citation">(<a href="#ref-JSSv042i08">Ho et al. 2011</a>)</span>, <code>twang</code>
-<span class="citation">(<a href="#ref-ridgewayToolkitWeightingAnalysis2016">Ridgeway et al.
-2016</a>)</span>, <code>Matching</code> <span class="citation">(<a href="#ref-sekhonMultivariatePropensityScore2011">Sekhon
-2011</a>)</span>, <code>optmatch</code> <span class="citation">(<a href="#ref-hansenOptimalFullMatching2006">Hansen and Klopfer
-2006</a>)</span>, <code>CBPS</code> <span class="citation">(<a href="#ref-fongCBPSCovariateBalancing2019">Fong et al. 2019</a>)</span>,
-<code>ebal</code> <span class="citation">(<a href="#ref-hainmuellerEbalEntropyReweighting2014">Hainmueller
-2014</a>)</span>, <code>sbw</code> <span class="citation">(<a href="#ref-zubizarretaSbwStableBalancing2021">Zubizarreta, Li, and Kim
-2021</a>)</span>, <code>designmatch</code> <span class="citation">(<a href="#ref-zubizarretaDesignmatchMatchedSamples2018">Zubizarreta,
-Kilcioglu, and Vielma 2018</a>)</span>, <code>WeightIt</code> <span class="citation">(<a href="#ref-greiferWeightItWeightingCovariate2021">Greifer
-2021</a>)</span>, <code>MatchThem</code> <span class="citation">(<a href="#ref-pishgarMatchThemMatchingWeighting2021">Pishgar et al.
-2021</a>)</span>, and <code>cem</code> <span class="citation">(<a href="#ref-iacusCemSoftwareCoarsened2009">Iacus, King, and Porro
+include <em>MatchIt</em> <span class="citation">(<a href="#ref-JSSv042i08">Ho et al. 2011</a>)</span>, <em>twang</em> <span class="citation">(<a href="#ref-ridgewayToolkitWeightingAnalysis2016">Ridgeway et al.
+2016</a>)</span>, <em>Matching</em> <span class="citation">(<a href="#ref-sekhonMultivariatePropensityScore2011">Sekhon
+2011</a>)</span>, <em>optmatch</em> <span class="citation">(<a href="#ref-hansenOptimalFullMatching2006">Hansen and Klopfer
+2006</a>)</span>, <em>CBPS</em> <span class="citation">(<a href="#ref-fongCBPSCovariateBalancing2019">Fong et al. 2019</a>)</span>,
+<em>ebal</em> <span class="citation">(<a href="#ref-hainmuellerEbalEntropyReweighting2014">Hainmueller
+2014</a>)</span>, <em>sbw</em> <span class="citation">(<a href="#ref-zubizarretaSbwStableBalancing2021">Zubizarreta, Li, and Kim
+2021</a>)</span>, <em>designmatch</em> <span class="citation">(<a href="#ref-zubizarretaDesignmatchMatchedSamples2018">Zubizarreta,
+Kilcioglu, and Vielma 2018</a>)</span>, <em>WeightIt</em> <span class="citation">(<a href="#ref-greiferWeightItWeightingCovariate2021">Greifer
+2021</a>)</span>, <em>MatchThem</em> <span class="citation">(<a href="#ref-pishgarMatchThemMatchingWeighting2021">Pishgar et al.
+2021</a>)</span>, and <em>cem</em> <span class="citation">(<a href="#ref-iacusCemSoftwareCoarsened2009">Iacus, King, and Porro
 2009</a>)</span>; these together provide a near complete set of
 preprocessing tools in R to date.</p>
 <p>The following are the basic steps in performing a causal analysis
@@ -150,83 +149,80 @@ displaying the balance measures before and after conditioning. If a
 defensible measure of balance is used and presented, readers are
 empowered to judge for themselves whether the causal claim made is valid
 or not based on the methods used and covariates chosen.</p>
-<p><code>cobalt</code> is meant to supplement or replace the balance
+<p><em>cobalt</em> is meant to supplement or replace the balance
 assessment tools in the above packages and allow researchers to assess
 and report balance on covariates simply, clearly, and flexibly before
 and after conditioning. It integrates seamlessly with the above packages
 so that users can employ both the conditioning package of their choice
-and <code>cobalt</code> in conjunction to assess and report balance. It
-is important to note that <code>cobalt</code> does not replace the
-highly sophisticated <em>conditioning</em> tools of these packages, as
-it does no conditioning or estimation of its own.</p>
-<p>The rest of this guide explains how to use <code>cobalt</code> with
-some of the above packages and others, as well as the choices instituted
-by the functions and customizable by the user. Other vignettes describe
-the use of <code>cobalt</code> with packages not mentioned here, with
-multiply imputed and clustered data, and with longitudinal
-treatments.</p>
+and <em>cobalt</em> in conjunction to assess and report balance. It is
+important to note that <em>cobalt</em> does not replace the highly
+sophisticated <em>conditioning</em> tools of these packages, as it does
+no conditioning or estimation of its own.</p>
+<p>The rest of this guide explains how to use <em>cobalt</em> with some
+of the above packages and others, as well as the choices instituted by
+the functions and customizable by the user. Other vignettes describe the
+use of <em>cobalt</em> with packages not mentioned here, with multiply
+imputed and clustered data, and with longitudinal treatments.</p>
 <div class="section level4">
-<h4 id="citing-cobalt">Citing <code>cobalt</code><a class="anchor" aria-label="anchor" href="#citing-cobalt"></a>
+<h4 id="citing-cobalt">Citing <em>cobalt</em><a class="anchor" aria-label="anchor" href="#citing-cobalt"></a>
 </h4>
-<p>When using <code>cobalt</code>, please cite your use of it along with
-the conditioning package used. For example, if you use
-<code>Matching</code> for propensity score estimation and matching and
-<code>cobalt</code> for balance assessment and/or reporting, a possible
-citation might go as follows:</p>
+<p>When using <em>cobalt</em>, please cite your use of it along with the
+conditioning package used. For example, if you use <em>Matching</em> for
+propensity score estimation and matching and <em>cobalt</em> for balance
+assessment and/or reporting, a possible citation might go as
+follows:</p>
 <blockquote>
 <p>Matching was performed using the Matching package (Sekhon, 2011), and
-covariate balance was assessed using cobalt (Greifer, 2025), both in R
+covariate balance was assessed using cobalt (Greifer, 2026), both in R
 (R Core Team, 2025).</p>
 </blockquote>
 <p>Use <code>citation("cobalt")</code> to generate the correct citation
-for <code>cobalt</code>.</p>
+for <em>cobalt</em>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="why-cobalt">Why <code>cobalt</code>?<a class="anchor" aria-label="anchor" href="#why-cobalt"></a>
+<h2 id="why-cobalt">Why <em>cobalt</em>?<a class="anchor" aria-label="anchor" href="#why-cobalt"></a>
 </h2>
 <p>If most of the major conditioning packages contain functions to
-assess balance, why use <code>cobalt</code> at all? <code>cobalt</code>
-arose out of several desiderata when using these packages: to have
+assess balance, why use <em>cobalt</em> at all? <em>cobalt</em> arose
+out of several desiderata when using these packages: to have
 standardized measures that were consistent across all conditioning
 packages, to allow for flexibility in the calculation and display of
 balance measures, and to incorporate recent methodological
 recommendations in the assessment of balance. However, some users of
 these packages may be completely satisfied with their capabilities and
-comfortable with their output; for them, <code>cobalt</code> still has
-value in its unique plotting capabilities that make use of
-<code>ggplot2</code> in R.</p>
-<p>The following are some reasons why <code>cobalt</code> may be
-attractive to users of <code>MatchIt</code>, <code>twang</code>,
-<code>Matching</code>, <code>optmatch</code>, <code>CBPS</code>,
-<code>ebal</code>, <code>sbw</code>, <code>designmatch</code>,
-<code>WeightIt</code>, and other conditioning packages:</p>
+comfortable with their output; for them, <em>cobalt</em> still has value
+in its unique plotting capabilities that make use of <em>ggplot2</em> in
+R.</p>
+<p>The following are some reasons why <em>cobalt</em> may be attractive
+to users of <em>MatchIt</em>, <em>twang</em>, <em>Matching</em>,
+<em>optmatch</em>, <em>CBPS</em>, <em>ebal</em>, <em>sbw</em>,
+<em>designmatch</em>, <em>WeightIt</em>, and other conditioning
+packages:</p>
 <div class="section level4">
 <h4 id="visual-clarity">Visual clarity<a class="anchor" aria-label="anchor" href="#visual-clarity"></a>
 </h4>
-<p><code>cobalt</code> presents one table in its balance output, and it
-contains all the information required to assess balance.
-<code>twang</code> and <code>CBPS</code> present two tables,
-<code>MatchIt</code> presents three tables, and <code>Matching</code>
-presents as many tables as there are covariates. Although each of these
-tables contains valuable information, the <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
-function in <code>cobalt</code> allows for a quick and easy search for
-the information desired, which is often a single column containing a
-balance statistic (such as the standardized mean difference) for the
-adjusted sample.</p>
+<p><em>cobalt</em> presents one table in its balance output, and it
+contains all the information required to assess balance. <em>twang</em>
+and <em>CBPS</em> present two tables, <em>MatchIt</em> presents three
+tables, and <em>Matching</em> presents as many tables as there are
+covariates. Although each of these tables contains valuable information,
+the <code><a href="../reference/bal.tab.html">bal.tab()</a></code> function in <em>cobalt</em> allows for a
+quick and easy search for the information desired, which is often a
+single column containing a balance statistic (such as the standardized
+mean difference) for the adjusted sample.</p>
 </div>
 <div class="section level4">
 <h4 id="useful-summaries">Useful summaries<a class="anchor" aria-label="anchor" href="#useful-summaries"></a>
 </h4>
 <p>Although a thorough balance assessment requires examining the balance
-of each covariate individually, <code>cobalt</code>’s
-<code><a href="../reference/bal.tab.html">bal.tab()</a></code> function can also produce quick balance summaries
-that can aid in model selection when there are many covariates or higher
-order terms to examine. These summaries include the proportion of
-covariates that have met a user-specified threshold for balance and the
-covariate with the highest degree of imbalance, two values that have
-been shown to be effective in diagnosing imbalance and potential bias
-<span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart, Lee, and Leacy
+of each covariate individually, <em>cobalt</em>’s <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
+function can also produce quick balance summaries that can aid in model
+selection when there are many covariates or higher order terms to
+examine. These summaries include the proportion of covariates that have
+met a user-specified threshold for balance and the covariate with the
+highest degree of imbalance, two values that have been shown to be
+effective in diagnosing imbalance and potential bias <span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart, Lee, and Leacy
 2013</a>)</span>.</p>
 </div>
 <div class="section level4">
@@ -235,31 +231,29 @@ been shown to be effective in diagnosing imbalance and potential bias
 <p>Because there is no <em>a priori</em> way to know which conditioning
 method will work best for a given sample, users should try several
 methods, and these methods are spread across various packages; for
-example, full matching is available only in <code>MatchIt</code> and
-<code>optmatch</code>, generalized boosted modeling only in
-<code>twang</code>, covariate balancing propensity score weighting only
-in <code>CBPS</code>, genetic matching only in <code>MatchIt</code> and
-<code>Matching</code>, and entropy balancing only in <code>ebal</code><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;&lt;code&gt;WeightIt&lt;/code&gt; is a wrapper for
-&lt;code&gt;twang&lt;/code&gt;, &lt;code&gt;CBPS&lt;/code&gt;, &lt;code&gt;ebal&lt;/code&gt;, and other
-packages for point treatments, so it can perform their functions as
-well.&lt;/p&gt;"><sup>2</sup></a>. If a user
-wants to compare these methods on their ability to generate balance in
-the sample, they cannot do so on the same metrics and with the same
-output. Each package computes balance statistics differently (if at
-all), and the relevant balance measures are in different places in each
-package. By using <code>cobalt</code> to assess balance across packages,
-users can be sure they are using a single, equivalent balance metric
-across methods, and the relevant balance statistics will be in the same
-place and computed the same way regardless of the conditioning package
-used.</p>
+example, full matching is available only in <em>MatchIt</em> and
+<em>optmatch</em>, generalized boosted modeling only in <em>twang</em>,
+covariate balancing propensity score weighting only in <em>CBPS</em>,
+genetic matching only in <em>MatchIt</em> and <em>Matching</em>, and
+entropy balancing only in <em>ebal</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;&lt;em&gt;WeightIt&lt;/em&gt; is a wrapper for &lt;em&gt;twang&lt;/em&gt;,
+&lt;em&gt;CBPS&lt;/em&gt;, &lt;em&gt;ebal&lt;/em&gt;, and other packages for point treatments,
+so it can perform their functions as well.&lt;/p&gt;"><sup>2</sup></a>. If a user wants to
+compare these methods on their ability to generate balance in the
+sample, they cannot do so on the same metrics and with the same output.
+Each package computes balance statistics differently (if at all), and
+the relevant balance measures are in different places in each package.
+By using <em>cobalt</em> to assess balance across packages, users can be
+sure they are using a single, equivalent balance metric across methods,
+and the relevant balance statistics will be in the same place and
+computed the same way regardless of the conditioning package used.</p>
 </div>
 <div class="section level4">
 <h4 id="flexibility">Flexibility<a class="anchor" aria-label="anchor" href="#flexibility"></a>
 </h4>
-<p><code>cobalt</code> gives users choice in which statistics are
-presented and how they are calculated, but intelligently uses defaults
-that are in line with the goals of unified balance assessment and with
-the data available. Rather than displaying all values calculated,
+<p><em>cobalt</em> gives users choice in which statistics are presented
+and how they are calculated, but intelligently uses defaults that are in
+line with the goals of unified balance assessment and with the data
+available. Rather than displaying all values calculated,
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> only displays what the user wants; at a bare
 minimum, the standardized mean difference for each covariate is
 displayed, which is traditionally considered sufficient for model
@@ -275,52 +269,51 @@ are all still calculated, and thus available for use in programming
 assessing balance, summarizing balance, and understanding the
 intricacies of the conditioning method for which simple text would be
 insufficient. Many of these plots are unique to each package, and
-<code>cobalt</code> has not attempted to replace or replicate them. For
-other plots, though, <code>cobalt</code> uses <code>ggplot2</code> to
-present clean, clear, customizable, and high-quality displays for
-balance assessment and presentation. The two included plotting functions
-are <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, which generates plots of the distributions
-of covariates and treatment levels so that more complete distributional
+<em>cobalt</em> has not attempted to replace or replicate them. For
+other plots, though, <em>cobalt</em> uses <em>ggplot2</em> to present
+clean, clear, customizable, and high-quality displays for balance
+assessment and presentation. The two included plotting functions are
+<code><a href="../reference/bal.plot.html">bal.plot()</a></code>, which generates plots of the distributions of
+covariates and treatment levels so that more complete distributional
 balance can be assessed beyond numerical summaries, and
 <code><a href="../reference/love.plot.html">love.plot()</a></code>, which generates a plot summarizing covariate
 balance before and after conditioning, popularized by Dr. Thomas E.
-Love. Because these plots use <code>ggplot2</code> as their base, users
-familiar with <code>ggplot2</code> can customize various elements of the
+Love. Because these plots use <em>ggplot2</em> as their base, users
+familiar with <em>ggplot2</em> can customize various elements of the
 plots for use in publications or presentations.</p>
 </div>
 <div class="section level4">
 <h4 id="unique-features">Unique features<a class="anchor" aria-label="anchor" href="#unique-features"></a>
 </h4>
-<p>There are unique features in <code>cobalt</code> that do not exist in
-any other package. These include the handling of clustered and grouped
-data and the handling of data generated with multiple imputation. These
-more advanced uses of <code>cobalt</code> are described in detail in
-<code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code>. In addition,
-<code>cobalt</code> includes tools for handling data sets with
-continuous and multi-category treatments. Data sets with longitudinal
-treatments, where time-varying confounding may be an issue, can be
-handled as well; these uses are described in
-<code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>.</p>
+<p>There are unique features in <em>cobalt</em> that do not exist in any
+other package. These include the handling of clustered and grouped data
+and the handling of data generated with multiple imputation. These more
+advanced uses of <em>cobalt</em> are described in detail in
+<code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code>. In addition, <em>cobalt</em>
+includes tools for handling data sets with continuous and multi-category
+treatments. Data sets with longitudinal treatments, where time-varying
+confounding may be an issue, can be handled as well; these uses are
+described in <code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="how-to-use-cobalt">How To Use cobalt<a class="anchor" aria-label="anchor" href="#how-to-use-cobalt"></a>
 </h2>
-<p>There are three main functions for use in <code>cobalt</code>:
+<p>There are three main functions for use in <em>cobalt</em>:
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and
 <code><a href="../reference/love.plot.html">love.plot()</a></code>. There are also several utility functions which
-can be used to ease the use of <code>cobalt</code> and other packages.
-The next sections describe how to use each, complete with example code
-and output. To start, install and load <code>cobalt</code> with the
-following code:</p>
+can be used to ease the use of <em>cobalt</em> and other packages. The
+next sections describe how to use each, complete with example code and
+output. To start, install and load <em>cobalt</em> with the following
+code:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cobalt"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="utilities">Utilities<a class="anchor" aria-label="anchor" href="#utilities"></a>
 </h3>
-<p>In addition to its main functions, <code>cobalt</code> contains
-several utility functions, which include <code><a href="../reference/f.build.html">f.build()</a></code>,
+<p>In addition to its main functions, <em>cobalt</em> contains several
+utility functions, which include <code><a href="../reference/f.build.html">f.build()</a></code>,
 <code><a href="../reference/splitfactor.html">splitfactor()</a></code> and <code><a href="../reference/splitfactor.html">unsplitfactor()</a></code>,
 <code><a href="../reference/get.w.html">get.w()</a></code>, and <code><a href="../reference/bal.compute.html">bal.init()</a></code> and
 <code><a href="../reference/bal.compute.html">bal.compute()</a></code>. These are meant to reduce the typing and
@@ -332,16 +325,15 @@ are in <code><a href="../articles/other-packages.html">vignette("other-packages"
 <h3 id="bal-tab">
 <code>bal.tab()</code><a class="anchor" aria-label="anchor" href="#bal-tab"></a>
 </h3>
-<p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> is the primary function of
-<code>cobalt</code>. It produces balance tables for the objects given as
-inputs. The balance tables can be customized with a variety of inputs,
-which affect both calculation and presentation of values. It performs
-similar functions to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>MatchIt</code>;
-<code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">bal.table()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and
-<code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code> in <code>twang</code>; <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code>
-and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>Matching</code>;
-<code>balance()</code> in <code>CBPS</code>; and
-<code><a href="https://rdrr.io/pkg/sbw/man/summarize.html" class="external-link">summarize()</a></code> in <code>sbw</code>. It can be seen as a
+<p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> is the primary function of <em>cobalt</em>. It
+produces balance tables for the objects given as inputs. The balance
+tables can be customized with a variety of inputs, which affect both
+calculation and presentation of values. It performs similar functions to
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <em>MatchIt</em>; <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">bal.table()</a></code>,
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code> in <em>twang</em>;
+<code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in
+<em>Matching</em>; <code><a href="https://rdrr.io/pkg/CBPS/man/balance.html" class="external-link">balance()</a></code> in <em>CBPS</em>; and
+<code><a href="https://rdrr.io/pkg/sbw/man/summarize.html" class="external-link">summarize()</a></code> in <em>sbw</em>. It can be seen as a
 replacement or a supplement to these functions.</p>
 <p>For more help using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, see <code><a href="../reference/bal.tab.html">?bal.tab</a></code>
 in R, which contains information on how certain values are calculated
@@ -353,9 +345,9 @@ demonstration will display <code><a href="../reference/bal.tab.html">bal.tab()</
 several of which differ based on with which package, if any,
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is used. The other demonstrations will be
 minimal, highlighting how to use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> effectively with
-<code>MatchIt</code> and <code>WeightIt</code>, but not detailing all
-its possible options with these packages, to avoid redundancy. The use
-of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with other packages is described in
+<em>MatchIt</em> and <em>WeightIt</em>, but not detailing all its
+possible options with these packages, to avoid redundancy. The use of
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> with other packages is described in
 <code><a href="../articles/other-packages.html">vignette("other-packages")</a></code>.</p>
 <div class="section level4">
 <h4 id="using-bal-tab-on-its-own">Using <code>bal.tab()</code> on its own<a class="anchor" aria-label="anchor" href="#using-bal-tab-on-its-own"></a>
@@ -367,13 +359,12 @@ generated outside of the supported packages, if balance assessment is
 desired prior to adjustment, or if package output is adjusted in such a
 way as to make it unusable with one of <code><a href="../reference/bal.tab.html">bal.tab()</a></code>’s other
 methods (e.g., if cases were manually removed or weights manually
-changed). In <code>twang</code>, the function <code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code>
-performs a similar action by allowing for the balance assessment of
-groups weighted not using <code>twang</code> functions, though it is
-more limited in the types of data or conditioning strategies allowed.
-Below is an example of the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with ATT
-weights generating using logistic regression for a weighting-by-the-odds
-analysis:</p>
+changed). In <em>twang</em>, the function <code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code> performs
+a similar action by allowing for the balance assessment of groups
+weighted not using <em>twang</em> functions, though it is more limited
+in the types of data or conditioning strategies allowed. Below is an
+example of the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with ATT weights generating
+using logistic regression for a weighting-by-the-odds analysis:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">nodegree</span>, <span class="va">married</span><span class="op">)</span><span class="op">)</span></span>
@@ -611,8 +602,8 @@ and 1 indicating perfect separation between the distributions (i.e., no
 overlap at all); values close to 0 are thus indicative of balance. The
 use of the KS statistic to formally assess balance is debated. <span class="citation">Austin and Stuart (<a href="#ref-austinMovingBestPractice2015">2015</a>)</span> recommend its
 use, and it or a variant appears as a default balance statistic in
-<code>MatchIt</code>, <code>twang</code>, and <code>Matching</code>. On
-the other hand, <span class="citation">Belitser et al. (<a href="#ref-belitserMeasuringBalanceModel2011">2011</a>)</span>, <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013">2013</a>)</span>, and
+<em>MatchIt</em>, <em>twang</em>, and <em>Matching</em>. On the other
+hand, <span class="citation">Belitser et al. (<a href="#ref-belitserMeasuringBalanceModel2011">2011</a>)</span>, <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013">2013</a>)</span>, and
 <span class="citation">Ali et al. (<a href="#ref-aliPropensityScoreBalance2014">2014</a>)</span> all found
 that global balance assessments using the KS statistic performed
 uniformly worse than standardized mean differences, especially at sample
@@ -877,25 +868,24 @@ correlation between each covariate and treatment. <span class="citation">Zhu, Co
 recommend that absolute correlations should be no greater than 0.1, but
 correlations should ideally be as close to zero as possible. Spearman
 correlations and distance correlations can also be requested. See the
-section “Using <code>cobalt</code> with continuous treatments” and
+section “Using <em>cobalt</em> with continuous treatments” and
 <code>?balance.stats</code> for more details.</p>
 <p>The next two sections describe the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
-the <code>MatchIt</code> and <code>WeightIt</code>. As stated above, the
+the <em>MatchIt</em> and <em>WeightIt</em>. As stated above, the
 arguments controlling calculations and display are largely the same
 across inputs types, so they will not be described again except when
 their use differs from that described in the present section.</p>
 </div>
 <div class="section level4">
-<h4 id="using-bal-tab-with-matchit">Using <code>bal.tab()</code> with <code>MatchIt</code><a class="anchor" aria-label="anchor" href="#using-bal-tab-with-matchit"></a>
+<h4 id="using-bal-tab-with-matchit">Using <code>bal.tab()</code> with <em>MatchIt</em><a class="anchor" aria-label="anchor" href="#using-bal-tab-with-matchit"></a>
 </h4>
-<p>When using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code>, fewer
+<p>When using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <em>MatchIt</em>, fewer
 arguments need to be specified because information is stored in the
-<code>matchit</code> object, the output of a call to
-<code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is used very similarly to
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>MatchIt</code>: it takes in a
-<code>matchit</code> object as its input, and prints a balance table
-with the requested information. Below is a simple example of its
-use:</p>
+<em>MatchIt</em> object, the output of a call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>.
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> is used very similarly to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+in <em>MatchIt</em>: it takes in a <em>MatchIt</em> object as its input,
+and prints a balance table with the requested information. Below is a
+simple example of its use:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -922,29 +912,28 @@ use:</p>
 <span><span class="co">## Matched (ESS)          38.33     185</span></span>
 <span><span class="co">## Matched (Unweighted)   79.       185</span></span>
 <span><span class="co">## Unmatched             350.         0</span></span></code></pre>
-<p>The output looks very similar to <code>MatchIt</code>’s
+<p>The output looks very similar to <em>MatchIt</em>’s
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function: first is the balance table, and second
 is a summary of the sample size before and after adjustment.</p>
 <p>Setting <code>binary = "std"</code> in <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will
-produce identical calculations to those in <code>MatchIt</code>’s
-<code>summary(m.out, standardize = TRUE)</code>, which produces
-standardized differences for binary variables as well as continuous
-variables. The other arguments to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> when using it
-with <code>MatchIt</code> have the same form and function as those given
-when using it without a conditioning package. The output when using
-<code>MatchIt</code> for subclassification is the same as that displayed
-previously.</p>
+produce identical calculations to those in <em>MatchIt</em>’s
+<code>summary(m.out)</code>, which produces standardized differences for
+binary variables as well as continuous variables. The other arguments to
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> when using it with <em>MatchIt</em> have the same
+form and function as those given when using it without a conditioning
+package. The output when using <em>MatchIt</em> for subclassification is
+the same as that displayed previously.</p>
 </div>
 <div class="section level4">
-<h4 id="using-bal-tab-with-weightit">Using <code>bal.tab()</code> with <code>WeightIt</code><a class="anchor" aria-label="anchor" href="#using-bal-tab-with-weightit"></a>
+<h4 id="using-bal-tab-with-weightit">Using <code>bal.tab()</code> with <em>WeightIt</em><a class="anchor" aria-label="anchor" href="#using-bal-tab-with-weightit"></a>
 </h4>
-<p>The <code>WeightIt</code> package provides functions and utilities
-for estimating balancing weights and allows for the estimation of
-weights for binary, multi-category, and categorical treatments and both
-point and longitudinal treatments. It was designed to work seamlessly
-with <code>cobalt</code>, so using it with <code>cobalt</code> is very
+<p>The <em>WeightIt</em> package provides functions and utilities for
+estimating balancing weights and allows for the estimation of weights
+for binary, multi-category, and categorical treatments and both point
+and longitudinal treatments. It was designed to work seamlessly with
+<em>cobalt</em>, so using it with <em>cobalt</em> is very
 straightforward. Below is a simple example of using
-<code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>WeightIt</code>:</p>
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <em>WeightIt</em>:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span></span>
@@ -980,7 +969,7 @@ straightforward. Below is a simple example of using
 independence between treatment and covariates. Because this is hard to
 visualize and assess with the large numbers of covariates typical of
 causal effect analysis, univariate balance is typically assessed as a
-proxy. Most conditioning packages, as well as <code>cobalt</code>, will
+proxy. Most conditioning packages, as well as <em>cobalt</em>, will
 provide numerical summaries of balance, typically by comparing moments
 between the treated and control groups. But even univariate balance is
 more complicated than simple numerical summaries can address; examining
@@ -998,12 +987,11 @@ plots, histograms, empirical CDF plots, bar graphs, and scatterplots so
 that users can visually assess independence between treatment and
 covariates before and after conditioning. Below is an example of the use
 of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> after using propensity score weighting for
-the ATT using the output from <code>WeightIt</code> generated
-above.:</p>
+the ATT using the output from <em>WeightIt</em> generated above.:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-14-1.png" width="336"><img src="cobalt_files/figure-html/unnamed-chunk-14-2.png" width="336"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="336"><img src="cobalt_files/figure-html/unnamed-chunk-14-2.png" class="r-plt" alt="" width="336"></p>
 <p>The first argument (or set of arguments) is the sufficient set of
 arguments for a simple call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, defining the data
 object (e.g., the output of a conditioning function), the treatment
@@ -1036,9 +1024,9 @@ thresholds. Strong distributional similarity is especially important for
 variables strongly related to the outcome of interest.</p>
 <p>Distributional balance can also be assessed on the distance measure,
 and this can form an alternative to other common support checks, like
-<code>MatchIt</code>’s <code>plot(..., type = "hist")</code> or
-<code>twang</code>’s <code>plot(..., plots = "boxplot")</code>. To
-examine the distributions of the distance measure, the input to
+<em>MatchIt</em>’s <code>plot(..., type = "hist")</code> or
+<em>twang</em>’s <code>plot(..., plots = "boxplot")</code>. To examine
+the distributions of the distance measure, the input to
 <code>var.name</code> must be the name of the distance variable. If the
 data input object doesn’t already contain the distance measure (e.g., if
 not using one of the conditioning packages), the distance measure must
@@ -1054,7 +1042,7 @@ adjustment:</p>
 <span>         which <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>         type <span class="op">=</span> <span class="st">"histogram"</span>,</span>
 <span>         mirror <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-15-1.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="480"></p>
 <p>Setting <code>type = "histogram"</code> produces a histogram rather
 than a density plot, and setting <code>mirror = TRUE</code> creates a
 mirrored plot rather than overlapping histograms. Mirroring only works
@@ -1066,9 +1054,9 @@ distance measure whether or not balance is achieved on the covariates
 <span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart, Lee, and Leacy
 2013</a>)</span>. However, it may be useful to see the new range of the
 distance measure if calipers or common support pruning are used.</p>
-<p>The output plot is made using <code>ggplot2</code>, which means that
-users familiar with <code>ggplot2</code> can adjust the plot with
-<code>ggplot2</code> commands.</p>
+<p>The output plot is made using <em>ggplot2</em>, which means that
+users familiar with <em>ggplot2</em> can adjust the plot with
+<em>ggplot2</em> commands.</p>
 <p>When the treatment variable is continuous, users can use
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code> to examine and assess dependence between the
 covariate and treatment. The arguments given to <code><a href="../reference/bal.plot.html">bal.plot()</a></code>
@@ -1109,7 +1097,7 @@ its use:</p>
 <span>                          replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, binary <span class="op">=</span> <span class="st">"std"</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-16-1.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="480"></p>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> takes as its arguments the same ones that
 would go into a call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. In addition, it can take
 as its first argument the output of a call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>;
@@ -1186,6 +1174,7 @@ customize output:</p>
 <span>          position <span class="op">=</span> <span class="st">"top"</span>,</span>
 <span>          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span>
 <span>          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="480"></p>
 <p>This plot shows that balance was improved on almost all variables
 after adjustment, bringing all but two below the threshold of .1 for
 absolute mean differences.</p>
@@ -1198,15 +1187,15 @@ The same arguments apply except that <code>stats</code> is ignored and
 <code>threshold</code> corresponds to <code>r.threshold</code>, the
 threshold for correlations.</p>
 <p>Like the output of <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the output of
-<code><a href="../reference/love.plot.html">love.plot()</a></code> is a <code>ggplot2</code> object, which means
-<code>ggplot2</code> users can modify the plot to some extent for
+<code><a href="../reference/love.plot.html">love.plot()</a></code> is a <em>ggplot2</em> object, which means
+<em>ggplot2</em> users can modify the plot to some extent for
 presentation or publication. Several aspects of the appearance of the
 plot can be customized using the <code><a href="../reference/love.plot.html">love.plot()</a></code> syntax,
 including the size, shape, and color of the points, the title of the
 plot, whether to display grid lines, and whether to display lines
 connecting the points. See <code><a href="../reference/love.plot.html">?love.plot</a></code> for details. It may
 be challenging to make adjustments to these aspects using
-<code>ggplot2</code> syntax, so these arguments allow for some simple
+<em>ggplot2</em> syntax, so these arguments allow for some simple
 adjustments. See <code><a href="../articles/love.plot.html">vignette("love.plot")</a></code> for information on
 more of <code><a href="../reference/love.plot.html">love.plot()</a></code>’s features.</p>
 </div>
@@ -1215,7 +1204,7 @@ more of <code><a href="../reference/love.plot.html">love.plot()</a></code>’s f
 <h2 id="additional-features">Additional Features<a class="anchor" aria-label="anchor" href="#additional-features"></a>
 </h2>
 <div class="section level3">
-<h3 id="using-cobalt-with-continuous-treatments">Using <code>cobalt</code> with continuous treatments<a class="anchor" aria-label="anchor" href="#using-cobalt-with-continuous-treatments"></a>
+<h3 id="using-cobalt-with-continuous-treatments">Using <em>cobalt</em> with continuous treatments<a class="anchor" aria-label="anchor" href="#using-cobalt-with-continuous-treatments"></a>
 </h3>
 <p>Although the most common use of propensity scores is in the context
 of binary treatments, it is also possible to use propensity scores with
@@ -1237,23 +1226,24 @@ using the formulas described by <span class="citation">Hirano and Imbens
 (<a href="#ref-hiranoPropensityScoreContinuous2005">2005</a>)</span>, to
 generate the propensity scores manually and perform weighting,
 subclassification, or covariate adjustment on them. The
-<code>WeightIt</code> package supports continuous treatments with a
-variety of options, including the CBPS method implemented in the
-<code>CBPS</code> package and described by <span class="citation">Fong,
-Hazlett, and Imai (<a href="#ref-fongCovariateBalancingPropensity2018">2018</a>)</span>, GBM
-as described by <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span>, and
+<em>WeightIt</em> package supports continuous treatments with a variety
+of options, including the CBPS method implemented in the <em>CBPS</em>
+package and described by <span class="citation">Fong, Hazlett, and Imai
+(<a href="#ref-fongCovariateBalancingPropensity2018">2018</a>)</span>,
+GBM as described by <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span>, and
 entropy balancing as described by <span class="citation">Vegetabile et
 al. (<a href="#ref-vegetabileNonparametricEstimationPopulation2020">2021</a>)</span>,
 among others.</p>
-<p>In <code>cobalt</code>, users can assess and present balance for
+<p>In <em>cobalt</em>, users can assess and present balance for
 continuous treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with
 binary treatments. The syntax is almost identical in both cases
 regardless of the type of treatment variable considered, but there are a
-few differences and specifics worth noting. The approach
-<code>cobalt</code> takes to assessing balance is to display
-correlations between each covariate and the treatment variable, which is
-the approach used in <code>CBPS</code> and described in <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span> and
+few differences and specifics worth noting. The approach <em>cobalt</em>
+takes to assessing balance is to display correlations between each
+covariate and the treatment variable, which is the approach used in
+<em>CBPS</em> and described in <span class="citation">Zhu, Coffman, and
+Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span> and
 <span class="citation">Austin (<a href="#ref-austinAssessingCovariateBalance2019">2019</a>)</span>, but
 not that described in <span class="citation">Hirano and Imbens (<a href="#ref-hiranoPropensityScoreContinuous2005">2005</a>)</span> or
 implemented in <code>gpscore</code> <span class="citation">(<a href="#ref-biaStataPackageEstimation2008">Bia and Mattei
@@ -1269,16 +1259,16 @@ important to assess the degree to which the adjusted sample is
 representative of the original target population. If the weighted sample
 differs greatly from the original sample, the estimated effect may be
 biased for the target population of interest, even if the covariates are
-independent from treatment. <code>cobalt</code> offers methods to
-compare the weighted sample to the unweighted sample in the context of
+independent from treatment. <em>cobalt</em> offers methods to compare
+the weighted sample to the unweighted sample in the context of
 continuous treatments, such as computing the standardized mean
 difference or KS statistic between the weighted and unweighted sample
 for each covariate.</p>
 <p>Below is an example of the workflow for using propensity scores for
-continuous treatments in the <code>WeightIt</code> package. To
-demonstrate, we use the <code>lalonde</code> package included in
-<code>cobalt</code>, using an arbitrary continuous variable as the
-treatment, though substantively this analysis makes little sense.</p>
+continuous treatments in the <em>WeightIt</em> package. To demonstrate,
+we use the <code>lalonde</code> package included in <em>cobalt</em>,
+using an arbitrary continuous variable as the treatment, though
+substantively this analysis makes little sense.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -1286,7 +1276,8 @@ treatment, though substantively this analysis makes little sense.</p>
 <span><span class="va">W.out.c</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">re75</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
 <span>                                  <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span>, </span>
 <span>                              data <span class="op">=</span> <span class="va">lalonde</span>,</span>
-<span>                              method <span class="op">=</span> <span class="st">"glm"</span>, density <span class="op">=</span> <span class="st">"kernel"</span><span class="op">)</span></span></code></pre></div>
+<span>                              method <span class="op">=</span> <span class="st">"glm"</span>,</span>
+<span>                              density <span class="op">=</span> <span class="st">"kernel"</span><span class="op">)</span></span></code></pre></div>
 <p>First, we can assess balance numerically using
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. The default balance statistic used is the
 Pearson correlation between each covariate and the treatment variable. A
@@ -1362,10 +1353,10 @@ remaining dependence between treatment and the covariate.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"re74"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-20-1.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="480"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-20-2.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-20-2.png" class="r-plt" alt="" width="480"></p>
 <p>When balance has been achieved to a satisfactory level, users can
 present balance improvements in a Love plot using the
 <code><a href="../reference/love.plot.html">love.plot()</a></code> command, just as with binary treatments.</p>
@@ -1376,9 +1367,10 @@ present balance improvements in a Love plot using the
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>, wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
-<h3 id="using-cobalt-with-multi-category-treatments">Using <code>cobalt</code> with multi-category treatments<a class="anchor" aria-label="anchor" href="#using-cobalt-with-multi-category-treatments"></a>
+<h3 id="using-cobalt-with-multi-category-treatments">Using <em>cobalt</em> with multi-category treatments<a class="anchor" aria-label="anchor" href="#using-cobalt-with-multi-category-treatments"></a>
 </h3>
 <p>When multiple categorical treatment groups are to be compared with
 each other, it is possible to create balance across the treatment groups
@@ -1395,7 +1387,7 @@ treatment pairs must be assessed for balance because all possible
 comparisons are potentially meaningful, but for the ATT, only treatment
 pairs that include the focal treatment group can be meaningfully
 compared, so balance needs only to be assessed in these pairs.</p>
-<p>In <code>cobalt</code>, users can assess and present balance for
+<p>In <em>cobalt</em>, users can assess and present balance for
 multi-category treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with
 binary treatments. The output is slightly different, though, and is
@@ -1406,7 +1398,7 @@ worst balance for each covariate across pairwise comparisons. For mean
 differences, this is described in <span class="citation">Lopez and
 Gutman (<a href="#ref-lopezEstimationCausalEffects2017">2017</a>)</span>
 as “Max2SB,” or the maximum pairwise standardized bias. In
-<code>cobalt</code>, this has been extended to variance ratios and KS
+<em>cobalt</em>, this has been extended to variance ratios and KS
 statistics as well. If the worst imbalance is not too great, then
 imbalance for all pairwise comparisons will not be too great either.
 When the ATT is desired, a focal group must be specified (unless done so
@@ -1417,14 +1409,13 @@ displayed.</p>
 treatment or the range of balance across treatment pairs for each
 covariate. <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays distributional balance for
 the requested covariate across all treatment groups.</p>
-<p>Below is an example of using <code>cobalt</code> with multi-category
+<p>Below is an example of using <em>cobalt</em> with multi-category
 treatments. For this example, <code>race</code> will be the “treatment”;
 this type of analysis is not meant to be causal, but rather represents a
 method to examine disparities among groups accounting for covariates
 that might otherwise explain differences among groups. We will use
-<code>WeightIt</code> to generate balanced groups by estimating
-generalized propensity score weights using multinomial logistic
-regression.</p>
+<em>WeightIt</em> to generate balanced groups by estimating generalized
+propensity score weights using multinomial logistic regression.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -1513,10 +1504,10 @@ groups.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-24-1.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" alt="" width="480"></p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-24-2.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-24-2.png" class="r-plt" alt="" width="480"></p>
 <p>Finally, we can use <code><a href="../reference/love.plot.html">love.plot()</a></code> to display balance
 across treatments. By default, <code><a href="../reference/love.plot.html">love.plot()</a></code> displays the
 values in the summary across pairwise comparisons. To request individual
@@ -1526,7 +1517,7 @@ treatment comparisons, use <code>which.treat = .all</code> in
 <code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, binary <span class="op">=</span> <span class="st">"std"</span>,</span>
 <span>          which.treat <span class="op">=</span> <span class="va">.all</span>, abs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-25-1.png" width="672"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level3">
 <h3 id="comparing-balancing-methods">Comparing balancing methods<a class="anchor" aria-label="anchor" href="#comparing-balancing-methods"></a>
@@ -1567,7 +1558,7 @@ the ATT using the following code and the output generated above.</p>
 <span>         weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
 <span>                        IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,</span>
 <span>         var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-27-1.png" width="672"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="672"></p>
 <p>With <code><a href="../reference/love.plot.html">love.plot()</a></code>, <code>var.order</code> can be
 <code>"unadjusted"</code>, <code>"alphabetical"</code>, or one of the
 names of the weights to order the variables. Also, <code>colors</code>
@@ -1583,7 +1574,7 @@ weights or have length 1.</p>
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>, colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>, </span>
 <span>          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span>
 <span>          line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-28-1.png" width="480"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="480"></p>
 <p>Another way to compare weights from multiple objects is to call
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with one object as usual and supply the other(s)
 to the <code>weights</code> argument; see below for an example:</p>
@@ -1606,7 +1597,7 @@ score model is estimated in just the control group, so that the outcome
 of the treated group (which may contain treatment effect information) is
 excluded from analysis.</p>
 <p>Assessing balance on the prognostic score is simple in
-<code>cobalt</code>, and highly recommended when available. The steps
+<em>cobalt</em>, and highly recommended when available. The steps
 are:</p>
 <ol style="list-style-type: decimal">
 <li>Estimate the outcome model in the control group</li>
@@ -1615,7 +1606,7 @@ control groups</li>
 <li>Assess balance on prognostic scores by comparing standardized mean
 differences</li>
 </ol>
-<p>To use prognostic scores in <code>cobalt</code>, simply add the
+<p>To use prognostic scores in <em>cobalt</em>, simply add the
 prognostic score as a variable in the argument to <code>distance</code>.
 Below is an example of how to do so after a call to
 <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>:</p>
@@ -1665,7 +1656,7 @@ unbiased treatment effect estimate.</p>
 <div class="section level2">
 <h2 id="details-on-calculations">Details on Calculations<a class="anchor" aria-label="anchor" href="#details-on-calculations"></a>
 </h2>
-<p>There are calculations in <code>cobalt</code> that may be opaque to
+<p>There are calculations in <em>cobalt</em> that may be opaque to
 users; this section explains them. For even more details, see
 <code><a href="../articles/faq.html">vignette("faq")</a></code>.</p>
 <div class="section level3">
@@ -1679,17 +1670,17 @@ a pooled estimate, calculated as the square root of the average of the
 group variances. In most applications, the standard deviation
 corresponding to the default for the method is the most appropriate.</p>
 <p>A key detail is that the standard deviation, no matter how it is
-computed, is always computed using the <em>unadjusted</em> sample<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Unless common support is used in &lt;code&gt;Matching&lt;/code&gt;,
-in which case the standard deviation is computed using the remaining
+computed, is always computed using the <em>unadjusted</em> sample<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Unless common support is used in &lt;em&gt;Matching&lt;/em&gt;, in
+which case the standard deviation is computed using the remaining
 unadjusted sample, or &lt;code&gt;s.d.enom&lt;/code&gt; is set to
 &lt;code&gt;"weighted"&lt;/code&gt;, which uses the standard deviation computed in
 the weighted (or matched) sample.&lt;/p&gt;'><sup>4</sup></a>. This is
-line with how <code>MatchIt</code> computes standardized mean
-differences<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;It is important to note that both &lt;code&gt;twang&lt;/code&gt; and
-&lt;code&gt;Matching&lt;/code&gt; calculate standardized mean differences using the
+line with how <em>MatchIt</em> computes standardized mean differences<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;It is important to note that both &lt;em&gt;twang&lt;/em&gt; and
+&lt;em&gt;Matching&lt;/em&gt; calculate standardized mean differences using the
 standard deviation of the sample in question, not the unadjusted sample,
-though &lt;code&gt;CBPS&lt;/code&gt; uses the standard deviation of the unadjusted
-sample.&lt;/p&gt;"><sup>5</sup></a>, and is recommended by Stuart <span class="citation">(<a href="#ref-stuartDevelopingPracticalRecommendations2008">2008</a>, <a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span>. One reason
+though &lt;em&gt;CBPS&lt;/em&gt; uses the standard deviation of the unadjusted
+sample.&lt;/p&gt;"><sup>5</sup></a>, and is
+recommended by Stuart <span class="citation">(<a href="#ref-stuartDevelopingPracticalRecommendations2008">2008</a>, <a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span>. One reason
 to favor the use of the standard deviation of the unadjusted sample is
 that it prevents the <a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">paradoxical
 situation</a> that occurs when adjustment decreases both the mean
@@ -1733,13 +1724,13 @@ w_{i}(x_{i} - \bar{x}_{w})^2\)</span></p></li>
 </ol>
 <p>The weights used in the first formula are often called “frequency
 weights”, while the weights in the second formula are often called
-normalized or “reliability weights”. <code>MatchIt</code>,
-<code>twang</code>, and <code>Matching</code> all use the first formula
-when calculating any weighted variance (<code>CBPS</code> does not
-compute a weighted variance). However, <span class="citation">Austin (<a href="#ref-austinAssessingBalanceMeasured2008">2008b</a>)</span> and
+normalized or “reliability weights”. <em>MatchIt</em>, <em>twang</em>,
+and <em>Matching</em> all use the first formula when calculating any
+weighted variance (<em>CBPS</em> does not compute a weighted variance).
+However, <span class="citation">Austin (<a href="#ref-austinAssessingBalanceMeasured2008">2008b</a>)</span> and
 <span class="citation">Austin and Stuart (<a href="#ref-austinMovingBestPractice2015">2015</a>)</span> recommend the
 second formula when considering matching weights for k:1 matching or
-weights for propensity score weighting. In <code>cobalt</code>, as of
+weights for propensity score weighting. In <em>cobalt</em>, as of
 version 2.0.0, the second formula is used to remain in line with
 recommended practice. For some applications (e.g., when all weights are
 either 0 or 1, as in 1:1 matching), the two formulas yield the same
@@ -1762,7 +1753,7 @@ up-weight observations to create two similar samples. The “effective
 sample size” (ESS) is a measure of the sample size a non-weighted sample
 would have to have to achieve the same level of precision as the
 weighted sample <span class="citation">(<a href="#ref-ridgewayAssessingEffectRace2006">Ridgeway 2006</a>)</span>.
-This measure is implemented in <code>twang</code> using the following
+This measure is implemented in <em>twang</em> using the following
 formula: <span class="math display">\[ESS = \frac{(\sum_{i=1}^{n}
 w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}\]</span> <span class="citation">Shook-Sa and Hudgens (<a href="#ref-shook-saPowerSampleSize2020b">2020</a>)</span> derived the
 specific relationship between the ESS and the standard error of a
@@ -1770,16 +1761,16 @@ propensity score-weighted mean.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="whats-missing-in-cobalt">What’s Missing in <code>cobalt</code><a class="anchor" aria-label="anchor" href="#whats-missing-in-cobalt"></a>
+<h2 id="whats-missing-in-cobalt">What’s Missing in <em>cobalt</em><a class="anchor" aria-label="anchor" href="#whats-missing-in-cobalt"></a>
 </h2>
-<p>A fair amount is missing in <code>cobalt</code> that is present in
-other packages. Though there is value in many of the aspects that
-<code>cobalt</code> lacks, many were purposefully excluded based on
+<p>A fair amount is missing in <em>cobalt</em> that is present in other
+packages. Though there is value in many of the aspects that
+<em>cobalt</em> lacks, many were purposefully excluded based on
 methodological recommendations that conflict with the current use of
 some other packages. Below are aspects that are intentionally missing
-from <code>cobalt</code> that users may be used to from other packages.
+from <em>cobalt</em> that users may be used to from other packages.
 Their reasons for exclusion are included, with the hope that users of
-<code>cobalt</code> will be satisfied with what is available and be
+<em>cobalt</em> will be satisfied with what is available and be
 confident they are using the most methodologically sound tools for
 balance assessment.</p>
 <div class="section level3">
@@ -1822,26 +1813,25 @@ hypothesis test for group differences is the standardized magnitude of
 the group difference, and so such a measure is preferred.</p>
 <p>Because hypothesis tests can be misleading and their use is
 discouraged by leading methodologists, they have been completely
-excluded in <code>cobalt</code> in favor of summary statistics. This
-stands in contrast to <code>twang</code>, <code>Matching</code>, and
-<code>RItools</code>, all of which report hypothesis test p-values in
-their balance output.</p>
+excluded in <em>cobalt</em> in favor of summary statistics. This stands
+in contrast to <em>twang</em>, <em>Matching</em>, and <em>RItools</em>,
+all of which report hypothesis test p-values in their balance
+output.</p>
 </div>
 <div class="section level3">
 <h3 id="q-q-plots-and-summaries">Q-Q Plots and Summaries<a class="anchor" aria-label="anchor" href="#q-q-plots-and-summaries"></a>
 </h3>
 <p>Q-Q plots have been recommended as tools to assess distributional
 balance of covariates between groups <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al.
-2007</a>)</span>, and are implemented in <code>MatchIt</code> and
-<code>Matching</code> (<code>twang</code> implements them but for a
-different purpose). Statistics summarizing the degree of imbalance in
-Q-Q plots are also reported in both <code>MatchIt</code> and
-<code>Matching</code>. <code>MatchIt</code>’s <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
-command reports “eQQ Mean” and “eQQ Max” for each covariate before and
-after adjustment. These are the mean and maximum distance between the
-treated and control group empirical Q-Q plots on the scale of the
-covariate. Values close to 0 indicate good balance between groups for
-the given covariate.</p>
+2007</a>)</span>, and are implemented in <em>MatchIt</em> and
+<em>Matching</em> (<em>twang</em> implements them but for a different
+purpose). Statistics summarizing the degree of imbalance in Q-Q plots
+are also reported in both <em>MatchIt</em> and <em>Matching</em>.
+<em>MatchIt</em>’s <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> command reports “eQQ Mean” and
+“eQQ Max” for each covariate before and after adjustment. These are the
+mean and maximum distance between the treated and control group
+empirical Q-Q plots on the scale of the covariate. Values close to 0
+indicate good balance between groups for the given covariate.</p>
 <p>A weakness of empirical Q-Q plots is that they don’t reveal much
 about the differences in the shapes of the distributions between the
 groups, which is a key aspect of distributional balance. A density plot
@@ -1857,17 +1847,17 @@ their use.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="whats-added-in-cobalt">What’s Added in <code>cobalt</code><a class="anchor" aria-label="anchor" href="#whats-added-in-cobalt"></a>
+<h2 id="whats-added-in-cobalt">What’s Added in <em>cobalt</em><a class="anchor" aria-label="anchor" href="#whats-added-in-cobalt"></a>
 </h2>
-<p>There are several features in <code>cobalt</code> that are present in
+<p>There are several features in <em>cobalt</em> that are present in
 few, if any, balance assessment tools in the major packages. These come
 from methodological recommendations and requests by members of the
 methodological community.</p>
 <div class="section level3">
 <h3 id="density-plots">Density Plots<a class="anchor" aria-label="anchor" href="#density-plots"></a>
 </h3>
-<p>As mentioned above, <code>cobalt</code> displays density plots and
-bar charts rather than empirical Q-Q plots for the assessment of
+<p>As mentioned above, <em>cobalt</em> displays density plots and bar
+charts rather than empirical Q-Q plots for the assessment of
 distributional similarity. These charts are not standard in any of the
 conditioning packages, but can be an intuitive and helpful tool for
 deciding whether adjustment has yielded similar distributions between
@@ -1891,8 +1881,8 @@ King, and Stuart 2008</a>)</span>. When group variances are similar, the
 variance ratio will be close to 1. Common thresholds for the variance
 ratio for balanced groups are .5 and 2 <span class="citation">(<a href="#ref-stuartMatchingMethodsCausal2010">Stuart 2010</a>; <a href="#ref-rubinUsingPropensityScores2001">Rubin 2001</a>)</span>,
 though ratios closer to 1 are preferred. Although <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
-in <code>cobalt</code> does not display variance ratios by default, they
-can be easily requested and have thresholds set.</p>
+in <em>cobalt</em> does not display variance ratios by default, they can
+be easily requested and have thresholds set.</p>
 </div>
 <div class="section level3">
 <h3 id="distinguishing-continuous-and-binary-covariates">Distinguishing Continuous and Binary Covariates<a class="anchor" aria-label="anchor" href="#distinguishing-continuous-and-binary-covariates"></a>
@@ -1925,13 +1915,13 @@ the raw difference in proportion was a better predictor of bias than the
 standardized mean difference for binary variables<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Ali et al. (2014) compared the KS statistic to
 standardized mean differences, but the KS statistic is equivalent to the
 raw difference in proportion for binary variables.&lt;/p&gt;"><sup>6</sup></a>.</p>
-<p><code>MatchIt</code> allows users to view either standardized mean
+<p><em>MatchIt</em> allows users to view either standardized mean
 differences for all covariates or raw differences for all covariates,
-and <code>twang</code> and <code>Matching</code> display standardized
+and <em>twang</em> and <em>Matching</em> display standardized
 differences for all variables but calculate test statistics depending on
-whether the covariate is continuous or binary (<code>CBPS</code> does
-not calculate mean differences, but presents both standardized and
-unstandardized means for all covariates). <code>cobalt</code> allows the
+whether the covariate is continuous or binary (<em>CBPS</em> does not
+calculate mean differences, but presents both standardized and
+unstandardized means for all covariates). <em>cobalt</em> allows the
 user to select how the differences are to be calculated separately for
 continuous and binary variables, and uses the intuitive default that
 mean differences for continuous variables should be standardized while
@@ -1940,8 +1930,8 @@ proportion differences for binary variables should not be.</p>
 proportion, the variance ratio of a binary variable in two groups is a
 function only of their proportions, thereby containing no more
 information than the simple difference in proportion. Therefore, for
-binary variables, <code>cobalt</code> does not compute variance ratios,
-as they can be misleading.</p>
+binary variables, <em>cobalt</em> does not compute variance ratios, as
+they can be misleading.</p>
 </div>
 <div class="section level3">
 <h3 id="interactions-and-polynomials">Interactions and Polynomials<a class="anchor" aria-label="anchor" href="#interactions-and-polynomials"></a>
@@ -1954,9 +1944,8 @@ distributional similarity of interaction and polynomial terms to account
 for this. Rather than requiring the user to create interaction variables
 by hand, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> can produce balance statistics for
 interactions by specifying <code>int = TRUE</code>, similar to
-<code>MatchIt</code>’s <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and polynomials by
-specifying a numeric argument to <code>poly</code> (e.g., 2 for squared
-terms).</p>
+<em>MatchIt</em>’s <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and polynomials by specifying
+a numeric argument to <code>poly</code> (e.g., 2 for squared terms).</p>
 <p>When including categorical variables in balance assessment,
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> makes a few adjustments under the hood that
 deserve explanation. First, if a variable is binary and is entered as a
@@ -2015,57 +2004,54 @@ with respect to clusters, except by manually examining balance on
 clusters specified manually. It can be useful to examine balance within
 each cluster, but, especially if there are many clusters, it may also be
 useful to examine a summary of balance across clusters. In all of its
-functions, <code>cobalt</code> provides options for displaying balance
-on clustered data sets. This can occur either within specified clusters
-or across all clusters. Details on using <code>cobalt</code> with
-clustered data can be found in
-<code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code>.</p>
+functions, <em>cobalt</em> provides options for displaying balance on
+clustered data sets. This can occur either within specified clusters or
+across all clusters. Details on using <em>cobalt</em> with clustered
+data can be found in <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="missing-data">Missing Data<a class="anchor" aria-label="anchor" href="#missing-data"></a>
 </h3>
 <p>Missing data is frequent in all research involving human subjects,
 and especially in the large survey data sets that are often used to
-answer causal questions in the social sciences. <code>cobalt</code>
+answer causal questions in the social sciences. <em>cobalt</em>
 functions can assess balance not only on the observed covariates but
 also on the proportion of missing values for each covariate.
-Additionally, <code>cobalt</code> has features designed especially for
+Additionally, <em>cobalt</em> has features designed especially for
 assessing balance on preprocessed data sets that have been multiply
 imputed to address covariate missingness. Although the guidelines on
 assessing balance on multiply imputed data sets are scarce, it is
 valuable to assess balance within and across imputed data sets to ensure
 the preprocessing solution is applicable to all imputations. Details on
-using <code>cobalt</code> with multiply imputed data can be found in
+using <em>cobalt</em> with multiply imputed data can be found in
 <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="for-programmers-integrating-cobalt-with-your-package">For Programmers: Integrating <code>cobalt</code> with Your
-Package<a class="anchor" aria-label="anchor" href="#for-programmers-integrating-cobalt-with-your-package"></a>
+<h2 id="for-programmers-integrating-cobalt-with-your-package">For Programmers: Integrating <em>cobalt</em> with Your Package<a class="anchor" aria-label="anchor" href="#for-programmers-integrating-cobalt-with-your-package"></a>
 </h2>
 <p>If you are designing a new R package for preprocessing that performs
-similar functions to <code>MatchIt</code>, <code>twang</code>,
-<code>Matching</code>, <code>optmatch</code>, <code>CBPS</code>,
-<code>ebal</code>, <code>designmatch</code>, <code>cem</code>, or
-<code>WeightIt</code>, you might consider integrating
-<code>cobalt</code> into your package to avoid programming your own
-balance assessment tool. The simplest way to do so is to have the output
-of your preprocessing function contain sufficient elements for use with
-the default method for <code><a href="../reference/bal.tab.html">bal.tab()</a></code> and
+similar functions to <em>MatchIt</em>, <em>twang</em>,
+<em>Matching</em>, <em>optmatch</em>, <em>CBPS</em>, <em>ebal</em>,
+<em>designmatch</em>, <em>cem</em>, or <em>WeightIt</em>, you might
+consider integrating <em>cobalt</em> into your package to avoid
+programming your own balance assessment tool. The simplest way to do so
+is to have the output of your preprocessing function contain sufficient
+elements for use with the default method for <code><a href="../reference/bal.tab.html">bal.tab()</a></code> and
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>. See <code><a href="../reference/bal.tab.default.html">?bal.tab.default</a></code> for more
 information on how this might work.</p>
-<p>As <code>cobalt</code> is updated to remain in line with
-methodological recommendations, the balance assessment capabilities for
-your function’s output will also improve if <code>cobalt</code> is a
-balance assessment tool for your package. In this way, users of your
-package can use the most up-to-date balance assessment tools programmed
-in <code>cobalt</code> without you having to update your package.</p>
+<p>As <em>cobalt</em> is updated to remain in line with methodological
+recommendations, the balance assessment capabilities for your function’s
+output will also improve if <em>cobalt</em> is a balance assessment tool
+for your package. In this way, users of your package can use the most
+up-to-date balance assessment tools programmed in <em>cobalt</em>
+without you having to update your package.</p>
 <p>If you develop a new balance assessment tool, this may also be able
-to be integrated into <code>cobalt</code>, especially if it would be
+to be integrated into <em>cobalt</em>, especially if it would be
 applicable to balance assessment generally in matching, weighting, or
-subclassification. Incorporating a new tool into <code>cobalt</code> may
-be a good way to broaden its use.</p>
-<p><code>cobalt</code> includes a small suite of functions that compute
+subclassification. Incorporating a new tool into <em>cobalt</em> may be
+a good way to broaden its use.</p>
+<p><em>cobalt</em> includes a small suite of functions that compute
 balance statistics on matrices of covariates with and without weights.
 These include <code><a href="../reference/balance-summary.html">col_w_smd()</a></code> for computing (standardized) mean
 differences, <code><a href="../reference/balance-summary.html">col_w_vr()</a></code> for computing variance ratios,
@@ -2090,8 +2076,8 @@ and when to use these functions.</p>
 <h2 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
 </h2>
 <p>I thank Kirsten Kainz and Elizabeth Stuart for their support and
-advice on <code>cobalt</code>’s creation. I thank Zachary Fisher and
-Brian Barkley for their advice on developing an R package.</p>
+advice on <em>cobalt</em>’s creation. I thank Zachary Fisher and Brian
+Barkley for their advice on developing an R package.</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -2359,7 +2345,7 @@ Balancing Weights for Causal Inference and Missing Data</em>. Manual.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
