@@ -84,7 +84,7 @@ to compute the balance statistic for the sample prior to weighting.
 
 ``` r
 library(cobalt)
-#>  cobalt (Version 4.6.1.9001, Build Date: 2026-01-23)
+#>  cobalt (Version 4.6.2, Build Date: 2026-01-23)
 data("lalonde", package = "cobalt")
 
 covs <- subset(lalonde, select = -c(treat, race, re78))

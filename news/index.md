@@ -5,7 +5,7 @@
 - Fixed documentation issue when a package isn’t available.
 
 - Converted all condition messages to use *cli*, which is now a
-  dependency.
+  dependency. *crayon* is no longer a dependency.
 
 ## cobalt 4.6.1
 
