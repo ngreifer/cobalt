@@ -85,7 +85,7 @@ When sampling weights are used with \code{CBPS()} in \pkg{CBPS}, the returned we
 When \code{Match()} in \pkg{Matching} is used with \code{CommonSupport = TRUE}, the returned weights will be incorrect. This option is not recommended by the package authors.
 }
 \examples{
-\dontshow{if (all(sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (all(sapply(c("WeightIt", "MatchIt"), rlang::is_installed))) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 m.out <- MatchIt::matchit(treat ~ age + educ + race,

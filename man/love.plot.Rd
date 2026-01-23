@@ -127,15 +127,17 @@ The default is to display standardized mean differences for continuous variables
 \code{love.plot} can also be called by using \code{plot()} or \code{autoplot()} on a \code{bal.tab} object. If used in this way, some messages may appear twice. It is recommended that you just use \code{love.plot()} instead.
 }
 \examples{
-\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("WeightIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 ## Propensity score weighting
-w.out1 <- WeightIt::weightit(treat ~ age + educ + race + married +
-                                 nodegree + re74 + re75, 
-                             data = lalonde)
+library(WeightIt)
+w.out1 <- weightit(treat ~ age + educ + race + married +
+                     nodegree + re74 + re75, 
+                   data = lalonde)
 
-love.plot(w.out1, thresholds = c(m = .1), var.order = "unadjusted")
+love.plot(w.out1, thresholds = c(m = .1),
+          var.order = "unadjusted")
 
 ## Using alternate variable names
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 

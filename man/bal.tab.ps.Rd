@@ -85,7 +85,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 \code{bal.tab.ps()} generates a list of balance summaries for the input object given, and functions similarly to \pkgfun{twang}{bal.table}. The variances used in the denominator of the standardized mean differences computed in \code{twang::bal.table()} are weighted and computed using \code{survey::svyvar()} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link[=col_w_sd]{col_w_sd()}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.
 }
 \examples{
-\dontshow{if (requireNamespace("twang", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("twang")) withAutoprint(\{ # examplesIf}
 \donttest{library(twang)
 data("lalonde", package = "cobalt")
 

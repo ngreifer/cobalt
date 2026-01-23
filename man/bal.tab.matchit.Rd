@@ -85,22 +85,24 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 \code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \pkgfun{MatchIt}{summary.matchit}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link{class-bal.tab.subclass}} for more information.
 }
 \examples{
-\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 library(MatchIt)
 data("lalonde", package = "cobalt")
 
 ## Nearest Neighbor matching
 m.out1 <- matchit(treat ~ age + educ + race + 
-                      married + nodegree + re74 + re75, 
-                  data = lalonde, method = "nearest")
+                    married + nodegree + re74 + re75, 
+                  data = lalonde,
+                  method = "nearest")
 
 bal.tab(m.out1, un = TRUE, 
         thresholds = c(m = .1, v = 2))
 
 ## Subclassification
 m.out2 <- matchit(treat ~ age + educ + race + 
-                      married + nodegree + re74 + re75, 
-                  data = lalonde, method = "subclass")
+                    married + nodegree + re74 + re75, 
+                  data = lalonde,
+                  method = "subclass")
 
 bal.tab(m.out2, disp.subclass = TRUE)
 \dontshow{\}) # examplesIf}

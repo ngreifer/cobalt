@@ -104,13 +104,14 @@ To change the plot and axis titles, use \code{\link[ggplot2:labs]{ggplot2::labs(
 }
 
 \examples{
-\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 #Nearest Neighbor Matching
-m.out <- MatchIt::matchit(treat ~ age + educ + race +  married +
-                              nodegree + re74 + re75, 
-                          data = lalonde)
+library(MatchIt)
+m.out <- matchit(treat ~ age + educ + race + married +
+                   nodegree + re74 + re75, 
+                 data = lalonde)
 
 bal.plot(m.out, "age", which = "both")
 bal.plot(m.out, "re74", which = "both", type = "ecdf")
@@ -118,11 +119,12 @@ bal.plot(m.out, "race", which = "both")
 bal.plot(m.out, "distance", which = "both", mirror = TRUE,
          type = "histogram", colors = c("white", "black"))
 \dontshow{\}) # examplesIf}
-\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("WeightIt")) withAutoprint(\{ # examplesIf}
 #Entropy balancing with a continuous treatment
-w.out <- WeightIt::weightit(re75 ~ age + I(age^2) + educ + 
-                                race + married + nodegree,
-                            data = lalonde, method = "ebal")
+library(WeightIt)
+w.out <- weightit(re75 ~ age + I(age^2) + educ + 
+                    race + married + nodegree,
+                  data = lalonde, method = "ebal")
 
 bal.plot(w.out, "age", which = "both")
 bal.plot(w.out, "married", which = "both")

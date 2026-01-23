@@ -26,7 +26,7 @@ If file is not \code{NULL}, the output will be returned invisibly.
 This function extracts variable names from a \code{bal.tab} object for use in specifying alternate variable names in \code{\link[=love.plot]{love.plot()}}. Optionally, a file can be written for easy editing of names.
 }
 \details{
-The goal of the function is to make supplying new variable names to the \code{var.names} argument in \code{\link[=love.plot]{love.plot()}} easier. Rather than manually creating a vector or \code{data.frame} with all the variable names that one desires to change, one can use \code{var.names()} to extract variable names from a \code{bal.tab} object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into R for use in \code{love.plot()}, as demonstrated in the Example.
+The purpose of the function is to make supplying new variable names to the \code{var.names} argument in \code{\link[=love.plot]{love.plot()}} easier. Rather than manually creating a vector or \code{data.frame} with all the variable names that one desires to change, one can use \code{var.names()} to extract variable names from a \code{bal.tab} object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into R for use in \code{love.plot()}, as demonstrated in the Example.
 
 When \code{minimal = TRUE}, only a minimal set of variables will be output. For example, if the variables analyzed in \code{bal.tab()} are \code{age}, \code{race}, and \code{married}, and \code{int = TRUE} in \code{bal.tab()}, many variables will appear in the output, including expansions of the factor variables, the polynomial terms, and the interactions. Rather than renaming all of these variables individually, one can rename just the three base variables, and all variables that arise from them will be accordingly renamed. Setting \code{minimal = TRUE} requests only these base variables.
 }
@@ -34,7 +34,6 @@ When \code{minimal = TRUE}, only a minimal set of variables will be output. For 
 Not all programs can properly read the Unicode characters for the polynomial terms when requested. These may appear strange in, e.g., Excel, but R will process the characters correctly.
 }
 \examples{
-
 data(lalonde, package = "cobalt")
 
 b1 <- bal.tab(treat ~ age + race + married, data = lalonde,

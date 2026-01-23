@@ -84,14 +84,15 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
 \code{bal.tab.CBPS()} and \code{bal.tab.CBMSM()} generate a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \pkgfun{CBPS}{balance}.
 }
 \examples{
-\dontshow{if (requireNamespace("CBPS", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("CBPS")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 ## Using CBPS() for generating covariate balancing 
 ## propensity score weights
-cbps.out <- CBPS::CBPS(treat ~ age + educ + married + race +
-                           nodegree + re74 + re75,
-                       data = lalonde)
+library(CBPS)
+cbps.out <- CBPS(treat ~ age + educ + married + race +
+                   nodegree + re74 + re75,
+                 data = lalonde)
 
 bal.tab(cbps.out)
 \dontshow{\}) # examplesIf}

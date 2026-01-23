@@ -80,7 +80,7 @@ The distance covariance or distance correlation, respectively, between the scale
 Although statistics can be computed directly using \code{bal.compute()} alone, the intended workflow is to use \code{bal.init()} to initialize a \code{bal.init} object, which can then be passed to \code{bal.compute()} many times with different sets of weights, thereby minimizing the processing that \code{bal.init()} does because it is only done once. In contrast, using \code{bal.compute()} on covariates directly (i.e., using the default method) calls \code{bal.init()} internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of \code{bal.compute()} can be a quick shortcut to avoid having to create a \code{bal.init} object first.
 }
 \examples{
-\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 # Select the optimal number of subclasses for
 # subclassification:
 data("lalonde")

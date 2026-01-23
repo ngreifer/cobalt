@@ -89,7 +89,7 @@ Generates balance statistics for output objects from \pkg{ebal}.
 \code{bal.tab()} generates a list of balance summaries for the object given. The input to \code{bal.tab.ebalance()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}.
 }
 \examples{
-\dontshow{if (requireNamespace("ebal", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("ebal")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 covs <- subset(lalonde, select = -c(re78, treat))

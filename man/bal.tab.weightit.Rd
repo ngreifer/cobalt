@@ -86,22 +86,23 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
 \code{bal.tab.weightit()} generates a list of balance summaries for the \code{weightit} object given.
 }
 \examples{
-\dontshow{if (all(sapply(c("WeightIt"), requireNamespace, quietly = TRUE))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("WeightIt")) withAutoprint(\{ # examplesIf}
 library(WeightIt)
 data("lalonde", package = "cobalt")
 
 ## Basic propensity score weighting
 w.out1 <- weightit(treat ~ age + educ + race + 
-                       married + nodegree + re74 + re75, 
-                   data = lalonde, method = "glm")
+                     married + nodegree + re74 + re75, 
+                   data = lalonde)
+
 bal.tab(w.out1, un = TRUE, 
         thresholds = c(m = .1, v = 2))
 
 ## Weighting with a multi-category treatment
 w.out2 <- weightit(race ~ age + educ + married + 
-                       nodegree + re74 + re75, 
-                   data = lalonde, method = "glm",
-                   estimand = "ATE")
+                     nodegree + re74 + re75, 
+                   data = lalonde)
+
 bal.tab(w.out2, un = TRUE)
 bal.tab(w.out2, un = TRUE, pairwise = FALSE)
 
@@ -109,13 +110,13 @@ bal.tab(w.out2, un = TRUE, pairwise = FALSE)
 data("msmdata", package = "WeightIt")
 
 wmsm.out <- weightitMSM(list(A_1 ~ X1_0 + X2_0,
-                        A_2 ~ X1_1 + X2_1 +
-                            A_1 + X1_0 + X2_0,
-                        A_3 ~ X1_2 + X2_2 +
-                            A_2 + X1_1 + X2_1 +
-                            A_1 + X1_0 + X2_0),
-                   data = msmdata,
-                   method = "glm")
+                             A_2 ~ X1_1 + X2_1 +
+                               A_1 + X1_0 + X2_0,
+                             A_3 ~ X1_2 + X2_2 +
+                               A_2 + X1_1 + X2_1 +
+                               A_1 + X1_0 + X2_0),
+                        data = msmdata)
+
 bal.tab(wmsm.out)
 \dontshow{\}) # examplesIf}
 }

@@ -91,11 +91,10 @@ Generates balance statistics for output objects from \pkg{designmatch}.
 The input to \code{bal.tab.designmatch()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}. Using the \code{covs} + \code{treat} input mirrors how \pkgfun{designmatch}{meantab} is used (note that to see identical results to \code{meantab()}, \code{s.d.denom} must be set to \code{"pooled"}).
 }
 \examples{
-\dontshow{if ((requireNamespace("designmatch", quietly = TRUE))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\donttest{
+\dontshow{if (rlang::is_installed("designmatch")) withAutoprint(\{ # examplesIf}
+\donttest{library(designmatch)
 data("lalonde", package = "cobalt")
 
-library(designmatch)
 covariates <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])
 treat <- lalonde$treat
 dmout <- bmatch(treat,

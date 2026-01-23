@@ -80,7 +80,7 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 \code{bal.tab.sbwcau()} generates a list of balance summaries for the \code{sbwcau} object given, and functions similarly to \pkgfun{sbw}{summarize}.
 }
 \examples{
-\dontshow{if (requireNamespace("sbw", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("sbw")) withAutoprint(\{ # examplesIf}
 library(sbw)
 data("lalonde", package = "cobalt")
 

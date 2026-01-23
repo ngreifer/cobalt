@@ -84,11 +84,14 @@ Generates balance statistics for \code{cem.match} objects from \pkg{cem}.
 \code{bal.tab.cem.match()} generates a list of balance summaries for the \code{cem.match} object given, and functions similarly to \pkgfun{cem}{imbalance}.
 }
 \examples{
-\dontshow{if (requireNamespace("cem", quietly = TRUE) && FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("cem") && FALSE) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 ## Coarsened exact matching
-cem.out <- cem::cem("treat", data = lalonde, drop = "re78")
+library(cem)
+cem.out <- cem("treat",
+               data = lalonde,
+               drop = "re78")
 
 bal.tab(cem.out, data = lalonde, un = TRUE, 
         stats = c("m", "k"))

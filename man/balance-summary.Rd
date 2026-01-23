@@ -219,7 +219,7 @@ These functions quickly compute balance statistics for the given covariates. The
 \code{col_w_dcorr()} is a wrapper for \code{col_w_dcov} with \code{std} set to \code{TRUE}.
 }
 \examples{
-\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("WeightIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 treat <- lalonde$treat
@@ -255,7 +255,6 @@ bal.tab(covs, treat = treat, weights = weights,
         stats = c("m", "v", "ks", "ovl"),
         estimand = "ATE", method = "weighting",
         binary = "std")
-
 \dontshow{\}) # examplesIf}
 }
 \references{

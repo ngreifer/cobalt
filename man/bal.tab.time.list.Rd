@@ -110,7 +110,7 @@ Generates balance statistics for data coming from a longitudinal treatment scena
 Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in \code{data} or a list thereof. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of \code{bal.tab()}.
 }
 \examples{
-\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (rlang::is_installed("WeightIt")) withAutoprint(\{ # examplesIf}
 data("msmdata", package = "WeightIt")
 
 ## Estimating longitudinal propensity scores and weights
