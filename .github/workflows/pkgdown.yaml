@@ -32,7 +32,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, any::., designmatch=?ignore
+          extra-packages: any::pkgdown, local::., designmatch=?ignore
           needs: website
 
       - name: Build site
