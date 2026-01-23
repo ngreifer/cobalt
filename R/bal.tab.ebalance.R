@@ -11,7 +11,7 @@
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
-#' @examplesIf requireNamespace("ebal", quietly = TRUE)
+#' @examplesIf rlang::is_installed("ebal")
 #' data("lalonde", package = "cobalt")
 #' 
 #' covs <- subset(lalonde, select = -c(re78, treat))

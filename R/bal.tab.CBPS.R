@@ -28,14 +28,15 @@
 #' * [`bal.tab.multi()`][class-bal.tab.multi] for more information on multi-category treatments.
 #' * [`class-bal.tab.msm`] for more information on longitudinal treatments.
 #' 
-#' @examplesIf requireNamespace("CBPS", quietly = TRUE)
+#' @examplesIf rlang::is_installed("CBPS")
 #' data("lalonde", package = "cobalt")
 #' 
 #' ## Using CBPS() for generating covariate balancing 
 #' ## propensity score weights
-#' cbps.out <- CBPS::CBPS(treat ~ age + educ + married + race +
-#'                            nodegree + re74 + re75,
-#'                        data = lalonde)
+#' library(CBPS)
+#' cbps.out <- CBPS(treat ~ age + educ + married + race +
+#'                    nodegree + re74 + re75,
+#'                  data = lalonde)
 #' 
 #' bal.tab(cbps.out)
 

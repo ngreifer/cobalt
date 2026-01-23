@@ -394,12 +394,12 @@ binarize <- function(variable, zero = NULL, one = NULL) {
   }
   
   if (length(unique.vals) != 2L) {
-    .err(sprintf("cannot binarize %s: more than two levels", var.name))
+    .err("cannot binarize {.var {var.name}}: more than two levels")
   }
   
   if (is_not_null(zero)) {
     if (!any(unique.vals == zero)) {
-      .err(sprintf("the argument to `zero` is not the name of a level of %s", var.name))
+      .err("the argument to {.arg zero} is not the name of a level of {.var {var.name}}")
     }
     
     return(setNames(as.integer(variable != zero), names(variable)))
@@ -407,7 +407,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
   
   if (is_not_null(one)) {
     if (!any(unique.vals == one)) {
-      .err(sprintf("the argument to `one` is not the name of a level of %s", var.name))
+      .err("the argument to {.arg one} is not the name of a level of {.var {var.name}}")
     }
     
     return(setNames(as.integer(variable == one), names(variable)))
@@ -686,7 +686,7 @@ assign.treat.type <- function(treat, use.multi = FALSE) {
   treat
 }
 get.treat.type <- function(treat) {
-  out <- attr(treat, "treat.type")
+  out <- .attr(treat, "treat.type")
   
   if (identical(out, "multi-category")) {
     return("multinomial")
@@ -698,9 +698,9 @@ has.treat.type <- function(treat) {
   is_not_null(get.treat.type(treat))
 }
 get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
-  if (is_not_null(attr(treat, "control", TRUE)) &&
-      is_not_null(attr(treat, "treated", TRUE))) {
-    return(attr(treat, "treated"))
+  if (is_not_null(.attr(treat, "control")) &&
+      is_not_null(.attr(treat, "treated"))) {
+    return(.attr(treat, "treated"))
   }
   
   if (is_not_null(focal)) {
@@ -722,13 +722,13 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
     return(setdiff(unique.vals, focal))
   }
   
-  treated <- attr(treat, "treated", TRUE)
+  treated <- .attr(treat, "treated")
   
   if (is_not_null(treated)) {
     return(treated)
   }
   
-  control <- attr(treat, "control", TRUE)
+  control <- .attr(treat, "control")
   
   if (is_not_null(control)) {
     unique.vals <- {
@@ -838,7 +838,10 @@ all_the_same <- function(x, na.rm = TRUE) {
   all(x == x[1L])
 }
 is_binary <- function(x, na.rm = TRUE) {
-  if (na.rm && anyNA(x)) x <- na.rem(x)
+  if (na.rm) {
+    x <- na.rem(x)
+  }
+  
   !all_the_same(x) && all_the_same(x[x != x[1L]])
 }
 is_binary_col <- function(dat, na.rm = TRUE) {
@@ -986,13 +989,13 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     it.is <- FALSE
   }
   
-  if (stop && !it.is) {
-    s0 <- if (arg.to) "the argument to " else ""
-    s2 <- if (any(types %in% c("factor", "character", "numeric", "logical"))) "vector" else ""
-    
-    .err(sprintf("%s'%s' must be a %s %s",
-                 s0, s1, word_list(types, and.or = "or"), s2))
-  }
+  # if (stop && !it.is) {
+  #   s0 <- if (arg.to) "the argument to " else ""
+  #   s2 <- if (any(types %in% c("factor", "character", "numeric", "logical"))) "vector" else ""
+  #   
+  #   .err(sprintf("%s'%s' must be a %s %s",
+  #                s0, s1, word_list(types, and.or = "or"), s2))
+  # }
   
   it.is
 }
@@ -1001,24 +1004,9 @@ is_mat_like <- function(x) {
 }
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
-if_null_then <- function(x1 = NULL, x2 = NULL, ...) {
-  if (is_not_null(x1)) {
-    return(x1)
-  }
-  
-  if (is_not_null(x2)) {
-    return(x2)
-  }
-  
-  if (...length() > 0L) {
-    for (k in seq_len(...length())) {
-      if (is_not_null(...elt(k))) {
-        return(...elt(k))
-      }
-    }
-  }
-  
-  x1
+`%or%` <- function(x, y) {
+  # like `%||%` but works for non-NULL length 0 objects
+  if (is_null(x)) y else x
 }
 clear_null <- function(x) {
   x[vapply(x, function(i) {
@@ -1088,12 +1076,12 @@ null_or_error <- function(x) {is_null(x) || is_error(x)}
   }), x[!not_found])
 }
 
-#More informative and cleaner version of base::match.arg(). Uses chk.
-match_arg <- function(arg, choices, several.ok = FALSE) {
+#More informative and cleaner version of base::match.arg(). Uses chk and cli.
+match_arg <- function(arg, choices, several.ok = FALSE, context = NULL) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
   if (missing(arg)) {
-    stop("No argument was supplied to match_arg.")
+    .err("no argument was supplied to {.fn match_arg} (this is a bug)")
   }
   
   arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
@@ -1114,17 +1102,24 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   }
   else {
     chk::chk_string(arg, x_name = add_quotes(arg.name, "`"))
+    
     if (identical(arg, choices)) {
       return(arg[1L])
     }
   }
   
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-  if (all(i == 0L))
-    .err(sprintf("the argument to `%s` should be %s%s",
-                 arg.name,
-                 ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
-                 word_list(choices, and.or = "or", quotes = 2L)))
+  
+  if (all(i == 0L)) {
+    one_of <- {
+      if (length(choices) <= 1L) NULL
+      else if (several.ok) "at least one of"
+      else "one of"
+    }
+    
+    .err("{context} the argument to {.arg {arg.name}} should be {one_of} {.or {add_quotes(choices)}}")
+  }
+  
   i <- i[i > 0L]
   
   choices[i]
@@ -1169,6 +1164,10 @@ seq_col <- function(x) {
 }
 na.rem <- function(x) {
   #A faster na.omit for vectors
+  if (!anyNA(x)) {
+    return(x)
+  }
+  
   x[!is.na(x)]
 }
 anyNA_col <- function(x) {
@@ -1218,6 +1217,9 @@ set_class <- function(x, .class, .replace = TRUE, .last = TRUE) {
   
   x
 }
+.attr <- function(x, which, exact = TRUE) {
+  attr(x, which, exact = exact)
+}
 
 #Efficient versions of any(vapply(...)) and all(vapply(...))
 any_apply <- function(X, FUN, ...) {
@@ -1248,3 +1250,8 @@ all_apply <- function(X, FUN, ...) {
   
   TRUE
 }
+
+#cli utilities
+.it <- function(...) cli::style_italic(...)
+.ul <- function(...) cli::style_underline(...)
+.st <- function(...) cli::style_strikethrough(...)

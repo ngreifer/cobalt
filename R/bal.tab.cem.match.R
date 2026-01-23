@@ -22,11 +22,14 @@
 #' 
 #' @seealso [bal.tab()] for details of calculations.
 #' 
-#' @examplesIf requireNamespace("cem", quietly = TRUE) && FALSE
+#' @examplesIf rlang::is_installed("cem") && FALSE
 #' data("lalonde", package = "cobalt")
 #' 
 #' ## Coarsened exact matching
-#' cem.out <- cem::cem("treat", data = lalonde, drop = "re78")
+#' library(cem)
+#' cem.out <- cem("treat",
+#'                data = lalonde,
+#'                drop = "re78")
 #' 
 #' bal.tab(cem.out, data = lalonde, un = TRUE, 
 #'         stats = c("m", "k"))

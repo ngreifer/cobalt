@@ -35,14 +35,14 @@ f.build <- function(y = NULL, rhs = NULL) {
     vars <- add_quotes(gsub("`", "", rhs, fixed = TRUE), "`")
   }
   else {
-    .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
+    .err("the right hand side argument to {.fun f.build} must be a vector of variable names or a data set with named variables")
   }
   
   if (is_null(y) || identical(y, "")) {
     y <- NULL
   }
   else if (!is.atomic(y)) {
-    .err("the response argument to `f.build()` must be a string containing the response variable")
+    .err("the response argument to {.fun f.build} must be a string containing the response variable")
   }
   
   f <- formula(paste(

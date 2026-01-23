@@ -82,7 +82,7 @@ base.bal.tab.msm <- function(X,
     
     X_ti <- .assign_X_class(X_ti)
     
-    X_ti$s.d.denom <- switch(attr(X_ti, "X.class"), cont = "all", "pooled")
+    X_ti$s.d.denom <- switch(.attr(X_ti, "X.class"), cont = "all", "pooled")
     
     do.call("base.bal.tab", c(list(X_ti), A[setdiff(names(A), names(X_ti))]), quote = TRUE)
   })
@@ -99,11 +99,11 @@ base.bal.tab.msm <- function(X,
                                                      include.times = TRUE)
     
     out <- c(out,
-             threshold_summary(compute = attr(out[["Time.Balance"]][[1L]][["Balance"]], "compute"),
-                               thresholds = attr(out[["Time.Balance"]][[1L]][["Balance"]], "thresholds"),
-                               no.adj = !attr(out[["Time.Balance"]][[1L]], "print.options")$disp.adj,
+             threshold_summary(compute = .attr(out[["Time.Balance"]][[1L]][["Balance"]], "compute"),
+                               thresholds = .attr(out[["Time.Balance"]][[1L]][["Balance"]], "thresholds"),
+                               no.adj = !.attr(out[["Time.Balance"]][[1L]], "print.options")$disp.adj,
                                balance.table = out[["Balance.Across.Times"]],
-                               weight.names = attr(out[["Time.Balance"]][[1L]], "print.options")$weight.names,
+                               weight.names = .attr(out[["Time.Balance"]][[1L]], "print.options")$weight.names,
                                agg.fun = "max"))
     
     out[["Observations"]] <- grab(out[["Time.Balance"]], "Observations")
@@ -111,7 +111,7 @@ base.bal.tab.msm <- function(X,
   
   out[["call"]] <- X$call
   
-  attr(out, "print.options") <- c(attr(out[["Time.Balance"]][[1L]], "print.options"),
+  attr(out, "print.options") <- c(.attr(out[["Time.Balance"]][[1L]], "print.options"),
                                   list(which.time = which.time,
                                        msm.summary = msm.summary))
   

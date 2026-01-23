@@ -12,7 +12,7 @@
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
-#' @examplesIf requireNamespace("optmatch", quietly = TRUE)
+#' @examplesIf rlang::is_installed("optmatch")
 #' data("lalonde", package = "cobalt")
 #' 
 #' lalonde$prop.score <- glm(treat ~ age + educ + race + 

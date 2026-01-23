@@ -1,7 +1,7 @@
 # Functions for clean argument checking. These are based on {chk} but
 # with several modifications to ensure correct and clean printing. These revolve
 # around pkg_caller_call(), which tells chk::err() which *user-facing* function
-# the error occurred in.
+# the error occurred in. These functions require {cli}.
 
 # pkg_caller_call() searches along the call stack to find the function from this
 # package that the user called. It gets a list of functions and methods exported
@@ -17,11 +17,7 @@ pkg_caller_call <- function() {
     
     n <- rlang::call_name(e)
     
-    if (is_null(n)) {
-      next
-    }
-    
-    if (n %in% package.funs) {
+    if (is_not_null(n) && n %in% package.funs) {
       return(e)
     }
   }
@@ -32,26 +28,47 @@ pkg_caller_call <- function() {
 # .err() is a version of chk::err() that uses pkg_caller_call() to get the correct function
 # call since chk::err() has a default that doesn't always work. .wrn() and .msg()
 # just call chk::wrn() and chk::msg() but make the syntax consistent.
-.err <- function(..., n = NULL, tidy = TRUE) {
-  m <- chk::message_chk(..., n = n, tidy = tidy)
-  rlang::abort(paste(strwrap(m), collapse = "\n"),
-               call = pkg_caller_call())
+.err <- function(m, n = NULL, tidy = TRUE, cli = TRUE) {
+  if (cli) {
+    m <- eval.parent(substitute(cli::format_inline(.m), list(.m = m)))
+  }
+  
+  chk::message_chk(m, n = n, tidy = tidy) |>
+    cli::ansi_strwrap() |>
+    paste(collapse = "\n") |>
+    rlang::abort(call = pkg_caller_call())
 }
-.wrn <- function(..., n = NULL, tidy = TRUE, immediate = TRUE) {
-  m <- chk::message_chk(..., n = n, tidy = tidy)
+.wrn <- function(m, n = NULL, tidy = TRUE, immediate = TRUE, cli = TRUE) {
+  if (cli) {
+    m <- eval.parent(substitute(cli::format_inline(.m), list(.m = m)))
+  }
+  
+  m <- chk::message_chk(m, n = n, tidy = tidy)
   
   if (immediate && isTRUE(all.equal(0, getOption("warn")))) {
     rlang::with_options({
-      rlang::warn(paste(strwrap(m), collapse = "\n"))
+      m |>
+        cli::ansi_strwrap() |>
+        paste(collapse = "\n") |>
+        rlang::warn()
     }, warn = 1)
   }
   else {
-    rlang::warn(paste(strwrap(m), collapse = "\n"))
+    m |>
+      cli::ansi_strwrap() |>
+      paste(collapse = "\n") |>
+      rlang::warn()
   }
 }
-.msg <- function(..., n = NULL, tidy = TRUE) {
-  m <- chk::message_chk(..., n = n, tidy = tidy)
-  rlang::inform(paste(strwrap(m), collapse = "\n"), tidy = FALSE)
+.msg <- function(m, n = NULL, tidy = TRUE, cli = TRUE) {
+  if (cli) {
+    m <- eval.parent(substitute(cli::format_inline(.m), list(.m = m)))
+  }
+  
+  chk::message_chk(m, n = n, tidy = tidy) |>
+    cli::ansi_strwrap() |>
+    paste(collapse = "\n") |>
+    rlang::inform(tidy = FALSE)
 }
 
 # Kind of insane loop to create (at build time) version of all .chk_*
@@ -63,7 +80,7 @@ for (i in getNamespaceExports("chk")) {
   assign(paste0(".", i), eval(str2expression(sprintf(
     "function(...) {
             tryCatch(chk::%s(...),
-                     error = function(e) .err(conditionMessage(e)))
+                     error = function(e) .err(conditionMessage(e), cli = FALSE))
         }", i
   ))))
 }
@@ -82,9 +99,7 @@ for (i in getNamespaceExports("chk")) {
   
   tryCatch(chk(x, ..., x_name = x_name),
            error = function(e) {
-             msg <- sub("[.]$", " or `NULL`.",
-                        conditionMessage(e))
-             .err(msg, .subclass = "chk_error")
+             .err(sub("[.]$", " or `NULL`.", conditionMessage(e)), cli = FALSE)
            })
 }
 
@@ -94,41 +109,42 @@ for (i in getNamespaceExports("chk")) {
       return(invisible(x))
     }
     if (is.null(x_name)) {
-      x_name <- chk::deparse_backtick_chk(substitute(x))
+      x_name <- deparse1(substitute(x))
     }
-    .err(x_name, " must be a formula",
-         x = x)
+    .err("{.arg {x_name}} must be a formula")
   }
-  else if (sides == 1) {
+  
+  if (sides == 1) {
     if (rlang::is_formula(x, lhs = FALSE)) {
       return(invisible(x))
     }
+    
     if (is.null(x_name)) {
-      x_name <- chk::deparse_backtick_chk(substitute(x))
+      x_name <- deparse1(substitute(x))
     }
-    .err(x_name, " must be a formula with no left-hand side",
-         x = x)
+    .err("{.arg {x_name}} must be a formula with no left-hand side")
   }
-  else if (sides == 2) {
+  
+  if (sides == 2) {
     if (rlang::is_formula(x, lhs = TRUE)) {
       return(invisible(x))
     }
     if (is.null(x_name)) {
-      x_name <- chk::deparse_backtick_chk(substitute(x))
+      x_name <- deparse1(substitute(x))
     }
-    .err(x_name, " must be a formula with a left-hand side",
-         x = x)
+    .err("{.arg {x_name}} must be a formula with a left-hand side")
   }
-  else stop("`sides` must be NULL, 1, or 2")
+  
+  stop("`sides` must be NULL, 1, or 2")
 }
 
 try_chk <- function(expr, tidy = FALSE, warn = TRUE) {
   .e <- function(e) {
-    .err(conditionMessage(e), tidy = tidy)
+    .err(conditionMessage(e), tidy = tidy, cli = FALSE)
   }
   
   .w <- function(w) {
-    .wrn(conditionMessage(w), tidy = tidy)
+    .wrn(conditionMessage(w), tidy = tidy, cli = FALSE)
   }
   
   if (warn) {

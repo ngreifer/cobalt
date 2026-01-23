@@ -1,5 +1,5 @@
 base.bal.tab <- function(X, ...) {
-  fun <- switch(attr(X, "X.class"),
+  fun <- switch(.attr(X, "X.class"),
                 "binary" = base.bal.tab.binary,
                 "cont" = base.bal.tab.cont,
                 "subclass.binary" = base.bal.tab.subclass.binary,
@@ -68,9 +68,9 @@ base.bal.tab.base <- function(X,
   
   C <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))], list(int = int, poly = poly)), quote = TRUE)
   
-  co.names <- attr(C, "co.names")
+  co.names <- .attr(C, "co.names")
   
-  var_types <- attr(C, "var_types")
+  var_types <- .attr(C, "var_types")
   
   if (is_not_null(X$s.d.denom.list)) {
     X$s.d.denom <- NULL
@@ -112,9 +112,9 @@ base.bal.tab.base <- function(X,
                               quote = TRUE)
   
   #Reassign disp... and ...threshold based on balance table output
-  compute <- attr(out[["Balance"]], "compute")
-  thresholds <- attr(out[["Balance"]], "thresholds")
-  disp <- attr(out[["Balance"]], "disp")
+  compute <- .attr(out[["Balance"]], "compute")
+  thresholds <- .attr(out[["Balance"]], "thresholds")
+  disp <- .attr(out[["Balance"]], "disp")
   
   out <- c(out,
            threshold_summary(compute = compute,

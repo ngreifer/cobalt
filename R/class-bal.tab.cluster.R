@@ -66,12 +66,12 @@ base.bal.tab.cluster <- function(X,
   }
   
   all.agg.funs <- c("min", "mean", "max")
-  agg.fun <- tolower(as.character(if_null_then(cluster.fun, A[["agg.fun"]], all.agg.funs)))
+  agg.fun <- tolower(as.character(cluster.fun %or% A[["agg.fun"]] %or% all.agg.funs))
   agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
   X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
   
-  var_types <- attr(X$covs, "var_types")
+  var_types <- .attr(X$covs, "var_types")
   
   if (get.treat.type(X$treat) != "continuous") {
     if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
@@ -116,7 +116,7 @@ base.bal.tab.cluster <- function(X,
       do.call("base.bal.tab", c(list(X_cl), A[setdiff(names(A), names(X_cl))]), quote = TRUE)
     },
     error = function(e) {
-      .err(sprintf("in cluster %s: %s", add_quotes(cl), conditionMessage(e)))
+      .err("in cluster {.str {cl}}: {conditionMessage(e)}")
     })
   })
   
@@ -126,18 +126,18 @@ base.bal.tab.cluster <- function(X,
   
   if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
     out[["Balance.Across.Clusters"]] <- balance_summary(out[["Cluster.Balance"]], 
-                                                        agg.funs = if_null_then(agg.fun, c("min", "mean", "max")))
+                                                        agg.funs = agg.fun %or% c("min", "mean", "max"))
     
     if (length(agg.fun) == 1L) {
       out <- c(out,
-               threshold_summary(compute = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "compute"),
-                                 thresholds = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                 no.adj = !attr(out[["Cluster.Balance"]][[1L]], "print.options")$disp.adj,
+               threshold_summary(compute = .attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "compute"),
+                                 thresholds = .attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                 no.adj = !.attr(out[["Cluster.Balance"]][[1L]], "print.options")$disp.adj,
                                  balance.table = out[["Balance.Across.Clusters"]],
-                                 weight.names = attr(out[["Cluster.Balance"]][[1L]], "print.options")$weight.names,
+                                 weight.names = .attr(out[["Cluster.Balance"]][[1L]], "print.options")$weight.names,
                                  agg.fun = agg.fun))
     }
-
+    
     out[["Observations"]] <- grab(out[["Cluster.Balance"]], "Observations") |>
       samplesize_across_clusters()
   }
@@ -145,7 +145,7 @@ base.bal.tab.cluster <- function(X,
   
   out[["call"]] <- X$call
   
-  attr(out, "print.options") <- c(attr(out[["Cluster.Balance"]][[1L]], "print.options"),
+  attr(out, "print.options") <- c(.attr(out[["Cluster.Balance"]][[1L]], "print.options"),
                                   list(which.cluster = which.cluster,
                                        cluster.summary = cluster.summary,
                                        cluster.fun = agg.fun))

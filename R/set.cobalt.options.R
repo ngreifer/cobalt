@@ -56,14 +56,11 @@ set.cobalt.options <- function(..., default = FALSE) {
   duplicates <- table(...names()) > 1
   
   if (any(duplicates)) {
-    .err(sprintf("%s present more than once in the input to `set.cobalt.options()`",
-                 word_list(names(duplicates)[duplicates], is.are = TRUE, quotes = "`")))
+    .err("{.arg {names(duplicates)[duplicates]}} {?is/are} present more than once in the input to {.fun set.cobalt.options}")
   }
   
   if (!all(...names() %in% names(acceptable.options()))) {
-    .wrn(sprintf("the following are not acceptable options and will be ignored: %s",
-                 word_list(setdiff(...names(), names(acceptable.options())),
-                           quotes = "`")))
+    .wrn("the following are not acceptable options and will be ignored: {.arg {setdiff(...names(), names(acceptable.options()))}}")
   }
   
   opts <- ...mget(names(acceptable.options()))
@@ -102,29 +99,24 @@ set.cobalt.options <- function(..., default = FALSE) {
     problematic.opts <- make_list(c("multiple", "bad", "both"))
     
     problematic.opts[["multiple"]] <- setNames(lapply(multiple.opts, function(i) {
-      sprintf("%s must be of length 1.", add_quotes(i, "`"))
+      cli::format_inline("{.arg {i}} must be of length 1")
     }), multiple.opts)
     
     problematic.opts[["bad"]] <- setNames(lapply(bad.opts, function(i) {
-      if (i %in% any.string.allowed) sprintf("%s must be a character string.",
-                                             add_quotes(i, "`"))
-      else sprintf("%s must be %s.",
-                   add_quotes(i, "`"),
-                   word_list(acceptable.options()[[i]], quotes = 2 * is.character(acceptable.options()[[i]]), and.or = "or"))
+      if (i %in% any.string.allowed) cli::format_inline("{.arg {i}} must be a character string")
+      else cli::format_inline("{.arg {i}} must be {.or {.val {acceptable.options()[[i]]}}}")
     }), bad.opts)
     
     problematic.opts[["both"]] <- setNames(lapply(both.opts, function(i) {
-      if (i %in% any.string.allowed) sprintf("%s must be a character string of length 1.", add_quotes(i, "`"))
-      else sprintf("%s must be one of %s.",
-                   add_quotes(i, "`"),
-                   word_list(acceptable.options()[[i]], quotes = 2 * is.character(acceptable.options()[[i]]), and.or = "or"))
+      if (i %in% any.string.allowed) cli::format_inline("{.arg {i}} must be a character string of length 1")
+      else cli::format_inline("{.arg {i}} must be one of {.or {.val {acceptable.options()[[i]]}}}")
     }), both.opts)
     
     problems <- do.call("c", unname(problematic.opts))
     problems <- problems[names(opts)[names(opts) %in% names(problems)]]
     
     if (is_not_null(problems)) {
-      .err(do.call("paste", c(list(""), problems, list("\nNo options will be set", sep = "\n"))))
+      .err(do.call("paste", c(list(""), problems, list("\nNo options will be set", sep = "\n"))), cli = FALSE)
     }
     
     names(opts) <- paste0("cobalt_", names(opts))
@@ -157,14 +149,13 @@ get.cobalt.options <- function(...) {
     
     not.in.accept <- opts %nin% names(acceptable.options())
     if (any(not.in.accept)) {
-      .err(sprintf("%s not %s",
-                   word_list(opts[not.in.accept], is.are = TRUE, quotes = 2L),
-                   ngettext(sum(not.in.accept), "an acceptable option", "acceptible options")))
+      .err("{.val {opts[not.in.accept]}} {?is/are} not {?an/} acceptible option{?s}")
     }
   }
   
- lapply(paste0("cobalt_", opts), getOption) |>
-   setNames(opts)
+  paste0("cobalt_", opts) |>
+    lapply(getOption) |>
+    setNames(opts)
 }
 
 #set.cobalt.options

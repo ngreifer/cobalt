@@ -14,11 +14,10 @@
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
-#' @examplesIf (requireNamespace("designmatch", quietly = TRUE))
-#' \donttest{
+#' @examplesIf rlang::is_installed("designmatch")
+#' \donttest{library(designmatch)
 #' data("lalonde", package = "cobalt")
 #' 
-#' library(designmatch)
 #' covariates <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])
 #' treat <- lalonde$treat
 #' dmout <- bmatch(treat,

@@ -94,9 +94,10 @@ base.bal.tab.subclass <- function(X,
   C <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))],
                             list(int = int, poly = poly)),
                quote = TRUE)
-  co.names <- attr(C, "co.names")
   
-  var_types <- attr(C, "var_types")
+  co.names <- .attr(C, "co.names")
+  
+  var_types <- .attr(C, "var_types")
   
   if (get.treat.type(X$treat) != "continuous" &&
       "mean.diffs" %in% X$stats &&
@@ -153,7 +154,7 @@ base.bal.tab.subclass <- function(X,
                        stats = X$stats, 
                        abs = abs, 
                        no.adj = FALSE, quick = quick, 
-                       var_types = attr(C, "var_types"),
+                       var_types = .attr(C, "var_types"),
                        s.d.denom.list = X$s.d.denom.list), A), quote = TRUE)
       }
       else if (type == "cont") {
@@ -173,8 +174,9 @@ base.bal.tab.subclass <- function(X,
                                                        abs = abs, 
                                                        no.adj = TRUE, 
                                                        quick = quick, 
-                                                       var_types = attr(C, "var_types"),
-                                                       s.d.denom.list = X$s.d.denom.list), A), quote = TRUE), 
+                                                       var_types = .attr(C, "var_types"),
+                                                       s.d.denom.list = X$s.d.denom.list), A),
+                               quote = TRUE), 
                        balance.table.subclass.list = out[["Subclass.Balance"]], 
                        subclass.obs = out[["Observations"]], 
                        r.threshold = X$thresholds[["correlations"]]), A), quote = TRUE)
@@ -183,9 +185,9 @@ base.bal.tab.subclass <- function(X,
   }
   
   #Reassign disp... and ...threshold based on balance table output
-  compute <- attr(out[["Subclass.Balance"]], "compute")
-  thresholds <- attr(out[["Subclass.Balance"]], "thresholds")
-  disp <- attr(out[["Subclass.Balance"]], "disp")
+  compute <- .attr(out[["Subclass.Balance"]], "compute")
+  thresholds <- .attr(out[["Subclass.Balance"]], "thresholds")
+  disp <- .attr(out[["Subclass.Balance"]], "disp")
   
   for (s in compute) {
     if (is_not_null(thresholds[[s]])) {

@@ -18,7 +18,7 @@
 #' @seealso
 #' * [bal.tab()] for details of calculations.
 #' 
-#' @examplesIf requireNamespace("sbw", quietly = TRUE)
+#' @examplesIf rlang::is_installed("sbw")
 #' library(sbw)
 #' data("lalonde", package = "cobalt")
 #' 

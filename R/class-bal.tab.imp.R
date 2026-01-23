@@ -65,12 +65,12 @@ base.bal.tab.imp <- function(X,
   }
   
   all.agg.funs <- c("min", "mean", "max")
-  agg.fun <- tolower(as.character(if_null_then(imp.fun, A[["agg.fun"]], all.agg.funs)))
+  agg.fun <- tolower(as.character(imp.fun %or% A[["agg.fun"]] %or% all.agg.funs))
   agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
   X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
   
-  var_types <- attr(X$covs, "var_types")
+  var_types <- .attr(X$covs, "var_types")
   
   if (is_null(A$continuous)) {
     A$continuous <- getOption("cobalt_continuous", "std")
@@ -119,7 +119,7 @@ base.bal.tab.imp <- function(X,
       do.call("base.bal.tab", c(list(X_i), A[setdiff(names(A), names(X))]), quote = TRUE)
     },
     error = function(e) {
-      .err(sprintf("in imputation %s: %s", i, conditionMessage(e)))
+      .err("in imputation {i}: {conditionMessage(e)}")
     })
   })
   
@@ -133,11 +133,11 @@ base.bal.tab.imp <- function(X,
     
     if (length(agg.fun) == 1L) {
       out <- c(out,
-               threshold_summary(compute = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "compute"),
-                                 thresholds = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                 no.adj = !attr(out[["Imputation.Balance"]][[1L]], "print.options")$disp.adj,
+               threshold_summary(compute = .attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "compute"),
+                                 thresholds = .attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                 no.adj = !.attr(out[["Imputation.Balance"]][[1L]], "print.options")$disp.adj,
                                  balance.table = out[["Balance.Across.Imputations"]],
-                                 weight.names = attr(out[["Imputation.Balance"]][[1L]], "print.options")$weight.names,
+                                 weight.names = .attr(out[["Imputation.Balance"]][[1L]], "print.options")$weight.names,
                                  agg.fun = agg.fun))
     }
     
@@ -147,7 +147,7 @@ base.bal.tab.imp <- function(X,
   }
   
   out[["call"]] <- X$call
-  attr(out, "print.options") <- c(attr(out[["Imputation.Balance"]][[1L]], "print.options"),
+  attr(out, "print.options") <- c(.attr(out[["Imputation.Balance"]][[1L]], "print.options"),
                                   list(which.imp = which.imp,
                                        imp.summary = imp.summary,
                                        imp.fun = agg.fun))

@@ -7,20 +7,22 @@
 #' @param file optional; a file name to save the output if `type = "df"`. See [utils::write.csv()], which `var.name()` calls. Must end in `.csv`.
 #' @param minimal whether the output should contain all variable names (i.e., all rows that appear the output of `bal.tab()`) or just the unique base variables. See "Details".
 #' 
-#' @returns If `type = "vec"`, a character vector the the variable names both as the names and the entries.
+#' @returns
+#' If `type = "vec"`, a character vector the the variable names both as the names and the entries.
 #' 
 #' If `type = "df"`, a `data.frame` with two columns called `"old"` and `"new"`, each with the variables as the entries.
 #' 
 #' If file is not `NULL`, the output will be returned invisibly.
 #' 
-#' @details The goal of the function is to make supplying new variable names to the `var.names` argument in [love.plot()] easier. Rather than manually creating a vector or `data.frame` with all the variable names that one desires to change, one can use `var.names()` to extract variable names from a `bal.tab` object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into R for use in `love.plot()`, as demonstrated in the Example.
+#' @details
+#' The purpose of the function is to make supplying new variable names to the `var.names` argument in [love.plot()] easier. Rather than manually creating a vector or `data.frame` with all the variable names that one desires to change, one can use `var.names()` to extract variable names from a `bal.tab` object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into R for use in `love.plot()`, as demonstrated in the Example.
 #'
 #' When `minimal = TRUE`, only a minimal set of variables will be output. For example, if the variables analyzed in `bal.tab()` are `age`, `race`, and `married`, and `int = TRUE` in `bal.tab()`, many variables will appear in the output, including expansions of the factor variables, the polynomial terms, and the interactions. Rather than renaming all of these variables individually, one can rename just the three base variables, and all variables that arise from them will be accordingly renamed. Setting `minimal = TRUE` requests only these base variables.
 #' 
-#' @note Not all programs can properly read the Unicode characters for the polynomial terms when requested. These may appear strange in, e.g., Excel, but R will process the characters correctly.
+#' @note
+#' Not all programs can properly read the Unicode characters for the polynomial terms when requested. These may appear strange in, e.g., Excel, but R will process the characters correctly.
 #' 
 #' @examples 
-#' 
 #' data(lalonde, package = "cobalt")
 #' 
 #' b1 <- bal.tab(treat ~ age + race + married, data = lalonde,
@@ -44,24 +46,24 @@
 #' @export 
 
 var.names <- function(b, type, file = NULL, minimal = FALSE) {
-  if (is_null(attr(b, "print.options")[["co.names"]])) {
-    .err("no variable names were found in the object. It is probably not a bal.tab object")
+  if (is_null(.attr(b, "print.options")[["co.names"]])) {
+    .err("no variable names were found in the object. It is probably not a {.cls bal.tab} object")
   }
   
   .chk_flag(minimal)
   vars <- {
     if (minimal)
-      unique(unlist(lapply(attr(b, "print.options")[["co.names"]],
+      unique(unlist(lapply(.attr(b, "print.options")[["co.names"]],
                            function(x) x[["component"]][x[["type"]] == "base"])))
     else
-      vapply(attr(b, "print.options")[["co.names"]],
+      vapply(.attr(b, "print.options")[["co.names"]],
              function(x) paste(x[["component"]], collapse = ""),
              character(1L))
   }
   
   .chk_null_or(file, .chk_string)
   if (is_not_null(file) && !endsWith(file, ".csv")) {
-    .err("the filename in `file` must end in \".csv\"")
+    .err("the filename in {.arg file} must end in {.str .csv}")
   }
   
   if (!missing(type)) {
@@ -89,6 +91,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
     return(invisible(out))
   }
   
-  .wrn('only `type = "df"` is compatible with a file name')
+  .wrn('only {.code type = "df"} is compatible with a file name')
+  
   out
 }

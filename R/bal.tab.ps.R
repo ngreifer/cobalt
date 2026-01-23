@@ -26,7 +26,7 @@
 #' * [`bal.tab.multi()`][class-bal.tab.multi] for more information on multi-category treatments.
 #' * [`class-bal.tab.msm`] for more information on longitudinal treatments.
 #' 
-#' @examplesIf requireNamespace("twang", quietly = TRUE)
+#' @examplesIf rlang::is_installed("twang")
 #' \donttest{library(twang)
 #' data("lalonde", package = "cobalt")
 #' 

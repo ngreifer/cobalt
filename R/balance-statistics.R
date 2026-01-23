@@ -114,7 +114,7 @@ STATS[["mean.diffs"]] <- {list(
       
       stars <- match_arg(stars, c("none", "std", "raw"))
       if (stars == "none") {
-        .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the `stars` argument to distinguish between them and appropriately label the x-axis. See `?love.plot` for details")
+        .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the {.arg stars} argument to distinguish between them and appropriately label the x-axis. See {.fun love.plot} for details")
       }
       else {
         if (!chk::vld_string(star_char)) {
@@ -398,7 +398,7 @@ STATS[["mean.diffs.target"]] <- {list(
       
       stars <- match_arg(stars, c("none", "std", "raw"))
       if (stars == "none") {
-        .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the `stars` argument to distinguish between them and appropriately label the x-axis. See `?love.plot` for details")
+        .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the {.arg stars} argument to distinguish between them and appropriately label the x-axis. See {.fun love.plot} for details")
       }
       else {
         if (!chk::vld_string(star_char)) {

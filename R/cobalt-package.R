@@ -13,13 +13,11 @@
 #' 
 #' Other functions include [get.w()] for extracting weights from objects produced by other packages, [col_w_smd()] (and friends documented on the same page) for computing (weighted) balance statistics outside of `bal.tab()`, [bal.compute()] for computing scalar balance statistics efficiently, and [splitfactor()] for splitting factor variables in a dataset into dummy variables.
 #' 
-#' \pkg{cobalt} has several vignettes, which can be accessed using `vignette(package = "cobalt")` or visiting the website at <https://ngreifer.github.io/cobalt/>.
+#' \pkg{cobalt} has several vignettes, which can be accessed using `vignette(package = "cobalt")` or visiting the website at \url{https://ngreifer.github.io/cobalt/}.
 "_PACKAGE"
 
 ## usethis namespace: start
 #' @import stats
-#' @importFrom crayon italic
-#' @importFrom crayon underline
 #' @importFrom ggplot2 .data
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 autoplot

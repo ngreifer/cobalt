@@ -25,7 +25,7 @@
 #' * [`class-bal.tab.imp`] for more information on multiply imputed data.
 #' * [`bal.tab.multi()`][class-bal.tab.multi] for more information on multi-category treatments.
 #' 
-#' @examplesIf requireNamespace("WeightIt", quietly = TRUE)
+#' @examplesIf rlang::is_installed("WeightIt")
 #' data("msmdata", package = "WeightIt")
 #' 
 #' ## Estimating longitudinal propensity scores and weights

@@ -19,17 +19,23 @@
 #' 
 #' @seealso [bal.tab()] for details of calculations.
 #' 
-#' @examplesIf requireNamespace("Matching", quietly = TRUE)
-#' library(Matching); data("lalonde", package = "cobalt")
+#' @examplesIf rlang::is_installed("Matching")
+#' data("lalonde", package = "cobalt")
+#' library(Matching)
 #' 
-#' p.score <- glm(treat ~ age + educ + race + 
-#'                    married + nodegree + re74 + re75, 
-#'                data = lalonde, family = "binomial")$fitted.values
-#' Match.out <- Match(Tr = lalonde$treat, X = p.score)
+#' ## Estimate propensity score
+#' p.fit <- glm(treat ~ age + educ + race + 
+#'                married + nodegree + re74 + re75, 
+#'              data = lalonde,
+#'              family = "binomial")
+#' 
+#' Match.out <- Match(Tr = lalonde$treat,
+#'                    X = fitted(p.fit))
 #' 
 #' ## Using formula and data
 #' bal.tab(Match.out, formula = treat ~ age + educ + race + 
-#'             married + nodegree + re74 + re75, data = lalonde)
+#'           married + nodegree + re74 + re75,
+#'         data = lalonde)
 
 #' @exportS3Method bal.tab Match
 bal.tab.Match <-      function(x, formula = NULL, data = NULL, treat = NULL, covs = NULL,

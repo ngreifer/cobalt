@@ -20,29 +20,29 @@
 #' * [bal.tab()] for details of calculations
 #' * [bal.tab.matchit()] and [bal.tab.weightit()]
 #' 
-#' @examplesIf all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), requireNamespace, quietly = TRUE))
+#' @examplesIf all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), rlang::is_installed))
 #' library(MatchThem)
 #' 
 #' data("lalonde_mis", package = "cobalt")
 #' 
-#' #Imputing the missing data
+#' # Imputing the missing data
 #' imp <- mice::mice(lalonde_mis, m = 5,
 #'                   print = FALSE)
 #' 
-#' #Matching using within-imputation propensity scores
+#' # Matching using within-imputation propensity scores
 #' mt.out1 <- matchthem(treat ~ age + educ + race + 
 #'                          married + nodegree + re74 + re75, 
 #'                      data = imp, approach = "within")
 #' bal.tab(mt.out1)
 #' 
-#' #Matching using across-imputation average propensity scores
+#' # Matching using across-imputation average propensity scores
 #' mt.out2 <- matchthem(treat ~ age + educ + race + 
 #'                          married + nodegree + re74 + re75, 
 #'                      data = imp, approach = "across")
 #' 
 #' bal.tab(mt.out2)
 #' 
-#' #Weighting using within-imputation propensity scores
+#' # Weighting using within-imputation propensity scores
 #' wt.out <- weightthem(treat ~ age + educ + race + 
 #'                          married + nodegree + re74 + re75, 
 #'                      data = imp, approach = "within",

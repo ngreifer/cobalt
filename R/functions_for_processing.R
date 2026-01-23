@@ -63,6 +63,7 @@ process_treat <- function(treat, ..., keep_values = FALSE) {
     attrs <- attributes(treat)
     renamed_original <- setNames(names(treat_vals(treat)), treat_vals(treat))
     treat <- factor(renamed_original[as.character(treat)], levels = renamed_original)
+    
     for (at in c("treat_names", "treat_vals", "keep_values", "treat.type", "names")) {
       attr(treat, at) <- attrs[[at]]
     }
@@ -143,13 +144,13 @@ process_treat.list <- function(treat.list, ...) {
   `attr<-`(treat, "treat_names", value)
 }
 treat_names <- function(treat) {
-  attr(treat, "treat_names", TRUE)
+  .attr(treat, "treat_names")
 }
 `treat_vals<-` <- function(treat, value) {
   `attr<-`(treat, "treat_vals", value)
 }
 treat_vals <- function(treat) {
-  attr(treat, "treat_vals", TRUE)
+  .attr(treat, "treat_vals")
 }
 subset_processed.treat <- function(x, index) {
   y <- x[index]
@@ -201,19 +202,22 @@ initialize_X_msm <- function() {
 }
 .weight_check <- function(w) {
   wname <- deparse1(substitute(w))
-  if (!is.list(w)) w <- list(w)
+  
+  if (!is.list(w)) {
+    w <- list(w)
+  }
   
   if (anyNA(w, recursive = TRUE)) {
-    .err(sprintf("`NA`s are not allowed in the %s", wname))
+    .err("{.val NA}s are not allowed in the {wname}")
   }
   
   for (x in w) {
     if (!all(is.numeric(x))) {
-      .err(sprintf("all %s must be numeric", wname))
+      .err("all {wname} must be numeric")
     }
     
     if (!all(is.finite(x))) {
-      .err(sprintf("infinite %s are not allowed", wname))
+      .err("infinite {wname} are not allowed")
     }
   }
 }
@@ -260,22 +264,20 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   #Checks
   if (!is.atomic(strata) || is_not_null(dim(strata))) {
-    .err("`strata` must be an atomic vector or factor")
+    .err("{.arg strata} must be an atomic vector or factor")
   }
   
   #Process treat
   treat <- process_treat(treat)
   
   if (get.treat.type(treat) == "continuous") {
-    .err("`strata` cannot be turned into weights for continuous treatments")
+    .err("{.arg strata} cannot be turned into weights for continuous treatments")
   }
   
   s.d.denom <- .get_s.d.denom(NULL, estimand = estimand, subclass = strata, treat = treat,
                               focal = focal, quietly = TRUE)
-  focal <- {
-    if (s.d.denom %in% treat_vals(treat)) process_focal(s.d.denom, treat)
-    else NULL
-  }
+  
+  focal <- if (s.d.denom %in% treat_vals(treat)) process_focal(s.d.denom, treat)
   
   NAsub <- is.na(strata)
   imat <- do.call("cbind", lapply(treat_vals(treat), function(t) treat == t & !NAsub))
@@ -322,11 +324,12 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   for (tnn in names(treat_names(treat))) {
     if (all(check_if_zero(weights[treat == treat_vals(treat)[treat_names(treat)[tnn]]]))) {
-      .err(sprintf("no %s units were stratified", tnn))
+      .err("no {tnn} units were stratified")
     }
   }
   
   attr(weights, "match.strata") <- strata
+  
   weights
 }
 
@@ -361,23 +364,23 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     else if (is.character(covs)) {
       if (!is_mat_like(data)) {
-        .err("if `covs` is a character vector, `data` must be specified as a data.frame")
+        .err("if {.arg covs} is a character vector, {.arg data} must be specified as a data frame")
       }
       
       if (!all(covs %in% colnames(data))) {
-        .err("all entries in `covs` must be names of variables in `data`")
+        .err("all entries in {.arg covs} must be names of variables in {.arg data}")
       }
       
       covs_c <- try(get_covs_from_formula(f.build(covs), data = as.data.frame(data)), silent = TRUE)
     }
     else {
-      .err("`covs` must be a data.frame of covariates")
+      .err("{.arg covs} must be a data.frame of covariates")
     }
   }
   
   if (is_not_null(treat)) {
     treat_c <- try({
-      if (!is.atomic(treat)) .err("`treat` must be an vector of treatment statuses")
+      if (!is.atomic(treat)) .err("{.arg treat} must be an vector of treatment statuses")
       if (is.character(treat) && length(treat) == 1L) get_treat_from_formula(reformulate(".", treat), data = data)
       else get_treat_from_formula(treat ~ ., treat = treat)
     }, silent = TRUE)
@@ -386,13 +389,13 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   covs_to_use <- treat_to_use <- "c"
   if (is_error(covs_c)) {
     if (is_error(covs_f)) {
-      .err(attr(covs_c, "condition")$message, tidy = FALSE)
+      .err(.attr(covs_c, "condition")$message, tidy = FALSE)
     }
     covs_to_use <- "f"
   }
   else if (is_null(covs_c)) {
     if (is_error(covs_f)) {
-      .err(attr(covs_f, "condition")$message, tidy = FALSE)
+      .err(.attr(covs_f, "condition")$message, tidy = FALSE)
     }
     if (is_null(covs_f) && needs.covs) {
       .err("no covariates were specified")
@@ -402,13 +405,13 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   if (is_error(treat_c)) {
     if (is_error(treat_f)) {
-      .err(attr(treat_c, "condition")$message, tidy = FALSE)
+      .err(.attr(treat_c, "condition")$message, tidy = FALSE)
     }
     treat_to_use <- "f"
   }
   else if (is_null(treat_c)) {
     if (is_error(treat_f)) {
-      .err(attr(treat_f, "condition")$message, tidy = FALSE)
+      .err(.attr(treat_f, "condition")$message, tidy = FALSE)
     }
     if (is_null(treat_f) && needs.treat) {
       .err("no treatment variable was specified")
@@ -418,7 +421,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   t.c <- list(treat = switch(treat_to_use, "f" = treat_f, "c" = treat_c), 
               covs = switch(covs_to_use, "f" = covs_f, "c" = covs_c))
-  t.c$treat.name <- attr(t.c$treat, "treat.name")
+  
+  t.c$treat.name <- .attr(t.c$treat, "treat.name")
   
   t.c
 }
@@ -434,15 +438,15 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   if (!is.character(val)) {
     if (i == "weights") {
-      .err("the argument supplied to `weights` must be a named list of weights, names of variables containing weights in an available data set, or objects with a `get.w()` method")
+      .err("the argument supplied to {.arg {i}} must be a named list of weights, names of variables containing weights in an available data set, or objects with a {.fun get.w} method")
     }
     else {
-      .err(sprintf("the argument supplied to %s must be a vector, a data.frame, or the names of variables in an available data set",
-                   add_quotes(i, "`")))
+      .err("the argument supplied to {.arg {i}} must be a vector, a data frame, or the names of variables in an available data set")
     }
   }
   
   addl.data <- clear_null(addl.data)
+  
   if ((is_null(covs) && is_null(treat)) ||
       length(val) == NROW(covs) ||
       length(val) == length(treat) ||
@@ -451,8 +455,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   }
   
   if (is_null(addl.data)) {
-    .wrn(sprintf("names were provided to %s, but no argument to `data` was provided. Ignoring %s",
-                 add_quotes(i, "`"), add_quotes(i, "`")))
+    .wrn("names were provided to {.arg {i}}, but no argument to {.arg data} was provided. Ignoring {.arg {i}}")
+    
     return(NULL)
   }
   
@@ -473,8 +477,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     return(val.df)
   }
   
-  .wrn(sprintf("the following variable(s) named in %s are not in any available data sets and will be ignored: %s",
-               add_quotes(i, "`"), paste(val[not.found])))
+  .wrn("the following {cli::qty(sum(not.found))} variable{?s} named in {.arg {i}} {?is/are} not in any available data sets and will be ignored: {.var {val[not.found]}}")
   
   val.df[!not.found]
 }
@@ -517,11 +520,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   val.list <- lapply(val, .process_val, i, treat, covs, addl.data = addl.data)
   
   if (!rlang::is_named(val.list)) {
-    .err(sprintf("all entries in `%s` must have names", i))
+    .err("all entries in {.arg {i}} must have names")
   }
   
   if (!all_the_same(vapply(val.list, NROW, numeric(1L)))) {
-    .err(sprintf("not all items in `%s` have the same length", i))
+    .err("all items in {.arg {i}} must have the same length")
   }
   
   for (j in which(vapply(val.list, NCOL, numeric(1L)) == 1L)) {
@@ -546,8 +549,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     val.List <- replicate(ntimes, val.List)
   }
   else if (length(val.List) != ntimes) {
-    .err(sprintf("the argument to %s must be a list of the same length as the number of time points in %s",
-                 add_quotes(i, "`"), call.phrase))
+    .err("the argument to {.arg {i}} must be a list of the same length as the number of time points in {call.phrase}")
   }
   
   for (ti in which(lengths(val.List) > 0L)) {
@@ -559,7 +561,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                          treat.list[[ti]], covs.list[[ti]], addl.data = addl.data)
       
       if (!all_the_same(vapply(val.list, NROW, numeric(1L)))) {
-        .err(sprintf("not all items in `%s` have the same length", i))
+        .err("all items in {.arg {i}} must have the same length")
       }
       
       for (j in which(vapply(val.list, NCOL, numeric(1L)) == 1L)) {
@@ -575,7 +577,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     
     if (is_not_null(val.df) && anyNA(val.df)) {
-      .err(sprintf("missing values exist in %s", add_quotes(i, "`")))
+      .err("missing values must not exist in {.arg {i}}")
     }
     
     val.List[[ti]] <- val.df
@@ -586,7 +588,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     vapply(nrow, numeric(1L))
   
   if (!all_the_same(val.df.lengths)) {
-    .err(sprintf("all columns in `%s` need to have the same number of rows", i))
+    .err("all columns in {.arg {i}} must have the same number of rows")
   }
   
   val.List
@@ -615,12 +617,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   }
   
   if (bad.vec) {
-    .err(sprintf("the argument to %s must be a vector of %s or the (quoted) name of a variable in `data` that contains %s",
-                 add_quotes(name, "`"), which, which))
+    .err("the argument to {.arg {name}} must be a vector of {which} or the (quoted) name of a variable in {.arg data} that contains {which}")
   }
   
   if (!missing.okay && anyNA(vec)) {
-    .err(sprintf("missing values exist in %s", add_quotes(name, "`")))
+    .err("missing values must not exist in {.arg {name}}")
   }
   
   vec
@@ -632,13 +633,12 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   estimand.specified <- is_not_null(estimand)
   
   if (s.d.denom.specified) {
-    if (isTRUE(attr(s.d.denom, "checked"))) {
+    if (isTRUE(.attr(s.d.denom, "checked"))) {
       return(s.d.denom)
     }
     
     if (length(s.d.denom) > 1L && length(s.d.denom) != NCOL(weights)) {
-      .err(sprintf("`s.d.denom` must have length 1 or equal to the number of valid sets of weights, which is %s",
-                   NCOL(weights)))
+      .err("{.arg s.d.denom} must have length 1 or equal to the number of valid sets of weights, which is {NCOL(weights)}")
     }
     
     allowable.s.d.denoms <- c("pooled", "all", "weighted", "hedges")
@@ -688,8 +688,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       }
       else {
         if (length(try.estimand) > 1L && length(try.estimand) != NCOL(weights)) {
-          .err(sprintf("`estimand` must have length 1 or equal to the number of valid sets of weights, which is %s",
-                       NCOL(weights)))
+          .err("{.arg estimand} must have length 1 or equal to the number of valid sets of weights, which is {NCOL(weights)}")
         }
         
         s.d.denom <- vapply(try.estimand, switch, character(1L),
@@ -749,38 +748,39 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     
     if (length(s.d.denom) != NCOL(weights)) {
-      .err(sprintf("valid inputs to `s.d.denom` or `estimand` must have length 1 or equal to the number of valid sets of weights, which is %s",
-                   NCOL(weights)))
+      .err("valid inputs to {.arg s.d.denom} or {.arg estimand} must have length 1 or equal to the number of valid sets of weights, which is {NCOL(weights)}")
     }
     
     names(s.d.denom) <- names(weights)
   }
   
-  if (s.d.denom.specified && is_null(weights) && "weighted" %in% s.d.denom) {
-    attr(s.d.denom, "note") <- 'note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all"'
-  }
-  else if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-    attr(s.d.denom, "note") <- sprintf("warning: `s.d.denom` should be one of %s. Using %s instead",
-                                       word_list(unique(c(unique.treats, allowable.s.d.denoms)), "or", quotes = 2L),
-                                       word_list(s.d.denom, quotes = 2L))
-  }
-  else if (estimand.specified && bad.estimand) {
-    attr(s.d.denom, "note") <- sprintf("warning: `estimand` should be one of %s. Ignoring `estimand`",
-                                       word_list(c("ATT", "ATC", "ATE"), "or", quotes = 2L))
-  }
-  else if ((check.focal || check.weights) && !all(s.d.denom %in% treat_vals(treat))) {
-    attr(s.d.denom, "note") <- sprintf("note: `s.d.denom` not specified; assuming %s", 
-                                       if (all_the_same(s.d.denom)) add_quotes(s.d.denom[1L])
-                                       else word_list(paste0(add_quotes(vapply(s.d.denom, function(s) {
-                                         if (s %in% treat_vals(treat) && all(treat_vals(treat) %in% c("0", "1"))) {
-                                           names(treat_names(treat))[treat_names(treat) == names(treat_vals(treat))[treat_vals(treat) == s]]
-                                         }
-                                         else s
-                                       }, character(1L))), " for ", names(weights))))
-  }
-  
-  if (!quietly && is_not_null(attr(s.d.denom, "note"))) {
-    .msg(attr(s.d.denom, "note"))
+  if (!quietly) {
+    if (s.d.denom.specified && is_null(weights) && any(s.d.denom == "weighted")) {
+      .msg("note: {.arg s.d.denom} specified as {.str weighted}, but no weights supplied; setting to {.str all}")
+    }
+    else if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
+      .wrn("{.arg s.d.denom} should be one of {.or {.str {unique(c(unique.treats, allowable.s.d.denoms))}}}. Using {.str {s.d.denom}} instead")
+    }
+    else if (estimand.specified && bad.estimand) {
+      .wrn("{.arg estimand} should be one of {.str ATT}, {.str ATC}, or {.str ATE}. Ignoring {.arg estimand}")
+    }
+    else if ((check.focal || check.weights) && !all(s.d.denom %in% treat_vals(treat))) {
+      if (all_the_same(s.d.denom)) {
+        .msg("note: {.arg s.d.denom} not specified; assuming {.str {s.d.denom[1L]}}")
+      }
+      else {
+        wt_strs <- sprintf("{.str %s} for {.var %s}",
+                           vapply(s.d.denom, function(s) {
+                             if (s %in% treat_vals(treat) && all(treat_vals(treat) %in% c("0", "1"))) {
+                               names(treat_names(treat))[treat_names(treat) == names(treat_vals(treat))[treat_vals(treat) == s]]
+                             }
+                             else s
+                           }, character(1L)),
+                           names(weights)) |>
+          vapply(cli::format_inline, character(1L))
+        .msg("note: {.arg s.d.denom} not specified; assuming {wt_strs}")
+      }
+    }
   }
   
   attr(s.d.denom, "checked") <- TRUE
@@ -792,12 +792,12 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
   
   if (s.d.denom.specified) {
-    if (isTRUE(attr(s.d.denom, "checked"))) {
+    if (isTRUE(.attr(s.d.denom, "checked"))) {
       return(s.d.denom)
     }
     
     if (length(s.d.denom) > 1L && length(s.d.denom) != NCOL(weights)) {
-      .err("`s.d.denom` must have length 1 or equal to the number of valid sets of weights")
+      .err("{.arg s.d.denom} must have length 1 or equal to the number of valid sets of weights")
     }
     
     allowable.s.d.denoms <- {
@@ -820,23 +820,19 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     
     if (length(s.d.denom) != NCOL(weights)) {
-      .err("valid inputs to `s.d.denom` or `estimand` must have length 1 or equal to the number of valid sets of weights")
+      .err("valid inputs to {.arg s.d.denom} or {.arg estimand} must have length 1 or equal to the number of valid sets of weights")
     }
     
     names(s.d.denom) <- names(weights)
   }
   
-  if (s.d.denom.specified && is_null(weights) && any(s.d.denom == "weighted")) {
-    attr(s.d.denom, "note") <- 'note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all"'
-  }
-  else if (s.d.denom.specified && bad.s.d.denom) {
-    attr(s.d.denom, "note") <- sprintf("warning: `s.d.denom` should be %s.\n         Using %s instead",
-                                       word_list(unique(allowable.s.d.denoms), "or", quotes = 2L),
-                                       word_list(s.d.denom, quotes = 2L))
-  }
-  
-  if (!quietly && is_not_null(attr(s.d.denom, "note"))) {
-    .msg(attr(s.d.denom, "note"))
+  if (!quietly) {
+    if (s.d.denom.specified && is_null(weights) && any(s.d.denom == "weighted")) {
+      .msg("note: {.arg s.d.denom} specified as {.str weighted}, but no weights supplied; setting to {.str all}")
+    }
+    else if (s.d.denom.specified && bad.s.d.denom) {
+      .wrn("{.arg s.d.denom} should be {.or {.str {unique(allowable.s.d.denoms)}}}. Using {.str {s.d.denom}} instead")
+    }
   }
   
   attr(s.d.denom, "checked") <- TRUE
@@ -855,7 +851,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     else if (!is.atomic(bin.vars) || length(bin.vars) != ncol(mat) ||
              anyNA(as.logical(bin.vars))) {
-      .err("`bin.vars` must be a logical vector with length equal to the number of columns of `mat`")
+      .err("{.arg bin.vars} must be a logical vector with length equal to the number of columns of {.arg mat}")
     }
     
     possibly.supplied <- c("mat", "treat", "weighted.weights", "s.weights", "subset")
@@ -863,18 +859,22 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                         possibly.supplied)
     supplied <- lengths > 0L
     if (!all_the_same(lengths[supplied])) {
-      .err(sprintf("%s must have the same number of units",
-                   word_list(possibly.supplied[supplied], quotes = "`")))
+      .err("{.arg {possibly.supplied[supplied]}} must have the same number of units")
     }
     
-    if (lengths["weighted.weights"] == 0L) weighted.weights <- rep.int(1, NROW(mat))
-    if (lengths["s.weights"] == 0L) s.weights <- rep.int(1, NROW(mat))
+    if (lengths["weighted.weights"] == 0L) {
+      weighted.weights <- rep.int(1, NROW(mat))
+    }
+    
+    if (lengths["s.weights"] == 0L) {
+      s.weights <- rep.int(1, NROW(mat))
+    }
     
     if (lengths["subset"] == 0L) {
       subset <- rep.int(TRUE, NROW(mat))
     }
     else if (anyNA(as.logical(subset))) {
-      .err("`subset` must be a logical vector")
+      .err("{.arg subset} must be a logical vector")
     }
     
     if (is_null(treat)) {
@@ -937,7 +937,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                                                                               bin.vars = bin.vars, na.rm = na.rm))) / df)
       }
     else {
-      .err("`s.d.denom` is not an allowed value")
+      .err("{.arg s.d.denom} is not an allowed value")
     }
     
     denoms[to.sd] <- denom.fun(mat = mat[, to.sd, drop = FALSE], treat = treat, s.weights = s.weights,
@@ -970,11 +970,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       denoms[] <- s.d.denom
     }
     else {
-      .err("`s.d.denom` must be an allowable value or a numeric vector of with length equal to the number of columns of `mat`. See ?col_w_smd for allowable values")
+      .err("{.arg s.d.denom}` must be an allowable value or a numeric vector of with length equal to the number of columns of {.arg mat}. See {.fun col_w_smd} for allowable values")
     }
   }
   else {
-    .err("`s.d.denom` must be an allowable value or a numeric vector of with length equal to the number of columns of `mat`. See ?col_w_smd for allowable values")
+    .err("{.arg s.d.denom} must be an allowable value or a numeric vector of with length equal to the number of columns of {.arg mat}. See {.fun col_w_smd} for allowable values")
   }
   
   denoms
@@ -987,9 +987,10 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   }
   
   if (is_not_null(X[["subclass"]])) {
-    if (get.treat.type(X[["treat"]]) == "binary") X.class <- "subclass.binary"
-    else if (get.treat.type(X[["treat"]]) == "continuous") X.class <- "subclass.cont"
-    else .err("multi-category treatments are not currently compatible with subclasses")
+    X.class <- switch(get.treat.type(X[["treat"]]),
+                      binary = "subclass.binary",
+                      continuous = "subclass.cont",
+                      .err("multi-category treatments are not currently compatible with subclasses"))
   }
   else if (is_not_null(X[["cluster"]]) && nlevels(X[["cluster"]]) > 1L) X.class <- "cluster"
   else if (is_not_null(X[["covs.list"]])) X.class <- "msm"
@@ -1008,7 +1009,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   else if (is_not_null(X[["covs"]])) nrow(X[["covs"]])
   else if (is_not_null(X[["treat.list"]])) length(X[["treat.list"]][[1L]])
   else if (is_not_null(X[["covs.list"]])) nrow(X[["covs.list"]][[1L]])
-  else .err("couldn't determine length of `X` components")
+  else .err("couldn't determine length of {.arg X} components")
 }
 subsettable <- function() {
   c("covs",
@@ -1035,11 +1036,11 @@ subset_X <- function(X, subset = NULL) {
   
   if (is.logical(subset)) {
     if (length(subset) != n) {
-      .err("`subset` must have the same length as the other entries")
+      .err("{.arg subset} must have the same length as the other entries")
     }
     
     if (!any(subset)) {
-      .err("all `subset` set to `FALSE`")
+      .err("all {.arg subset} set to {.code FALSE}")
     }
     
     if (all(subset)) {
@@ -1049,7 +1050,7 @@ subset_X <- function(X, subset = NULL) {
     subset <- which(subset)
   }
   else if (!is.numeric(subset)) {
-    .err("`subset` must be logical or numeric")
+    .err("{.arg subset} must be logical or numeric")
   }
   else if (max(subset) > n) {
     .err("subset indices cannot be higher than the length of the other entries")
@@ -1105,7 +1106,7 @@ subset_X <- function(X, subset = NULL) {
 }
 .mids_complete <- function(data) {
   if (!inherits(data, "mids")) {
-    .err("`data` not of class `mids`")
+    .err("{.arg data} must be of class {.cls mids}")
   }
   
   single.complete <- function(ell, data, where = NULL, imp) {
@@ -1131,7 +1132,7 @@ subset_X <- function(X, subset = NULL) {
                as.data.frame(do.call("rbind", mylist)))
   
   row.names(cmp) <- {
-    if (is.integer(attr(data$data, "row.names"))) seq_row(cmp)
+    if (is.integer(.attr(data$data, "row.names"))) seq_row(cmp)
     else as.character(seq_row(cmp))
   }
   
@@ -1197,8 +1198,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
         else if (i %in% lists) {
           new_i <- lapply(i_obj, function(j) {
             if (!is.factor(j) && !is_mat_like(j)) {
-              .err(sprintf("%s can only contain vectors or data frames",
-                           add_quotes(i, "`")))
+              .err("{.arg {i}} can only contain vectors or data frames")
             }
             
             if (is.factor(j)) {
@@ -1232,8 +1232,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
     }
     
     if (any(problematic)) {
-      .err(sprintf("%s must have the same number of observations as `imp`",
-                   word_list(names(problematic)[problematic], quotes = "`")))
+      .err("{.arg {names(problematic)[problematic]}} must have the same number of observations as {.arg imp}")
     }
     
     ensure.equal.lengths <- FALSE
@@ -1254,13 +1253,11 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
   
   if (any(problematic)) {
     if (is_not_null(original.call.to)) {
-      anchor <- sprintf("in the original call to %s",
-                        add_quotes(original.call.to, "`"))
+      .err(sprintf("{.arg {names(problematic)[problematic]}} must have the same number of observations as in the original call to %s", original.call.to))
     }
-    
-    .err("%s must have the same number of observations as %s",
-         word_list(names(problematic)[problematic], quotes = "`"),
-         anchor)
+    else {
+      .err("{.arg {names(problematic)[problematic]}} must have the same number of observations as {.arg {anchor}}")
+    }
   }
 }
 process_imp <- function(imp = NULL, ...) {
@@ -1295,12 +1292,18 @@ process_stats <- function(stats = NULL, treat) {
   treat.type <- get.treat.type(treat)
   
   if (treat.type %in% c("binary", "multinomial")) {
-    if (is_null(stats)) stats <- getOption("cobalt_stats", "mean.diffs")
+    if (is_null(stats)) {
+      stats <- getOption("cobalt_stats", "mean.diffs")
+    }
+    
     stats <- unique(match_arg(stats, all_STATS("bin"), several.ok = TRUE))
     attr(stats, "type") <- "bin"
   }
-  else if (treat.type %in% c("continuous")) {
-    if (is_null(stats)) stats <- getOption("cobalt_stats", "correlations")
+  else if (treat.type == "continuous") {
+    if (is_null(stats)) {
+      stats <- getOption("cobalt_stats", "correlations")
+    }
+    
     stats <- unique(match_arg(stats, all_STATS("cont"), several.ok = TRUE))
     attr(stats, "type") <- "cont"
   }
@@ -1317,7 +1320,7 @@ process_thresholds <- function(thresholds, stats) {
   }
   
   if (!all(is.na(thresholds)) && !is.numeric(thresholds)) {
-    .err("`thresholds` must be numeric")
+    .err("{.arg thresholds} must be numeric")
   }
   
   if (rlang::is_named(thresholds)) {
@@ -1338,21 +1341,21 @@ process_subset <- function(subset = NULL, n) {
   }
   
   if (!is.logical(subset) && !is.numeric(subset)) {
-    .err("the argument to `subset` must be a logical or numeric vector")
+    .err("the argument to {.arg subset} must be a logical or numeric vector")
   }
   
   if (is.numeric(subset)) {
     if (any(abs(subset) > n)) {
-      .err("numeric values for `subset` cannot be larger than the number of units")
+      .err("numeric values for {.arg subset} cannot be larger than the number of units")
     }
     subset <- subset[!is.na(subset) & subset != 0]
     
     if (any(subset < 0) && any(subset > 0)) {
-      .err("positive and negative indices cannot be mixed with `subset`")
+      .err("positive and negative indices cannot be mixed with {.arg subset}")
     }
     
     if (any(abs(subset) > n)) {
-      .err("if `subset` is numeric, none of its values can exceed the number of units")
+      .err("if {.arg subset} is numeric, none of its values can exceed the number of units")
     }
     
     logical.subset <- rep.int(any(subset < 0), n)
@@ -1361,7 +1364,7 @@ process_subset <- function(subset = NULL, n) {
   }
   
   if (anyNA(subset)) {
-    .wrn("NAs were present in `subset`. Treating them like FALSE")
+    .wrn("{.val {NA}}s were present in {.arg subset}. Treating them like {.val {FALSE}}")
     subset[is.na(subset)] <- FALSE
   }
   
@@ -1403,7 +1406,7 @@ process_focal <- function(focal = NULL, treat) {
       return(focal)
     }
     
-    .err("the name specified to `focal` is not the name of any treatment group")
+    .err("the name specified to {.arg focal} is not the name of any treatment group")
   }
   
   if (can_str2num(treat) && focal %in% str2num(treat)) {
@@ -1411,8 +1414,7 @@ process_focal <- function(focal = NULL, treat) {
   }
   
   if (focal > length(treat_vals(treat))) {
-    .err(sprintf("`focal` was specified as %s, but there are only %s treatment groups",
-                 focal, length(treat_vals(treat))))
+    .err("{.arg focal} was specified as {focal}, but there are only {length(treat_vals(treat))} treatment groups")
   }
   
   treat_vals(treat)[focal]
@@ -1457,7 +1459,7 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL,
       addl.methods <- match_arg(A[["method"]], c("weighting", "matching"), several.ok = TRUE)
       
       if (length(addl.methods) != ncol(addl.weights)) {
-        .err("Valid inputs to `method` must have length 1 or equal to the number of valid sets of additional weights")
+        .err("valid inputs to {.arg method} must have length 1 or equal to the number of valid sets of additional weights")
       }
     }
     
@@ -1503,13 +1505,16 @@ process_disp <- function(disp = NULL, ...) {
     
     if (is_not_null(disp.d)) {
       if (!chk::vld_flag(disp.d)) {
-        .err(sprintf("`disp.%s` must be `TRUE` or `FALSE`", d))
+        arg <- sprintf("disp.%s", d)
+        .err("{.arg {arg}} must be {.or {.val {c(TRUE, FALSE)}}}")
       }
       
       disp <- unique(c(disp, d[disp.d]))
       
-      if (disp.d) disp <- unique(c(disp, d))
-      else disp <- unique(disp[disp != d])
+      disp <-  {
+        if (disp.d) unique(c(disp, d))
+        else unique(disp[disp != d])
+      }
     }
   }
   
@@ -1518,7 +1523,7 @@ process_disp <- function(disp = NULL, ...) {
 process_addl <- function(addl = NULL, datalist = list()) {
   if (is_not_null(addl) && !is.atomic(addl) && !rlang::is_formula(addl) &&
       !is.matrix(addl) && !is.data.frame(addl)) {
-    .err("`addl` must be a formula or variable containing the distance values")
+    .err("{.arg addl} must be a formula or variable containing the distance values")
   }
   
   data <- do.call("data.frame", unname(clear_null(datalist)))
@@ -1550,7 +1555,7 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
   
   if (is.list(addl.list) && !is.data.frame(addl.list)) {
     if (length(addl.list) != length(covs.list)) {
-      .err("`addl` must have an entry for each time point")
+      .err("{.arg addl.list} must have an entry for each time point")
     }
     
     return(lapply(addl.list, process_addl, datalist = datalist))
@@ -1565,7 +1570,7 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   
   if (is_not_null(distance) && !is.atomic(distance) && !rlang::is_formula(distance) &&
       !is.matrix(distance) && !is.data.frame(distance)) {
-    .err("`distance` must be a formula or variable containing the distance values")
+    .err("{.arg distance} must be a formula or variable containing the distance values")
   }
   
   data <- do.call("data.frame", unname(clear_null(datalist)))
@@ -1621,7 +1626,7 @@ process_distance.list <- function(distance.list = NULL, datalist = list(),
   }
   else if (is.list(distance.list) && !is.data.frame(distance.list)) {
     if (length(distance.list) != length(covs.list)) {
-      .err("`distance` must have an entry for each time point")
+      .err("{.arg distance} must have an entry for each time point")
     }
     
     distance.list.out <- lapply(seq_along(distance.list), function(x) {
@@ -1648,34 +1653,32 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
   
   #Check focal
   if (is_not_null(focal) && (length(focal) > 1L || focal %nin% unique.treat)) {
-    .err("the argument supplied to `focal` must be the name of a level of treatment")
+    .err("the argument supplied to {.arg focal} must be the name of a level of treatment")
   }
   
   if (treat.type == "multinomial") {
     
     if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-      .wrn(sprintf('%s is not compatible with `focal`. Setting `estimand` to "ATT"',
-                   add_quotes(estimand)))
+      .wrn('{.val {estimand}} is not compatible with {.arg focal}. Setting {.arg estimand} to {.val ATT}')
       reported.estimand <- estimand <- "ATT"
     }
     
     if (estimand == "ATT") {
       if (is_null(focal)) {
         if (is_null(treated) || treated %nin% unique.treat) {
-          .err('when estimand = "ATT" for multinomial treatments, an argument must be supplied to `focal`')
+          .err('when {.code estimand = "ATT"} for multinomial treatments, an argument must be supplied to {.arg focal}')
         }
         focal <- treated
       }
     }
     else if (estimand == "ATC" && is_null(focal)) {
-      .err('when estimand = "ATC" for multinomial treatments, an argument must be supplied to `focal`')
+      .err('when {.code estimand = "ATC"} for multinomial treatments, an argument must be supplied to {.arg focal}')
     }
   }
   else if (treat.type == "binary") {
     unique.treat.bin <- unique(binarize(treat), nmax = 2L)
     if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-      .wrn(sprintf("%s is not compatible with `focal`. Setting `estimand` to \"ATT\"",
-                   add_quotes(estimand)))
+      .wrn("{.val {estimand}} is not compatible with {.arg focal}. Setting {.arg estimand} to {.val ATT}")
       reported.estimand <- estimand <- "ATT"
     }
     
@@ -1696,25 +1699,26 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
         treated <- unique.treat[unique.treat.bin == 1]
       }
       else {
-        if (is.factor(treat)) treated <- levels(treat)[2L]
-        else treated <- unique.treat[unique.treat.bin == 1]
+        treated <- {
+          if (is.factor(treat)) levels(treat)[2L]
+          else unique.treat[unique.treat.bin == 1]
+        }
         
         if (estimand == "ATT") {
-          .msg(sprintf("assuming %s the treated level. If not, supply an argument to `focal`",
-                       word_list(treated, quotes = !is.numeric(treat), is.are = TRUE)))
+          .msg("assuming {.val {treated}} {?is/are} the treated level{?s}. If not, supply an argument to {.arg focal}")
           
         }
         else if (estimand == "ATC") {
-          .msg(sprintf("assuming %s the control level. If not, supply an argument to `focal`",
-                       word_list(setdiff(unique.treat, treated),
-                                 quotes = !is.numeric(treat), is.are = TRUE)))
+          .msg("assuming {.val {setdiff(unique.treat, treated)}} {?is/are} the control level{?s}. If not, supply an argument to {.arg focal}")
         }
       }
       
-      if (estimand == "ATT")
+      if (estimand == "ATT") {
         focal <- treated
-      else if (estimand == "ATC")
+      }
+      else if (estimand == "ATC") {
         focal <- setdiff(unique.treat, treated)
+      }
     }
     else if (estimand == "ATT") {
       treated <- focal
@@ -1732,6 +1736,30 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
        estimand = estimand,
        reported.estimand = reported.estimand,
        treated = if (is.factor(treated)) as.character(treated) else treated)
+}
+.process_stop_method <- function(sm, sm_avail) {
+  if (is_null(sm)) {
+    rule1 <- sm_avail
+  }
+  else if (any(is.character(sm))) {
+    rule1 <- sm_avail[vapply(tolower(sm_avail), function(x) any(startsWith(x, tolower(sm))), logical(1L))]
+    if (is_null(rule1)) {
+      .wrn("{.arg sm} should be {.or {.val {sm_avail}}}. Using all available stop methods instead")
+      rule1 <- sm_avail
+    }
+  }
+  else if (is.numeric(sm) && any(sm %in% seq_along(sm_avail))) {
+    if (!all(sm %in% seq_along(sm_avail))) {
+      .wrn("there {?is/are} {length(sm_avail)} stop method{?s} available, but you requested {setdiff(sm, seq_along(sm_avail))}")
+    }
+    rule1 <- sm_avail[sm %in% seq_along(sm_avail)]
+  }
+  else {
+    .wrn("{.arg stop.method} should be {.or {.val {sm_avail}}}. Using all available stop methods instead")
+    rule1 <- sm_avail
+  }
+  
+  rule1
 }
 
 #.get_C2
@@ -1773,7 +1801,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     data.specified <- TRUE
   }
   else {
-    .wrn("the argument supplied to `data` is not a data.frame object. Ignoring `data`")
+    .wrn("the argument supplied to {.arg data} is not a data frame. Ignoring {.arg data}")
     data <- env
     data.specified <- FALSE
   }
@@ -1787,26 +1815,29 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
       
       if (inherits(test, "simpleError")) {
         if (!identical(conditionMessage(test), sprintf("object '%s' not found", v))) {
-          .err(conditionMessage(test), tidy = FALSE)
+          .err(conditionMessage(test), tidy = FALSE, cli = FALSE)
         }
         
         return(TRUE)
       }
       
       if (is.function(test)) {
-        .err(sprintf("invalid type (function) for variable '%s'", v))
+        .err("invalid type (function) for variable {.var {v}}")
       }
       
       is_null(test)
     }, logical(1L))
     
     if (any(resp.vars.failed)) {
-      if (is_null(treat)) {
-        .err(sprintf("the given response variable, %s, is not a variable in %s",
-                     add_quotes(resp.vars.mentioned),
-                     word_list(c("`data`", "the global environment")[c(data.specified, TRUE)], "or")))
+      if (is_not_null(treat)) {
+        tt <- delete.response(tt)
       }
-      tt <- delete.response(tt)
+      else if (data.specified) {
+        .err("the given response variable, {.var {resp.vars.mentioned}}, is not a variable in {.arg data} or the global environment")
+      }
+      else {
+        .err("the given response variable, {.var {resp.vars.mentioned}}, is not a variable in the global environment")
+      }
     }
   }
   else {
@@ -1871,7 +1902,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }
     
     if (!is.data.frame(data)) {
-      .err("the argument supplied to `data` must be a data.frame object")
+      .err("the argument supplied to {.arg data} must be a data frame")
     }
     
     data.specified <- TRUE
@@ -1897,15 +1928,15 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                    if (conditionMessage(e) == "'.' in formula and no 'data' argument") {
                      .err("'.' is not allowed in formulas")
                    }
-                   .err(conditionMessage(e))
+                   .err(conditionMessage(e), tidy = FALSE, cli = FALSE)
                  })
   
   #Process RHS 
   tt.covs <- delete.response(tt)
   attr(tt.covs, "intercept") <- 0
   
-  ttfactors <- attr(tt.covs, "factors")
-  ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L], rownames(ttfactors))
+  ttfactors <- .attr(tt.covs, "factors")
+  ttvars <- setNames(vapply(.attr(tt.covs, "variables"), deparse1, character(1L))[-1L], rownames(ttfactors))
   
   rhs.df.type <- setNames(vapply(ttvars, function(v) {
     if (length(dim(try(eval(str2expression(add_quotes(v, "`")), data, env), silent = TRUE))) == 2L) "lit"
@@ -1919,7 +1950,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     term_is_interaction <- colSums(ttfactors != 0) > 1L
     
     if (any_apply(which(rhs.df), function(x) any(ttfactors[x, ] != 0 & term_is_interaction))) {
-      .err("interactions with data.frames are not allowed in the input formula")
+      .err("interactions with data frames are not allowed in the input formula")
     }
     
     addl.dfs <- setNames(lapply(ttvars[rhs.df], function(v) {
@@ -1946,14 +1977,22 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
           non.vec.col <- which(vapply(df, function(x) is_not_null(dim(x)), logical(1L)))
         }
         
-        if (ncol(df) == 1L && is_null(colnames(df))) colnames(df) <- v
-        else if (can_str2num(colnames(df))) colnames(df) <- paste(v, colnames(df), sep = "_")
+        if (ncol(df) == 1L && is_null(colnames(df))) {
+          colnames(df) <- v
+        }
+        else if (can_str2num(colnames(df))) {
+          colnames(df) <- paste(v, colnames(df), sep = "_")
+        }
         
         return(df)
       }
       
-      if (ncol(df) == 1L && is_null(colnames(df))) colnames(df) <- v
-      else if (can_str2num(colnames(df))) colnames(df) <- paste(v, colnames(df), sep = "_")
+      if (ncol(df) == 1L && is_null(colnames(df))) {
+        colnames(df) <- v
+      }
+      else if (can_str2num(colnames(df))) {
+        colnames(df) <- paste(v, colnames(df), sep = "_")
+      }
       
       as.data.frame(df)
     }),
@@ -1982,13 +2021,14 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     tt.covs <- rebuild_f(ttfactors) |>
       terms(data = data)
     
-    ttfactors <- attr(tt.covs, "factors")
-    ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L], rownames(ttfactors))
+    ttfactors <- .attr(tt.covs, "factors")
+    ttvars <- vapply(.attr(tt.covs, "variables"), deparse1, character(1L))[-1L] |>
+      setNames(rownames(ttfactors))
   }
   
   #Check to make sure variables are valid
   original_ttvars <- rownames(ttfactors)
-  for (i in seq_along(rownames(ttfactors))) {
+  for (i in seq_along(original_ttvars)) {
     #Check if evaluable
     #If not, check if evaluable after changing to literal using ``
     #If not, stop()
@@ -2002,23 +2042,21 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                         silent = TRUE)
       
       if (null_or_error(evaled.var)) {
-        ee <- conditionMessage(attr(evaled.var, "condition"))
+        ee <- conditionMessage(.attr(evaled.var, "condition"))
         
         if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
           v <- sub("object '([^']+)' not found", "\\1", ee)
-          .err(sprintf("the variable %s cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`",
-                       add_quotes(v, 2L)))
+          .err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to {.arg data}")
         }
         
-        .err(ee)
+        .err(ee, tidy = FALSE, cli = FALSE)
       }
       
       rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
     }
     
     if (is.function(evaled.var)) {
-      .err(sprintf("invalid type (function) for variable '%s'",
-                   rownames(ttfactors)[i]))
+      .err("invalid type (function) for variable {.var {rownames(ttfactors)[i]}}")
     }
   }
   
@@ -2026,8 +2064,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     tt.covs <- rebuild_f(ttfactors) |>
       terms(data = data)
     
-    ttfactors <- attr(tt.covs, "factors")
-    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
+    ttfactors <- .attr(tt.covs, "factors")
+    ttvars <- vapply(.attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
   }
   
   tmpcovs <- try_chk(model.frame2(tt.covs, data))
@@ -2073,9 +2111,9 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     tt.covs <- rebuild_f(ttfactors, tics = TRUE) |>
       terms(data = tmpcovs)
     
-    ttfactors <- attr(tt.covs, "factors")
+    ttfactors <- .attr(tt.covs, "factors")
     
-    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
+    ttvars <- vapply(.attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
     
     na_vars <- paste0(vars_with_NA, ":<NA>")
     
@@ -2114,7 +2152,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     if (null_or_error(evaled.var)) {
       evaled.var <- try(eval(str2expression(add_quotes(rownames(ttfactors)[i], "`")), tmpcovs), silent = TRUE)
       if (null_or_error(evaled.var)) {
-        .err(conditionMessage(attr(evaled.var, "condition")))
+        .err(conditionMessage(.attr(evaled.var, "condition")))
       }
       rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
     }
@@ -2124,8 +2162,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     tt.covs <- rebuild_f(ttfactors) |>
       terms(data = data)
     
-    ttfactors <- attr(tt.covs, "factors")
-    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
+    ttfactors <- .attr(tt.covs, "factors")
+    ttvars <- vapply(.attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
   }
   
   tmpcovs <- model.frame2(tt.covs, data = tmpcovs, drop.unused.levels = TRUE)
@@ -2134,10 +2172,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
   if (any(covs.with.inf)) {
     s <- if (sum(covs.with.inf) == 1L) c("", "s") else c("s", "")
-    .err(sprintf("the variable%s %s contain%s non-finite values, which are not allowed",
-                 s[1L],
-                 word_list(names(tmpcovs)[covs.with.inf], quotes = 1L),
-                 s[2L]))
+    .err("the variable{?s} {.var {names(tmpcovs)[covs.with.inf]}} {?contain/contains} non-finite values, which are not allowed")
   }
   
   attr(tt.covs, "intercept") <- 1 #Add intercept to correctly process single-level factors
@@ -2147,16 +2182,17 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   rownames(ttfactors) <- trim_string(rownames(ttfactors), "`")
   
-  mmassign <- attr(mm, "assign")[-1L]
+  mmassign <- .attr(mm, "assign")[-1L]
   mmassign2 <- setNames(factor(mmassign, levels = sort(unique(mmassign), na.last = TRUE),
-                               labels = colnames(ttfactors)), colnames(mm)[-1L])
+                               labels = colnames(ttfactors)),
+                        colnames(mm)[-1L])
   
   vars_in_each_term <- setNames(lapply(colnames(ttfactors), function(x) {
     rownames(ttfactors)[ttfactors[, x] != 0]
   }), colnames(ttfactors))
   
   all_factor_levels <- lapply(vars_in_each_term, function(v) {
-    do.call("expand.grid", c(clear_null(setNames(lapply(v, function(fa) colnames(attr(mm, "contrasts")[[fa]])), v)),
+    do.call("expand.grid", c(clear_null(setNames(lapply(v, function(fa) colnames(.attr(mm, "contrasts")[[fa]])), v)),
                              list(stringsAsFactors = FALSE)))
   })
   
@@ -2227,7 +2263,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   if (is.numeric(int)) {
     if (!chk::vld_whole_number(int) || !chk::vld_gt(int, 1)) {
-      .err("`int` must be TRUE, FALSE, or a numeric (integer) value greater than 1")
+      .err("{.arg int} must be {.val {TRUE}}, {.val {FALSE}}, or a numeric (integer) value greater than 1")
     }
     
     if (int > poly) {
@@ -2245,11 +2281,11 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   orth <- ...get("orth", getOption("cobalt_orth", default = FALSE))
   .chk_flag(orth)
   
-  co.names <- attr(covs, "co.names")
-  seps <- attr(co.names, "seps")
+  co.names <- .attr(covs, "co.names")
+  seps <- .attr(co.names, "seps")
   
   if (is_not_null(addl)) {
-    addl.co.names <- attr(addl, "co.names")
+    addl.co.names <- .attr(addl, "co.names")
     
     same.name <- names(addl.co.names) %in% names(co.names)
     addl <- addl[, !same.name, drop = FALSE]
@@ -2302,7 +2338,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                         orth = orth, sep = rep.int(seps["int"], nsep), co.names = co_list[["C"]])
     
     C_list[["int.poly"]] <- new
-    co_list[["int.poly"]] <- attr(new, "co.names")
+    co_list[["int.poly"]] <- .attr(new, "co.names")
     names(co_list[["int.poly"]]) <- vapply(co_list[["int.poly"]], 
                                            function(x) paste(x[["component"]], collapse = ""),
                                            character(1L))
@@ -2333,7 +2369,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         #Remove variables perfectly redundant with cluster
         unsplit_var <- unsplitfactor(as.data.frame(C_list[["C"]][, which_are_buddies, drop = FALSE]),
                                      buddies[[1L]][["component"]][buddies[[1L]][["type"]] == "base"],
-                                     sep = attr(co_list[["C"]], "seps")["factor"])[[1L]]
+                                     sep = .attr(co_list[["C"]], "seps")["factor"])[[1L]]
         tab <- table(cluster, unsplit_var)
         tab <- tab[rowSums(tab == 0) < ncol(tab), , drop = FALSE]
         
@@ -2384,7 +2420,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       .err("missing values are not allowed in the distance measure")
     }
     
-    distance.co.names <- attr(distance, "co.names")
+    distance.co.names <- .attr(distance, "co.names")
     
     same.name <- names(distance.co.names) %in% unlist(lapply(co_list, names))
     if (any(same.name)) {
@@ -2550,7 +2586,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     int_co.names[[1L]] <- {
       if (cn)
         lapply(ints_to_make, function(x) list(component = c(co.names[[x[1L]]][["component"]], sep, co.names[[x[2L]]][["component"]]),
-                                                    type = c(co.names[[x[1L]]][["type"]], "isep", co.names[[x[2L]]][["type"]])))
+                                              type = c(co.names[[x[1L]]][["type"]], "isep", co.names[[x[2L]]][["type"]])))
       else
         vapply(ints_to_make, paste, character(1L), collapse = sep)
     }
@@ -2596,13 +2632,15 @@ co.cbind <- function(..., deparse.level = 1) {
   
   co.names.list <- lapply(args, attr, "co.names")
   
-  seps <- attr(co.names.list[[1L]], "seps")
+  seps <- .attr(co.names.list[[1L]], "seps")
   
   out <- do.call("cbind", args)
   
   attr(out, "co.names") <- do.call("c", co.names.list)
   attr(attr(out, "co.names"), "seps") <- seps
-  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste(x[["component"]], collapse = ""), character(1L))
+  colnames(out) <- names(attr(out, "co.names")) <- vapply(.attr(out, "co.names"),
+                                                          function(x) paste(x[["component"]], collapse = ""),
+                                                          character(1L))
   
   out
 }
@@ -2620,19 +2658,21 @@ co.rbind <- function(..., deparse.level = 1) {
     return(args[[1L]])
   }
   
-  co.names <- attr(args[[1L]], "co.names")
+  co.names <- .attr(args[[1L]], "co.names")
   
   out <- do.call("rbind", args)
   
   attr(out, "co.names") <- co.names
-  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste(x[["component"]], collapse = ""), character(1L))
+  colnames(out) <- names(attr(out, "co.names")) <- vapply(.attr(out, "co.names"),
+                                                          function(x) paste(x[["component"]], collapse = ""),
+                                                          character(1L))
   
   out
 }
 
 .get_types <- function(C) {
   vapply(colnames(C), function(x) {
-    if (any(attr(C, "distance.names") == x)) "Distance"
+    if (any(.attr(C, "distance.names") == x)) "Distance"
     else if (all_the_same(C[, x]) || is_binary(C[, x]))  "Binary"
     else "Contin."
   }, character(1L))
@@ -2640,14 +2680,14 @@ co.rbind <- function(..., deparse.level = 1) {
 find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
   
   #Finds indices of redundant vars in C1.
-  C1.no.miss <- C1[, colnames(C1) %nin% attr(C1, "missing.ind"), drop = FALSE]
+  C1.no.miss <- C1[, colnames(C1) %nin% .attr(C1, "missing.ind"), drop = FALSE]
   if (is_null(C2)) {
     .use <- if (anyNA(C1)) "pairwise.complete.obs" else "everything"
     C.cor <- suppressWarnings(fun(C1.no.miss, use = .use))
     s <- !lower.tri(C.cor, diag = TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   else {
-    C2.no.miss <- C2[, colnames(C2) %nin% attr(C2, "missing.ind"), drop = FALSE]
+    C2.no.miss <- C2[, colnames(C2) %nin% .attr(C2, "missing.ind"), drop = FALSE]
     .use <- if (anyNA(C1) || anyNA(C2)) "pairwise.complete.obs" else "everything"
     C.cor <- suppressWarnings(fun(C2.no.miss, y = C1.no.miss, use = .use))
     s <- !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
@@ -2668,8 +2708,7 @@ model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
     ee <- conditionMessage(e)
     if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
       v <- sub("object '([^']+)' not found", "\\1", ee)
-      .err(sprintf("the variable %s cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`",
-                   add_quotes(v, 2L)))
+      .err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to {.arg data}")
     }
     
     .err(ee)
@@ -2691,20 +2730,14 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
       if (any(problems)) {
         prob.w.t.mat <- w.t.mat[problems, ]
         if (NCOL(weights.df) == 1L) {
-          error <- sprintf("All weights are zero when treat is %s.",
-                           word_list(prob.w.t.mat[, "treat_vals"], "or", quotes = 2L))
+          .err('all weights are zero when the treatment is {.or {.val {prob.w.t.mat[, "treat_vals"]}}}')
         }
-        else {
-          errors <- vapply(unique(prob.w.t.mat[, "weight_names"]), function(i) {
-            sprintf("%s weights are zero when treat is %s",
-                    add_quotes(i),
-                    word_list(prob.w.t.mat[prob.w.t.mat[, "weight_names"] == i, "treat_vals"], "or",
-                              quotes = 2L))
-          }, character(1L))
-          errors <- paste(c("All", rep.int("all", length(errors) - 1L)), errors)
-          error <- paste0(word_list(errors, "and"), ".")
-        }
-        .err(error, tidy = FALSE)
+        
+        errors <- vapply(unique(prob.w.t.mat[, "weight_names"]), function(i) {
+          cli::format_inline('all {.var {i}} weights are zero when the treatment is {.or {.val {prob.w.t.mat[prob.w.t.mat[, "weight_names"] == i, "treat_vals"]}}}')
+        }, character(1L))
+        
+        .err("{errors}")
       }
     }
   }
@@ -2716,16 +2749,14 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
     if (any(problems)) {
       prob.wts <- colnames(weights.df)[problems]
       if (NCOL(weights.df) == 1L) {
-        error <- "All weights are zero."
+        .err("all weights are zero")
       }
-      else {
-        errors <- vapply(prob.wts, function(i) {
-          sprintf("%s weights are zero", add_quotes(i))
-        }, character(1L))
-        errors <- paste(c("All", rep.int("all", length(errors) - 1L)), errors)
-        error <- paste0(word_list(errors, "and"), ".")
-      }
-      .err(error, tidy = FALSE)
+      
+      errors <- vapply(prob.wts, function(i) {
+        cli::format_inline('all {.var {i}} weights are zero')
+      }, character(1L))
+      
+      .err("{errors}")
     }
   }
 }
@@ -2838,7 +2869,7 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   rownames(B) <- colnames(C)
   
   #Set var type (binary/continuous)
-  B[["Type"]] <- if_null_then(var_types, .get_types(C))
+  B[["Type"]] <- var_types %or% .get_types(C)
   bin.vars <- B[["Type"]] == "Binary"
   
   #Means for each group
@@ -2934,19 +2965,23 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   for (s in all_STATS(type)) {
     if (s %in% compute) {
       if (!get_from_STATS("adj_only")[s] && (!quick || un)) {
-        B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Un")]] <- STATS[[s]]$fun(C, treat = treat, weights = NULL, 
-                                                                              std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                              s.d.denom = if_null_then(s.d.denom.list[[1L]], s.d.denom[1L]),
-                                                                              abs = abs, s.weights = s.weights, bin.vars = bin.vars,
-                                                                              weighted.weights = weights[[1L]], ...)
+        B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Un")]] <- STATS[[s]]$fun(
+          C, treat = treat, weights = NULL, 
+          std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+          s.d.denom = s.d.denom.list[[1L]] %or% s.d.denom[1L],
+          abs = abs, s.weights = s.weights, bin.vars = bin.vars,
+          weighted.weights = weights[[1L]], ...
+        )
       }
       
       if (!no.adj && (!quick || s %in% disp)) {
         for (i in weight.names) {
-          B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]] <- STATS[[s]]$fun(C, treat = treat, weights = weights[[i]],
-                                                                             std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                             s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
-                                                                             abs = abs, s.weights = s.weights, bin.vars = bin.vars, ...)
+          B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]] <- STATS[[s]]$fun(
+            C, treat = treat, weights = weights[[i]],
+            std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+            s.d.denom = s.d.denom.list[[i]] %or% s.d.denom[i],
+            abs = abs, s.weights = s.weights, bin.vars = bin.vars, ...
+          )
         }
       }
       
@@ -3000,9 +3035,9 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
   }
   
   if (type == "bin") {
-    if (length(method) == 1L && method == "subclassification") {
+    if (identical(method, "subclassification")) {
       if (is_null(subclass)) {
-        .err("`subclass` must be a vector of subclasses")
+        .err("{.arg subclass} must be a vector of subclasses")
       }
       
       nn <- make_df(c(levels(subclass), "Discarded", "All"), c(treat_names(treat), "Total"))
@@ -3022,11 +3057,9 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       
       for (tnn in names(treat_names(treat))) {
         small.subclass <- nn[treat_names(treat)[tnn], levels(subclass)] <= 1L
-        if (any(small.subclass))
-          .wrn(sprintf("Not enough %s units in subclass%s %s",
-                       tnn,
-                       ngettext(sum(small.subclass), "", "es"), 
-                       word_list(levels(subclass)[small.subclass])))
+        if (any(small.subclass)) {
+          .wrn("not enough {tnn} units in {cli::qty(sum(small.subclass))} subclass{?es} {levels(subclass)[small.subclass]}")
+        }
       }
       attr(nn, "tag") <- "Sample sizes by subclass"
     }
@@ -3061,7 +3094,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
           attr(nn, "ss.type") <- rep.int("ss", NROW(nn))
           
           if (!any(discarded)) {
-            attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
+            attr(nn, "ss.type") <- .attr(nn, "ss.type")[rownames(nn) != "Discarded"]
             nn <- nn[rownames(nn) != "Discarded", , drop = FALSE]
           }
         }
@@ -3073,7 +3106,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
           attr(nn, "ss.type") <- c("ss", "ess", "ss")
           
           if (!any(discarded)) {
-            attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
+            attr(nn, "ss.type") <- .attr(nn, "ss.type")[rownames(nn) != "Discarded"]
             nn <- nn[rownames(nn) != "Discarded", , drop = FALSE]
           }
         }
@@ -3088,7 +3121,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       }
       
       attr(nn, "tag") <- {
-        if (length(attr(nn, "ss.type")) > 1L && all(attr(nn, "ss.type")[-1L] == "ess")) {
+        if (length(.attr(nn, "ss.type")) > 1L && all(.attr(nn, "ss.type")[-1L] == "ess")) {
           "Effective sample sizes"
         }
         else "Sample sizes"
@@ -3098,7 +3131,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
   else if (type == "cont") {
     if (length(method) == 1L && method == "subclassification") {
       if (is_null(subclass)) {
-        .err("`subclass` must be a vector of subclasses")
+        .err("{.arg subclass} must be a vector of subclasses")
       }
       
       nn <- make_df(c(levels(subclass), "All"), c("Total"))
@@ -3110,10 +3143,10 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
         nn[[k]] <- sum(matched & subclass == k)
       }
       small.subclass <- nn[, levels(subclass)] <= 1L
-      if (any(small.subclass))
-        .wrn(sprintf("not enough units in subclass%s %s",
-                     ngettext(sum(small.subclass), "", "es"), 
-                     word_list(levels(subclass)[small.subclass])))
+      if (any(small.subclass)) {
+        .wrn("not enough units in subclass{?es} {levels(subclass)[small.subclass]}")
+      }
+      
       attr(nn, "tag") <- "Sample sizes by subclass"
     }
     else {
@@ -3130,7 +3163,9 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       }
       else if (NCOL(weights) == 1L) {
         if (method == "matching") {
-          nn <- make_df("Total", c("All (ESS)", "All (Unweighted)", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"))
+          nn <- make_df("Total", c("All (ESS)", "All (Unweighted)",
+                                   "Matched (ESS)", "Matched (Unweighted)",
+                                   "Unmatched", "Discarded"))
           nn["All (ESS)", ] <- ESS(s.weights)
           nn["All (Unweighted)", ] <- sum(s.weights > 0)
           nn["Matched (ESS)", ] <- ESS(weights[, 1L] * s.weights)
@@ -3141,7 +3176,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
           attr(nn, "ss.type") <- rep.int("ss", NROW(nn))
           
           if (!any(discarded)) {
-            attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
+            attr(nn, "ss.type") <- .attr(nn, "ss.type")[rownames(nn) != "Discarded"]
             nn <- nn[rownames(nn) != "Discarded", , drop = FALSE]
           }
         }
@@ -3153,7 +3188,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
           attr(nn, "ss.type") <- c("ss", "ess", "ss")
           
           if (!any(discarded)) {
-            attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
+            attr(nn, "ss.type") <- .attr(nn, "ss.type")[rownames(nn) != "Discarded"]
             nn <- nn[rownames(nn) != "Discarded", , drop = FALSE]
           }
         }
@@ -3164,8 +3199,8 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
         
         for (i in seq_col(weights)) {
           nn[1L + i, ] <- switch(method[i],
-                                "matching" = ESS(weights[!discarded, i]),
-                                "weighting" = ESS(weights[!discarded, i] * s.weights[!discarded]))
+                                 "matching" = ESS(weights[!discarded, i]),
+                                 "weighting" = ESS(weights[!discarded, i] * s.weights[!discarded]))
           
         }
         
@@ -3173,7 +3208,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       }
       
       attr(nn, "tag") <- {
-        if (length(attr(nn, "ss.type")) > 1L && all(attr(nn, "ss.type")[-1L] == "ess")) {
+        if (length(.attr(nn, "ss.type")) > 1L && all(.attr(nn, "ss.type")[-1L] == "ess")) {
           "Effective sample sizes"
         }
         else "Sample sizes"
@@ -3185,14 +3220,14 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
 }
 
 balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
-  type <- attr(bal.tab.list[[1L]], "print.options")[["type"]]
-  disp <- attr(bal.tab.list[[1L]], "print.options")[["disp"]]
-  compute <- attr(bal.tab.list[[1L]], "print.options")[["compute"]]
-  thresholds <- attr(bal.tab.list[[1L]], "print.options")[["thresholds"]]
-  quick <- attr(bal.tab.list[[1L]], "print.options")[["quick"]]
-  weight.names <- if_null_then(attr(bal.tab.list[[1L]], "print.options")[["weight.names"]], "Adj")
-  abs <- attr(bal.tab.list[[1L]], "print.options")[["abs"]]
-  no.adj <- attr(bal.tab.list[[1L]], "print.options")[["nweights"]] == 0
+  type <- .attr(bal.tab.list[[1L]], "print.options")[["type"]]
+  disp <- .attr(bal.tab.list[[1L]], "print.options")[["disp"]]
+  compute <- .attr(bal.tab.list[[1L]], "print.options")[["compute"]]
+  thresholds <- .attr(bal.tab.list[[1L]], "print.options")[["thresholds"]]
+  quick <- .attr(bal.tab.list[[1L]], "print.options")[["quick"]]
+  weight.names <- .attr(bal.tab.list[[1L]], "print.options")[["weight.names"]] %or% "Adj"
+  abs <- .attr(bal.tab.list[[1L]], "print.options")[["abs"]]
+  no.adj <- .attr(bal.tab.list[[1L]], "print.options")[["nweights"]] == 0
   
   balance.list <- clear_null(grab(bal.tab.list, "Balance"))
   
@@ -3283,7 +3318,7 @@ samplesize_across_imps <- function(obs.list) {
   
   obs <- Reduce("+", obs.list) / length(obs.list)
   attr(obs, "tag") <- sprintf("Average %s across imputations",
-                              tolower(attr(obs.list[[1L]], "tag")))
+                              tolower(.attr(obs.list[[1L]], "tag")))
   obs
 }
 
@@ -3296,8 +3331,8 @@ samplesize_multi <- function(bal.tab.multi.list, treat_names, focal = NULL) {
   
   bal.tab.multi.list <- clear_null(bal.tab.multi.list)
   obs <- do.call("cbind", unname(grab(bal.tab.multi.list, "Observations")))[, which]
-  attr(obs, "tag") <- attr(bal.tab.multi.list[[1L]][["Observations"]], "tag")
-  attr(obs, "ss.type") <- attr(bal.tab.multi.list[[1L]][["Observations"]], "ss.type")
+  attr(obs, "tag") <- .attr(bal.tab.multi.list[[1L]][["Observations"]], "tag")
+  attr(obs, "ss.type") <- .attr(bal.tab.multi.list[[1L]][["Observations"]], "ss.type")
   
   obs
 }
@@ -3307,7 +3342,7 @@ samplesize_across_clusters <- function(obs.list) {
   obs.list <- clear_null(obs.list)
   obs <- Reduce("+", obs.list)
   attr(obs, "tag") <- sprintf("Total %s across clusters",
-                              tolower(attr(obs.list[[1L]], "tag")))
+                              tolower(.attr(obs.list[[1L]], "tag")))
   
   obs
 }
@@ -3340,7 +3375,7 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
   B <- make_df(Bnames, colnames(C))
   
   #Set var type (binary/continuous)
-  B[["Type"]] <- if_null_then(var_types, .get_types(C))
+  B[["Type"]] <- var_types %or% .get_types(C)
   bin.vars <- B[["Type"]] == "Binary"
   
   SB <- setNames(rep(list(B), nlevels(subclass)), levels(subclass))
@@ -3464,8 +3499,22 @@ balance_table_across_subclass_cont <- function(balance.table, balance.table.subc
 
 #Misc
 `%+%` <- function(...) {
-  if (is.atomic(..1) && is.atomic(..2)) crayon::`%+%`(as.character(..1), as.character(..2))
-  else ggplot2::`%+%`(...)
+  if (!is.atomic(..1) || !is.atomic(..2)) {
+    return(ggplot2::`%+%`(...))
+  }
+  
+  lhs <- ..1
+  rhs <- ..2
+  
+  if (is_null(lhs) == is_null(rhs)) {
+    paste0(lhs, rhs)
+  }
+  else if (is_null(lhs)) {
+    lhs
+  }
+  else if (is_null(rhs)) {
+    rhs
+  }
 }
 
 check_arg_lengths <- function(...) {
@@ -3479,8 +3528,7 @@ check_arg_lengths <- function(...) {
   
   supplied <- lens > 0L
   if (!all_the_same(lens[supplied])) {
-    .err(sprintf("%s must have the same number of units",
-                 word_list(dots_names[supplied], quotes = "`")))
+    .err("{.arg {dots_names[supplied]}} must have the same number of units")
   }
 }
 

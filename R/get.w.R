@@ -21,7 +21,7 @@
 #' 
 #' When `Match()` in \pkg{Matching} is used with `CommonSupport = TRUE`, the returned weights will be incorrect. This option is not recommended by the package authors.
 #' 
-#' @examplesIf all(sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))
+#' @examplesIf all(sapply(c("WeightIt", "MatchIt"), rlang::is_installed))
 #' data("lalonde", package = "cobalt")
 #' 
 #' m.out <- MatchIt::matchit(treat ~ age + educ + race,
@@ -62,32 +62,9 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
   if (missing(estimand)) estimand <- NULL
   else estimand <- tolower(estimand)
   
-  if (is_null(stop.method)) {
-    rule1 <- names(x[["w"]])
-  }
-  else if (any(is.character(stop.method))) {
-    rule1 <- names(x$w)[vapply(tolower(names(x$w)), function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
-    if (is_null(rule1)) {
-      .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                   word_list(names(x$w), and.or = "or", quotes = 2L)))
-      rule1 <- names(x$w)
-    }
-  }
-  else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(x$w)))) {
-    if (!all(stop.method %in% seq_along(names(x$w)))) {
-      .wrn(sprintf("there are %s stop methods available, but you requested %s", 
-                   length(names(x$w)),
-                   word_list(setdiff(stop.method, seq_along(names(x$w))), and.or = "and")))
-    }
-    rule1 <- names(x$w)[stop.method %in% seq_along(names(x$w))]
-  }
-  else {
-    .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                 word_list(names(x$w), and.or = "or", quotes = 2L)))
-    rule1 <- names(x$w)
-  }
-  
+  rule1 <- .process_stop_method(stop.method, names(x$w))
   s <- names(x$w)[match(tolower(rule1), tolower(names(x$w)))]
+  
   criterion <- substr(tolower(s), 1L, nchar(s) - 4L)
   allowable.estimands <- c("ATT", "ATE", "ATC")
   
@@ -95,7 +72,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     estimand <- setNames(substr(toupper(s), nchar(s) - 2L, nchar(s)), s)
   }
   else if (!all(toupper(estimand) %in% allowable.estimands)) {
-    .err(sprintf("`estimand` must be %s", word_list(allowable.estimands, "or", quotes = 1L)))
+    .err("{.arg estimand} must be {.or {.val {allowable.estimands}}}")
   }
   else if (length(estimand) == 1L) {
     estimand <- setNames(toupper(rep_with(estimand, s)), s)
@@ -104,7 +81,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     estimand <- setNames(toupper(estimand[seq_along(s)]), s)
   }
   else {
-    .err("`estimand` must be the same length as the number of sets of weights requested")
+    .err("{.arg estimand} must be the same length as the number of sets of weights requested")
   }
   
   w <- make_df(s, nrow(x$ps))
@@ -144,37 +121,13 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
 #' @exportS3Method get.w mnps
 get.w.mnps <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
   
-  if (is_null(stop.method)) {
-    rule1 <- x$stopMethods
-  }
-  else if (is.character(stop.method)) {
-    rule1 <- names(x$w)[vapply(tolower(names(x$w)), function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
-    if (is_null(rule1)) {
-      .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                   word_list(x$stopMethods, and.or = "or", quotes = 2L)))
-      rule1 <- x$stopMethods
-    }
-  }
-  else if (is.numeric(stop.method) && any(stop.method %in% seq_along(x$stopMethods))) {
-    if (!all(stop.method %in% seq_along(x$stopMethods))) {
-      .wrn(sprintf("there are %s stop methods available, but you requested %s",
-                   length(x$stopMethods), 
-                   word_list(setdiff(stop.method, seq_along(x$stopMethods)), and.or = "and")))
-    }
-    rule1 <- x$stopMethods[stop.method %in% seq_along(x$stopMethods)]
-  }
-  else {
-    .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                 word_list(x$stopMethods, and.or = "or", quotes = 2L)))
-    rule1 <- x$stopMethods
-  }
-  
-  s <- paste.(x$stopMethods[match(tolower(rule1), tolower(x$stopMethods))],
-              x$estimand)
-  
   estimand <- x$estimand
+  
+  rule1 <- .process_stop_method(stop.method, x$stopMethods)
   criterion <- x$stopMethods[match(tolower(rule1), tolower(x$stopMethods))]
   
+  s <- paste.(criterion, estimand)
+ 
   w <- make_df(criterion, length(x$treatVar))
   w[] <- 1
   
@@ -227,36 +180,12 @@ get.w.ps.cont <- function(x, s.weights = FALSE, ...) {
 #' @exportS3Method get.w iptw
 get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
   
-  if (is_null(stop.method)) {
-    rule1 <- names(x$psList[[1L]]$ps)
-  }
-  else if (any(is.character(stop.method))) {
-    rule1 <- names(x$psList[[1L]]$ps)[vapply(tolower(names(x$psList[[1L]]$ps)),
-                                             function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
-    if (is_null(rule1)) {
-      .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                   word_list(names(x$psList[[1L]]$ps), and.or = "or", quotes = 2)))
-      rule1 <- names(x$psList[[1L]]$ps)
-    }
-  }
-  else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(x$psList[[1L]]$ps)))) {
-    if (!all(stop.method %in% seq_along(names(x$psList[[1L]]$ps)))) {
-      .wrn(sprintf("there are %s stop methods available, but you requested %s",
-           length(names(x$psList[[1L]]$ps)), 
-           word_list(setdiff(stop.method, seq_along(names(x$psList[[1L]]$ps))), and.or = "and")))
-    }
-    rule1 <- names(x$psList[[1L]]$ps)[stop.method %in% seq_along(names(x$psList[[1L]]$ps))]
-  }
-  else {
-    .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                 word_list(names(x$psList[[1L]]$ps), and.or = "or", quotes = 2L)))
-    rule1 <- names(x$psList[[1L]]$ps)
-  }
+  rule1 <- .process_stop_method(stop.method, names(x$psList[[1L]]$ps))
   
   w <- make_df(rule1, nrow = nrow(x$psList[[1L]]$ps))
   
   for (i in rule1) {
-    w[i] <- Reduce("*", lapply(x$psList, get.w.ps, stop.method = i))
+    w[i] <- Reduce("*", lapply(x$psList, get.w, stop.method = i))
   }
   
   if (s.weights) {
@@ -338,7 +267,7 @@ get.w.ebalance <- function(x, treat, ...) {
   }
   
   if (length(x$w) != sum(treat == treat_vals(treat)["Control"])) {
-    .err("there are more control units in `treat` than weights in the `ebalance` object.")
+    .err("there are more control units in {.arg treat} than weights in the {.cls ebalance} object.")
   }
   
   weights <- rep_with(1, treat)
@@ -351,8 +280,11 @@ get.w.ebalance <- function(x, treat, ...) {
 #' @rdname get.w
 #' @exportS3Method get.w optmatch
 get.w.optmatch <- function(x, estimand, ...) {
-  if (missing(estimand) || is_null(estimand)) estimand <- "ATT"
-  treat <- as.numeric(attr(x, "contrast.group"))
+  if (missing(estimand) || is_null(estimand)) {
+    estimand <- "ATT"
+  }
+  
+  treat <- as.numeric(.attr(x, "contrast.group"))
   strata2weights(x, treat = treat, estimand = estimand)
 }
 
@@ -400,7 +332,7 @@ get.w.designmatch <- function(x, treat, estimand, ...) {
   }
   
   if (length(x[["group_id"]]) != length(x[["t_id"]]) + length(x[["c_id"]])) {
-    .err("`designmatch` objects without 1:1 matching cannot be used")
+    .err("{.code designmatch} objects without 1:1 matching cannot be used")
   }
   
   q <- merge(data.frame(id = seq_along(treat)), 
