@@ -71,7 +71,7 @@
 
 * When `cluster` is specified, categorical variables that perfectly coincide with the cluster variable are now correctly removed.
 
-* Perfectly colinear variables are no longer removed (unless they are binary variables split from the same factor). This should speed up evaluation and reduce the probability of false positives being removed.
+* Perfectly collinear variables are no longer removed (unless they are binary variables split from the same factor). This should speed up evaluation and reduce the probability of false positives being removed.
 
 * Variables with a single value are now more reliably categorized as "binary" in tables and calculations.
 

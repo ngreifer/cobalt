@@ -68,7 +68,7 @@ test_that("(#77) no conflict with `cluster` argument to bal.tab() when {caret} i
                               s.d.denom = "pooled"))
 })
 
-test_that("(#82) love.plot() doesn't throw any ggplo2-related warnings with multiple stats", {
+test_that("(#82) love.plot() doesn't throw any ggplot2-related warnings with multiple stats", {
   skip_if_not_installed("MatchIt")
   
   data("lalonde")
