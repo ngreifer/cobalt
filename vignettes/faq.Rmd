@@ -21,17 +21,16 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(cobalt)
-matchit_ok <- all(sapply("MatchIt", requireNamespace, quietly = TRUE))
+matchit_ok <- rlang::is_installed("MatchIt")
 ```
 
-### How are standardized mean differences computed in `cobalt`?
+### How are standardized mean differences computed in *cobalt*?
 
 Most questions below are related to this one, so here I will try to
 explain in complete detail how standardized mean differences (SMDs) are
 computed.
 
-First, it is important to know that by default, **mean differences for
-binary covariates are not standardized**. That means in the `Diff.Adj`
+First, it is important to know that by default, **mean differences for binary covariates are not standardized**. That means in the `Diff.Adj`
 column, etc., what you are seeing the is *raw difference in proportion*
 for binary variables. (By raw, I mean unstandardized, but weights may be
 applied if relevant.) To request SMDs for binary covariates, set
@@ -39,15 +38,19 @@ applied if relevant.) To request SMDs for binary covariates, set
 the question below.
 
 For continuous covariates, the standardized mean difference is computed
-as $$
+as
+$$
 \text{SMD} = \frac{\bar{x}_1 - \bar{x}_0}{s^*}
-$$ where $\bar{x}_1$ is the mean of the covariate in the treated group,
+$$
+where $\bar{x}_1$ is the mean of the covariate in the treated group,
 $\bar{x}_0$ is the mean of the covariate in the control group, and $s^*$
 is a standardization factor (not necessarily a standard deviation!).
 After matching or weighting, the weighted standardized mean difference
-is computed as $$
+is computed as
+$$
 \text{SMD}^w = \frac{\bar{x}_{1w} - \bar{x}_{0w}}{s^*}
-$$ where $\bar{x}_{1w}$ is the weighted mean of the covariate in the
+$$
+where $\bar{x}_{1w}$ is the weighted mean of the covariate in the
 treated group, i.e.,
 $\bar{x}_{1w} = \frac{1}{\sum_{i:A_i = 1}{w_i}}\sum_{i:A_i=1}{w_ix_i}$,
 and similarly for the control group. Critically, the standardization
@@ -76,8 +79,7 @@ each value of `s.d.denom`:
 -   `"control"`: $s^* = s_0$
 -   `"all"`: $s^* = s$
 -   `"weighted"`: $s^* = s_w$
--   `"hedges"`:
-    $s^* = \frac{1}{1 - \frac{3}{4(n - 2) - 1}}\sqrt{\frac{(n_1 - 1)s_1^2 + (n_0 - 1)s_0^2}{n - 2}}$
+-   `"hedges"`: $s^* = \frac{1}{1 - \frac{3}{4(n - 2) - 1}}\sqrt{\frac{(n_1 - 1)s_1^2 + (n_0 - 1)s_0^2}{n - 2}}$
 
 where $s_1$ is the standard deviation of the treated group, $s_0$ is the
 standard deviation of the control group, $s$ is the standard deviation
@@ -85,11 +87,15 @@ of the whole sample ignoring treatment group membership, $s_w$ is the
 weighted standard deviation of the whole sample, $n_1$ and $n_0$ are
 sizes of the treated and control groups, respectively, and
 $n = n_1 + n_0$.[^1] For continuous covariates, the unweighted standard
-deviation is computed as usual, i.e., as $$
+deviation is computed as usual, i.e., as
+$$
 s = \sqrt{\frac{1}{n-1}\sum_i{(x_i - \bar{x})^2}}
-$$ and the weighted standard deviation is computed as $$
+$$
+and the weighted standard deviation is computed as
+$$
 s = \sqrt{\frac{\sum_{i} w_{i}}{(\sum_{i} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}}\sum_i{w_i(x_i - \bar{x}_w)^2}}
-$$For binary covariates, the unweighted standard deviation is computed
+$$
+For binary covariates, the unweighted standard deviation is computed
 as $s = \sqrt{\bar{x}(1-\bar{x})}$ and the weighted standard deviation
 is computed as $s = \sqrt{\bar{x}_w(1-\bar{x}_w)}$.
 
@@ -242,7 +248,7 @@ propensity score), within which covariates are ideally balanced.
 
 One must always remember that the standardized mean difference uses the
 standardization factor computed in the original sample, i.e., prior to
-subclassification. Let's take a look below using `MatchIt`:
+subclassification. Let's take a look below using *MatchIt*:
 
 ```{r, eval = matchit_ok}
 # PS Subclassification
@@ -311,7 +317,7 @@ bal.tab(msub)
 ```
 
 This works for mean differences but not other statistics. So the way
-`cobalt` actually does this is compute stratification weights, and then
+*cobalt* actually does this is compute stratification weights, and then
 compute the balance statistics using the stratification weights in the
 full sample. Stratification weights are first computed by computing the
 proportion of treated units in each sample, and then using the formulas
@@ -335,52 +341,52 @@ col_w_ks(lalonde$age, treat = lalonde$treat,
 bal.tab(msub, stats = "ks")
 ```
 
-### Why don't I get the same balance statistics when using `cobalt` as I do when using `tableone`?
+### Why don't I get the same balance statistics when using *cobalt* as I do when using *tableone*?
 
-`tableone` is another package that provides tools for balance
+*tableone* is another package that provides tools for balance
 assessment. One strength that the package has is its beautiful,
 publication-ready tables that include summary statistics for the
 covariates, clean variable names, and clean headings. But it does not
 incorporate best practices in balance assessment in favor of
-transparency. This differs from the ethos of `cobalt`, which is to
+transparency. This differs from the ethos of *cobalt*, which is to
 provide highly customizable balance statistics that reflect best
 practices and use well-reasoned decisions. This is not an insult to
-`tableone` but is meant to reflect the different purposes `cobalt` and
-`tableone` have. They should not be used interchangeably or expect to
+*tableone* but is meant to reflect the different purposes *cobalt* and
+*tableone* have. They should not be used interchangeably or expect to
 yield identical results because they use different formulas for
 computing certain statistics, most notably the SMD.
 
-Below are some of the reasons why SMDs might differ between `tableone`
-and `cobalt`:
+Below are some of the reasons why SMDs might differ between *tableone*
+and *cobalt*:
 
--   `tableone` always uses the pooled standard deviation (i.e., the
+-   *tableone* always uses the pooled standard deviation (i.e., the
     standardizaton factor setting `s.d.denom = "pooled"`) as the
-    standardization factor, while `cobalt` determines the
+    standardization factor, while *cobalt* determines the
     standardization factor based on the estimand (though by default or
     when the ATE is the estimand, the two should be aligned).
--   `tableone` uses the weighted standardization factor in the SMD,
-    whereas `cobalt` always uses the standardization factor computed in
-    the unadjusted sample. For matching, this means `tableone` computes
-    the standardization factor in the matched sample, while `cobalt`
+-   *tableone* uses the weighted standardization factor in the SMD,
+    whereas *cobalt* always uses the standardization factor computed in
+    the unadjusted sample. For matching, this means *tableone* computes
+    the standardization factor in the matched sample, while *cobalt*
     uses the original sample.
--   `tableone` uses `survey::svyvar()` to compute weighted variances,
-    whereas `cobalt` uses the formula described previously (and
+-   *tableone* uses `survey::svyvar()` to compute weighted variances,
+    whereas *cobalt* uses the formula described previously (and
     implemented in `col_w_sd()`). These values will differ by small
     amounts when the weights are not constant.
--   For multi-category covariates, `tableone` uses a single statistic
+-   For multi-category covariates, *tableone* uses a single statistic
     described by @yangUnifiedApproachMeasuring2012 to summarize balance,
-    whereas `cobalt` provides a balance statistic for each level of the
+    whereas *cobalt* provides a balance statistic for each level of the
     covariate. There is no reason to prefer the statistic used by
-    `tableone`; it does not have any relationship to the bias of the
+    *tableone*; it does not have any relationship to the bias of the
     estimate and can mask large differences in some categories when
     there are many categories. See
     [here](https://stats.stackexchange.com/a/496608/116195) for a more
     detailed answer.
 
 In practice, these differences will be small. Obviously, I recommend
-using `cobalt` instead for balance assessment, and I recommend reporting
-the balance statistics `cobalt` produces. That said, if you understand
-what `tableone` is doing and are okay with the choices it makes, there
+using *cobalt* instead for balance assessment, and I recommend reporting
+the balance statistics *cobalt* produces. That said, if you understand
+what *tableone* is doing and are okay with the choices it makes, there
 is no denying that it can produce beautiful tables.
 
 ### Why doesn't `thresholds` work with `bal.tab()` with multiply imputed or clustered data?

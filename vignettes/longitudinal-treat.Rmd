@@ -1,5 +1,5 @@
 ---
-title: 'Using `cobalt` with Longitudinal Treatments'
+title: 'Using cobalt with Longitudinal Treatments'
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,7 +8,7 @@ output:
         toc: false
 
 vignette: >
-  %\VignetteIndexEntry{Using `cobalt` with Longitudinal Treatments}
+  %\VignetteIndexEntry{Using cobalt with Longitudinal Treatments}
   %\VignetteEngine{knitr::rmarkdown_notangle}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -16,22 +16,24 @@ link-citations: true
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(message = FALSE, fig.width=5)
-if (any(!sapply(c("WeightIt"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(message = FALSE,
+                      fig.width = 5,
+                      eval = rlang::is_installed("WeightIt"))
 ```
 
-This is an introduction to the use of `cobalt` with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependent confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see @thoemmesPrimerInverseProbability2016, @vanderweeleCausalInferenceLongitudinal2016, @coleConstructingInverseProbability2008, or @robinsMarginalStructuralModels2000. The key issue addressed by this guide and `cobalt` in general is assessing balance before each treatment period to ensure the removal of confounding.
+This is an introduction to the use of *cobalt* with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependent confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see @thoemmesPrimerInverseProbability2016, @vanderweeleCausalInferenceLongitudinal2016, @coleConstructingInverseProbability2008, or @robinsMarginalStructuralModels2000. The key issue addressed by this guide and *cobalt* in general is assessing balance before each treatment period to ensure the removal of confounding.
 
-In preprocessing for MSMs, three types of variables are relevant: baseline covariates, treatments, and intermediate outcomes/time-varying covariates. The goal of balance assessment is to assess whether after preprocessing, the resulting sample is one in which each treatment is independent of baseline covariates, treatment history, and time-varying covariates. The tools in `cobalt` have been developed to satisfy these goals.
+In preprocessing for MSMs, three types of variables are relevant: baseline covariates, treatments, and intermediate outcomes/time-varying covariates. The goal of balance assessment is to assess whether after preprocessing, the resulting sample is one in which each treatment is independent of baseline covariates, treatment history, and time-varying covariates. The tools in *cobalt* have been developed to satisfy these goals.
 
-The next section describe how to use `cobalt`'s tools to assess balance with longitudinal treatments. First, we'll examine an example data set and identify some tools that can be used to generate weights for MSMs. Next we'll use `bal.tab()`, `bal.plot()`, and `love.plot()` to assess and present balance.
+The next section describe how to use *cobalt*'s tools to assess balance with longitudinal treatments. First, we'll examine an example data set and identify some tools that can be used to generate weights for MSMs. Next we'll use `bal.tab()`, `bal.plot()`, and `love.plot()` to assess and present balance.
 
 ## Setup
 
-We're going to use the `msmdata` data set in the `WeightIt` package.
+We're going to use the `msmdata` data set in the *WeightIt* package.
 
 ```{r}
 library("cobalt")
+library("WeightIt")
 data("msmdata", package = "WeightIt")
 head(msmdata)
 ```
@@ -48,15 +50,15 @@ Note these conditions are different from and weaker than those described by @jac
 
 ## `bal.tab()`
 
-To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the `WeightIt` input seen above. The data frame interface requires a list of treatment values for each time point and a data frame or list of covariates for each time point. We'll use the formula interface here.
+To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the *WeightIt* input seen above. The data frame interface requires a list of treatment values for each time point and a data frame or list of covariates for each time point. We'll use the formula interface here.
 
 ```{r}
 bal.tab(list(A_1 ~ X1_0 + X2_0,
              A_2 ~ X1_1 + X2_1 +
-                 A_1 + X1_0 + X2_0,
+               A_1 + X1_0 + X2_0,
              A_3 ~ X1_2 + X2_2 +
-                 A_2 + X1_1 + X2_1 +
-                 A_1 + X1_0 + X2_0),
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0),
         data = msmdata)
 ```
 
@@ -65,10 +67,10 @@ Here we see a summary of balance across all time points. This displays each vari
 ```{r}
 bal.tab(list(A_1 ~ X1_0 + X2_0,
              A_2 ~ X1_1 + X2_1 +
-                 A_1 + X1_0 + X2_0,
+               A_1 + X1_0 + X2_0,
              A_3 ~ X1_2 + X2_2 +
-                 A_2 + X1_1 + X2_1 +
-                 A_1 + X1_0 + X2_0),
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0),
         data = msmdata,
         which.time = .all)
 ```
@@ -77,18 +79,16 @@ Here we see balance by time point. At each time point, a `bal.tab` object is pro
 
 This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary or for multiply imputed data, no balance summary will be computed or displayed.
 
-To estimate the weights, we'll use `WeightIt::weightitMSM()` to fit a series of logistic regressions that generate the weights. See the `WeightIt` documentation for more information on how to use `WeightIt` with longitudinal treatments.
+To estimate the weights, we'll use `WeightIt::weightitMSM()` to fit a series of logistic regressions that generate the weights. See the *WeightIt* documentation for more information on how to use *WeightIt* with longitudinal treatments.
 
 ```{r}
-Wmsm <- WeightIt::weightitMSM(
-    list(A_1 ~ X1_0 + X2_0,
-         A_2 ~ X1_1 + X2_1 +
-             A_1 + X1_0 + X2_0,
-         A_3 ~ X1_2 + X2_2 +
-             A_2 + X1_1 + X2_1 +
-             A_1 + X1_0 + X2_0),
-    data = msmdata,
-    method = "glm")
+Wmsm <- weightitMSM(list(A_1 ~ X1_0 + X2_0,
+                         A_2 ~ X1_1 + X2_1 +
+                           A_1 + X1_0 + X2_0,
+                         A_3 ~ X1_2 + X2_2 +
+                           A_2 + X1_1 + X2_1 +
+                           A_1 + X1_0 + X2_0),
+                    data = msmdata)
 ```
 
 We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `un = TRUE` would produce balance statistics before adjustment, like we did before. We'll set `which.time = .all` and `msm.summary = TRUE` to see balance for each time point and across time points.
@@ -134,8 +134,8 @@ love.plot(Wmsm, binary = "std", which.time = .all)
 
 ## Other Packages
 
-Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the `CBPS` package and `iptw` objects from the `twang` package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights, or they can use the default method of `bal.tab()` to supply an object containing any of the objects required for balance assessment.
+Here we used *WeightIt* to generate our MSM weights, but *cobalt* is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the *CBPS* package and `iptw` objects from the *twang* package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights, or they can use the default method of `bal.tab()` to supply an object containing any of the objects required for balance assessment.
 
-Note that `CBPS` estimates and assesses balance on MSM weights differently from `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the similarity to sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
+Note that *CBPS* estimates and assesses balance on MSM weights differently from *twang* and *cobalt*. Its focus is on ensuring balance across all treatment history permutations, whereas *cobalt* focuses on evaluating the similarity to sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
 
 ## References

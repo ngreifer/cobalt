@@ -17,24 +17,27 @@ link-citations: true
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(message = FALSE, fig.width=6, fig.height = 4)
-if (any(!sapply(c("WeightIt", "CBPS"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(message = FALSE,
+                      fig.width = 6,
+                      fig.height = 4,
+                      eval = rlang::is_installed("WeightIt"))
 ```
 
 This is a guide on how to use `love.plot()` to its fullest potential, taking advantage of all of its many options and features. Other vignettes have described the basics of `love.plot()`, but this guide goes more in depth. See the help file for `love.plot()` with `?love.plot` for the full documentation.
 
-This document will only go over the options for `love.plot()` with binary treatments. Many of the options apply to continuous and multi-category treatments and clustered and multiply imputed data as well. I'll use the Lalonde data and `WeightIt` for all examples. `WeightIt` performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.
+This document will only go over the options for `love.plot()` with binary treatments. Many of the options apply to continuous and multi-category treatments and clustered and multiply imputed data as well. I'll use the Lalonde data and *WeightIt* for all examples. *WeightIt* performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.
 
 First, let's load in the data set and estimate the weights.
 
 ```{r}
-library(cobalt)
+library("cobalt")
+library("WeightIt")
 data("lalonde", package = "cobalt")
 
-w.out1 <- WeightIt::weightit(
-    treat ~ age + educ + married + nodegree + race + re74 + re75,
-    data = lalonde, estimand = "ATE",
-    method = "glm")
+w.out1 <- weightit(treat ~ age + educ + married + nodegree +
+                     race + re74 + re75,
+                   data = lalonde,
+                   estimand = "ATE")
 ```
 
 Next, because in this example we want to display standardized mean difference for all of the covariates, let's set the global `binary` option to `"std"` so we don't have to type it every time.
@@ -43,7 +46,7 @@ Next, because in this example we want to display standardized mean difference fo
 set.cobalt.options(binary = "std")
 ```
 
-The most basic way to use `love.plot()` is simply to call it as you would `bal.tab()` on the output of the preprocessing function (in this case, `weightit`).
+The most basic way to use `love.plot()` is simply to call it as you would `bal.tab()` on the output of the preprocessing function (in this case, *WeightIt*).
 
 ```{r}
 love.plot(w.out1)
@@ -51,14 +54,17 @@ love.plot(w.out1)
 
 We could also have supplied other arguments that would normally go in `bal.tab()`[^1]:
 
-[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stats = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or including `"variance.ratios"` in the `stats` argument in the call to `bal.tab` before entering its output into `love.plot`.
+[^1]: Older versions of *cobalt* required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stats = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or including `"variance.ratios"` in the `stats` argument in the call to `bal.tab` before entering its output into `love.plot`.
 
 ```{r, eval = FALSE}
 #This produces the same output as the prior block but with 
 #the additional covariates included in the formula.
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75 +
-            I(age^2) + I(educ^2), data = lalonde, weights = get.w(w.out1),
-          method = "weighting", estimand = "ATE")
+            I(age^2) + I(educ^2),
+          data = lalonde,
+          weights = get.w(w.out1),
+          method = "weighting",
+          estimand = "ATE")
 ```
 
 Let's start with some basic customizations. First, we'll remove the propensity score from the balance display by setting `drop.distance = TRUE`. We'll change the order the covariates so they are displayed in descending order of their unadjusted mean differences by setting `var.order = "unadjusted"`. We'll display the absolute mean difference by setting `abs = TRUE`. We'll also add some lines to make the change in balance clearer by setting `line = TRUE`. Finally, we'll add a threshold line at 0.1 by setting `thresholds = c(m = .1)`.
@@ -87,7 +93,7 @@ new.names <- c(age = "Age (Years)",
 )
 ```
 
-We'll change the colors of the points and lines with the `colors` argument so they aren't the `ggplot2` defaults. We'll also change the shape of the points to further clarify the different samples using the `shapes` argument.
+We'll change the colors of the points and lines with the `colors` argument so they aren't the *ggplot2* defaults. We'll also change the shape of the points to further clarify the different samples using the `shapes` argument.
 
 ```{r}
 love.plot(w.out1, 
@@ -101,7 +107,7 @@ love.plot(w.out1,
           shapes = c("triangle filled", "circle filled"))
 ```
 
-Finally, let's makes some changed to the legend. First, we'll rename the samples to be "Unweighted" and "PS Weighted" using the `sample.names` argument. Second, we'll change the plot limits to give more padding on the right side using the `limits` argument. Third, to save some space, we'll move the legend into the plot using the `position` argument, and we'll give it a border. We can do this last step using `ggplot2` syntax because the `love.plot` output is a `ggplot` object. We need to load in `ggplot2` first to do this.
+Finally, let's makes some changed to the legend. First, we'll rename the samples to be "Unweighted" and "PS Weighted" using the `sample.names` argument. Second, we'll change the plot limits to give more padding on the right side using the `limits` argument. Third, to save some space, we'll move the legend into the plot using the `position` argument, and we'll give it a border. We can do this last step using *ggplot2* syntax because the `love.plot` output is a `ggplot` object. We need to load in *ggplot2* first to do this.
 
 ```{r}
 library(ggplot2)
@@ -122,18 +128,21 @@ love.plot(w.out1,
         legend.box.margin = margin(1, 1, 1, 1))
 ```
 
-This is starting to look like a publication-ready plot. There are still other options you can change, such as the title, subtitle, and axis names, some of which can be done using `love.plot` arguments and others which require `ggplot2` code. Sizing the plot and making sure everything still looks good will be its own challenge, but that's true of all plots in R.
+This is starting to look like a publication-ready plot. There are still other options you can change, such as the title, subtitle, and axis names, some of which can be done using `love.plot` arguments and others which require *ggplot2* code. Sizing the plot and making sure everything still looks good will be its own challenge, but that's true of all plots in R.
 
 Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score [CBPS; @imaiCovariateBalancingPropensity2014] that is popular in political science. These can be easily added (but we'll have to use the formula interface to set multiple weights).
 
 ```{r}
-w.out2 <- WeightIt::weightit(
-    treat ~ age + educ + married + nodegree + race + re74 + re75,
-    data = lalonde, estimand = "ATE",
-    method = "cbps", over = TRUE)
+w.out2 <- weightit(treat ~ age + educ + married + nodegree +
+                     race + re74 + re75,
+                   data = lalonde,
+                   estimand = "ATE",
+                   method = "cbps",
+                   over = TRUE)
 
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
-          data = lalonde, estimand = "ATE",
+          data = lalonde,
+          estimand = "ATE",
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
           var.order = "unadjusted",
@@ -157,7 +166,8 @@ Perhaps balance on mean differences is not enough, and you want to display balan
 
 ```{r}
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
-          data = lalonde, estimand = "ATE",
+          data = lalonde,
+          estimand = "ATE",
           stats = "ks.statistics",
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
@@ -176,11 +186,12 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
         legend.box.margin = margin(1, 1, 1, 1))
 ```
 
-Below, we'll put two plots side-by-side, one for mean differences and one for KS statistics. This can be done by requesting multiple values for the `stats` argument (e.g., with `stats = c("mean.diffs", "ks.statistics")`). To reduce clutter, we'll remove the lines by setting `lines = FALSE`. To prevent the axis titles from bumping into each other, we'll set `wrap = 20`, where 20 is the number of characters at which to wrap to the next line. When `stats` has length greater than 1, the output is not longer a `ggplot` object and can't be manipulated using `ggplot2` syntax. This limits some of the options we have to customize it, but the available options using `love.plot()`'s syntax are still useful. We'll move the legend to the top of the plot to save space using the `position` argument. We can give the plots different limits by entering a named list into the `limits` argument. We can do the same for the `thresholds` argument. Finally, by setting `var.order = "unadjusted"`, we ensure that the variable order is the same in both plots (which it will be regardless) and ordered by the first balance statistic (in this case, mean differences).
+Below, we'll put two plots side-by-side, one for mean differences and one for KS statistics. This can be done by requesting multiple values for the `stats` argument (e.g., with `stats = c("mean.diffs", "ks.statistics")`). To reduce clutter, we'll remove the lines by setting `lines = FALSE`. To prevent the axis titles from bumping into each other, we'll set `wrap = 20`, where 20 is the number of characters at which to wrap to the next line. When `stats` has length greater than 1, the output is not longer a `ggplot` object and can't be manipulated using *ggplot2* syntax. This limits some of the options we have to customize it, but the available options using `love.plot()`'s syntax are still useful. We'll move the legend to the top of the plot to save space using the `position` argument. We can give the plots different limits by entering a named list into the `limits` argument. We can do the same for the `thresholds` argument. Finally, by setting `var.order = "unadjusted"`, we ensure that the variable order is the same in both plots (which it will be regardless) and ordered by the first balance statistic (in this case, mean differences).
 
 ```{r}
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
-          data = lalonde, estimand = "ATE",
+          data = lalonde,
+          estimand = "ATE",
           stats = c("mean.diffs", "ks.statistics"),
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
@@ -201,7 +212,8 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
 Below we recreate the plot in @westPropensityScoresBasis2014, which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to `labels` and by supplying a `theme` object to `themes`:
 
 ```{r}
-love.plot(w.out1, abs = FALSE,
+love.plot(w.out1,
+          abs = FALSE,
           stats = c("mean.diffs", "variance.ratios"),
           drop.distance = TRUE,
           var.names = new.names,

@@ -20,16 +20,16 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-gbm.ok <- requireNamespace("gbm", quietly = TRUE)
-weightit.ok <- requireNamespace("WeightIt", quietly = TRUE)
-br.ok <- requireNamespace("brglm2", quietly = TRUE)
+gbm.ok <- rlang::is_installed("gbm")
+weightit.ok <- rlang::is_installed("WeightIt")
+br.ok <- rlang::is_installed("brglm2")
 ```
 
 Part of using balancing methods, including matching, weighting, and subclassification, involves specifying a conditioning method, assessing balance after applying that method, and repeating until satisfactory balance is achieved. For example, in propensity score score subclassification, one needs to decide on the number of subclasses to use, and one way to do so is to try a number of of subclasses, assess balance after subclassification, try another number of subclasses, assess balance, and so on. As another example, in estimating the propensity score model itself, one might decided which covariates to include in the model (after deciding on a fixed set of covariates to balance), which covariates should have squares or interactions, and which link function (e.g., probit, logit) to use. Or choosing the number of matches each unit should receive in k:1 matching, or which value of the propensity score should be used to trim samples, etc.
 
 Essentially, these problems all involve selecting a specification by varying a number of parameters, which are sometimes called "tuning parameters", in order to optimize balance. Many popular methods adjust tuning parameters to optimize balance as inherent parts of the method, like genetic matching [@diamondGeneticMatchingEstimating2013], which tunes variance importance in the distance matrix, or generalized boosted modeling [@mccaffreyPropensityScoreEstimation2004], which tunes the number of trees in the prediction model for propensity scores. This strategy tends to yield methods that perform better than methods that don't tune at all or tune to optimize a criterion other than balance (e.g., prediction accuracy) [@griffinChasingBalanceOther2017, @pirracchioBalanceSuperLearner2018].
 
-As of version 4.5.0, `cobalt` provides the functions `bal.compute()` and `bal.init()` to aid in selecting these tuning parameters in an efficient way without needing to manually program the computation of the balance statistic used as the criterion to optimize. This vignette explains how to use these functions, describes the balance statistics that are available, and provides examples of using these functions to implement new and existing balancing methods yourself. These functions are primarily for use inside other packages but may be useful to users experimenting with new methods. For a complete way to assess balance for a single specification, users should use `bal.tab()` and `bal.plot()` instead.
+As of version 4.5.0, *cobalt* provides the functions `bal.compute()` and `bal.init()` to aid in selecting these tuning parameters in an efficient way without needing to manually program the computation of the balance statistic used as the criterion to optimize. This vignette explains how to use these functions, describes the balance statistics that are available, and provides examples of using these functions to implement new and existing balancing methods yourself. These functions are primarily for use inside other packages but may be useful to users experimenting with new methods. For a complete way to assess balance for a single specification, users should use `bal.tab()` and `bal.plot()` instead.
 
 ## `bal.compute()` and `bal.init()`
 
@@ -74,13 +74,15 @@ bal.tab(covs,
 
 We can see that the largest value corresponds to the covariate `married`.
 
-Now, lets estimate weights using probit regression propensity scores in `WeightIt` and see whether this balance statistic decreases after applying the weights:
+Now, lets estimate weights using probit regression propensity scores in *WeightIt* and see whether this balance statistic decreases after applying the weights:
 
 ```{r, eval = weightit.ok}
 library("WeightIt")
 w.out <- weightit(treat ~ age + educ + married + nodegree +
-                      re74 + re75, data = lalonde,
-                  method = "glm", estimand = "ATT",
+                    re74 + re75,
+                  data = lalonde,
+                  method = "glm",
+                  estimand = "ATT",
                   link = "probit")
 
 # Compute the balance statistic on the estimated weights
@@ -91,8 +93,10 @@ After weighting, our balance statistic is `r if (weightit.ok) round(bal.compute(
 
 ```{r, eval = weightit.ok}
 w.out <- weightit(treat ~ age + educ + married + nodegree +
-                      re74 + re75, data = lalonde,
-                  method = "glm", estimand = "ATT",
+                    re74 + re75,
+                  data = lalonde,
+                  method = "glm",
+                  estimand = "ATT",
                   link = "logit")
 
 # Compute the balance statistic on the estimated weights
@@ -103,8 +107,10 @@ This is better, but we can do even better with bias-reduced logistic regression 
 
 ```{r, eval = weightit.ok && br.ok}
 w.out <- weightit(treat ~ age + educ + married + nodegree +
-                      re74 + re75, data = lalonde,
-                  method = "glm", estimand = "ATT",
+                    re74 + re75,
+                  data = lalonde,
+                  method = "glm",
+                  estimand = "ATT",
                   link = "br.logit")
 
 # Compute the balance statistic on the estimated weights
@@ -127,11 +133,13 @@ links <- c("probit", "logit", "cloglog",
 # Apply each link to estimate weights
 # Can replace sapply() with purrr::map()
 weights.list <- sapply(links, function(link) {
-    w.out <- weightit(treat ~ age + educ + married + nodegree +
-                      re74 + re75, data = lalonde,
-                  method = "glm", estimand = "ATT",
-                  link = link)
-    get.w(w.out)
+  weightit(treat ~ age + educ + married + nodegree +
+             re74 + re75,
+           data = lalonde,
+           method = "glm",
+           estimand = "ATT",
+           link = link) |>
+    get.w()
 }, simplify = FALSE)
 
 # Use each set of weights to compute balance
@@ -175,9 +183,11 @@ The mean, maximum, or root-mean-squared overlapping coefficient compliment, comp
 
 #### `mahalanobis`
 
-The Mahalanobis distance between the treatment group means, which is computed as $$
+The Mahalanobis distance between the treatment group means, which is computed as
+$$
 \sqrt{(\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0) \Sigma^{-1} (\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0)}
-$$ where $\mathbf{\bar{x}}_1$ and $\mathbf{\bar{x}}_0$ are the vectors of covariate means in the two treatment groups, $\Sigma^-1$ is the (generalized) inverse of the covariance matrix of the covariates [@franklinMetricsCovariateBalance2014]. This is similar to `"smd.rms"` but the covariates are standardized to remove correlations between and de-emphasize redundant covariates. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, which determines how the covariance matrix is calculated, and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments and for target balance.
+$$
+where $\mathbf{\bar{x}}_1$ and $\mathbf{\bar{x}}_0$ are the vectors of covariate means in the two treatment groups, $\Sigma^-1$ is the (generalized) inverse of the covariance matrix of the covariates [@franklinMetricsCovariateBalance2014]. This is similar to `"smd.rms"` but the covariates are standardized to remove correlations between and de-emphasize redundant covariates. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, which determines how the covariance matrix is calculated, and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments and for target balance.
 
 #### `energy.dist`
 
@@ -215,10 +225,10 @@ For binary and multi-category treatments, only `"energy.dist"`, `"kernel.dist"`,
 
 ## Example
 
-In this section, I will provide an example that demonstrates how these functions could be used to replicate the functionality of existing packages or develop new methods for optimizing balance. We will use these functions to replicate the functionality of `WeightIt` and `twang` for estimating propensity score weights for a binary treatment using generalized boosted modeling (GBM). See `help("bal.compute")` for another example that optimizes balance to find the number of subclasses in propensity score subclassification.
+In this section, I will provide an example that demonstrates how these functions could be used to replicate the functionality of existing packages or develop new methods for optimizing balance. We will use these functions to replicate the functionality of *WeightIt* and *twang* for estimating propensity score weights for a binary treatment using generalized boosted modeling (GBM). See `?bal.compute` for another example that optimizes balance to find the number of subclasses in propensity score subclassification.
 
 ### Tuning GBM for balance
-GBM has many tuning parameters that can be optimized, but the key parameter is the number of trees to use to calculate the predictions. `WeightIt` and `twang` both implement the methods described in @mccaffreyPropensityScoreEstimation2004 for selecting the number of trees using a balance criterion. Here, we will do so manually both to understand the internals of these functions and illustrate the uses of `bal.compute()` and `bal.init()` to select the ideal number of trees for propensity score weighting with a binary treatment.
+GBM has many tuning parameters that can be optimized, but the key parameter is the number of trees to use to calculate the predictions. *WeightIt* and *twang* both implement the methods described in @mccaffreyPropensityScoreEstimation2004 for selecting the number of trees using a balance criterion. Here, we will do so manually both to understand the internals of these functions and illustrate the uses of `bal.compute()` and `bal.init()` to select the ideal number of trees for propensity score weighting with a binary treatment.
 
 ```{r, eval = gbm.ok}
 data("lalonde")
@@ -230,7 +240,7 @@ ks.init <- bal.init(covs,
                     stat = "ks.max",
                     estimand = "ATT")
 
-# Fit a GBM model using `WeightIt` and `twang` defaults
+# Fit a GBM model using *WeightIt* and `twang` defaults
 fit <- gbm::gbm(treat ~ age + educ + married + race +
                     nodegree + re74 + re75,
                 data = lalonde,
@@ -263,7 +273,7 @@ ggplot() +
     labs(y = "ks.max", x = "n.trees")
 ```
 
-Let's compare this to the output of `WeightIt`:
+Let's compare this to the output of *WeightIt*:
 
 ```{r, warning=FALSE, eval = weightit.ok && gbm.ok}
 library("WeightIt")
