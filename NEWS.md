@@ -1,5 +1,11 @@
-`cobalt` News and Updates
+*cobalt* News and Updates
 ======
+
+# cobalt 4.6.2
+
+* Fixed documentation issue when a package isn't available.
+
+* Converted all condition messages to use *cli*, which is now a dependency.
 
 # cobalt 4.6.1
 

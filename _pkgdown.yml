@@ -3,8 +3,8 @@ template:
   math-rendering: mathjax
   bslib:
     primary: "#1B43A8"
-remote_theme: wowchemy/starter-hugo-academic
 url: https://ngreifer.github.io/cobalt/
+
 reference:
 - title: Primary Balance Assessment Functions
 - contents:
