@@ -1351,7 +1351,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   attr(p, "plots") <- plot.list
   
-  invisible(set_class(p, "love.plot", .replace = FALSE, .last = FALSE))
+  set_class(p, "love.plot", .replace = FALSE, .last = FALSE)
 }
 
 #' @exportS3Method autoplot bal.tab

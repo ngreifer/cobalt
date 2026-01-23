@@ -527,7 +527,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       if (anyNA(which.sub)) which.sub <- which.sub[!is.na(which.sub)]
       
       if (is_null(which.sub)) {
-        .err("the argument to {.arg which.sub} cannot be {.code .none} or {.code NA} when {.code which = {which}}")
+        .err("the argument to {.arg which.sub} cannot be {.val {quote(.none)}} or {.val {NA}} when {.code which = {which}}")
       }
       
       if (is.character(which.sub)) {
@@ -538,7 +538,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       
       if (is_null(which.sub)) {
-        .err("the argument to {.arg which.sub} must be {.code .none}, {.code .all}, or the valid names or indices of subclasses")
+        .err("the argument to {.arg which.sub} must be {.val {quote(.none)}}, {.val {quote(.all)}}, or the valid names or indices of subclasses")
       }
       
       if (!all(which.sub.original %in% which.sub)) {
@@ -758,21 +758,28 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     else { #Continuous vars
       
       type <- match_arg(type, c("histogram", "density", "ecdf"))
+      .chk_flag(mirror)
       
       if (type %in% c("ecdf")) {
-        mirror <- FALSE
+        if (mirror) {
+          .wrn('{.arg mirror} is ignored when {.code type = "ecdf"}')
+          mirror <- FALSE
+        }
         alpha <- 1
         legend.alpha <- alpha
         expandScale <- ggplot2::expansion(mult = .005)
       }
-      else if (nlevels.treat <= 2L && isTRUE(mirror)) {
+      else if (nlevels.treat <= 2L && mirror) {
         posneg <- c(1, -1)
         alpha <- .8
         legend.alpha <- alpha
         expandScale <- ggplot2::expansion(mult = .05)
       }
       else {
-        mirror <- FALSE
+        if (mirror) {
+          .wrn('{.arg mirror} is ignored with multi-category treatments')
+          mirror <- FALSE
+        }
         posneg <- rep.int(1, nlevels.treat)
         alpha <- .4
         legend.alpha <- alpha / nlevels.treat
@@ -895,10 +902,20 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         bp <- bp + ggplot2::geom_hline(yintercept = 0)
       }
       
+      has_fill <- type != "ecdf"
+      has_color <- type == "ecdf"
+      
       bp <- bp + 
-        ggplot2::labs(x = var.name, y = ylab, title = title, subtitle = subtitle,
-                      fill = "Treatment", color = "Treatment") + 
+        ggplot2::labs(x = var.name, y = ylab, title = title, subtitle = subtitle) +
         ggplot2::scale_y_continuous(expand = expandScale)
+      
+      if (has_fill) {
+        bp <- bp + ggplot2::labs(fill = "Treatment")
+      }
+      
+      if (has_color) {
+        bp <- bp + ggplot2::labs(color = "Treatment")
+      }
     }
   }
   
