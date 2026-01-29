@@ -8,14 +8,16 @@
 #' 
 #' @inherit bal.tab.Match return
 #' 
-#' @details `bal.tab()` generates a list of balance summaries for the object given, and functions similarly to \pkgfun{designmatch}{meantab}. Note that output objects from \pkg{designmatch} do not have their own class; `bal.tab()` first checks whether the object meets the criteria to be treated as a `designmatch` object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.
+#' @details
+#' `bal.tab()` generates a list of balance summaries for the object given, and functions similarly to \pkgfun{designmatch}{meantab}. Note that output objects from \pkg{designmatch} do not have their own class; `bal.tab()` first checks whether the object meets the criteria to be treated as a `designmatch` object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.
 #' 
 #' The input to `bal.tab.designmatch()` must include either both `formula` and `data` or both `covs` and `treat`. Using the `covs` + `treat` input mirrors how \pkgfun{designmatch}{meantab} is used (note that to see identical results to `meantab()`, `s.d.denom` must be set to `"pooled"`).
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
 #' @examplesIf rlang::is_installed("designmatch")
-#' \donttest{library(designmatch)
+#' \dontrun{
+#' library(designmatch)
 #' data("lalonde", package = "cobalt")
 #' 
 #' covariates <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])

@@ -20,7 +20,7 @@
 #' * [bal.tab()] for details of calculations
 #' * [bal.tab.matchit()] and [bal.tab.weightit()]
 #' 
-#' @examplesIf all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), rlang::is_installed))
+#' @examplesIf rlang::is_installed(c("mice", "MatchThem", "MatchIt", "WeightIt"))
 #' library(MatchThem)
 #' 
 #' data("lalonde_mis", package = "cobalt")
@@ -56,7 +56,6 @@ bal.tab.mimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
   args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
-  
   args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
   
   #Initializing variables

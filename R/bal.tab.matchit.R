@@ -52,7 +52,6 @@ bal.tab.matchit <- function(x,
   args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
-  
   args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
   args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
   

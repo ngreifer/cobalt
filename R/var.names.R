@@ -1,4 +1,4 @@
-#' @title Extract Variable Names from `bal.tab` Objects
+#' Extract Variable Names from `bal.tab` Objects
 #' 
 #' @description This function extracts variable names from a `bal.tab` object for use in specifying alternate variable names in [love.plot()]. Optionally, a file can be written for easy editing of names.
 #' 

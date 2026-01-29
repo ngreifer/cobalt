@@ -50,15 +50,15 @@ love.plot(
 
 \item{line}{\code{logical}; whether to display a line connecting the points for each sample.}
 
-\item{stars}{when mean differences are to be displayed, which variable names should have a star (i.e., an asterisk) next to them. Allowable values are "none", "std" (for variables with mean differences that have been standardized), or "raw" (for variables with mean differences that have not been standardized). If "raw", the x-axis title will be "Standardized Mean Differences". Otherwise, it will be "Mean Differences". Ignored when mean difference are not displayed. See Details for an explanation of the purpose of this option.}
+\item{stars}{when mean differences are to be displayed, which variable names should have a star (i.e., an asterisk) next to them. Allowable values are \code{"none"}, \code{"std"} (for variables with mean differences that have been standardized), or \code{"raw"} (for variables with mean differences that have not been standardized). If "raw", the x-axis title will be "Standardized Mean Differences". Otherwise, it will be "Mean Differences". Ignored when mean difference are not displayed. See Details for an explanation of the purpose of this option.}
 
 \item{grid}{\code{logical}; whether gridlines should be shown on the plot. Default is \code{FALSE}.}
 
 \item{limits}{\code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits; e.g., \code{list(m = c(-.2, .2))}. If values exceed the limits, they will be plotted at the edge.}
 
-\item{colors}{the colors of the points on the plot. See 'Color Specification' at \code{\link[graphics:par]{graphics::par()}} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.}
+\item{colors}{the colors of the points on the plot. See 'Color Specification' at \code{\link[graphics:par]{graphics::par()}} or the \pkg{ggplot2} aesthetic specifications vignette (\code{vignette("ggplot2-specs")}). The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.}
 
-\item{shapes}{the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (\code{"circle filled"}).}
+\item{shapes}{the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \pkg{ggplot2} aesthetic specifications vignette (\code{vignette("ggplot2-specs")}) for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (\code{"circle filled"}).}
 
 \item{alpha}{\code{numeric}; the transparency of the points. See \code{\link[ggplot2:scale_alpha]{ggplot2::scale_alpha()}}.}
 
@@ -74,7 +74,7 @@ love.plot(
 
 \item{labels}{\code{logical} or \code{character}; labels to give the plots when multiple \code{stats} are requested. If \code{TRUE}, the labels will be capital letters. Otherwise, must be a string with the same length as \code{stats}. This can be useful when the plots are to be used in an article.}
 
-\item{position}{the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2:theme]{ggplot2::theme()}}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".}
+\item{position}{the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2:theme]{ggplot2::theme()}}. When \code{stat} has length greater than 1, can be one of \code{"none"}, \code{"left"}, \code{"right"}, \code{"bottom"}, or \code{"top"}.}
 
 \item{themes}{an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \code{\link[ggplot2:theme]{ggplot2::theme()}} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can be used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.}
 
@@ -100,9 +100,9 @@ Generates a "Love" plot graphically displaying covariate balance before and afte
 With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot.
 \subsection{Variable order using \code{var.order}}{
 
-The order that the variables are presented in depends on the argument to \code{var.order}. If \code{NULL}, the default, they will be displayed in the same order as in the call to \code{bal.tab()}, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. To order by the values of the adjusted sample, "adjusted" can be supplied if only one set of weights (or subclasses) are specified; otherwise, the name of the set of weights should be specified.
+The order that the variables are presented in depends on the argument to \code{var.order}. If \code{NULL}, the default, they will be displayed in the same order as in the call to \code{bal.tab()}, which is the order of the underlying data set. If \code{"alphabetical"}, they will be displayed in alphabetical order. If \code{"unadjusted"}, they will be ordered by the balance statistic of the unadjusted sample. To order by the values of the adjusted sample, \code{"adjusted"} can be supplied if only one set of weights (or subclasses) are specified; otherwise, the name of the set of weights should be specified.
 
-If multiple \code{stats} are requested, the order will be determined by the first entry to \code{stats} (e.g., if both "mean.diffs" and "ks.statistics" are requested, and \code{var.order = "unadjusted"}, the variables will be displayed in order of the unadjusted mean differences for both plots). If multiple plots are produced simultaneously (i.e., for individual clusters or imputations), \code{var.order} can only be \code{NULL} or "alphabetical".
+If multiple \code{stats} are requested, the order will be determined by the first entry to \code{stats}; for example, if both \code{"mean.diffs"} and \code{"ks.statistics"} are requested and \code{var.order = "unadjusted"}, the variables will be displayed in order of the unadjusted mean differences for both plots. If multiple plots are produced simultaneously (i.e., for individual clusters or imputations), \code{var.order} can only be \code{NULL} or \code{"alphabetical"}.
 
 If a \code{love.plot} object is supplied, the plot being drawn will use the variable order in the supplied \code{love.plot} object. This can be useful when making more than one plot and the variable order should be the same across plots.
 }

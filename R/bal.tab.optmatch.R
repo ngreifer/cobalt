@@ -1,4 +1,5 @@
-#' @title Balance Statistics for `optmatch` Objects
+#' Balance Statistics for `optmatch` Objects
+#' 
 #' @description Generates balance statistics for output objects from \pkg{optmatch}.
 #' 
 #' @inheritParams bal.tab.Match
@@ -8,7 +9,8 @@
 #' 
 #' @inherit bal.tab.Match return
 #' 
-#' @details `bal.tab()` generates a list of balance summaries for the object given. The input to `bal.tab.optmatch()` must include either both `formula` and `data` or just `covs` (`treat` is not necessary).
+#' @details
+#' `bal.tab()` generates a list of balance summaries for the object given. The input to `bal.tab.optmatch()` must include either both `formula` and `data` or just `covs` (`treat` is not necessary).
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
@@ -37,7 +39,6 @@ bal.tab.optmatch <- function(x, formula = NULL, data = NULL, treat = NULL, covs 
   args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
-  
   args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
   args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
   

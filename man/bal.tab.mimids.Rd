@@ -77,7 +77,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
 \code{bal.tab.mimids()} and \code{bal.tab.wimids()} generate a list of balance summaries for the \code{mimids} or \code{wimids} object given.
 }
 \examples{
-\dontshow{if (all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), rlang::is_installed))) withAutoprint(\{ # examplesIf}
+\dontshow{if (rlang::is_installed(c("mice", "MatchThem", "MatchIt", "WeightIt"))) withAutoprint(\{ # examplesIf}
 library(MatchThem)
 
 data("lalonde_mis", package = "cobalt")

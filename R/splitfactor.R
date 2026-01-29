@@ -1,4 +1,4 @@
-#' @title Split and Unsplit Factors into Dummy Variables
+#' Split and Unsplit Factors into Dummy Variables
 #' 
 #' @description `splitfactor()` splits factor variables into dummy (0/1) variables. This can be useful when functions do not process factor variables well or require numeric matrices to operate. `unsplitfactor()` combines dummy variables into factor variables, undoing the operation of `splitfactor()`.
 #' 
@@ -15,9 +15,11 @@
 #' @param dropped.level The value of each original factor variable whose dummy was dropped when the variable was split. If left empty and a dummy was dropped, the resulting factor will have the value `NA` instead of the dropped value. There should be one entry per variable to unsplit. If no dummy was dropped for a variable, an entry is still required, but it will be ignored.
 #' @param dropped.na If `TRUE`, will assume that `NA`s in the variables to be unsplit correspond to `NA` in the unsplit factor (i.e., that `drop.na = TRUE` was specified in `split.factor()`). If `FALSE`, will assume there is a dummy called "var.name_stem_NA" (e.g., "x_NA") that contains 1s where the unsplit factor should be `NA` (i.e., that `drop.na = FALSE` was specified in `split.factor()`. If `NA`s are stored in a different column with the same stem, e.g., "x_miss", that name (e.g., "miss") can be entered instead.
 #' 
-#' @returns For `splitfactor()`, a `data.frame` containing the original data set with the newly created dummies. For `unsplitfactor()`. a `data.frame` containing the original data set with the newly created factor variables.
+#' @returns
+#' For `splitfactor()`, a `data.frame` containing the original data set with the newly created dummies. For `unsplitfactor()`. a `data.frame` containing the original data set with the newly created factor variables.
 #' 
-#' @details If there are `NA`s in the variable to be split, the new variables created by `splitfactor()` will have `NA` where the original variable is `NA`.
+#' @details
+#' If there are `NA`s in the variable to be split, the new variables created by `splitfactor()` will have `NA` where the original variable is `NA`.
 #' 
 #' When using `unsplitfactor()` on a `data.frame` that was generated with `splitfactor()`, the arguments `dropped.na`, and `sep` are unnecessary.
 #' 
@@ -50,7 +52,7 @@
 #' attr(lalonde.split, "split.with")
 #' 
 #' 
-#' @rdname splitfactor
+
 #' @export 
 splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
                         drop.singleton = FALSE, drop.na = TRUE, sep = "_",
@@ -311,9 +313,10 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
   data
 }
 
-#' @export
 #' @rdname splitfactor
-unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRUE, sep = "_", replace = TRUE) {
+#' @export
+unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRUE,
+                          sep = "_", replace = TRUE) {
   
   if (!is.data.frame(data)) {
     .err("{.arg data} must be a data.frame containing the variables to unsplit")

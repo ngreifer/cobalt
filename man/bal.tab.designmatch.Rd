@@ -92,7 +92,8 @@ The input to \code{bal.tab.designmatch()} must include either both \code{formula
 }
 \examples{
 \dontshow{if (rlang::is_installed("designmatch")) withAutoprint(\{ # examplesIf}
-\donttest{library(designmatch)
+\dontrun{
+library(designmatch)
 data("lalonde", package = "cobalt")
 
 covariates <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])

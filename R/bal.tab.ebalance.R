@@ -1,4 +1,5 @@
-#' @title Balance Statistics for `ebalance` Objects
+#' Balance Statistics for `ebalance` Objects
+#' 
 #' @description Generates balance statistics for output objects from \pkg{ebal}.
 #' 
 #' @inheritParams bal.tab.Match
@@ -7,7 +8,8 @@
 #' 
 #' @inherit bal.tab.Match return
 #' 
-#' @details `bal.tab()` generates a list of balance summaries for the object given. The input to `bal.tab.ebalance()` must include either both `formula` and `data` or both `covs` and `treat`.
+#' @details
+#' `bal.tab()` generates a list of balance summaries for the object given. The input to `bal.tab.ebalance()` must include either both `formula` and `data` or both `covs` and `treat`.
 #' 
 #' @inherit bal.tab.Match seealso
 #' 

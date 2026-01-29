@@ -37,7 +37,9 @@
 #' @param integrate `logical`; for `col_w_ovl()`, whether to use [integrate()] to calculate the area of overlap for continuous variables. If `FALSE`, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When `TRUE`, `integrate()` will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (`TRUE`) is to use `integrate()` when possible.
 #' @param steps for `col_w_ovl()` when `integrate = FALSE`, the number of points to use to compute the Riemann sum to approximate the integral. Default is 1001 for 1000 partitions.
 #' @param ... for all functions, additional arguments supplied to [splitfactor()] when `mat` is a data.frame. `data`, `var.name`, `drop.first`, and `drop.level` are ignored; `drop.first` is automatically set to `"if2"`. For `col_w_ovl()`, other arguments passed to [density()] besides `x` and `weights`. Note that the default value for `bw` when unspecified is `"nrd"` rather than the default in `density()`, which is `"nrd0"`.
-#' @returns A vector of balance statistics, one for each variable in `mat`. If `mat` has column names, the output will be named as well.
+#' 
+#' @returns
+#' A vector of balance statistics, one for each variable in `mat`. If `mat` has column names, the output will be named as well.
 #' 
 #' @details
 #' `col_w_mean()` computes column weighted means for a matrix of variables. It is similar to [colMeans()] but (optionally) incorporates weights. `weights` and `s.weights` are multiplied together prior to being used, and there is no distinction between them. This could be used to compute the weighted means of each covariate in the general population to examine the degree to which a weighting method has left the weighted samples resembling the original population.
@@ -74,6 +76,7 @@
 #' * [bal.tab()]
 #' * [bal.compute()]
 #' * [balance-statistics]
+#' 
 #' @examplesIf rlang::is_installed("WeightIt")
 #' data("lalonde", package = "cobalt")
 #' 
@@ -128,7 +131,7 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
   weights <- weights * s.weights
   
   if (all(weights == 0)) {
-    .err("at least 1 unit must have a nonzero weight to compute weighted means")
+    .err("at least one unit must have a nonzero weight to compute weighted means")
   }
   
   col.w.m(mat[subset, , drop = FALSE], w = weights[subset], na.rm = na.rm)
@@ -152,7 +155,7 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
   weights <- weights * s.weights
   
   if (sum(weights != 0) < 2L) {
-    .err("at least 2 units must have nonzero weights to compute weighted standard deviations")
+    .err("at least two units must have nonzero weights to compute weighted standard deviations")
   }
   
   sqrt(col.w.v(mat[subset, , drop = FALSE], w = weights[subset], 
@@ -200,7 +203,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
   
   if (all(weights[treat == tval1_0] == 0) || 
       all(weights[treat != tval1_0] == 0)) {
-    .err("at least 1 unit in each level of {.arg treat} must have a nonzero weight to compute weighted SMDs")
+    .err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted SMDs")
   }
   
   m1 <- col.w.m(mat[treat == tval1_0 & subset, , drop = FALSE], weights[treat == tval1_0 & subset], na.rm = na.rm)
@@ -279,7 +282,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
   
   if (sum(weights[treat == tval1_0] != 0) < 2L || 
       sum(weights[treat != tval1_0] != 0) < 2L) {
-    .err("at least 2 units in each level of {.arg treat} must have nonzero weights to compute weighted variance ratios")
+    .err("at least two units in each level of {.arg treat} must have nonzero weights to compute weighted variance ratios")
   }
   
   v1 <- col.w.v(mat[treat == tval1_0, , drop = FALSE], weights[treat == tval1_0],
@@ -341,7 +344,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
   
   if (all(weights[treat == tval1] == 0) || 
       all(weights[treat != tval1] == 0)) {
-    .err("at least 1 unit in each level of {.arg treat} must have a nonzero weight to compute weighted KS statistics")
+    .err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted KS statistics")
   }
   
   if (!all(bin.vars)) {
@@ -408,7 +411,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   
   if (all(weights[treat == tval1] == 0) || 
       all(weights[treat != tval1] == 0)) {
-    .err("at least 1 unit in each level of {.arg treat} must have a nonzero weight to compute weighted OVL statistics")
+    .err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted OVL statistics")
   }
   
   if (check_if_zero(sum(weights[treat == tval1])) || 
@@ -573,7 +576,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
   weights <- weights * s.weights
   
   if (sum(weights != 0) <= 1) {
-    .err("at least 2 units must have nonzero weights to compute weighted covariances")
+    .err("at least two units must have nonzero weights to compute weighted covariances")
   }
   
   covars <- col.w.cov(mat[subset, , drop = FALSE], y = treat[subset],
@@ -682,6 +685,7 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
     dvarX <- switch(s.d.denom,
                     "all" = drop(t(s.weights) %*% (XX^2) %*% s.weights),
                     "weighted" = drop(t(weighted.weights) %*% (XX^2) %*% weighted.weights))
+    
     sqrt(drop(t(weights) %*% (XX * AA) %*% weights) / sqrt(dvarX * dvarA))
   }, numeric(1L))
   
@@ -785,7 +789,6 @@ process_mat2 <- function(mat, ..., .bin.vars) {
   }
   
   if (is.logical(bin.vars)) {
-    
     if (length(bin.vars) != ncol(mat)) {
       .err("if {.arg bin.vars} is logical, it must have length equal to the number of columns of {.arg mat}")
     }

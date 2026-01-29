@@ -124,7 +124,8 @@ base.bal.tab.cluster <- function(X,
   
   #Create summary of lists
   
-  if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
+  if ((cluster.summary || !A$quick) && is_null(X$covs.list) &&
+      get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
     out[["Balance.Across.Clusters"]] <- balance_summary(out[["Cluster.Balance"]], 
                                                         agg.funs = agg.fun %or% c("min", "mean", "max"))
     

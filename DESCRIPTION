@@ -32,7 +32,6 @@ Suggests:
     optmatch,
     ebal,
     CBPS (>= 0.17),
-    designmatch,
     optweight,
     mice (>= 3.8.0),
     MatchThem (>= 0.9.3),
