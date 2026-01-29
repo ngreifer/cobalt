@@ -248,6 +248,7 @@ for details of calculations.
 
 ``` r
 if (FALSE) { # rlang::is_installed("designmatch")
+if (FALSE) { # \dontrun{
 library(designmatch)
 data("lalonde", package = "cobalt")
 
@@ -262,6 +263,6 @@ dmout <- bmatch(treat,
 
 ## Using treat and covs
 bal.tab(dmout, treat = treat, covs = covariates)
-
+} # }
 }
 ```

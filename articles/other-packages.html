@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2026-01-23</h4>
+            <h4 data-toc-skip class="date">2026-01-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/other-packages.Rmd" class="external-link"><code>vignettes/other-packages.Rmd</code></a></small>
       <div class="d-none name"><code>other-packages.Rmd</code></div>
@@ -784,26 +784,27 @@ compatible with the <code>default</code> method of
 <span></span>
 <span><span class="co">#Note the contents of the output object:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ow.out</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##  [1] "weights"   "treat"     "covs"      "s.weights" "b.weights" "estimand" </span></span>
-<span><span class="co">##  [7] "focal"     "norm"      "call"      "tols"      "duals"     "info"</span></span></code></pre>
+<pre><code><span><span class="co">##  [1] "weights"     "treat"       "covs"        "s.weights"   "b.weights"  </span></span>
+<span><span class="co">##  [6] "estimand"    "focal"       "norm"        "call"        "tols"       </span></span>
+<span><span class="co">## [11] "target.tols" "duals"       "info"        "solver"</span></span></code></pre>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Use bal.tab() directly on the output</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">ow.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
-<span><span class="co">## age         Contin.  -0.0000</span></span>
-<span><span class="co">## educ        Contin.   0.0100</span></span>
-<span><span class="co">## married      Binary  -0.0100</span></span>
-<span><span class="co">## race_black   Binary   0.0100</span></span>
-<span><span class="co">## race_hispan  Binary  -0.0000</span></span>
-<span><span class="co">## race_white   Binary  -0.0100</span></span>
-<span><span class="co">## re74        Contin.  -0.0100</span></span>
-<span><span class="co">## re75        Contin.   0.0085</span></span>
+<span><span class="co">## age         Contin.    -0.01</span></span>
+<span><span class="co">## educ        Contin.     0.01</span></span>
+<span><span class="co">## married      Binary    -0.01</span></span>
+<span><span class="co">## race_black   Binary     0.01</span></span>
+<span><span class="co">## race_hispan  Binary    -0.00</span></span>
+<span><span class="co">## race_white   Binary    -0.01</span></span>
+<span><span class="co">## re74        Contin.    -0.01</span></span>
+<span><span class="co">## re75        Contin.     0.01</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted  429.    185.  </span></span>
-<span><span class="co">## Adjusted    349.42   52.04</span></span></code></pre>
+<span><span class="co">## Adjusted    349.26   52.04</span></span></code></pre>
 <p>The output is treated as output from a specifically supported
 package. See <code><a href="../reference/bal.tab.default.html">?bal.tab.default</a></code> for more details and another
 example.</p>

@@ -240,7 +240,7 @@ mirrors how
 [`Matching::MatchBalance()`](https://rdrr.io/pkg/Matching/man/MatchBalance.html)
 is used.
 
-`cobalt` functions do not support `Match` object with sampling weights,
+cobalt functions do not support `Match` object with sampling weights,
 i.e., with an argument passed to the `weights` argument of
 [`Matching::Match()`](https://rdrr.io/pkg/Matching/man/Match.html).
 

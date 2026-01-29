@@ -122,9 +122,9 @@ love.plot(
 
   when mean differences are to be displayed, which variable names should
   have a star (i.e., an asterisk) next to them. Allowable values are
-  "none", "std" (for variables with mean differences that have been
-  standardized), or "raw" (for variables with mean differences that have
-  not been standardized). If "raw", the x-axis title will be
+  `"none"`, `"std"` (for variables with mean differences that have been
+  standardized), or `"raw"` (for variables with mean differences that
+  have not been standardized). If "raw", the x-axis title will be
   "Standardized Mean Differences". Otherwise, it will be "Mean
   Differences". Ignored when mean difference are not displayed. See
   Details for an explanation of the purpose of this option.
@@ -145,23 +145,21 @@ love.plot(
 
   the colors of the points on the plot. See 'Color Specification' at
   [`graphics::par()`](https://rdrr.io/r/graphics/par.html) or the
-  `ggplot2` [aesthetic
-  specifications](https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill)
-  page. The first value corresponds to the color for the unadjusted
-  sample, and the second color to the adjusted sample. If only one is
-  specified, it will apply to both. Defaults to the default ggplot2
-  colors.
+  ggplot2 aesthetic specifications vignette
+  (`vignette("ggplot2-specs")`). The first value corresponds to the
+  color for the unadjusted sample, and the second color to the adjusted
+  sample. If only one is specified, it will apply to both. Defaults to
+  the default ggplot2 colors.
 
 - shapes:
 
   the shapes of the points on the plot. Must be one or two numbers
-  between 1 and 25 or the name of a valid shape. See the `ggplot2`
-  [aesthetic
-  specifications](https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point)
-  page for valid options. Values 15 to 25 are recommended. The first
-  value corresponds to the shape for the unadjusted sample, and the
-  second color to the adjusted sample. If only one is specified, it will
-  apply to both. Defaults to 19 (`"circle filled"`).
+  between 1 and 25 or the name of a valid shape. See the ggplot2
+  aesthetic specifications vignette (`vignette("ggplot2-specs")`) for
+  valid options. Values 15 to 25 are recommended. The first value
+  corresponds to the shape for the unadjusted sample, and the second
+  color to the adjusted sample. If only one is specified, it will apply
+  to both. Defaults to 19 (`"circle filled"`).
 
 - alpha:
 
@@ -213,8 +211,8 @@ love.plot(
   the position of the legend. When `stats` has length 1, this can be any
   value that would be appropriate as an argument to `legend.position` in
   [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html).
-  When `stat` has length greater than 1, can be one of "none", "left",
-  "right", "bottom", or "top".
+  When `stat` has length greater than 1, can be one of `"none"`,
+  `"left"`, `"right"`, `"bottom"`, or `"top"`.
 
 - themes:
 
@@ -303,20 +301,20 @@ The order that the variables are presented in depends on the argument to
 `var.order`. If `NULL`, the default, they will be displayed in the same
 order as in the call to
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
-which is the order of the underlying data set. If "alphabetical", they
-will be displayed in alphabetical order. If "unadjusted", they will be
+which is the order of the underlying data set. If `"alphabetical"`, they
+will be displayed in alphabetical order. If `"unadjusted"`, they will be
 ordered by the balance statistic of the unadjusted sample. To order by
-the values of the adjusted sample, "adjusted" can be supplied if only
+the values of the adjusted sample, `"adjusted"` can be supplied if only
 one set of weights (or subclasses) are specified; otherwise, the name of
 the set of weights should be specified.
 
 If multiple `stats` are requested, the order will be determined by the
-first entry to `stats` (e.g., if both "mean.diffs" and "ks.statistics"
-are requested, and `var.order = "unadjusted"`, the variables will be
-displayed in order of the unadjusted mean differences for both plots).
-If multiple plots are produced simultaneously (i.e., for individual
-clusters or imputations), `var.order` can only be `NULL` or
-"alphabetical".
+first entry to `stats`; for example, if both `"mean.diffs"` and
+`"ks.statistics"` are requested and `var.order = "unadjusted"`, the
+variables will be displayed in order of the unadjusted mean differences
+for both plots. If multiple plots are produced simultaneously (i.e., for
+individual clusters or imputations), `var.order` can only be `NULL` or
+`"alphabetical"`.
 
 If a `love.plot` object is supplied, the plot being drawn will use the
 variable order in the supplied `love.plot` object. This can be useful

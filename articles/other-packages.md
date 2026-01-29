@@ -833,8 +833,9 @@ ow.out <- optweight::optweight(treat ~ age + educ + married + race +
 names(ow.out)
 ```
 
-    ##  [1] "weights"   "treat"     "covs"      "s.weights" "b.weights" "estimand" 
-    ##  [7] "focal"     "norm"      "call"      "tols"      "duals"     "info"
+    ##  [1] "weights"     "treat"       "covs"        "s.weights"   "b.weights"  
+    ##  [6] "estimand"    "focal"       "norm"        "call"        "tols"       
+    ## [11] "target.tols" "duals"       "info"        "solver"
 
 ``` r
 #Use bal.tab() directly on the output
@@ -843,19 +844,19 @@ bal.tab(ow.out)
 
     ## Balance Measures
     ##                Type Diff.Adj
-    ## age         Contin.  -0.0000
-    ## educ        Contin.   0.0100
-    ## married      Binary  -0.0100
-    ## race_black   Binary   0.0100
-    ## race_hispan  Binary  -0.0000
-    ## race_white   Binary  -0.0100
-    ## re74        Contin.  -0.0100
-    ## re75        Contin.   0.0085
+    ## age         Contin.    -0.01
+    ## educ        Contin.     0.01
+    ## married      Binary    -0.01
+    ## race_black   Binary     0.01
+    ## race_hispan  Binary    -0.00
+    ## race_white   Binary    -0.01
+    ## re74        Contin.    -0.01
+    ## re75        Contin.     0.01
     ## 
     ## Effective sample sizes
     ##            Control Treated
     ## Unadjusted  429.    185.  
-    ## Adjusted    349.42   52.04
+    ## Adjusted    349.26   52.04
 
 The output is treated as output from a specifically supported package.
 See
