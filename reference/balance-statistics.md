@@ -137,21 +137,21 @@ data(lalonde)
 #Binary treatments
 bal.tab(treat ~ age + educ + married + re74, data = lalonde,
         stats = c("m", "v", "ks"))
-#> Error in bal.tab(treat ~ age + educ + married + re74, data = lalonde,     stats = c("m", "v", "ks")): The given response variable, `treat`, is not a variable in `data` or the global
-#> environment.
+#> Error: The given response variable, `treat`, is not a variable in `data` or the
+#> global environment.
 love.plot(treat ~ age + educ + married + re74, data = lalonde,
           stats = c("m", "v", "ks"), binary = "std",
           thresholds = c(m = .1, v = 2))
-#> Error in love.plot(treat ~ age + educ + married + re74, data = lalonde,     stats = c("m", "v", "ks"), binary = "std", thresholds = c(m = 0.1,         v = 2)): The given response variable, `treat`, is not a variable in `data` or the global
-#> environment.
+#> Error: The given response variable, `treat`, is not a variable in `data` or the
+#> global environment.
 
 #Continuous treatments
 bal.tab(re75 ~ age + educ + married + re74, data = lalonde,
         stats = c("cor", "sp"))
-#> Error in bal.tab(re75 ~ age + educ + married + re74, data = lalonde, stats = c("cor",     "sp")): The variable "educ" cannot be found. Be sure it is entered correctly or supply
-#> a dataset that contains this varialble to `data`.
+#> Error: The variable "educ" cannot be found. Be sure it is entered correctly or
+#> supply a dataset that contains this varialble to `data`.
 love.plot(re75 ~ age + educ + married + re74, data = lalonde,
           thresholds = c(cor = .1, sp = .1))
-#> Error in love.plot(re75 ~ age + educ + married + re74, data = lalonde,     thresholds = c(cor = 0.1, sp = 0.1)): The variable "educ" cannot be found. Be sure it is entered correctly or supply
-#> a dataset that contains this varialble to `data`.
+#> Error: The variable "educ" cannot be found. Be sure it is entered correctly or
+#> supply a dataset that contains this varialble to `data`.
 ```

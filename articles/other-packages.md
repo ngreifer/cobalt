@@ -848,7 +848,7 @@ bal.tab(ow.out)
     ## educ        Contin.     0.01
     ## married      Binary    -0.01
     ## race_black   Binary     0.01
-    ## race_hispan  Binary    -0.00
+    ## race_hispan  Binary     0.00
     ## race_white   Binary    -0.01
     ## re74        Contin.    -0.01
     ## re75        Contin.     0.01

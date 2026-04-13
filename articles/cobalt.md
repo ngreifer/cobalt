@@ -100,7 +100,7 @@ assessment and/or reporting, a possible citation might go as follows:
 
 > Matching was performed using the Matching package (Sekhon, 2011), and
 > covariate balance was assessed using cobalt (Greifer, 2026), both in R
-> (R Core Team, 2025).
+> (R Core Team, 2026).
 
 Use `citation("cobalt")` to generate the correct citation for *cobalt*.
 

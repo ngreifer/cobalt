@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2026-01-29</h4>
+            <h4 data-toc-skip class="date">2026-04-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/other-packages.Rmd" class="external-link"><code>vignettes/other-packages.Rmd</code></a></small>
       <div class="d-none name"><code>other-packages.Rmd</code></div>
@@ -545,7 +545,7 @@ additional flexibility and convenience. Below is a simple example of
 using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <em>designmatch</em>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Mixed integer programming matching</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"designmatch"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/jrzubizarreta/designmatch" class="external-link">"designmatch"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">covs0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -796,7 +796,7 @@ compatible with the <code>default</code> method of
 <span><span class="co">## educ        Contin.     0.01</span></span>
 <span><span class="co">## married      Binary    -0.01</span></span>
 <span><span class="co">## race_black   Binary     0.01</span></span>
-<span><span class="co">## race_hispan  Binary    -0.00</span></span>
+<span><span class="co">## race_hispan  Binary     0.00</span></span>
 <span><span class="co">## race_white   Binary    -0.01</span></span>
 <span><span class="co">## re74        Contin.    -0.01</span></span>
 <span><span class="co">## re75        Contin.     0.01</span></span>

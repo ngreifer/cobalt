@@ -1,6 +1,13 @@
 # Changelog
 
+## cobalt (development version)
+
+- [*arg*](https://ngreifer.github.io/arg/) is now used for errors and
+  warning messages.
+
 ## cobalt 4.6.2
+
+CRAN release: 2026-01-29
 
 - Fixed documentation issue when a package isn’t available.
 

@@ -249,16 +249,16 @@ mt.out1 <- matchthem(treat ~ age + educ + race +
 bal.tab(mt.out1)
 #> Balance summary across all imputations
 #>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-#> distance    Distance       0.9645        0.9707       0.9753
-#> age          Contin.       0.0431        0.0642       0.1224
-#> educ         Contin.      -0.1264       -0.1043      -0.0780
+#> distance    Distance       0.9699        0.9713       0.9734
+#> age          Contin.       0.0053        0.0471       0.0612
+#> educ         Contin.      -0.1290       -0.1167      -0.0995
 #> race_black    Binary       0.3730        0.3730       0.3730
-#> race_hispan   Binary      -0.1730       -0.1676      -0.1622
-#> race_white    Binary      -0.2108       -0.2054      -0.2000
-#> married       Binary      -0.0162       -0.0119      -0.0108
-#> nodegree      Binary       0.0541        0.0595       0.0649
-#> re74         Contin.      -0.0770       -0.0610      -0.0366
-#> re75         Contin.      -0.0686       -0.0500      -0.0301
+#> race_hispan   Binary      -0.1730       -0.1622      -0.1459
+#> race_white    Binary      -0.2270       -0.2108      -0.2000
+#> married       Binary      -0.0216       -0.0108       0.0000
+#> nodegree      Binary       0.0541        0.0627       0.0703
+#> re74         Contin.      -0.1043       -0.0751      -0.0510
+#> re75         Contin.      -0.0686       -0.0570      -0.0473
 #> 
 #> Average sample sizes across imputations
 #>             0   1
@@ -286,16 +286,16 @@ mt.out2 <- matchthem(treat ~ age + educ + race +
 bal.tab(mt.out2)
 #> Balance summary across all imputations
 #>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-#> distance    Distance       0.9750        0.9750       0.9750
-#> age          Contin.       0.0521        0.0521       0.0521
-#> educ         Contin.      -0.1129       -0.1129      -0.1129
+#> distance    Distance       0.9756        0.9756       0.9756
+#> age          Contin.       0.0370        0.0370       0.0370
+#> educ         Contin.      -0.1559       -0.1559      -0.1559
 #> race_black    Binary       0.3730        0.3730       0.3730
-#> race_hispan   Binary      -0.1622       -0.1622      -0.1622
-#> race_white    Binary      -0.2108       -0.2108      -0.2108
-#> married       Binary      -0.0108       -0.0032       0.0054
-#> nodegree      Binary       0.0595        0.0595       0.0595
-#> re74         Contin.      -0.1287       -0.0862      -0.0572
-#> re75         Contin.      -0.0778       -0.0566      -0.0394
+#> race_hispan   Binary      -0.1676       -0.1676      -0.1676
+#> race_white    Binary      -0.2054       -0.2054      -0.2054
+#> married       Binary      -0.0162       -0.0119      -0.0054
+#> nodegree      Binary       0.0757        0.0757       0.0757
+#> re74         Contin.      -0.1210       -0.0986      -0.0838
+#> re75         Contin.      -0.0591       -0.0426      -0.0283
 #> 
 #> Average sample sizes across imputations
 #>             0   1
@@ -318,19 +318,19 @@ wt.out <- weightthem(treat ~ age + educ + race +
 bal.tab(wt.out)
 #> Balance summary across all imputations
 #>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-#> prop.score  Distance      -0.0324       -0.0238      -0.0143
-#> age          Contin.       0.0980        0.1190       0.1371
-#> educ         Contin.      -0.0399       -0.0307      -0.0232
-#> race_black    Binary      -0.0033       -0.0023      -0.0014
-#> race_hispan   Binary      -0.0004        0.0001       0.0005
-#> race_white    Binary       0.0018        0.0022       0.0028
-#> married       Binary       0.0122        0.0168       0.0225
-#> nodegree      Binary       0.0128        0.0169       0.0228
-#> re74         Contin.       0.0013        0.0064       0.0148
-#> re75         Contin.      -0.0099       -0.0020       0.0079
+#> prop.score  Distance      -0.0335       -0.0201      -0.0093
+#> age          Contin.       0.1025        0.1152       0.1311
+#> educ         Contin.      -0.0393       -0.0339      -0.0306
+#> race_black    Binary      -0.0033       -0.0020      -0.0010
+#> race_hispan   Binary      -0.0003        0.0000       0.0007
+#> race_white    Binary       0.0012        0.0019       0.0027
+#> married       Binary       0.0070        0.0153       0.0211
+#> nodegree      Binary       0.0155        0.0190       0.0236
+#> re74         Contin.      -0.0025        0.0037       0.0114
+#> re75         Contin.      -0.0119        0.0002       0.0171
 #> 
 #> Average effective sample sizes across imputations
 #>                 0   1
 #> Unadjusted 429.   185
-#> Adjusted   100.66 185
+#> Adjusted   100.64 185
 ```
