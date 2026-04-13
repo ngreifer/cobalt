@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.6.2
+Version: 4.6.2.9000
 Authors@R: c(
     person("Noah", "Greifer", role = c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -20,7 +20,7 @@ Imports:
     ggplot2 (>= 3.5.0),
     gtable (>= 0.3.6),
     gridExtra (>= 2.3),
-    chk (>= 0.10.0),
+    arg (>= 0.1.0),
     rlang (>= 1.1.5),
     cli (>= 3.6.5)
 Suggests:

@@ -27,7 +27,7 @@ word_list <- function(word.list = NULL, and.or = "and", is.are = FALSE, quotes =
     out <- toString(word.list)
   }
   else {
-    and.or <- match_arg(and.or, c("and", "or"))
+    and.or <- arg::match_arg(and.or, c("and", "or"))
     
     if (L == 2L) {
       out <- sprintf("%s %s %s",
@@ -58,20 +58,20 @@ add_quotes <- function(x, quotes = 2L) {
     quotes <- '"'
   }
   
-  if (chk::vld_string(quotes)) {
+  if (rlang::is_string(quotes)) {
     return(paste0(quotes, x, str_rev(quotes)))
   }
   
-  if (!chk::vld_count(quotes) || quotes > 2L) {
+  if (!rlang::is_scalar_integerish(quotes) || quotes > 2 || quotes < 0) {
     stop("`quotes` must be boolean, 1, 2, or a string.")
   }
   
-  if (quotes == 0L) {
+  if (quotes == 0) {
     return(x)
   }
   
   x <- {
-    if (quotes == 1L) sprintf("'%s'", x)
+    if (quotes == 1) sprintf("'%s'", x)
     else sprintf('"%s"', x)
   }
   
@@ -212,8 +212,8 @@ text_box_plot <- function(range.list, width = 12L) {
 }
 
 equivalent.factors2 <- function(f1, f2) {
-  if (!chk::vld_character_or_factor(f1) ||
-      !chk::vld_character_or_factor(f2)) {
+  if ((!is.character(f1) && !is.factor(f1)) ||
+      (!is.character(f2) && !is.factor(f2))) {
     return(FALSE)
   }
   
@@ -394,12 +394,12 @@ binarize <- function(variable, zero = NULL, one = NULL) {
   }
   
   if (length(unique.vals) != 2L) {
-    .err("cannot binarize {.var {var.name}}: more than two levels")
+    arg::err("cannot binarize {.var {var.name}}: more than two levels")
   }
   
   if (is_not_null(zero)) {
     if (!any(unique.vals == zero)) {
-      .err("the argument to {.arg zero} is not the name of a level of {.var {var.name}}")
+      arg::err("the argument to {.arg zero} is not the name of a level of {.var {var.name}}")
     }
     
     return(setNames(as.integer(variable != zero), names(variable)))
@@ -407,7 +407,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
   
   if (is_not_null(one)) {
     if (!any(unique.vals == one)) {
-      .err("the argument to {.arg one} is not the name of a level of {.var {var.name}}")
+      arg::err("the argument to {.arg one} is not the name of a level of {.var {var.name}}")
     }
     
     return(setNames(as.integer(variable == one), names(variable)))
@@ -666,13 +666,13 @@ assign.treat.type <- function(treat, use.multi = FALSE) {
   nunique.treat <- nunique(treat)
   
   if (nunique.treat < 2L) {
-    .err("the treatment must have at least two unique values")
+    arg::err("the treatment must have at least two unique values")
   }
   
   if (!use.multi && nunique.treat == 2L) {
     treat.type <- "binary"
   }
-  else if (use.multi || chk::vld_character_or_factor(treat)) {
+  else if (use.multi || is.character(treat) || is.factor(treat)) {
     treat.type <- "multinomial"
     if (!inherits(treat, "processed.treat")) {
       treat <- factor(treat)
@@ -705,7 +705,7 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
   
   if (is_not_null(focal)) {
     if (length(focal) > 1L || focal %nin% treat) {
-      .err("the argument supplied to `focal` must be the name of a level of treatment")
+      arg::err("the argument supplied to `focal` must be the name of a level of treatment")
     }
     
     if (is_null(estimand) || !isTRUE(estimand == "ATC")) {
@@ -713,7 +713,7 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
     }
     
     unique.vals <- {
-      if (chk::vld_character_or_factor(treat))
+      if (is.character(treat) || is.factor(treat))
         levels(factor(treat, nmax = 2L))
       else
         sort(unique(treat, nmax = 2L))
@@ -732,7 +732,7 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
   
   if (is_not_null(control)) {
     unique.vals <- {
-      if (chk::vld_character_or_factor(treat))
+      if (is.character(treat) || is.factor(treat))
         levels(factor(treat, nmax = 2L))
       else
         sort(unique(treat, nmax = 2L))
@@ -746,7 +746,7 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
   }
   
   unique.vals <- {
-    if (chk::vld_character_or_factor(treat))
+    if (is.character(treat) || is.factor(treat))
       levels(factor(treat, nmax = 2L))
     else
       sort(unique(treat, nmax = 2L))
@@ -993,7 +993,7 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
   #   s0 <- if (arg.to) "the argument to " else ""
   #   s2 <- if (any(types %in% c("factor", "character", "numeric", "logical"))) "vector" else ""
   #   
-  #   .err(sprintf("%s'%s' must be a %s %s",
+  #   arg::err(sprintf("%s'%s' must be a %s %s",
   #                s0, s1, word_list(types, and.or = "or"), s2))
   # }
   
@@ -1027,8 +1027,7 @@ clear_attr <- function(x, all = FALSE) {
 }
 probably.a.bug <- function() {
   fun <- paste(deparse(sys.call(-1L)), collapse = "\n")
-  .err(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
-              fun), tidy = FALSE)
+  arg::err("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function {.fun fun}")
 }
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 `%pin%` <- function(x, table) {
@@ -1074,55 +1073,6 @@ null_or_error <- function(x) {is_null(x) || is_error(x)}
          pairlist(.z = z),
          parent.frame(3L))
   }), x[!not_found])
-}
-
-#More informative and cleaner version of base::match.arg(). Uses chk and cli.
-match_arg <- function(arg, choices, several.ok = FALSE, context = NULL) {
-  #Replaces match.arg() but gives cleaner error message and processing
-  #of arg.
-  if (missing(arg)) {
-    .err("no argument was supplied to {.fn match_arg} (this is a bug)")
-  }
-  
-  arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
-  
-  if (missing(choices)) {
-    sysP <- sys.parent()
-    formal.args <- formals(sys.function(sysP))
-    choices <- eval(formal.args[[as.character(substitute(arg))]],
-                    envir = sys.frame(sysP))
-  }
-  
-  if (is_null(arg)) {
-    return(choices[1L])
-  }
-  
-  if (several.ok) {
-    chk::chk_character(arg, x_name = add_quotes(arg.name, "`"))
-  }
-  else {
-    chk::chk_string(arg, x_name = add_quotes(arg.name, "`"))
-    
-    if (identical(arg, choices)) {
-      return(arg[1L])
-    }
-  }
-  
-  i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-  
-  if (all(i == 0L)) {
-    one_of <- {
-      if (length(choices) <= 1L) NULL
-      else if (several.ok) "at least one of"
-      else "one of"
-    }
-    
-    .err("{context} the argument to {.arg {arg.name}} should be {one_of} {.or {.val {choices}}}")
-  }
-  
-  i <- i[i > 0L]
-  
-  choices[i]
 }
 
 grab <- function(x, what) {
@@ -1249,6 +1199,23 @@ all_apply <- function(X, FUN, ...) {
   }
   
   TRUE
+}
+
+try_arg <- function(expr, warn = TRUE) {
+  .e <- function(e) {
+    arg::err("{conditionMessage(e)}")
+  }
+  
+  .w <- function(w) {
+    arg::wrn("{conditionMessage(w)}")
+  }
+  
+  if (warn) {
+    tryCatch(expr, error = .e, warning = .w)
+  }
+  else {
+    tryCatch(expr, error = .e)
+  }
 }
 
 #cli utilities

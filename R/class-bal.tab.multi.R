@@ -81,7 +81,7 @@ base.bal.tab.multi <- function(X,
   }
   else {
     if (length(X$focal) > 1L) {
-      .err("{.arg focal} must be a vector of length 1 containing the name or index of the focal treatment group")
+      arg::err("{.arg focal} must be a vector of length 1 containing the name or index of the focal treatment group")
     }
     
     if (is.numeric(X$focal)) {
@@ -89,7 +89,7 @@ base.bal.tab.multi <- function(X,
     }
     
     if (!is.character(X$focal)) {
-      .err("{.arg focal} must be the name or index of the focal treatment group")
+      arg::err("{.arg focal} must be the name or index of the focal treatment group")
     }
     
     treat.combinations <- {
@@ -145,7 +145,7 @@ base.bal.tab.multi <- function(X,
   }
   else {
     if (any(treat_vals(X$treat) == "All")) {
-      .err("{.str All} cannot be the name of a treatment level. Please rename your treatments")
+      arg::err("{.str All} cannot be the name of a treatment level. Please rename your treatments")
     }
     balance.tables <- lapply(treat.combinations, function(t) {
       n <- length(X$treat)

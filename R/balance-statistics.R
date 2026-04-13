@@ -87,7 +87,7 @@ STATS[["mean.diffs"]] <- {list(
       xlab.diff <- "Mean Differences"
     }
     else {
-      stars <- match_arg(stars, c("none", "std", "raw"))
+      stars <- arg::match_arg(stars, c("none", "std", "raw"))
       
       xlab.diff <- switch(stars,
                           "none" = "Mean Differences",
@@ -112,12 +112,12 @@ STATS[["mean.diffs"]] <- {list(
         !((binary == "raw" || !any(var_type == "Binary")) && 
           (continuous == "raw" || all(var_type == "Binary")))) {
       
-      stars <- match_arg(stars, c("none", "std", "raw"))
+      stars <- arg::match_arg(stars, c("none", "std", "raw"))
       if (stars == "none") {
-        .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the {.arg stars} argument to distinguish between them and appropriately label the x-axis. See {.fun love.plot} for details")
+        arg::wrn("standardized mean differences and raw mean differences are present in the same plot. Use the {.arg stars} argument to distinguish between them and appropriately label the x-axis. See {.fun love.plot} for details")
       }
       else {
-        if (!chk::vld_string(star_char)) {
+        if (!rlang::is_string(star_char)) {
           star_char <- "*"
         }
         
@@ -370,7 +370,7 @@ STATS[["mean.diffs.target"]] <- {list(
       xlab.diff <- "Target Mean Differences"
     }
     else {
-      stars <- match_arg(stars, c("none", "std", "raw"))
+      stars <- arg::match_arg(stars, c("none", "std", "raw"))
       
       xlab.diff <- switch(stars,
         "none" = "Target Mean Differences",
@@ -396,12 +396,12 @@ STATS[["mean.diffs.target"]] <- {list(
         !((binary == "raw" || !any(var_type == "Binary")) && 
           (continuous == "raw" || all(var_type == "Binary")))) {
       
-      stars <- match_arg(stars, c("none", "std", "raw"))
+      stars <- arg::match_arg(stars, c("none", "std", "raw"))
       if (stars == "none") {
-        .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the {.arg stars} argument to distinguish between them and appropriately label the x-axis. See {.fun love.plot} for details")
+        arg::wrn("standardized mean differences and raw mean differences are present in the same plot. Use the {.arg stars} argument to distinguish between them and appropriately label the x-axis. See {.fun love.plot} for details")
       }
       else {
-        if (!chk::vld_string(star_char)) {
+        if (!rlang::is_string(star_char)) {
           star_char <- "*"
         }
         
@@ -525,7 +525,7 @@ all_STATS <- function(type) {
     return(unique(names(STATS)))
   }
   
-  type <- match_arg(type, c("bin", "cont"))
+  type <- arg::match_arg(type, c("bin", "cont"))
   out <- names(STATS)[vapply(get_from_STATS("type"), function(i) type %in% i, logical(1L))]
   
   unique(out)

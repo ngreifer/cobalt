@@ -25,8 +25,8 @@ f.build <- function(y = NULL, rhs = NULL) {
     y <- ""
   }
   
-  y <- try_chk(force(y))
-  rhs <- try_chk(force(rhs))
+  y <- try_arg(force(y))
+  rhs <- try_arg(force(rhs))
 
   if (is_mat_like(rhs) && is_not_null(colnames(rhs))) {
     vars <- add_quotes(gsub("`", "", colnames(rhs), fixed = TRUE), "`")
@@ -35,14 +35,14 @@ f.build <- function(y = NULL, rhs = NULL) {
     vars <- add_quotes(gsub("`", "", rhs, fixed = TRUE), "`")
   }
   else {
-    .err("the right hand side argument to {.fun f.build} must be a vector of variable names or a data set with named variables")
+    arg::err("the right hand side argument to {.fun f.build} must be a vector of variable names or a data set with named variables")
   }
   
   if (is_null(y) || identical(y, "")) {
     y <- NULL
   }
   else if (!is.atomic(y)) {
-    .err("the response argument to {.fun f.build} must be a string containing the response variable")
+    arg::err("the response argument to {.fun f.build} must be a string containing the response variable")
   }
   
   f <- formula(paste(

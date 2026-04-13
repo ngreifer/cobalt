@@ -66,7 +66,7 @@ base.bal.tab.imp <- function(X,
   
   all.agg.funs <- c("min", "mean", "max")
   agg.fun <- tolower(as.character(imp.fun %or% A[["agg.fun"]] %or% all.agg.funs))
-  agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
+  agg.fun <- arg::match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
   X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
   
@@ -119,7 +119,7 @@ base.bal.tab.imp <- function(X,
       do.call("base.bal.tab", c(list(X_i), A[setdiff(names(A), names(X))]), quote = TRUE)
     },
     error = function(e) {
-      .err("in imputation {i}: {conditionMessage(e)}")
+      arg::err("in imputation {i}: {conditionMessage(e)}")
     })
   })
   

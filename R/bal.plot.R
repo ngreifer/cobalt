@@ -86,7 +86,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                      position = "right", facet.formula = NULL, disp.means = getOption("cobalt_disp.means", FALSE), 
                      alpha.weight = TRUE) {
   
-  x <- try_chk(force(x), warn = TRUE)
+  x <- try_arg(force(x), warn = TRUE)
   
   #Replace .all and .none with NULL and NA respectively
   .call <- match.call(expand.dots = TRUE)
@@ -116,11 +116,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       
       if (is_null(var.name)) {
-        .err("please specify an argument to {.arg var.name}")
+        arg::err("please specify an argument to {.arg var.name}")
       }
       
       if (length(co.names) > 1L) {
-        .msg("no {.arg var.name} was provided. Displaying balance for {.var {var.name}}")
+        arg::msg("no {.arg var.name} was provided. Displaying balance for {.var {var.name}}")
       }
     }
     
@@ -141,7 +141,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       X$var <- X$covs[, var.name]
     }
     else {
-      .err("{.val {var.name}} is not the name of an available covariate")
+      arg::err("{.val {var.name}} is not the name of an available covariate")
     }
     
     if (get.treat.type(X$treat) != "continuous") {
@@ -179,11 +179,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
           k <- k + 1L
         }
         else {
-          .err("please specify an argument to {.arg var.name}")
+          arg::err("please specify an argument to {.arg var.name}")
         }
       }
       
-      .msg("no {.arg var.name} was provided. Displaying balance for {.var {var.name}}")
+      arg::msg("no {.arg var.name} was provided. Displaying balance for {.var {var.name}}")
     }
     
     var.list <- make_list(length(X$covs.list))
@@ -211,7 +211,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     
     if (all(lengths(var.list) == 0L)) {
-      .err("{.val {var.name}} is not the name of an available covariate")
+      arg::err("{.val {var.name}} is not the name of an available covariate")
     }
     
     X$var <- unlist(var.list[appears.in.time])
@@ -256,7 +256,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   
   if (missing(which)) {
     if (is_not_null(...get("un"))) {
-      .msg("note: {.arg un} is deprecated; please use {.arg which} for the same and added functionality")
+      arg::msg("note: {.arg un} is deprecated; please use {.arg which} for the same and added functionality")
       which <- if (isTRUE(...get("un"))) "unadjusted" else weight.names
     }
     else {
@@ -271,12 +271,12 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   }
   else {
     which <- tolower(which)
-    which <- match_arg(which, unique(c("adjusted", "unadjusted", "both", weight.names)),
+    which <- arg::match_arg(which, unique(c("adjusted", "unadjusted", "both", weight.names)),
                        several.ok = TRUE)
   }
   
   if (is_not_null(...get("size.weight"))) {
-    .msg("note: {.arg size.weight} is no longer allowed; please use {.arg alpha.weight} for similar functionality")
+    arg::msg("note: {.arg size.weight} is no longer allowed; please use {.arg alpha.weight} for similar functionality")
   }
   
   title <- sprintf("Distributional Balance for %s", add_quotes(var.name))
@@ -288,10 +288,10 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   if (is_null(X$subclass) || (length(which) == 1L && which == "unadjusted")) {
     if (is_not_null(which.sub) && !all(is.na(which.sub))) {
       if (is_null(X$subclass)) {
-        .wrn("{.arg which.sub} was specified but no subclasses were supplied. Ignoring {.arg which.sub}")
+        arg::wrn("{.arg which.sub} was specified but no subclasses were supplied. Ignoring {.arg which.sub}")
       }
       else {
-        .wrn("{.arg which.sub} was specified but only the unadjusted sample was requested. Ignoring {.arg which.sub}")
+        arg::wrn("{.arg which.sub} was specified but only the unadjusted sample was requested. Ignoring {.arg which.sub}")
       }
     }
     
@@ -332,11 +332,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       sample.names <- NULL
     }
     else if (!is.character(sample.names)) {
-      .wrn("the argument to {.arg sample.names} must be a character vector. Ignoring {.arg sample.names}")
+      arg::wrn("the argument to {.arg sample.names} must be a character vector. Ignoring {.arg sample.names}")
       sample.names <- NULL
     }
     else if (length(sample.names) %nin% c(ntypes, nadj)) {
-      .wrn("the argument to {.arg sample.names} must contain as many names as there are sample types, or one fewer. Ignoring {.arg sample.names}")
+      arg::wrn("the argument to {.arg sample.names} must contain as many names as there are sample types, or one fewer. Ignoring {.arg sample.names}")
       sample.names <- NULL
     }
     
@@ -349,13 +349,12 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       else if (!all(is.na(which.imp))) {
         if (!is.numeric(which.imp)) {
-          .err("the argument to {.arg which.imp} must be the indices corresponding to the imputations for which distributions are to be displayed")
+          arg::err("the argument to {.arg which.imp} must be the indices corresponding to the imputations for which distributions are to be displayed")
         }
         
         if (!all(which.imp %in% seq_len(nlevels(X$imp)))) {
           .b <- setdiff(which.imp, seq_len(nlevels(X$imp)))
-          .err("The following inputs to {.arg which.imp} do not correspond to given imputations:\n\t{(.b)}",
-               tidy = FALSE)
+          arg::err("the following inputs to {.arg which.imp} do not correspond to given imputations:\n\t{(.b)}")
         }
         
         in.imp <- !is.na(X$imp) & X$imp %in% levels(X$imp)[which.imp]
@@ -363,7 +362,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
     }
     else if (is_not_null(which.imp) && !all(is.na(which.imp))) {
-      .wrn("{.arg which.imp} was specified but no {.arg imp} values were supplied. Ignoring {.arg which.imp}")
+      arg::wrn("{.arg which.imp} was specified but no {.arg imp} values were supplied. Ignoring {.arg which.imp}")
     }
     
     in.cluster <- rep_with(TRUE, X$var)
@@ -376,8 +375,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         if (is.numeric(which.cluster)) {
           if (!all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
             .b <- setdiff(which.cluster, seq_len(nlevels(X$cluster)))
-            .err("The following inputs to {.arg which.cluster} do not correspond to given clusters:\n\t{(.b)}",
-                 tidy = FALSE)
+            arg::err("the following inputs to {.arg which.cluster} do not correspond to given clusters:\n\t{(.b)}")
           }
           
           in.cluster <- !is.na(X$cluster) & X$cluster %in% levels(X$cluster)[which.cluster]
@@ -385,21 +383,20 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         else if (is.character(which.cluster)) {
           if (!all(which.cluster %in% levels(X$cluster))) {
             .b <- setdiff(which.cluster, levels(X$cluster))
-            .err("The following inputs to {.arg which.cluster} do not correspond to given clusters:\n\t{.val {(.b)}}",
-                 tidy = FALSE)
+            arg::err("the following inputs to {.arg which.cluster} do not correspond to given clusters:\n\t{.val {(.b)}}")
           }
           
           in.cluster <- !is.na(X$cluster) & X$cluster %in% which.cluster
         }
         else {
-          .err("the argument to {.arg which.cluster} must be the names or indices corresponding to the clusters for which distributions are to be displayed")
+          arg::err("the argument to {.arg which.cluster} must be the names or indices corresponding to the clusters for which distributions are to be displayed")
         }
         
         facet <- c("cluster", facet)
       }
     }
     else if (is_not_null(which.cluster)) {
-      .wrn("{.arg which.cluster} was specified but no {.arg cluster} values were supplied. Ignoring {.arg which.cluster}")
+      arg::wrn("{.arg which.cluster} was specified but no {.arg cluster} values were supplied. Ignoring {.arg which.cluster}")
     }
     
     in.time <- rep_with(TRUE, X$var)
@@ -410,55 +407,53 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       else if (is.numeric(which.time)) {
         if (!all(which.time %in% seq_along(X$covs.list))) {
           .b <- setdiff(which.time, seq_along(X$covs.list))
-          .err("The following inputs to {.arg which.time} do not correspond to given time periods:\n\t{(.b)}",
-               tidy = FALSE)
+          arg::err("The following inputs to {.arg which.time} do not correspond to given time periods:\n\t{(.b)}")
         }
         
         if (all(which.time %in% which(appears.in.time))) {
           #nothing; which.time is good
         }
         else if (any(which.time %in% which(appears.in.time))) {
-          .wrn("{.var {var.name}} does not appear in time period {.or setdiff(which.time, which(appears.in.time))}")
+          arg::wrn("{.var {var.name}} does not appear in time period {.or setdiff(which.time, which(appears.in.time))}")
           which.time <- intersect(which.time, which(appears.in.time))
         }
         else {
-          .err("{.var {var.name}} does not appear in time period {.or which.time}")
+          arg::err("{.var {var.name}} does not appear in time period {.or which.time}")
         }
         in.time <- !is.na(X$time) & X$time %in% which.time
       }
       else if (is.character(which.time)) {
         if (!all(which.time %in% treat.names)) {
           .b <- setdiff(which.time, treat.names)
-          .err("The following inputs to {.arg which.time} do not correspond to given time periods:\n\t{.val {(.b)}}",
-               tidy = FALSE)
+          arg::err("The following inputs to {.arg which.time} do not correspond to given time periods:\n\t{.val {(.b)}}")
         }
         
         if (!all(which.time %in% treat.names[appears.in.time])) {
           if (any(which.time %in% treat.names[appears.in.time])) {
             time.periods <- setdiff(which.time, treat.names[appears.in.time])
-            .wrn("{.val {var.name}} {cli::qty(sum(!which.time %in% treat.names[appears.in.time]))} does not appear in the time period{?s} corresponding to treatment{?s} {time.periods}")
+            arg::wrn("{.val {var.name}} {cli::qty(sum(!which.time %in% treat.names[appears.in.time]))} does not appear in the time period{?s} corresponding to treatment{?s} {time.periods}")
             which.time <- intersect(which.time, treat.names[appears.in.time])
           }
           else {
             time.periods <- which.time
-            .err("{.var {var.name}} {cli::qty(length(which.time))} does not appear in the time period{?s} corresponding to treatment{?s} {time.periods}")
+            arg::err("{.var {var.name}} {cli::qty(length(which.time))} does not appear in the time period{?s} corresponding to treatment{?s} {time.periods}")
           }
         }
         in.time <- !is.na(X$time) & treat.names[X$time] %in% which.time
       }
       else {
-        .err("the argument to {.arg which.time} must be the names or indices corresponding to the time periods for which distributions are to be displayed")
+        arg::err("the argument to {.arg which.time} must be the names or indices corresponding to the time periods for which distributions are to be displayed")
       }
       facet <- c("time", facet)
     }
     else if (is_not_null(which.time)) {
-      .wrn("{.arg which.time} was specified but a point treatment was supplied. Ignoring {.arg which.time}")
+      arg::wrn("{.arg which.time} was specified but a point treatment was supplied. Ignoring {.arg which.time}")
     }
     
     nobs <- sum(in.imp & in.cluster & in.time)
     
     if (nobs == 0L) {
-      .err("no observations to display")
+      arg::err("no observations to display")
     }
     
     D <- make_list(which)
@@ -491,11 +486,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   }
   else {
     if (is_not_null(X$cluster)) {
-      .err("subclasses are not supported with clusters")
+      arg::err("subclasses are not supported with clusters")
     }
     
     if (is_not_null(X$imp)) {
-      .err("subclasses are not supported with multiple imputations")
+      arg::err("subclasses are not supported with multiple imputations")
     }
     
     #Process sample names
@@ -504,15 +499,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       sample.names <- NULL
     }
     else if (which %nin% c("both", "unadjusted")) {
-      .wrn('{.arg sample.names} can only be used with {.code which = "both"} or {.code "unadjusted"} to rename the unadjusted sample when called with subclasses. Ignoring {.arg sample.names}')
+      arg::wrn('{.arg sample.names} can only be used with {.code which = "both"} or {.code "unadjusted"} to rename the unadjusted sample when called with subclasses. Ignoring {.arg sample.names}')
       sample.names <- NULL
     }
     else if (!is.character(sample.names)) {
-      .wrn("the argument to {.arg sample.names} must be a character vector. Ignoring {.arg sample.names}")
+      arg::wrn("the argument to {.arg sample.names} must be a character vector. Ignoring {.arg sample.names}")
       sample.names <- NULL
     }
     else if (length(sample.names) != 1L) {
-      .wrn("the argument to {.arg sample.names} must be of length 1 when called with subclasses. Ignoring {.arg sample.names}")
+      arg::wrn("the argument to {.arg sample.names} must be of length 1 when called with subclasses. Ignoring {.arg sample.names}")
       sample.names <- NULL
     }
     
@@ -527,7 +522,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       if (anyNA(which.sub)) which.sub <- which.sub[!is.na(which.sub)]
       
       if (is_null(which.sub)) {
-        .err("the argument to {.arg which.sub} cannot be {.val {quote(.none)}} or {.val {NA}} when {.code which = {which}}")
+        arg::err("the argument to {.arg which.sub} cannot be {.val {quote(.none)}} or {.val {NA}} when {.code which = {which}}")
       }
       
       if (is.character(which.sub)) {
@@ -538,11 +533,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       
       if (is_null(which.sub)) {
-        .err("the argument to {.arg which.sub} must be {.val {quote(.none)}}, {.val {quote(.all)}}, or the valid names or indices of subclasses")
+        arg::err("the argument to {.arg which.sub} must be {.val {quote(.none)}}, {.val {quote(.all)}}, or the valid names or indices of subclasses")
       }
       
       if (!all(which.sub.original %in% which.sub)) {
-        .wrn("{setdiff(which.sub.original, which.sub)} {?do/does} not correspond to any subclass{?es} in the object and will be ignored")
+        arg::wrn("{setdiff(which.sub.original, which.sub)} {?do/does} not correspond to any subclass{?es} in the object and will be ignored")
       }
     }
     
@@ -597,7 +592,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       if (is.character(bw)) {
         bw_fun <- get0(paste.("bw", bw))
         if (!is.function(bw_fun)) {
-          .err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
+          arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
         }
         bw <- bw_fun(D$treat[D$var == smallest.cat])
       }
@@ -614,15 +609,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       else {
         if (length(colors) > ntypes) {
           colors <- colors[seq_len(ntypes)]
-          .wrn("only using first {ntypes} value{?s} in {.arg colors}")
+          arg::wrn("only using first {ntypes} value{?s} in {.arg colors}")
         }
         else if (length(colors) < ntypes) {
-          .wrn("not enough colors were specified. Using default colors instead")
+          arg::wrn("not enough colors were specified. Using default colors instead")
           colors <- gg_color_hue(ntypes)
         }
         
         if (!all_apply(colors, isColor)) {
-          .wrn("the argument to {.arg colors} contains at least one value that is not a recognized color. Using default colors instead")
+          arg::wrn("the argument to {.arg colors} contains at least one value that is not a recognized color. Using default colors instead")
           colors <- gg_color_hue(ntypes)
         }
       }
@@ -686,14 +681,14 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     else if (is.numeric(which.treat)) {
       which.treat <- levels(D$treat)[seq_along(levels(D$treat)) %in% which.treat]
       if (is_null(which.treat)) {
-        .wrn("no numbers in {.arg which.treat} correspond to treatment values. All treatment groups will be displayed")
+        arg::wrn("no numbers in {.arg which.treat} correspond to treatment values. All treatment groups will be displayed")
         which.treat <- character()
       }
     }
     else if (is.character(which.treat)) {
       which.treat <- levels(D$treat)[levels(D$treat) %in% which.treat]
       if (is_null(which.treat)) {
-        .wrn("no names in {.arg which.treat} correspond to treatment values. All treatment groups will be displayed")
+        arg::wrn("no names in {.arg which.treat} correspond to treatment values. All treatment groups will be displayed")
         which.treat <- character()
       }
     }
@@ -701,7 +696,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       which.treat <- character()
     }
     else {
-      .wrn("the argument to {.arg which.treat} must be {.code NA}, {.code NULL}, or a vector of treatment names or indices. All treatment groups will be displayed")
+      arg::wrn("the argument to {.arg which.treat} must be {.code NA}, {.code NULL}, or a vector of treatment names or indices. All treatment groups will be displayed")
       which.treat <- character()
     }
     
@@ -728,15 +723,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     else {
       if (length(colors) > ntypes) {
         colors <- colors[seq_len(ntypes)]
-        .wrn("only using first {ntypes} value{?s} in {.arg colors}")
+        arg::wrn("only using first {ntypes} value{?s} in {.arg colors}")
       }
       else if (length(colors) < ntypes) {
-        .wrn("not enough colors were specified. Using default colors instead")
+        arg::wrn("not enough colors were specified. Using default colors instead")
         colors <- gg_color_hue(ntypes)
       }
       
       if (!all_apply(colors, isColor)) {
-        .wrn("the argument to {.arg colors} contains at least one value that is not a recognized color. Using default colors instead")
+        arg::wrn("the argument to {.arg colors} contains at least one value that is not a recognized color. Using default colors instead")
         colors <- gg_color_hue(ntypes)
       }
     }
@@ -757,12 +752,12 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     else { #Continuous vars
       
-      type <- match_arg(type, c("histogram", "density", "ecdf"))
-      .chk_flag(mirror)
+      type <- arg::match_arg(type, c("histogram", "density", "ecdf"))
+      arg::arg_flag(mirror)
       
       if (type %in% c("ecdf")) {
         if (mirror) {
-          .wrn('{.arg mirror} is ignored when {.code type = "ecdf"}')
+          arg::wrn('{.arg mirror} is ignored when {.code type = "ecdf"}')
           mirror <- FALSE
         }
         alpha <- 1
@@ -777,7 +772,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
       else {
         if (mirror) {
-          .wrn('{.arg mirror} is ignored with multi-category treatments')
+          arg::wrn('{.arg mirror} is ignored with multi-category treatments')
           mirror <- FALSE
         }
         posneg <- rep.int(1, nlevels.treat)
@@ -860,7 +855,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         if (is.character(bw)) {
           bw_fun <- get0(paste.("bw", bw))
           if (!is.function(bw_fun)) {
-            .err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
+            arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
           }
           t.sizes <- tapply(rep.int(1, NROW(D)), D$treat, sum)
           smallest.t <- names(t.sizes)[which.min(t.sizes)]
@@ -936,23 +931,21 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   
   if (is_not_null(facet)) {
     if (is_not_null(facet.formula)) {
-      if (!rlang::is_formula(facet.formula)) {
-        .err("{.arg facet.formula} must be a formula")
-      }
+      arg::arg_formula(facet.formula)
       
       test.facet <- invisible(ggplot2::facet_grid(facet.formula))
       
       if (!all(c(names(test.facet$params$rows), names(test.facet$params$cols)) %in% facet)) {
-        .err("only {.val {facet}} {?is/are} allowed in {.arg facet.formula}")
+        arg::err("only {.val {facet}} {?is/are} allowed in {.arg facet.formula}")
       }
       
       if ("which" %nin% c(names(test.facet$params$rows), names(test.facet$params$cols))) {
         if (length(which) > 1L) {
-          .err("{.val which} must be in the facet formula when the {.arg which} argument refers to more than one sample")
+          arg::err("{.val which} must be in the facet formula when the {.arg which} argument refers to more than one sample")
         }
         
         .b <- if (which %in% c("Adjusted Sample", "Unadjusted Sample")) tolower(which) else paste(which, "sample")
-        .msg("displaying balance for the {(.b)}")
+        arg::msg("displaying balance for the {(.b)}")
       }
     }
     else if (length(facet) >= 2L) {

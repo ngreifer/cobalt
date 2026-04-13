@@ -39,7 +39,7 @@ bal.tab.cem.match <-  function(x, data,
                                stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                                ...) {
   
-  args <- try_chk(c(as.list(environment()), list(...))[-1L])
+  args <- try_arg(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   

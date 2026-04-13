@@ -72,7 +72,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     estimand <- setNames(substr(toupper(s), nchar(s) - 2L, nchar(s)), s)
   }
   else if (!all(toupper(estimand) %in% allowable.estimands)) {
-    .err("{.arg estimand} must be {.or {.val {allowable.estimands}}}")
+    arg::err("{.arg estimand} must be {.or {.val {allowable.estimands}}}")
   }
   else if (length(estimand) == 1L) {
     estimand <- setNames(toupper(rep_with(estimand, s)), s)
@@ -81,7 +81,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     estimand <- setNames(toupper(estimand[seq_along(s)]), s)
   }
   else {
-    .err("{.arg estimand} must be the same length as the number of sets of weights requested")
+    arg::err("{.arg estimand} must be the same length as the number of sets of weights requested")
   }
   
   w <- make_df(s, nrow(x$ps))
@@ -233,7 +233,7 @@ get.w.CBPS <- function(x, estimand, ...) {
     }
   }
   
-  estimand <- match_arg(tolower(estimand), c("att", "atc", "ate"))
+  estimand <- arg::match_arg(tolower(estimand), c("att", "atc", "ate"))
   
   w <- rep_with(1, tr)
   
@@ -260,14 +260,14 @@ get.w.CBMSM <- function(x, ...) {
 #' @rdname get.w
 #' @exportS3Method get.w ebalance
 get.w.ebalance <- function(x, treat, ...) {
-  .chk_not_missing(treat, "`treat`")
+  arg::arg_supplied(treat)
   
   if (!inherits(treat, "processed.treat")) {
     treat <- process_treat(treat)
   }
   
   if (length(x$w) != sum(treat == treat_vals(treat)["Control"])) {
-    .err("there are more control units in {.arg treat} than weights in the {.cls ebalance} object.")
+    arg::err("there are more control units in {.arg treat} than weights in the {.cls ebalance} object.")
   }
   
   weights <- rep_with(1, treat)
@@ -325,14 +325,14 @@ get.w.weightit <- function(x, s.weights = FALSE, ...) {
 #' @rdname get.w
 #' @exportS3Method get.w designmatch
 get.w.designmatch <- function(x, treat, estimand, ...) {
-  .chk_not_missing(treat, "`treat`")
+  arg::arg_supplied(treat)
   
   if (missing(estimand) || is_null(estimand)) {
     estimand <- "ATT"
   }
   
   if (length(x[["group_id"]]) != length(x[["t_id"]]) + length(x[["c_id"]])) {
-    .err("{.code designmatch} objects without 1:1 matching cannot be used")
+    arg::err("{.code designmatch} objects without 1:1 matching cannot be used")
   }
   
   q <- merge(data.frame(id = seq_along(treat)), 

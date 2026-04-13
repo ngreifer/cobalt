@@ -47,10 +47,10 @@
 
 var.names <- function(b, type, file = NULL, minimal = FALSE) {
   if (is_null(.attr(b, "print.options")[["co.names"]])) {
-    .err("no variable names were found in the object. It is probably not a {.cls bal.tab} object")
+    arg::err("no variable names were found in the object. It is probably not a {.cls bal.tab} object")
   }
   
-  .chk_flag(minimal)
+  arg::arg_flag(minimal)
   vars <- {
     if (minimal)
       unique(unlist(lapply(.attr(b, "print.options")[["co.names"]],
@@ -61,15 +61,15 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
              character(1L))
   }
   
-  .chk_null_or(file, .chk_string)
+  arg::when_not_null(file, arg::arg_string)
   if (is_not_null(file) && !endsWith(file, ".csv")) {
-    .err("the filename in {.arg file} must end in {.str .csv}")
+    arg::err("the filename in {.arg file} must end in {.str .csv}")
   }
   
   if (!missing(type)) {
-    .chk_string(type)
+    arg::arg_string(type)
     type <- tolower(type)
-    type <- match_arg(type, c("df", "vec"))
+    type <- arg::match_arg(type, c("df", "vec"))
   }
   else if (is_not_null(file)) {
     type <- "df"
@@ -91,7 +91,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
     return(invisible(out))
   }
   
-  .wrn('only {.code type = "df"} is compatible with a file name')
+  arg::wrn('only {.code type = "df"} is compatible with a file name')
   
   out
 }

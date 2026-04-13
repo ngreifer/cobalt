@@ -154,6 +154,7 @@ test_that("splictfactor() and unsplitfactor() work", {
     d_s <- splitfactor(d, c("x1", "x2", "bad"), drop.first = "if2")
   }, .w('"bad" is not the name of a factor variable in `data` and will not be split.'),
   perl = TRUE)
+  
   expect_identical(names(d_s),
                    c("x1_B", "x2_A", "x2_B", "x2_C", "x3", "x4a", "x4b", "x5"))
   
@@ -190,12 +191,8 @@ test_that("splictfactor() and unsplitfactor() work", {
   
   expect_error({
     d_s <- splitfactor(d, drop.first = 3)
-  }, .w('`drop.first` must be TRUE, FALSE, or "if2".'),
+  }, .w('`drop.first` must be a logical value (TRUE or FALSE) or "if2"'),
   perl = TRUE)
-  
-  expect_no_condition({
-    d_s <- splitfactor(d, "x1", drop.level = "B", drop.first = 3)
-  })
   
   m <- matrix(rbinom(5 * n, 1, .5), nrow = n)
   

@@ -45,7 +45,7 @@
 set.cobalt.options <- function(..., default = FALSE) {
   
   if (...length() > 0L && (is_null(...names()) || "" %in% ...names())) {
-    .err("all arguments must be named")
+    arg::err("all arguments must be named")
   }
   # if ("continuous" %in% names(opts)) names(opts)[names(opts) == "continuous"] <- "cont"
   # if ("binary" %in% names(opts)) names(opts)[names(opts) == "binary"] <- "bin"
@@ -56,11 +56,11 @@ set.cobalt.options <- function(..., default = FALSE) {
   duplicates <- table(...names()) > 1
   
   if (any(duplicates)) {
-    .err("{.arg {names(duplicates)[duplicates]}} {?is/are} present more than once in the input to {.fun set.cobalt.options}")
+    arg::err("{.arg {names(duplicates)[duplicates]}} {?is/are} present more than once in the input to {.fun set.cobalt.options}")
   }
   
   if (!all(...names() %in% names(acceptable.options()))) {
-    .wrn("the following are not acceptable options and will be ignored: {.arg {setdiff(...names(), names(acceptable.options()))}}")
+    arg::wrn("the following are not acceptable options and will be ignored: {.arg {setdiff(...names(), names(acceptable.options()))}}")
   }
   
   opts <- ...mget(names(acceptable.options()))
@@ -116,7 +116,7 @@ set.cobalt.options <- function(..., default = FALSE) {
     problems <- problems[names(opts)[names(opts) %in% names(problems)]]
     
     if (is_not_null(problems)) {
-      .err(do.call("paste", c(list(""), problems, list("\nNo options will be set", sep = "\n"))), cli = FALSE)
+      arg::err(do.call("paste", c(list(""), problems, list("\nNo options will be set", sep = "\n"))))
     }
     
     names(opts) <- paste0("cobalt_", names(opts))
@@ -142,14 +142,14 @@ get.cobalt.options <- function(...) {
     opts <- character(...length())
     for (i in seq_len(...length())) {
       if (!is.character(...elt(i))) {
-        .err("all arguments must be strings containing the name of an option to return")
+        arg::err("all arguments must be strings containing the name of an option to return")
       }
       opts[i] <- ...elt(i)
     }
     
     not.in.accept <- opts %nin% names(acceptable.options())
     if (any(not.in.accept)) {
-      .err("{.val {opts[not.in.accept]}} {?is/are} not {?an/} acceptible option{?s}")
+      arg::err("{.val {opts[not.in.accept]}} {?is/are} not {?an/} acceptible option{?s}")
     }
   }
   

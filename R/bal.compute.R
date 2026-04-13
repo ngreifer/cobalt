@@ -132,8 +132,8 @@ bal.compute.default <- function(x,
                                 s.weights = NULL,
                                 weights = NULL,
                                 ...) {
-  .chk_not_missing(x, "`x`")
-  .chk_not_missing(stat, "`stat`")
+  arg::arg_supplied(x)
+  arg::arg_supplied(stat)
   
   bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...) |>
     bal.compute.bal.init(weights = weights)
@@ -146,24 +146,24 @@ bal.init <- function(x,
                      stat,
                      s.weights = NULL,
                      ...) {
-  .chk_not_missing(x, "`x`")
-  .chk_not_missing(stat, "`stat`")
+  arg::arg_supplied(x)
+  arg::arg_supplied(stat)
   
-  .chk_string(stat)
+  arg::arg_string(stat)
   
   if (is_null(treat)) {
     treat.type <- "target"
   }
   else {
-    .chk_vector(treat)
+    arg:: arg_vector(treat)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
   }
   
-  stat <- match_arg(stat, available.stats(treat.type))
+  stat <- arg::match_arg(stat, available.stats(treat.type))
   
-  .chk_null_or(s.weights, chk = .chk_numeric)
+  arg::when_not_null(s.weights, arg::arg_numeric)
   
   init <- bal_criterion(treat.type, stat)
   
@@ -179,11 +179,11 @@ bal.init <- function(x,
 #' @rdname bal.compute
 #' @export
 available.stats <- function(treat.type = "binary") {
-  .chk_string(treat.type)
+  arg::arg_string(treat.type)
   if (identical(treat.type, "multi-category")) {
     treat.type <- "multinomial"
   }
-  treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous", "target"))
+  treat.type <- arg::match_arg(treat.type, c("binary", "multinomial", "continuous", "target"))
   
   switch(
     treat.type,
@@ -284,7 +284,7 @@ bal_stat.to.phrase <- function(stat) {
   )
   
   if (anyNA(phrase)) {
-    .err('"{stat}" is not an allowed statistic')
+    arg::err('"{stat}" is not an allowed statistic')
   }
   
   phrase
@@ -294,13 +294,15 @@ process_init_covs <- function(covs) {
   nm <- deparse1(substitute(covs))
   
   if ((!is.numeric(covs) && !is.data.frame(covs)) || length(dim(covs)) > 2L) {
-    .err("{.arg {nm}} must be a data.frame or numeric matrix")
+    arg::err("{.arg {nm}} must be a data.frame or numeric matrix")
   }
   
   needs.splitting <- FALSE
   
   if (is.data.frame(covs)) {
-    to.split <- vapply(covs, chk::vld_character_or_factor, logical(1L))
+    to.split <- vapply(covs,
+                       function(z) is.character(z) || is.factor(z),
+                       logical(1L))
     
     if (any(to.split)) {
       needs.splitting <- TRUE
@@ -357,17 +359,19 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
     focal <- pairwise <- treatment.pairs <- NULL
   }
   else {
-    .chk_atomic(treat)
+    arg::arg_vector(treat)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type %nin% c("binary", "multinomial")) {
-      .err("{.arg treat} must be a binary or multi-category variable")
+      arg::err("{.arg treat} must be a binary or multi-category variable")
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
+    arg::when_not_null(estimand, arg::arg_string)
+    if (is_null(estimand)) {
+      estimand <- "ATE"
+    }
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
@@ -385,7 +389,7 @@ init_smd <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal =
       pairwise <- TRUE
     }
     
-    .chk_flag(pairwise)
+    arg::arg_flag(pairwise)
     
     unique.treats <- {
       if (is.factor(treat)) levels(droplevels(treat))
@@ -445,16 +449,16 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
     focal <- pairwise <- treatment.pairs <- NULL
   }
   else {
-    .chk_atomic(treat)
+    arg::arg_vector(treat)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type %nin% c("binary", "multinomial")) {
-      .err("{.arg treat} must be a binary or multi-category variable")
+      arg::err("{.arg treat} must be a binary or multi-category variable")
     }
     
-    .chk_null_or(estimand, .chk_string)
+    arg::when_not_null(estimand, arg::arg_string)
     if (is_null(estimand)) {
       estimand <- "ATE"
     }
@@ -467,7 +471,7 @@ init_ks <- function(x, treat = NULL, s.weights = NULL, estimand = NULL, focal = 
       pairwise <- TRUE
     }
     
-    .chk_flag(pairwise)
+    arg::arg_flag(pairwise)
     
     unique.treats <- {
       if (is.factor(treat)) levels(droplevels(treat))
@@ -513,7 +517,7 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
   x <- process_init_covs(x)
   bin.vars <- .attr(x, "bin")
   
-  .chk_flag(integrate)
+  arg::arg_flag(integrate)
   
   check_arg_lengths(x, treat, s.weights)
   
@@ -533,17 +537,19 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
     focal <- pairwise <- treatment.pairs <- NULL
   }
   else {
-    .chk_atomic(treat)
+    arg::arg_vector(treat)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type %nin% c("binary", "multinomial")) {
-      .err("{.arg treat} must be a binary or multi-category variable")
+      arg::err("{.arg treat} must be a binary or multi-category variable")
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
+    arg::when_not_null(estimand, arg::arg_string)
+    if (is_null(estimand)) {
+      estimand <- "ATE"
+    }
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
@@ -553,7 +559,7 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
       pairwise <- TRUE
     }
     
-    .chk_flag(pairwise)
+    arg::arg_flag(pairwise)
     
     unique.treats <- {
       if (is.factor(treat)) levels(droplevels(treat))
@@ -600,7 +606,7 @@ init_mahalanobis <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
   bin.vars <- .attr(x, "bin")
   
   if (anyNA(x)) {
-    .err('{.val "mahalanobis"} cannot be used when there are missing values in the covariates')
+    arg::err('{.val "mahalanobis"} cannot be used when there are missing values in the covariates')
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -623,17 +629,19 @@ init_mahalanobis <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
     s.d.denom <- NULL
   }
   else {
-    .chk_atomic(treat)
+    arg::arg_vector(treat)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type %nin% c("binary", "multinomial")) {
-      .err("{.arg treat} must be a binary or multi-category variable")
+      arg::err("{.arg treat} must be a binary or multi-category variable")
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
+    arg::when_not_null(estimand, arg::arg_string)
+    if (is_null(estimand)) {
+      estimand <- "ATE"
+    }
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
@@ -688,7 +696,7 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
   bin.vars <- .attr(x, "bin")
   
   if (anyNA(x)) {
-    .err('{.val "energy.dist"} cannot be used when there are missing values in the covariates')
+    arg::err('{.val "energy.dist"} cannot be used when there are missing values in the covariates')
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -713,19 +721,19 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
     unique.treats <- focal <- NULL
   }
   else {
-    .chk_atomic(treat)
+    arg::arg_vector(treat)
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type %nin% c("binary", "multinomial")) {
-      .err("{.arg treat} must be a binary or multi-category variable")
+      arg::err("{.arg treat} must be a binary or multi-category variable")
     }
     
     treat <- factor(treat)
     
     if (is_not_null(estimand)) {
-      .chk_string(estimand)
+      arg::arg_string(estimand)
       f.e <- process_focal_and_estimand(focal, estimand, treat)
       focal <- f.e[["focal"]]
       estimand <- f.e[["estimand"]]
@@ -755,7 +763,7 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
       k <- 0
     }
     else if (is_null(focal)) {
-      .chk_flag(improved)
+      arg::arg_flag(improved)
       
       nn <- tcrossprod(treat_n_t)
       
@@ -793,14 +801,14 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
   set_class(out, "init_energy.dist")
 }
 init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, ...) {
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
   
   x <- process_init_covs(x)
   bin.vars <- .attr(x, "bin")
   
   if (anyNA(x)) {
-    .err('{.val "kernel.dist"} cannot be used when there are missing values in the covariates')
+    arg::err('{.val "kernel.dist"} cannot be used when there are missing values in the covariates')
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -813,7 +821,7 @@ init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
   treat.type <- get.treat.type(treat)
   
   if (treat.type %nin% c("binary")) {
-    .err("{.arg treat} must be a binary variable")
+    arg::err("{.arg treat} must be a binary variable")
   }
   
   treat <- as.numeric(treat == treat[1L])
@@ -843,8 +851,8 @@ init_p <- function(x, treat, s.weights = NULL, ...) {
   x <- process_init_covs(x)
   bin.vars <- .attr(x, "bin")
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
   
   check_arg_lengths(x, treat, s.weights)
   
@@ -856,7 +864,7 @@ init_p <- function(x, treat, s.weights = NULL, ...) {
   treat.type <- get.treat.type(treat)
   
   if (treat.type %nin% c("continuous")) {
-    .err("{.arg treat} must be a continuous (numeric) variable")
+    arg::err("{.arg treat} must be a continuous (numeric) variable")
   }
   
   s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
@@ -877,8 +885,8 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
   x <- process_init_covs(x)
   bin.vars <- .attr(x, "bin")
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
   
   check_arg_lengths(x, treat, s.weights)
   
@@ -890,7 +898,7 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
   treat.type <- get.treat.type(treat)
   
   if (treat.type %nin% c("continuous")) {
-    .err("{.arg treat} must be a continuous (numeric) variable")
+    arg::err("{.arg treat} must be a continuous (numeric) variable")
   }
   
   for (i in seq_col(x)[!bin.vars[i]]) {
@@ -916,11 +924,11 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
   x <- process_init_covs(x)
   bin.vars <- .attr(x, "bin")
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
   
   if (anyNA(x)) {
-    .err('{.val "r2"} cannot be used when there are missing values in the covariates')
+    arg::err('{.val "r2"} cannot be used when there are missing values in the covariates')
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -933,7 +941,7 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
   treat.type <- get.treat.type(treat)
   
   if (treat.type %nin% c("binary", "continuous")) {
-    .err("{.arg treat} must be a binary or continuous (numeric) variable")
+    arg::err("{.arg treat} must be a binary or continuous (numeric) variable")
   }
   
   if (treat.type == "binary") {
@@ -952,12 +960,12 @@ init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
   x <- process_init_covs(x)
   bin.vars <- .attr(x, "bin")
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
   
   if (anyNA(x)) {
     .s <- if (std) "distance.cor" else "distance.cov"
-    .err('{.val "{.s}"} cannot be used when there are missing values in the covariates')
+    arg::err('{.val "{.s}"} cannot be used when there are missing values in the covariates')
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -972,7 +980,7 @@ init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
   treat.type <- get.treat.type(treat)
   
   if (treat.type %nin% c("continuous")) {
-    .err("{.arg treat} must be a continuous (numeric) variable")
+    arg::err("{.arg treat} must be a continuous (numeric) variable")
   }
   
   dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
@@ -1023,16 +1031,16 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
       x <- data.frame(x)
     }
     else if (!is.matrix(x)) {
-      .err("{.arg x} must be a data.frame or matrix")
+      arg::err("{.arg x} must be a data.frame or matrix")
     }
   }
   x <- as.data.frame(x)
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
   
   if (anyNA(x)) {
-    .err('{.val "l1.med"} cannot be used when there are missing values in the covariates')
+    arg::err('{.val "l1.med"} cannot be used when there are missing values in the covariates')
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -1045,7 +1053,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   treat.type <- get.treat.type(treat)
   
   if (treat.type %nin% c("binary", "multinomial")) {
-    .err("{.arg treat} must be a binary or multi-category variable")
+    arg::err("{.arg treat} must be a binary or multi-category variable")
   }
   
   coarsen <- function(covs, cutpoints = NULL, grouping = NULL) {
@@ -1085,7 +1093,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
     factor(do.call("paste", c(covs, sep = " | ")))
   }
   
-  .chk_null_or(estimand, .chk_string)
+  arg::when_not_null(estimand, arg::arg_string)
   if (is_null(estimand)) {
     estimand <- "ATE"
   }
@@ -1460,10 +1468,10 @@ energy.dist.target <- function(init, weights = NULL) {
 }
 
 bal_criterion <- function(treat.type, criterion) {
-  .chk_not_missing(treat.type, "`treat.type`")
-  .chk_string(treat.type)
-  .chk_not_missing(criterion, "`criterion`")
-  .chk_string(criterion)
+  arg::arg_supplied(treat.type)
+  arg::arg_string(treat.type)
+  arg::arg_supplied(criterion)
+  arg::arg_string(criterion)
   
   switch(
     treat.type,
@@ -1942,7 +1950,7 @@ bal_criterion <- function(treat.type, criterion) {
 }
 
 .check_init <- function(init, init_class) {
-  .chk_not_missing(init, "`init`")
-  .chk_not_missing(init_class, "`init_class`")
-  .chk_is(init, init_class)
+  arg::arg_supplied(init)
+  arg::arg_supplied(init_class)
+  arg::arg_is(init, init_class)
 }

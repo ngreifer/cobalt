@@ -67,7 +67,7 @@ base.bal.tab.cluster <- function(X,
   
   all.agg.funs <- c("min", "mean", "max")
   agg.fun <- tolower(as.character(cluster.fun %or% A[["agg.fun"]] %or% all.agg.funs))
-  agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
+  agg.fun <- arg::match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
   X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
   
@@ -116,7 +116,7 @@ base.bal.tab.cluster <- function(X,
       do.call("base.bal.tab", c(list(X_cl), A[setdiff(names(A), names(X_cl))]), quote = TRUE)
     },
     error = function(e) {
-      .err("in cluster {.str {cl}}: {conditionMessage(e)}")
+      arg::err("in cluster {.str {cl}}: {conditionMessage(e)}")
     })
   })
   

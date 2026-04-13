@@ -125,13 +125,13 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   weights <- weights * s.weights
   
   if (all(weights == 0)) {
-    .err("at least one unit must have a nonzero weight to compute weighted means")
+    arg::err("at least one unit must have a nonzero weight to compute weighted means")
   }
   
   col.w.m(mat[subset, , drop = FALSE], w = weights[subset], na.rm = na.rm)
@@ -149,13 +149,13 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   weights <- weights * s.weights
   
   if (sum(weights != 0) < 2L) {
-    .err("at least two units must have nonzero weights to compute weighted standard deviations")
+    arg::err("at least two units must have nonzero weights to compute weighted standard deviations")
   }
   
   sqrt(col.w.v(mat[subset, , drop = FALSE], w = weights[subset], 
@@ -166,31 +166,31 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
 #' @export 
 col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE,
                       s.weights = NULL, bin.vars, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
-  .chk_not_any_na(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
+  arg::arg_no_NA(treat)
   
   mat <- process_mat2(mat, ..., .bin.vars = bin.vars)
   bin.vars <- .attr(mat, "bin")
   
-  .chk_logical(std)
-  .chk_not_any_na(std)
+  arg::arg_logical(std)
+  arg::arg_no_NA(std)
   if (length(std) %nin% c(1L, NCOL(mat))) {
-    .err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
+    arg::err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
   }
   
-  .chk_flag(abs)
+  arg::arg_flag(abs)
   
   check_arg_lengths(mat, treat, weights, s.weights, subset)
   
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   if (!is_binary(treat[subset])) {
-    .err("{.arg treat} must be a binary variable")
+    arg::err("{.arg treat} must be a binary variable")
   }
   
   weights <- weights * s.weights
@@ -203,7 +203,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
   
   if (all(weights[treat == tval1_0] == 0) || 
       all(weights[treat != tval1_0] == 0)) {
-    .err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted SMDs")
+    arg::err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted SMDs")
   }
   
   m1 <- col.w.m(mat[treat == tval1_0 & subset, , drop = FALSE], weights[treat == tval1_0 & subset], na.rm = na.rm)
@@ -251,25 +251,25 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
 col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars,
                      subset = NULL, na.rm = TRUE, ...) {
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
-  .chk_not_any_na(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
+  arg::arg_no_NA(treat)
   
   mat <- process_mat2(mat, ..., .bin.vars = bin.vars)
   bin.vars <- .attr(mat, "bin")
   
-  .chk_flag(abs)
+  arg::arg_flag(abs)
   
   check_arg_lengths(mat, treat, weights, s.weights, subset)
   
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   if (!is_binary(treat[subset])) {
-    .err("{.arg treat} must be a binary variable")
+    arg::err("{.arg treat} must be a binary variable")
   }
   
   weights <- weights * s.weights
@@ -282,7 +282,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
   
   if (sum(weights[treat == tval1_0] != 0) < 2L || 
       sum(weights[treat != tval1_0] != 0) < 2L) {
-    .err("at least two units in each level of {.arg treat} must have nonzero weights to compute weighted variance ratios")
+    arg::err("at least two units in each level of {.arg treat} must have nonzero weights to compute weighted variance ratios")
   }
   
   v1 <- col.w.v(mat[treat == tval1_0, , drop = FALSE], weights[treat == tval1_0],
@@ -314,9 +314,9 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
 col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, subset = NULL,
                      na.rm = TRUE, ...) {
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
-  .chk_not_any_na(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
+  arg::arg_no_NA(treat)
   
   mat <- process_mat2(mat, ..., .bin.vars = bin.vars)
   bin.vars <- .attr(mat, "bin")
@@ -326,11 +326,11 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   if (!is_binary(treat[subset])) {
-    .err("{.arg treat} must be a binary variable")
+    arg::err("{.arg treat} must be a binary variable")
   }
   
   weights <- weights * s.weights
@@ -344,7 +344,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
   
   if (all(weights[treat == tval1] == 0) || 
       all(weights[treat != tval1] == 0)) {
-    .err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted KS statistics")
+    arg::err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted KS statistics")
   }
   
   if (!all(bin.vars)) {
@@ -380,9 +380,9 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
 col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, 
                       subset = NULL, na.rm = TRUE, integrate = TRUE, steps = 1001L, ...) {
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
-  .chk_not_any_na(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
+  arg::arg_no_NA(treat)
   
   mat <- process_mat2(mat, ..., .bin.vars = bin.vars)
   bin.vars <- .attr(mat, "bin")
@@ -392,11 +392,11 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   if (!is_binary(treat[subset])) {
-    .err("{.arg treat} must be a binary variable")
+    arg::err("{.arg treat} must be a binary variable")
   }
   
   weights <- weights * s.weights
@@ -407,16 +407,16 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   
   tval1 <- treat[1L]
   
-  .chk_gte(weights, 0)
+  arg::arg_gte(weights, 0)
   
   if (all(weights[treat == tval1] == 0) || 
       all(weights[treat != tval1] == 0)) {
-    .err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted OVL statistics")
+    arg::err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted OVL statistics")
   }
   
   if (check_if_zero(sum(weights[treat == tval1])) || 
       check_if_zero(sum(weights[treat != tval1]))) {
-    .err("the sum of weights in each treatment group must be nonzero to compute weighted OVL statistics")
+    arg::err("the sum of weights in each treatment group must be nonzero to compute weighted OVL statistics")
   }
   
   all_pos_w <- all(weights >= 0)
@@ -429,11 +429,11 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   ovl <- setNames(numeric(ncol(mat)), colnames(mat))
   
   if (!all(bin.vars)) {
-    .chk_flag(integrate)
+    arg::arg_flag(integrate)
     
     if (!integrate) {
-      .chk_count(steps)
-      .chk_gte(steps, 5)
+      arg::arg_count(steps)
+      arg::arg_gte(steps, 5)
     }
     
     bw <- ...get("bw", "nrd")
@@ -443,7 +443,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
     
     bw_fun <- get0(paste.("bw", bw))
     if (!is.function(bw_fun)) {
-      .err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
+      arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
     }
     
     .w_ovl <- function(x) {
@@ -536,36 +536,36 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
                       s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars,
                       subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
   
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
-  .chk_not_any_na(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
+  arg::arg_no_NA(treat)
   
   mat <- process_mat2(mat, ..., .bin.vars = bin.vars)
   bin.vars <- .attr(mat, "bin")
   
-  .chk_logical(std)
-  .chk_not_any_na(std)
+  arg::arg_logical(std)
+  arg::arg_no_NA(std)
   if (length(std) %nin% c(1L, NCOL(mat))) {
-    .err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
+    arg::err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
   }
   
-  .chk_flag(abs)
+  arg::arg_flag(abs)
   
   check_arg_lengths(mat, treat, weights, s.weights, subset)
   
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   if (length(std) == 1L) {
     std <- rep.int(std, NCOL(mat))
   }
   
-  .chk_string(type)
+  arg::arg_string(type)
   type <- tolower(type)
-  type <- match_arg(type, c("pearson", "spearman"))
+  type <- arg::match_arg(type, c("pearson", "spearman"))
   if (type == "spearman") {
     for (i in which(!bin.vars)) {
       mat[, i] <- rank(mat[, i], na.last = "keep")
@@ -576,7 +576,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
   weights <- weights * s.weights
   
   if (sum(weights != 0) <= 1) {
-    .err("at least two units must have nonzero weights to compute weighted covariances")
+    arg::err("at least two units must have nonzero weights to compute weighted covariances")
   }
   
   covars <- col.w.cov(mat[subset, , drop = FALSE], y = treat[subset],
@@ -623,14 +623,14 @@ col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", s.d.denom =
 col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all",
                        s.weights = NULL, subset = NULL, weighted.weights = weights,
                        na.rm = TRUE, ...) {
-  .chk_not_missing(treat, "`treat`")
-  .chk_atomic(treat)
-  .chk_not_any_na(treat)
+  arg::arg_supplied(treat)
+  arg::arg_vector(treat)
+  arg::arg_no_NA(treat)
   
-  .chk_logical(std)
-  .chk_not_any_na(std)
+  arg::arg_logical(std)
+  arg::arg_no_NA(std)
   if (length(std) %nin% c(1L, NCOL(mat))) {
-    .err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
+    arg::err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
   }
   
   mat <- process_mat2(mat, ...)
@@ -640,12 +640,12 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
-  .chk_numeric(weights)
-  .chk_numeric(s.weights)
+  arg::arg_numeric(weights)
+  arg::arg_numeric(s.weights)
   
   s.weights <- s.weights / sum(s.weights)
   
-  .chk_null_or(subset, .chk_logical)
+  arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
   weights <- weights * s.weights
@@ -707,22 +707,22 @@ process_mat1 <- function(mat, ...) {
   needs.splitting <- FALSE
   
   if (!is.matrix(mat)) {
-    if (is.data.frame(mat)) {
-      if (!any_apply(mat, chk::vld_character_or_factor)) {
-        return(as.matrix(mat))
-      }
-      
-      needs.splitting <- TRUE
-    }
-    else if (is.numeric(mat)) {
+    if (is.numeric(mat)) {
       return(matrix(mat, ncol = 1L))
     }
-    else {
-      .err("{.arg mat} must be a data frame or numeric matrix")
+    
+    if (!is.data.frame(mat)) {
+      arg::err("{.arg mat} must be a data frame or numeric matrix")
     }
+    
+    if (!any_apply(mat, function(z) is.character(z) || is.factor(z))) {
+      return(as.matrix(mat))
+    }
+    
+    needs.splitting <- TRUE
   }
   else if (!is.numeric(mat)) {
-    .err("{.arg mat} must be a data frame or numeric matrix")
+    arg::err("{.arg mat} must be a data frame or numeric matrix")
   }
   
   if (!needs.splitting) {
@@ -738,13 +738,15 @@ process_mat1 <- function(mat, ...) {
 }
 process_mat2 <- function(mat, ..., .bin.vars) {
   if ((!is.numeric(mat) && !is.data.frame(mat)) || length(dim(mat)) > 2L) {
-    .err("{.arg mat} must be a data frame or numeric matrix")
+    arg::err("{.arg mat} must be a data frame or numeric matrix")
   }
   
   needs.splitting <- FALSE
   
   if (is.data.frame(mat)) {
-    to.split <- vapply(mat, chk::vld_character_or_factor, logical(1L))
+    to.split <- vapply(mat,
+                       function(z) is.character(z) || is.factor(z),
+                       logical(1L))
     
     if (any(to.split)) {
       needs.splitting <- TRUE
@@ -780,6 +782,14 @@ process_mat2 <- function(mat, ..., .bin.vars) {
 }
 
 .process_bin_vars <- function(bin.vars, mat) {
+  arg::when_supplied(bin.vars,
+                     arg::arg_or(
+                       arg::arg_null,
+                       arg::arg_logical,
+                       arg::arg_whole_numeric,
+                       arg::arg_character
+                     ))
+  
   if (missing(bin.vars)) {
     return(apply(mat, 2L, is_0_1))
   }
@@ -790,7 +800,7 @@ process_mat2 <- function(mat, ..., .bin.vars) {
   
   if (is.logical(bin.vars)) {
     if (length(bin.vars) != ncol(mat)) {
-      .err("if {.arg bin.vars} is logical, it must have length equal to the number of columns of {.arg mat}")
+      arg::err("if {.arg bin.vars} is logical, it must have length equal to the number of columns of {.arg mat}")
     }
     
     bin.vars[is.na(bin.vars)] <- FALSE
@@ -799,11 +809,11 @@ process_mat2 <- function(mat, ..., .bin.vars) {
     bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != 0]
     
     if (any(bin.vars < 0) && any(bin.vars > 0)) {
-      .err("positive and negative indices cannot be mixed with {.arg bin.vars}")
+      arg::err("positive and negative indices cannot be mixed with {.arg bin.vars}")
     }
     
     if (any(abs(bin.vars) > ncol(mat))) {
-      .err("if {.arg bin.vars} is numeric, none of its values can exceed the number of columns of {.arg mat}")
+      arg::err("if {.arg bin.vars} is numeric, none of its values can exceed the number of columns of {.arg mat}")
     }
     
     logical.bin.vars <- rep.int(any(bin.vars < 0), ncol(mat))
@@ -814,17 +824,14 @@ process_mat2 <- function(mat, ..., .bin.vars) {
     bin.vars <- bin.vars[!is.na(bin.vars) & nzchar(bin.vars)]
     
     if (is_null(colnames(mat))) {
-      .err("if {.arg bin.vars} is character, {.arg mat} must have column names")
+      arg::err("if {.arg bin.vars} is character, {.arg mat} must have column names")
     }
     
     if (!all(bin.vars %in% colnames(mat))) {
-      .err("if {.arg bin.vars} is character, all its values must be column names of {.arg mat}")
+      arg::err("if {.arg bin.vars} is character, all its values must be column names of {.arg mat}")
     }
     
     bin.vars <- colnames(mat) %in% bin.vars
-  }
-  else {
-    .err("{.arg bin.vars} must be a logical, numeric, or character vector")
   }
   
   bin.vars

@@ -53,7 +53,7 @@
 #' @exportS3Method bal.tab mimids
 bal.tab.mimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
   
-  args <- try_chk(c(as.list(environment()), list(...))[-1L])
+  args <- try_arg(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   args[vapply(args, rlang::is_missing, logical(1L))] <- NULL

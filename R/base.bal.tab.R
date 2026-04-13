@@ -38,7 +38,7 @@ base.bal.tab.base <- function(X,
   A$subset <- NULL
   
   if (type == "bin" && get.treat.type(X$treat) != "binary") {
-    .err("the treatment must be a binary variable")
+    arg::err("the treatment must be a binary variable")
   }
   
   if (is_null(continuous)) continuous <- getOption("cobalt_continuous", "std")

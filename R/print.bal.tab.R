@@ -73,7 +73,7 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
     return(eval.parent(.call))
   }
   
-  A <- try_chk(c(as.list(environment()), list(...))[-1L])
+  A <- try_arg(c(as.list(environment()), list(...))[-1L])
   
   A[vapply(A, rlang::is_missing, logical(1L))] <- NULL
   
@@ -780,9 +780,9 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
   p.ops <- .attr(x, "print.options")
   
   if (!missing(cluster.summary)) {
-    .chk_flag(cluster.summary)
+    arg::arg_flag(cluster.summary)
     if (p.ops$quick && !p.ops$cluster.summary && cluster.summary) {
-      .wrn("{.arg cluster.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg cluster.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$cluster.summary <- cluster.summary
@@ -810,10 +810,10 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
     }
   }
   else if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) {
-    .err("{.arg cluster.fun} must be {.or {.val {computed.cluster.funs}}}")
+    arg::err("{.arg cluster.fun} must be {.or {.val {computed.cluster.funs}}}")
   }
   
-  cluster.fun <- match_arg(tolower(cluster.fun), computed.cluster.funs,
+  cluster.fun <- arg::match_arg(tolower(cluster.fun), computed.cluster.funs,
                            several.ok = TRUE)
   
   #Checks and Adjustments
@@ -826,19 +826,19 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
   else if (is.numeric(p.ops$which.cluster)) {
     which.cluster <- intersect(seq_along(c.balance), p.ops$which.cluster)
     if (is_null(which.cluster)) {
-      .wrn("no indices in {.arg which.cluster} are cluster indices. Displaying all clusters instead")
+      arg::wrn("no indices in {.arg which.cluster} are cluster indices. Displaying all clusters instead")
       which.cluster <- seq_along(c.balance)
     }
   }
   else if (is.character(p.ops$which.cluster)) {
     which.cluster <- seq_along(c.balance)[names(c.balance) %in% p.ops$which.cluster]
     if (is_null(which.cluster)) {
-      .wrn("no names in {.arg which.cluster} are cluster names. Displaying all clusters instead")
+      arg::wrn("no names in {.arg which.cluster} are cluster names. Displaying all clusters instead")
       which.cluster <- seq_along(c.balance)
     }
   }
   else {
-    .wrn("the argument to {.arg which.cluster} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of cluster indices or cluster names. Displaying all clusters instead")
+    arg::wrn("the argument to {.arg which.cluster} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of cluster indices or cluster names. Displaying all clusters instead")
     which.cluster <- seq_along(c.balance)
   }
   
@@ -853,9 +853,9 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
   p.ops <- .attr(x, "print.options")
   
   if (!missing(imp.summary)) {
-    .chk_flag(imp.summary)
+    arg::arg_flag(imp.summary)
     if (p.ops$quick && !p.ops$imp.summary && imp.summary) {
-      .wrn("{.arg imp.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg imp.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$imp.summary <- imp.summary
@@ -883,10 +883,10 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
     }
   }
   else if (!is.character(imp.fun) || !all(imp.fun %pin% computed.imp.funs)) {
-    .err("{.arg imp.fun} must be {.or {.val {computed.imp.funs}}}")
+    arg::err("{.arg imp.fun} must be {.or {.val {computed.imp.funs}}}")
   }
   
-  imp.fun <- match_arg(tolower(imp.fun), computed.imp.funs, several.ok = TRUE)
+  imp.fun <- arg::match_arg(tolower(imp.fun), computed.imp.funs, several.ok = TRUE)
   
   #Checks and Adjustments
   if (is_null(p.ops$which.imp)) {
@@ -898,12 +898,12 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
   else if (is.numeric(p.ops$which.imp)) {
     which.imp <- intersect(seq_along(i.balance), p.ops$which.imp)
     if (is_null(which.imp)) {
-      .wrn("no numbers in {.arg which.imp} are imputation numbers. No imputations will be displayed")
+      arg::wrn("no numbers in {.arg which.imp} are imputation numbers. No imputations will be displayed")
       which.imp <- integer()
     }
   }
   else {
-    .wrn("the argument to {.arg which.imp} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of imputation numbers")
+    arg::wrn("the argument to {.arg which.imp} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of imputation numbers")
     which.imp <- integer()
   }
   
@@ -920,9 +920,9 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
   p.ops <- .attr(x, "print.options")
   
   if (!missing(multi.summary)) {
-    .chk_flag(multi.summary)
+    arg::arg_flag(multi.summary)
     if (p.ops$quick && !p.ops$multi.summary && multi.summary) {
-      .wrn("{.arg multi.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg multi.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$multi.summary <- multi.summary
@@ -946,7 +946,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
     which.treat <- character()
   }
   else if (!is.character(p.ops$which.treat) && !is.numeric(p.ops$which.treat)) {
-    .wrn("the argument to {.arg which.treat} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of treatment names or indices. No treatment pairs will be displayed")
+    arg::wrn("the argument to {.arg which.treat} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of treatment names or indices. No treatment pairs will be displayed")
     which.treat <- character()
   }
   else {
@@ -957,14 +957,14 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
     if (is.numeric(p.ops$which.treat)) {
       which.treat <- p.ops$treat_vals_multi[seq_along(p.ops$treat_vals_multi) %in% p.ops$which.treat]
       if (is_null(which.treat)) {
-        .wrn("no numbers in {.arg which.treat} correspond to treatment values. No treatment pairs will be displayed")
+        arg::wrn("no numbers in {.arg which.treat} correspond to treatment values. No treatment pairs will be displayed")
         which.treat <- character()
       }
     }
     else if (is.character(p.ops$which.treat)) {
       which.treat <- p.ops$treat_vals_multi[p.ops$treat_vals_multi %in% p.ops$which.treat]
       if (is_null(which.treat)) {
-        .wrn("no names in {.arg which.treat} correspond to treatment values. No treatment pairs will be displayed")
+        arg::wrn("no names in {.arg which.treat} correspond to treatment values. No treatment pairs will be displayed")
         which.treat <- character()
       }
     }
@@ -1014,9 +1014,9 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
   p.ops <- .attr(x, "print.options")
   
   if (!missing(msm.summary)) {
-    .chk_flag(msm.summary)
+    arg::arg_flag(msm.summary)
     if (p.ops$quick && !p.ops$msm.summary && msm.summary) {
-      .wrn("{.arg msm.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg msm.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$msm.summary <- msm.summary
@@ -1042,19 +1042,19 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
   else if (is.numeric(p.ops$which.time)) {
     which.time <- seq_along(msm.balance)[seq_along(msm.balance) %in% p.ops$which.time]
     if (is_null(which.time)) {
-      .wrn("no numbers in {.arg which.time} are treatment time points. No time points will be displayed")
+      arg::wrn("no numbers in {.arg which.time} are treatment time points. No time points will be displayed")
       which.time <- integer()
     }
   }
   else if (is.character(p.ops$which.time)) {
     which.time <- seq_along(msm.balance)[names(msm.balance) %in% p.ops$which.time]
     if (is_null(which.time)) {
-      .wrn("no names in {.arg which.time} are treatment names. No time points will be displayed")
+      arg::wrn("no names in {.arg which.time} are treatment names. No time points will be displayed")
       which.time <- integer()
     }
   }
   else {
-    .wrn("the argument to {.arg which.time} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of time point numbers. No time points will be displayed")
+    arg::wrn("the argument to {.arg which.time} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of time point numbers. No time points will be displayed")
     which.time <- integer()
   }
   
@@ -1071,9 +1071,9 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   
   #Adjustments to print options
   if (!missing(un) && p.ops$disp.adj) {
-    .chk_flag(un)
+    arg::arg_flag(un)
     if (p.ops$quick && !p.ops$un && un) {
-      .wrn("{.arg un} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg un} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$un <- un
@@ -1081,15 +1081,15 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (!missing(disp)) {
-    .chk_character(disp)
+    arg::arg_character(disp)
     allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
     
     if (!all(disp %in% allowable.disp)) {
-      .err("{.val {setdiff(disp, allowable.disp)}} {?is/are} not allowed in {.arg disp}")
+      arg::err("{.val {setdiff(disp, allowable.disp)}} {?is/are} not allowed in {.arg disp}")
     }
     
     if (all(disp %in% p.ops$compute)) {
-      .wrn("{.arg disp} cannot include {.or {.val {setdiff(disp, p.ops$compute)}}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg disp} cannot include {.or {.val {setdiff(disp, p.ops$compute)}}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else{
       p.ops$disp <- disp
@@ -1097,21 +1097,21 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (is_not_null(...get("disp.means"))) {
-    .chk_flag(...get("disp.means"), "disp.means")
+    arg::arg_flag(...get("disp.means"), "disp.means")
     
     if ("means" %in% p.ops$compute || !...get("disp.means")) {
       p.ops$disp <- unique(c(p.ops$disp, "means"[...get("disp.means")]))
     }
     else {
-      .wrn("{.arg disp.means} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg disp.means} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
   }
   
   if (is_not_null(...get("disp.sds"))) {
-    .chk_flag(...get("disp.sds"), "disp.sds")
+    arg::arg_flag(...get("disp.sds"), "disp.sds")
     
     if ("sds" %nin% p.ops$compute && ...get("disp.sds")) {
-      .wrn("{.arg disp.sds} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg disp.sds} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$disp <- unique(c(p.ops$disp, "sds"[...get("disp.sds")]))
@@ -1119,12 +1119,12 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (!missing(stats)) {
-    .chk_character(stats)
-    stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
+    arg::arg_character(stats)
+    stats <- arg::match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
     stats_in_p.ops <- stats %in% p.ops$compute
     
     if (!all(stats_in_p.ops)) {
-      .err("{.arg stats} cannot contain {.or {.val {stats[!stats_in_p.ops]}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
+      arg::err("{.arg stats} cannot contain {.or {.val {stats[!stats_in_p.ops]}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
     }
     
     p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
@@ -1132,9 +1132,9 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   
   for (s in all_STATS(p.ops$type)) {
     if (is_not_null(...get(STATS[[s]]$disp_stat))) {
-      .chk_flag(...get(STATS[[s]]$disp_stat), STATS[[s]]$disp_stat)
+      arg::arg_flag(...get(STATS[[s]]$disp_stat), STATS[[s]]$disp_stat)
       if (s %nin% p.ops$compute && isTRUE(...get(STATS[[s]]$disp_stat))) {
-        .wrn("{.arg {STATS[[s]]$disp_stat}} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+        arg::wrn("{.arg {STATS[[s]]$disp_stat}} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       else {
         p.ops$disp <- unique(c(p.ops$disp, s))
@@ -1149,7 +1149,7 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
           (!is.numeric(temp.thresh) || length(temp.thresh) != 1L ||
            is_null(p.ops[["thresholds"]][[s]]) ||
            p.ops[["thresholds"]][[s]] != temp.thresh)) {
-        .err("{.arg {STATS[[s]]$threshold}} must be {.val {list(NULL)}} or left unspecified")
+        arg::err("{.arg {STATS[[s]]$threshold}} must be {.val {list(NULL)}} or left unspecified")
       }
       
       if (is_null(temp.thresh)) {
@@ -1163,12 +1163,12 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (!missing(disp.thresholds)) {
-    .chk_logical(disp.thresholds)
-    .chk_not_any_na(disp.thresholds)
+    arg::arg_logical(disp.thresholds)
+    arg::arg_no_NA(disp.thresholds)
     
     if (is_null(names(disp.thresholds))) {
       if (length(disp.thresholds) > length(p.ops[["thresholds"]])) {
-        .err("more entries were given to {.arg disp.thresholds} than there are thresholds in the {.cls bal.tab} object")
+        arg::err("more entries were given to {.arg disp.thresholds} than there are thresholds in the {.cls bal.tab} object")
       }
       
       if (length(disp.thresholds) == 1L) {
@@ -1179,11 +1179,11 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
     }
     
     if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
-      .wrn('{.val {names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]}} {?is/are} not available in thresholds and will be ignored')
+      arg::wrn('{.val {names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]}} {?is/are} not available in thresholds and will be ignored')
       disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
     }
     
-    names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+    names(disp.thresholds) <- arg::match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
     
     for (i in names(disp.thresholds)) {
       if (!disp.thresholds[i]) {
@@ -1193,18 +1193,18 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (!missing(disp.bal.tab)) {
-    .chk_flag(disp.bal.tab)
+    arg::arg_flag(disp.bal.tab)
     p.ops$disp.bal.tab <- disp.bal.tab
   }
   
   if (p.ops$disp.bal.tab) {
     if (!missing(imbalanced.only)) {
-      .chk_flag(imbalanced.only)
+      arg::arg_flag(imbalanced.only)
       p.ops$imbalanced.only <- imbalanced.only
     }
     
     if (p.ops$imbalanced.only && is_null(p.ops$thresholds)) {
-      .wrn("a threshold must be specified if {.code imbalanced.only = TRUE}. Displaying all covariates")
+      arg::wrn("a threshold must be specified if {.code imbalanced.only = TRUE}. Displaying all covariates")
       p.ops$imbalanced.only <- FALSE
     }
   }
@@ -1213,9 +1213,9 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (!missing(disp.call)) {
-    .chk_flag(disp.call)
+    arg::arg_flag(disp.call)
     if (disp.call && is_null(x$call)) {
-      .wrn("{.arg disp.call} cannot be set to {.val {TRUE}} if the input object does not have a {.field call} component")
+      arg::wrn("{.arg disp.call} cannot be set to {.val {TRUE}} if the input object does not have a {.field call} component")
     }
     else {
       p.ops$disp.call <- disp.call
@@ -1246,9 +1246,9 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   
   #Adjustments to print options
   if (!missing(un) && p.ops$disp.adj) {
-    .chk_flag(un)
+    arg::arg_flag(un)
     if (p.ops$quick && !p.ops$un && un) {
-      .wrn("{.arg un} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg un} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$un <- un
@@ -1256,37 +1256,37 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(disp)) {
-    .chk_character(disp)
+    arg::arg_character(disp)
     allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
     
     if (!all(disp %in% allowable.disp)) {
-      .err("{.val {setdiff(disp, allowable.disp)}} {?is/are} not allowed in {.arg disp}")
+      arg::err("{.val {setdiff(disp, allowable.disp)}} {?is/are} not allowed in {.arg disp}")
     }
     
     if (all(disp %in% p.ops$compute)) {
       p.ops$disp <- disp
     }
     else {
-      .wrn("{.arg disp} cannot include {.or {.val {setdiff(disp, p.ops$compute)}}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg disp} cannot include {.or {.val {setdiff(disp, p.ops$compute)}}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
   }
   
   if (is_not_null(...get("disp.means"))) {
-    .chk_flag(...get("disp.means"), "disp.means")
+    arg::arg_flag(...get("disp.means"), "disp.means")
     
     if ("means" %in% p.ops$compute || !...get("disp.means")) {
       p.ops$disp <- unique(c(p.ops$disp, "means"[...get("disp.means")]))
     }
     else {
-      .wrn("{.arg disp.means} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg disp.means} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
   }
   
   if (is_not_null(...get("disp.sds"))) {
-    .chk_flag(...get("disp.sds"), "disp.sds")
+    arg::arg_flag(...get("disp.sds"), "disp.sds")
     
     if ("sds" %nin% p.ops$compute && ...get("disp.sds")) {
-      .wrn("{.arg disp.sds} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+      arg::wrn("{.arg disp.sds} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$disp <- unique(c(p.ops$disp, "sds"[...get("disp.sds")]))
@@ -1294,12 +1294,12 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(stats)) {
-    .chk_character(stats)
-    stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
+    arg::arg_character(stats)
+    stats <- arg::match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
     stats_in_p.ops <- stats %in% p.ops$compute
     
     if (!all(stats_in_p.ops)) {
-      .err("{.arg stats} cannot contain {.or {.val {stats[!stats_in_p.ops]}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
+      arg::err("{.arg stats} cannot contain {.or {.val {stats[!stats_in_p.ops]}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
     }
     
     p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
@@ -1307,10 +1307,10 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   
   for (s in all_STATS(p.ops$type)) {
     if (is_not_null(...get(STATS[[s]]$disp_stat))) {
-      .chk_flag(...get(STATS[[s]]$disp_stat), STATS[[s]]$disp_stat)
+      arg::arg_flag(...get(STATS[[s]]$disp_stat), STATS[[s]]$disp_stat)
       
       if (s %nin% p.ops$compute && isTRUE(...get(STATS[[s]]$disp_stat))) {
-        .wrn("{.arg {STATS[[s]]$disp_stat}} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
+        arg::wrn("{.arg {STATS[[s]]$disp_stat}} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       else {
         p.ops$disp <- unique(c(p.ops$disp, s))
@@ -1326,7 +1326,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
           (!is.numeric(temp.thresh) || length(temp.thresh) != 1L ||
            is_null(p.ops[["thresholds"]][[s]]) ||
            p.ops[["thresholds"]][[s]] != temp.thresh)) {
-        .err("{.arg {STATS[[s]]$threshold}} must be {.val {list(NULL)}} or left unspecified")
+        arg::err("{.arg {STATS[[s]]$threshold}} must be {.val {list(NULL)}} or left unspecified")
       }
       
       if (is_null(temp.thresh)) {
@@ -1340,12 +1340,12 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(disp.thresholds)) {
-    .chk_logical(disp.thresholds)
-    .chk_not_any_na(disp.thresholds)
+    arg::arg_logical(disp.thresholds)
+    arg::arg_no_NA(disp.thresholds)
     
     if (is_null(names(disp.thresholds))) {
       if (length(disp.thresholds) > length(p.ops[["thresholds"]])) {
-        .err("more entries were given to {.arg disp.thresholds} than there are thresholds in the {.cls bal.tab} object")
+        arg::err("more entries were given to {.arg disp.thresholds} than there are thresholds in the {.cls bal.tab} object")
       }
       
       if (length(disp.thresholds) == 1L) {
@@ -1356,11 +1356,11 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
     }
     
     if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
-      .wrn('{names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]} {?is/are} not available in thresholds and will be ignored')
+      arg::wrn('{names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]} {?is/are} not available in thresholds and will be ignored')
       disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
     }
     
-    names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+    names(disp.thresholds) <- arg::match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
     for (x in names(disp.thresholds)) {
       if (!disp.thresholds[x]) {
         drop.thresholds <- c(drop.thresholds, x)
@@ -1369,18 +1369,18 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(disp.bal.tab)) {
-    .chk_flag(disp.bal.tab)
+    arg::arg_flag(disp.bal.tab)
     p.ops$disp.bal.tab <- disp.bal.tab
   }
   
   if (p.ops$disp.bal.tab) {
     if (!missing(imbalanced.only)) {
-      .chk_flag(imbalanced.only)
+      arg::arg_flag(imbalanced.only)
       p.ops$imbalanced.only <- imbalanced.only
     }
     
     if (p.ops$imbalanced.only && is_null(p.ops$thresholds)) {
-      .wrn("a threshold must be specified if {.code imbalanced.only = TRUE}. Displaying all covariates")
+      arg::wrn("a threshold must be specified if {.code imbalanced.only = TRUE}. Displaying all covariates")
       p.ops$imbalanced.only <- FALSE
     }
   }
@@ -1389,10 +1389,10 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(disp.call)) {
-    .chk_flag(disp.call)
+    arg::arg_flag(disp.call)
     
     if (disp.call && is_null(x$call)) {
-      .wrn("{.arg disp.call} cannot be set to {.val {TRUE}} if the input object does not have a {.field call} component")
+      arg::wrn("{.arg disp.call} cannot be set to {.val {TRUE}} if the input object does not have a {.field call} component")
     }
     else {
       p.ops$disp.call <- disp.call
@@ -1400,9 +1400,9 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(subclass.summary)) {
-    .chk_flag(subclass.summary)
+    arg::arg_flag(subclass.summary)
     if (p.ops$quick && !p.ops$subclass.summary && subclass.summary) {
-      .wrn("`subclass.summary` cannot be set to `TRUE` if `quick = TRUE` in the original call to `bal.tab()`")
+      arg::wrn("`subclass.summary` cannot be set to `TRUE` if `quick = TRUE` in the original call to `bal.tab()`")
     }
     else {
       p.ops$subclass.summary <- subclass.summary
@@ -1426,12 +1426,12 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   else if (is.numeric(p.ops$which.subclass)) {
     which.subclass <- intersect(seq_along(s.balance), p.ops$which.subclass)
     if (is_null(which.subclass)) {
-      .wrn("no values supplied {.arg which.subclass} are subclass indices. No subclasses will be displayed")
+      arg::wrn("no values supplied {.arg which.subclass} are subclass indices. No subclasses will be displayed")
       which.subclass <- NA
     }
   }
   else {
-    .wrn("the argument to {.arg which.subclass} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of subclass indices. No subclasses will be displayed")
+    arg::wrn("the argument to {.arg which.subclass} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of subclass indices. No subclasses will be displayed")
     which.subclass <- NA
   }
   

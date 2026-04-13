@@ -150,7 +150,7 @@ bal.tab <- function(x, ...) {
   
   .call <- match.call()
   
-  x <- try_chk(force(x), warn = TRUE)
+  x <- try_arg(force(x), warn = TRUE)
   
   #Replace .all and .none with NULL and NA respectively
   if (!inherits(x, "cobalt.processed.obj")) {

@@ -57,11 +57,8 @@
 splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
                         drop.singleton = FALSE, drop.na = TRUE, sep = "_",
                         replace = TRUE, split.with = NULL, check = TRUE) {
-  #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
-  #Retains all categories unless only 2 levels, in which case only the second level is retained.
-  #If variable only has one level, will delete.
-  #var.name= the name of the variable to split when data is specified
-  #data=data set to be changed
+
+  arg::arg_supplied(data)
   
   if (is.matrix(data) || length(dim(data)) == 2L) {
     data <- as.data.frame(data)
@@ -70,9 +67,10 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
   if (is.data.frame(data)) {
     data <- as.data.frame(data)
     if (check) {
-      factor.names <- names(data)[vapply(data, chk::vld_character_or_factor, logical(1L))]
+      factor.names <- names(data)[vapply(data, function(z) is.character(z) || is.factor(z), logical(1L))]
+      
       if (is_null(factor.names)) {
-        .wrn("there are no factor variables to split in {.arg data}")
+        arg::wrn("there are no factor variables to split in {.arg data}")
         return(data)
       }
       
@@ -81,33 +79,32 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       }
       else {
         if (!is.character(var.name)) {
-          .err("{.arg var.name} must be a character vector of the names of one or more factor variables in {.arg data}")
+          arg::err("{.arg var.name} must be a character vector of the names of one or more factor variables in {.arg data}")
         }
         
         if (!any(var.name %in% factor.names)) {
-          .err("no names in {.arg var.name} are names of factor variables in {.arg data}")
+          arg::err("no names in {.arg var.name} are names of factor variables in {.arg data}")
         }
         
         if (!all(var.name %in% factor.names)) {
           not.in.factor.names <- setdiff(var.name, factor.names)
-          .wrn("{.val {not.in.factor.names}} {?is/are} not the name{?s} of {?a/} factor variable{?s} in {.arg data} and will not be split")
+          arg::wrn("{.val {not.in.factor.names}} {?is/are} not the name{?s} of {?a/} factor variable{?s} in {.arg data} and will not be split")
         }
         var.name <- intersect(var.name, factor.names)
       }
-      
     }
     else {
       if (missing(var.name) || !is.character(var.name)) {
-        .err("{.arg var.name} must be a character vector of the names of variables in {.arg data}")
+        arg::err("{.arg var.name} must be a character vector of the names of variables in {.arg data}")
       }
       
       if (!any(var.name %in% names(data))) {
-        .err("no names in {.arg var.name} are names of variables in {.arg data}")
+        arg::err("no names in {.arg var.name} are names of variables in {.arg data}")
       }
       
       if (!all(var.name %in% names(data))) {
         not.in.data.names <- setdiff(var.name, names(data))
-        .wrn("{.val {not.in.factor.names}} {?is/are} not the name{?s} of {?a/} factor variable{?s} in {.arg data} and will not be split")
+        arg::wrn("{.val {not.in.factor.names}} {?is/are} not the name{?s} of {?a/} factor variable{?s} in {.arg data} and will not be split")
       }
       
       var.name <- intersect(var.name, names(data))
@@ -116,20 +113,20 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     if (is_not_null(split.with)) {
       if (is.list(split.with)) {
         if (!all_apply(split.with, is.atomic)) {
-          .err("all entries in {.arg split.with} must must be atomic vectors or factors")
+          arg::err("all entries in {.arg split.with} must must be atomic vectors or factors")
         }
         
         if (!all(lengths(split.with) == ncol(data))) {
-          .err("all entries in {.arg split.with} must have length equal to the number of columns of {.arg data}")
+          arg::err("all entries in {.arg split.with} must have length equal to the number of columns of {.arg data}")
         }
       }
       else {
         if (!is.atomic(split.with)) {
-          .err("{.arg split.with} must must be an atomic vector or factor or list thereof")
+          arg::err("{.arg split.with} must must be an atomic vector or factor or list thereof")
         }
         
         if (length(split.with) != ncol(data)) {
-          .err("{.arg split.with} must have length equal to the number of columns of {.arg data}")
+          arg::err("{.arg split.with} must have length equal to the number of columns of {.arg data}")
         }
         
         split.with <- list(split.with)
@@ -143,50 +140,54 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       names(data) <- dep
     }
     else if (is.atomic(var.name)) {
-      if (length(var.name) == 1L) {
-        names(data) <- var.name
+      if (length(var.name) != 1L) {
+        arg::wrn("only using the first item of {.arg var.name}")
       }
-      else {
-        .wrn("only using the first item of {.arg var.name}")
-        names(data) <- var.name[1L]
-      }
+      names(data) <- var.name[1L]
     }
     else {
-      .err("{.arg var.name} must be an atomic or factor vector of length 1 with the stem of the new variable")
+      arg::err("{.arg var.name} must be an atomic or factor vector of length 1 with the stem of the new variable")
     }
     var.name <- names(data)
     
     if (is_not_null(split.with)) {
       if (is.list(split.with)) {
         if (!all_apply(split.with, is.atomic)) {
-          .err("all entries in {.arg split.with} must must be atomic vectors or factors")
+          arg::err("all entries in {.arg split.with} must must be atomic vectors or factors")
         }
         
         if (!all(lengths(split.with) == ncol(data))) {
-          .err("all entries in {.arg split.with} must have length 1")
+          arg::err("all entries in {.arg split.with} must have length 1")
         }
       }
       else {
         if (!is.atomic(split.with)) {
-          .err("{.arg split.with} must must be an atomic vector or factor or list thereof")
+          arg::err("{.arg split.with} must must be an atomic vector or factor or list thereof")
         }
         if (length(split.with) != ncol(data)) {
-          .err("{.arg split.with} must have length 1")
+          arg::err("{.arg split.with} must have length 1")
         }
         split.with <- list(split.with)
       }
     }
   }
   else {
-    .err("{.arg data} must a be a data.frame or factor")
+    arg::err("{.arg data} must a be a data.frame or factor")
   }
   
   if (is_not_null(drop.level) && length(var.name) > 1L) {
-    .wrn("{.arg drop.level} cannot be used with multiple entries to {.arg var.name}. Ignoring {.arg drop.level}")
+    arg::wrn("{.arg drop.level} cannot be used with multiple entries to {.arg var.name}. Ignoring {.arg drop.level}")
     drop.level <- NULL
   }
   
-  .chk_flag(drop.singleton)
+  if (is_null(drop.level)) {
+    arg::arg_or(drop.first,
+                arg::arg_flag,
+                arg::arg_element("if2"))
+  }
+  
+  arg::arg_flag(drop.singleton)
+  
   drop.na <- rlang::rep_named(var.name, drop.na)
   
   for (v in var.name) {
@@ -224,19 +225,15 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     
     dropl <- rlang::rep_named(new.levels, FALSE)
     if (is_not_null(drop.level)) {
-      if (!is.character(drop.level) || length(drop.level) != 1L || drop.level %nin% new.levels) {
-        .err("{.arg drop} must be the name of a level of {.var {v}} that is to be dropped")
+      if (!rlang::is_string(drop.level) || drop.level %nin% new.levels) {
+        arg::err("{.arg drop} must be the name of a level of {.var {v}} that is to be dropped")
       }
+      
       dropl[drop.level] <- TRUE
     }
-    else if (identical(drop.first, "if2") || chk::vld_flag(drop.first)) {
-      if ((ncol(k) == 2L && (isTRUE(drop.first) || drop.first == "if2")) ||
-          (ncol(k) > 2L && isTRUE(drop.first))) {
-        dropl[1L] <- TRUE
-      }
-    }
-    else {
-      .err('{.arg drop.first} must be {.val {TRUE}}, {.val {FALSE}}, or {.val {"if2"}}')
+    else if ((ncol(k) == 2L && (isTRUE(drop.first) || drop.first == "if2")) ||
+             (ncol(k) > 2L && isTRUE(drop.first))) {
+      dropl[1L] <- TRUE
     }
     
     if (drop.na[v]) {
@@ -262,7 +259,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       }
     }
     else {
-      .chk_flag(replace)
+      arg::arg_flag(replace)
       
       if (!replace) {
         data <- setNames(data.frame(data, k, row.names = rownames(data)),
@@ -318,8 +315,10 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
 unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRUE,
                           sep = "_", replace = TRUE) {
   
+  arg::arg_supplied(data)
+  
   if (!is.data.frame(data)) {
-    .err("{.arg data} must be a data.frame containing the variables to unsplit")
+    arg::err("{.arg data} must be a data.frame containing the variables to unsplit")
   }
   
   if (missing(var.name)) {
@@ -329,29 +328,28 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
     }, logical(1L))
     
     if (!any(split.dummies)) {
-      .err("{.arg var.name} must be a character vector containing the names of the variables to unsplit")
+      arg::err("{.arg var.name} must be a character vector containing the names of the variables to unsplit")
     }
     
     var.name <- unique(vapply(data[split.dummies], .attr, character(1L), "split.var"))
   }
   else if (!is.character(var.name)) {
-    .err("{.arg var.name} must be a character vector containing the names of the variables to unsplit")
+    arg::err("{.arg var.name} must be a character vector containing the names of the variables to unsplit")
   }
   
   if (is_null(sep)) {
-    sep <- rlang::rep_named(var.name, "")
+    sep <- ""
+  }
+  
+  if (length(sep) %nin% c(1L, length(var.name)) || !is.atomic(sep)) {
+    arg::err("{.arg sep} must be a character containing the seperating character in the names of the split variables. See {.fun unsplitfactor} for details")
+  }
+  
+  if (length(sep) == 1L) {
+    sep <- rlang::rep_named(var.name, sep)
   }
   else {
-    if (length(sep) %nin% c(1L, length(var.name)) || !is.atomic(sep)) {
-      .err("{.arg sep} must be a character containing the seperating character in the names of the split variables. See {.fun unsplitfactor} for details")
-    }
-    
-    if (length(sep) == 1L) {
-      sep <- rlang::rep_named(var.name, sep)
-    }
-    else {
-      names(sep) <- var.name
-    }
+    names(sep) <- var.name
   }
   
   if (is_null(dropped.level)) {
@@ -359,7 +357,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   }
   else {
     if (length(dropped.level) %nin% c(1L, length(var.name)) || !is.atomic(dropped.level)) {
-      .err("{.arg dropped.level} must be an atomic vector containing the value of the dropped category of each split variable. See {.fun unsplitfactor} for details")
+      arg::err("{.arg dropped.level} must be an atomic vector containing the value of the dropped category of each split variable. See {.fun unsplitfactor} for details")
     }
     
     if (length(dropped.level) == 1L) {
@@ -389,7 +387,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
     }
     
     if (!all(rowSums(apply(var.to.combine, 2L, is.na)) %in% c(0L, ncol(var.to.combine)))) {
-      .err("the variables in {.arg data} selected based on {.arg var.name} and {.arg sep} do not seem to form a split variable based on the <NA> pattern")
+      arg::err("the variables in {.arg data} selected based on {.arg var.name} and {.arg sep} do not seem to form a split variable based on the {.val {NA}} pattern")
     }
     
     NA.column <- character()
@@ -403,7 +401,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
       dropped.na <- FALSE
     }
     
-    .chk_flag(dropped.na)
+    arg::arg_flag(dropped.na)
     if (!dropped.na) {
       NA.column <- {
         if (v.is.split)
@@ -413,11 +411,11 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
       }
       
       if (length(NA.column) > 1L) {
-        .err("there appears to be more than one {.val {NA}} variable for {.var {v}}")
+        arg::err("there appears to be more than one {.val {NA}} variable for {.var {v}}")
       }
       
       if (!utils::hasName(var.to.combine, NA.column)) {
-        .err("there is no variable called {.val {NA.column}} to generate the {.val {NA}} values")
+        arg::err("there is no variable called {.val {NA.column}} to generate the {.val {NA}} values")
       }
       
       is.na(var.to.combine[var.to.combine[[NA.column]] == 1L, ]) <- TRUE
@@ -428,7 +426,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
     
     if (!all(is.na(var.sum) | check_if_zero(var.sum - 1))) {
       if (!all(is.na(var.sum) | check_if_zero(var.sum - 1) | check_if_zero(var.sum - 0))) {
-        .err("the variables in {.arg data} selected based on {.arg var.name} and {.arg sep} do not seem to form a split variable based on the row sums")
+        arg::err("the variables in {.arg data} selected based on {.arg var.name} and {.arg sep} do not seem to form a split variable based on the row sums")
       }
       
       #Missing category
@@ -452,7 +450,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
           dropped.name <- paste0(v_sep, dropped.level0)
         }
         else {
-          .msg("the dropped category for {.var {v}} will be set to {.val {NA}}")
+          arg::msg("the dropped category for {.var {v}} will be set to {.val {NA}}")
           dropped.name <- dropped.level0 <- NA_character_
         }
         
@@ -470,7 +468,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
       }
     }
     
-    .chk_flag(replace)
+    arg::arg_flag(replace)
     
     k.levels <- {
       if (v.is.split) unlist(lapply(var.to.combine, .attr, "level")) 
@@ -500,7 +498,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   }
   
   if (is_not_null(not.the.stem)) {
-    .wrn("{.val {not.the.stem}} {?is/are} not the stem{?s} of any variables in {.arg data} and will be ignored. Ensure {.arg var.name} and {.arg sep} are correct")
+    arg::wrn("{.val {not.the.stem}} {?is/are} not the stem{?s} of any variables in {.arg data} and will be ignored. Ensure {.arg var.name} and {.arg sep} are correct")
   }
   
   data

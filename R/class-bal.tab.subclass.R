@@ -54,7 +54,7 @@ base.bal.tab.subclass <- function(X,
   A$subset <- NULL
   
   if (type == "bin" && get.treat.type(X$treat) != "binary") {
-    .err("the treatment must be a binary variable")
+    arg::err("the treatment must be a binary variable")
   }
   
   if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
@@ -240,6 +240,6 @@ base.bal.tab.subclass.binary <- function(X, ...) {
 }
 
 base.bal.tab.subclass.cont <- function(X, ...) {
-  .err("subclasses are not yet compatible with continuous treatments")
+  arg::err("subclasses are not yet compatible with continuous treatments")
   # base.bal.tab.subclass(X, type = "cont", ...)
 }

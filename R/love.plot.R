@@ -162,7 +162,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
   }
   
-  x <- try_chk(force(x))
+  x <- try_arg(force(x))
   
   if (!inherits(x, "bal.tab")) {
     #Use bal.tab on inputs first, then love.plot on that
@@ -205,13 +205,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     stats <- .attr(x, "print.options")$stats
   }
   
-  stats <- match_arg(stats, all_STATS(.attr(x, "print.options")$type),
+  stats <- arg::match_arg(stats, all_STATS(.attr(x, "print.options")$type),
                      several.ok = TRUE)
   
   #Get B and config
   if (inherits(x, "bal.tab.subclass")) {
     if (is_null(x[["Balance.Across.Subclass"]])) {
-      .err("{.arg subclass.summary} must be set to {.val {TRUE}} in the original call to {.fun bal.tab}")
+      arg::err("{.arg subclass.summary} must be set to {.val {TRUE}} in the original call to {.fun bal.tab}")
     }
     
     B <- cbind(x[["Balance.Across.Subclass"]], variable.names = row.names(x[["Balance.Across.Subclass"]]))
@@ -284,7 +284,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           }
           
           if (!all(which. %in% treat_levels)) {
-            .err("all values in {.arg which.treat} must be names or indices of treatment levels")
+            arg::err("all values in {.arg which.treat} must be names or indices of treatment levels")
           }
           
           if (.attr(x, "print.options")$pairwise) {
@@ -320,7 +320,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           facet_mat <- facet_mat[facet_mat[, i] %in% which., , drop = FALSE]
         }
         else {
-          .err('the argument to {.arg {paste.("which", i)}} must be {.val {quote(.none)}}, {.val {quote(.all)}}, or the desired levels or indices of {switch(i, time = "time points", i)}')
+          arg::err('the argument to {.arg {paste.("which", i)}} must be {.val {quote(.none)}}, {.val {quote(.all)}}, or the desired levels or indices of {switch(i, time = "time points", i)}')
         }
       }
       
@@ -348,7 +348,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           }
         }
         agg.fun <- tolower(agg.fun)
-        agg.fun <- match_arg(agg.fun, c("range", "max", "mean"))
+        agg.fun <- arg::match_arg(agg.fun, c("range", "max", "mean"))
         
         Agg.Fun <- firstup(agg.fun)
         if (agg.fun == "max") {
@@ -405,7 +405,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       B[one.level.facet] <- NULL
       
       if (sum(facet %nin% one.level.facet) > 1L) {
-        .err('at least one of {.or {.arg {paste.("which", facet)}}} must be {.val {quote(.none)}} or of length 1')
+        arg::err('at least one of {.or {.arg {paste.("which", facet)}}} must be {.val {quote(.none)}} or of length 1')
       }
       
       facet <- setdiff(facet, one.level.facet)
@@ -445,11 +445,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   }
   
   if (is_not_null(facet) && length(stats) > 1L) {
-    .err("{.arg stats} can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment)")
+    arg::err("{.arg stats} can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment)")
   }
   
   if (is_not_null(agg.fun) && config == "agg.none") {
-    .wrn("no aggregation will take place, so {.arg agg.fun} will be ignored. Remember to set {.code which.<ARG> = .none} to aggregate across <ARG>")
+    arg::wrn("no aggregation will take place, so {.arg agg.fun} will be ignored. Remember to set {.code which.<ARG> = .none} to aggregate across <ARG>")
   }
   
   #Process variable names
@@ -457,7 +457,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     if (is.data.frame(var.names)) {
       if (ncol(var.names) == 1L) {
         if (is_null(row.names(var.names))) {
-          .err("if {.arg var.names} is a data frame with one column, its rows must be named")
+          arg::err("if {.arg var.names} is a data frame with one column, its rows must be named")
         }
         
         new.labels <- setNames(unlist(as.character(var.names[, 1L])),
@@ -468,7 +468,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       }
       else {
         if (ncol(var.names) > 2L) {
-          .wrn("only using first 2 columns of {.arg var.names}")
+          arg::wrn("only using first 2 columns of {.arg var.names}")
         }
         
         new.labels <- setNames(unlist(as.character(var.names[, 2L])), var.names[, 1L])
@@ -476,24 +476,24 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     } 
     else if (is.atomic(var.names)) {
       if (is_null(names(var.names))) {
-        .err("if {.arg var.names} is a vector, its values must be named")
+        arg::err("if {.arg var.names} is a vector, its values must be named")
       }
       
       new.labels <- setNames(as.character(var.names), names(var.names))
     }
     else if (is.list(var.names)) {
-      if (!all_apply(var.names, chk::vld_character_or_factor)) {
-        .err("if {.arg var.names} is a list, its values must be the new names of the variables")
+      if (!all_apply(var.names, function(z) is.character(z) || is.factor(z))) {
+        arg::err("if {.arg var.names} is a list, its values must be the new names of the variables")
       }
       
       if (is_null(names(var.names))) {
-        .err("if {.arg var.names} is a list, its values must be named")
+        arg::err("if {.arg var.names} is a list, its values must be named")
       }
       
       new.labels <- unlist(var.names) #already a list
     }
     else {
-      .err("the argument to {.arg var.names} is not one of the accepted structures. See {.fun love.plot} for details")
+      arg::err("the argument to {.arg var.names} is not one of the accepted structures. See {.fun love.plot} for details")
     }
     
     co.names <- .attr(x, "print.options")[["co.names"]]
@@ -570,7 +570,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       ua <- ua[names(ua) != "unadjusted"]
     }
     
-    var.order <- ua[match_arg(var.order, tolower(ua))]
+    var.order <- ua[arg::match_arg(var.order, tolower(ua))]
   }
   
   #Process sample names
@@ -586,10 +586,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     sample.names <- NULL
   }
   else if (!is.character(sample.names)) {
-    .err("the argument to {.arg sample.names} must be a character vector")
+    arg::err("the argument to {.arg sample.names} must be a character vector")
   }
   else if (length(sample.names) %nin% c(ntypes, ntypes - 1L)) {
-    .err("the argument to {.arg sample.names} must contain as many names as there are sample types, or one fewer")
+    arg::err("the argument to {.arg sample.names} must contain as many names as there are sample types, or one fewer")
   }
   
   if (is_null(sample.names)) {
@@ -608,7 +608,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     if (!all_apply(limits, function(l) is.numeric(l) && length(l) %in% c(0L, 2L))) {
-      .wrn("{.arg limits} must be a list of numeric vectors of length 2. Ignoring {.arg limits}")
+      arg::wrn("{.arg limits} must be a list of numeric vectors of length 2. Ignoring {.arg limits}")
       limits <- NULL
     }
     else if (is_not_null(names(limits))) {
@@ -628,7 +628,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     alpha <- alpha[1L]
   }
   else {
-    .wrn("the argument to {.arg alpha} must be a number between 0 and 1. Using 1 instead")
+    arg::wrn("the argument to {.arg alpha} must be a number between 0 and 1. Using 1 instead")
     alpha <- 1
   }
   
@@ -643,16 +643,16 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       colors <- rep.int(colors, ntypes)
     }
     else if (length(colors) > ntypes) {
-      .wrn("only using first {ntypes} value{?s} in {.arg colors}")
+      arg::wrn("only using first {ntypes} value{?s} in {.arg colors}")
       colors <- colors[seq_len(ntypes)]
     }
     else if (length(colors) < ntypes) {
-      .wrn("not enough colors were specified. Using default colors instead")
+      arg::wrn("not enough colors were specified. Using default colors instead")
       colors <- gg_color_hue(ntypes)
     }
     
     if (!all_apply(colors, isColor)) {
-      .wrn("the argument to {.arg colors} contains at least one value that is not a recognized color. Using default colors instead")
+      arg::wrn("the argument to {.arg colors} contains at least one value that is not a recognized color. Using default colors instead")
       colors <- gg_color_hue(ntypes)
     }
   }
@@ -675,7 +675,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     shapes <- assign.shapes(colors)
   }
   else if (!shapes.ok(shapes, ntypes)) {
-    .wrn("the argument to {.arg shape} must be {ntypes} valid shape{?s}. See {.fun love.plot} for more information. Using default shapes instead")
+    arg::wrn("the argument to {.arg shape} must be {ntypes} valid shape{?s}. See {.fun love.plot} for more information. Using default shapes instead")
     shapes <- assign.shapes(colors)
   }
   else if (length(shapes) == 1L) {
@@ -689,7 +689,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   #Size
   if (!is.numeric(size) || length(size) != 1L) {
-    .wrn("the argument to {.arg size} must be a number. Using 3 instead")
+    arg::wrn("the argument to {.arg size} must be a number. Using 3 instead")
     size <- 3
   }
   
@@ -706,7 +706,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   if (is_not_null(facet) && is_not_null(var.order) &&
       !inherits(var.order, "love.plot") && tolower(var.order) != "alphabetical") {
-    .wrn('{.arg var.order} cannot be set with faceted plots (unless {.val {"alphabetical"}}). Ignoring {.arg var.order}')
+    arg::wrn('{.arg var.order} cannot be set with faceted plots (unless {.val {"alphabetical"}}). Ignoring {.arg var.order}')
     var.order <- NULL
   }
   
@@ -727,7 +727,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     if (!all_apply(themes, function(t) inherits(t, "theme") && inherits(t, "gg"))) {
-      .wrn("{.arg themes} must be a list of {.cls theme} objects. Ignoring {.arg themes}")
+      arg::wrn("{.arg themes} must be a list of {.cls theme} objects. Ignoring {.arg themes}")
       themes <- NULL
     }
     else if (is_not_null(names(themes))) {
@@ -768,12 +768,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
       
       if (all(is.na(as.matrix(SS[c("min.stat", "max.stat", "mean.stat")])))) {
-        .err("no balance statistics to display. This can occur when {.code {STATS[[s]]$disp_stat} = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
+        arg::err("no balance statistics to display. This can occur when {.code {STATS[[s]]$disp_stat} = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       
       missing.stat <- all(is.na(SS[["mean.stat"]]))
       if (missing.stat) {
-        .err("{.arg {firstup(STATS[[s]]$balance_tally_for)}} cannot be displayed. This can occur when {.arg {STATS[[s]]$disp_stat}} {?is/are} {.val {FALSE}} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
+        arg::err("{.arg {firstup(STATS[[s]]$balance_tally_for)}} cannot be displayed. This can occur when {.arg {STATS[[s]]$disp_stat}} {?is/are} {.val {FALSE}} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       
       gone <- character()
@@ -782,7 +782,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           gone <- c(gone, i)
           
           if (i == sample.names["Unadjusted"] && !adj_only) {
-            .wrn("unadjusted values are missing. This can occur when {.code un = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
+            arg::wrn("unadjusted values are missing. This can occur when {.code un = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
           }
           
           SS <- SS[SS[["Sample"]] != i, ]
@@ -804,7 +804,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS[["var"]] <- factor(SS[["var"]], levels = intersect(old.vars, SS[["var"]]))
           }
           else {
-            .wrn("the {.cls love.plot} object supplied to {.arg var.order} doesn't have the same variables as the current input. Ignoring {.arg var.order}")
+            arg::wrn("the {.cls love.plot} object supplied to {.arg var.order} doesn't have the same variables as the current input. Ignoring {.arg var.order}")
             var.order <- NULL
           }
         }
@@ -829,7 +829,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         else if (var.order %in% ua) {
           if (var.order %in% gone) {
-            .wrn("{.arg var.order} was set to {.val {tolower(var.order)}} but no {tolower(var.order)} {STATS[[s]]$balance_tally_for} were calculated. Ignoring {.arg var.order}")
+            arg::wrn("{.arg var.order} was set to {.val {tolower(var.order)}} but no {tolower(var.order)} {STATS[[s]]$balance_tally_for} were calculated. Ignoring {.arg var.order}")
             var.order <- NULL
           }
           else {
@@ -851,7 +851,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       }
       
       if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) {
-        .wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
+        arg::wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
       }
       
       if (length(stats) == 1L && drop.missing) {
@@ -883,7 +883,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       
       missing.stat <- all(is.na(SS[["stat"]]))
       if (missing.stat) {
-        .err("{firstup(STATS[[s]]$balance_tally_for)} cannot be displayed. This can occur when {.arg {STATS[[s]]$disp_stat}} {?is/are} {.val {FALSE}} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
+        arg::err("{firstup(STATS[[s]]$balance_tally_for)} cannot be displayed. This can occur when {.arg {STATS[[s]]$disp_stat}} {?is/are} {.val {FALSE}} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       
       gone <- character()
@@ -891,7 +891,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (all(is.na(SS[["stat"]][SS[["Sample"]] == i]))) {
           gone <- c(gone, i)
           if (!adj_only && i == sample.names["Unadjusted"]) {
-            .wrn("unadjusted values are missing. This can occur when {.code un = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
+            arg::wrn("unadjusted values are missing. This can occur when {.code un = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
           }
           SS <- SS[SS[["Sample"]] != i, ]
         }
@@ -917,7 +917,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS.var.levels <- intersect(old.vars, SS[["var"]])
           }
           else {
-            .wrn("the {.cls love.plot} object supplied to {.arg var.order} doesn't have the same variables as the current input. Ignoring {.arg var.order}")
+            arg::wrn("the {.cls love.plot} object supplied to {.arg var.order} doesn't have the same variables as the current input. Ignoring {.arg var.order}")
             var.order <- NULL
           }
         }
@@ -942,7 +942,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         else if (var.order %in% ua) {
           if (var.order %in% gone) {
-            .wrn("{.arg var.order} was set to {.val {tolower(var.order)}}, but no {tolower(var.order)} {STATS[[s]]$balance_tally_for} were calculated. Ignoring {.arg var.order}")
+            arg::wrn("{.arg var.order} was set to {.val {tolower(var.order)}}, but no {tolower(var.order)} {STATS[[s]]$balance_tally_for} were calculated. Ignoring {.arg var.order}")
             var.order <- NULL
           }
           else {
@@ -964,7 +964,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
       
       if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) {
-        .wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
+        arg::wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
       }
       
       if (length(stats) == 1L && drop.missing) {
@@ -1259,8 +1259,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   # Combine plots together
   position <- {
-    if (chk::vld_string(position))
-      match_arg(position, c("right", "left", "top", "bottom", "none"))
+    if (rlang::is_string(position))
+      arg::match_arg(position, c("right", "left", "top", "bottom", "none"))
     else
       NA_character_
   }
@@ -1276,7 +1276,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     labels <- as.character(labels)
   }
   else {
-    .wrn("{.arg labels} must be {.val {TRUE}} or a string with the same length as {.arg stats}. Ignoring {.arg labels}")
+    arg::wrn("{.arg labels} must be {.val {TRUE}} or a string with the same length as {.arg stats}. Ignoring {.arg labels}")
     labels <- NULL
   }
   
