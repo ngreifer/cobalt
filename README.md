@@ -13,7 +13,7 @@ covariate distributions in preprocessed groups generated through
 weighting, matching, or subclassification, such as by using the
 propensity score. *cobalt*’s primary function is `bal.tab()`, which
 stands for “balance table”, and is meant to replace (or supplement) the
-balance assessment tools found in other R packages. To examine how
+balance assessment tools found in other R packages. To see how
 `bal.tab()` integrates with these packages and others, see the help file
 for `bal.tab()` with `?bal.tab`, which links to the methods used for
 each package. Each page has examples of how `bal.tab()` is used with the
@@ -136,12 +136,12 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
           var.order = "unadjusted")
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" alt="" style="display: block; margin: auto;" />
 
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using
 the *Matching* package (Sekhon, 2011), and covariate balance was
-assessed using *cobalt* (Greifer, 2026), both in R (R Core Team, 2025).”
+assessed using *cobalt* (Greifer, 2026), both in R (R Core Team, 2026).”
 Use `citation("cobalt")` to generate a bibliographic reference for the
 *cobalt* package.
 

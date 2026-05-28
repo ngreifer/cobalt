@@ -18,7 +18,9 @@ link-citations: true
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE,
-                      eval = rlang::is_installed(c("WeightIt", "MatchIt")))
+                      eval = rlang::is_installed(c("WeightIt", "MatchIt")),
+                      fig.align = "center",
+                      fig.height = 3.5)
 ```
 
 This is an introductory guide for the use of *cobalt* in most common scenarios. Several appendices are available for its use with more complicated data scenarios and packages not demonstrated here.[^1]
@@ -279,7 +281,7 @@ The gold standard for covariate balance is multidimensional independence between
 
 `bal.plot()` allows users to do so by displaying density plots, histograms, empirical CDF plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from *WeightIt* generated above.:
 
-```{r, fig.show = "hold", fig.width = 3.5, fig.height=2.75}
+```{r, fig.show = "hold", fig.width = 3.5}
 bal.plot(W.out, var.name = "age")
 bal.plot(W.out, var.name = "race")
 ```
@@ -406,7 +408,7 @@ bal.tab(W.out.c, stats = c("c", "k"), un = TRUE,
 
 We can also visually assess balance using `bal.plot()`. For continuous covariates, `bal.plot()` displays a scatterplot of treatment against the covariate, and includes a linear fit line (red), a smoothed fit curve (blue), and a horizontal reference line (black) at the unweighted mean of the treatment variable, and a vertical line at the unweighted mean of the covariate. These lines can be used to diagnose dependence. If either fit line is not close to flat and not lying on top of the reference line, there may be some remaining dependence between treatment and the covariate. The points in the weighted plot are shaded according to the size of their corresponding weight. If the linear fit line (red) does not cross through the intersection of the black reference lines, the target population of the weighted estimate differs from the original population. For categorical covariates, including binary, `bal.plot()` displays a density plot of the treatment variable in each category. If treatment and the covariate are independent, the densities for each category should overlap with each other. A distinct lack of overlap is indicative of remaining dependence between treatment and the covariate.
 
-```{r, fig.width = 5}
+```{r, fig.width = 6}
 #Assessing balance graphically
 bal.plot(W.out.c, "re74", which = "both")
 bal.plot(W.out.c, "married", which = "both")
@@ -414,7 +416,7 @@ bal.plot(W.out.c, "married", which = "both")
 
 When balance has been achieved to a satisfactory level, users can present balance improvements in a Love plot using the `love.plot()` command, just as with binary treatments.
 
-```{r, fig.width = 6, fig.height = 3}
+```{r, fig.width = 6}
 #Summarizing balance in a Love plot
 love.plot(W.out.c, stats = c("c", "ks"),
           thresholds = c(cor = .1), 
@@ -458,7 +460,7 @@ bal.tab(W.out.mn, un = TRUE,
 
 We can also assess balance graphically. The same guidelines apply for multi-category treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups.
 
-```{r, fig.width = 5, fig.height=2.75}
+```{r, fig.width = 6}
 #Assessing balance graphically
 bal.plot(W.out.mn, "age", which = "both")
 

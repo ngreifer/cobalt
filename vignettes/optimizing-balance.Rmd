@@ -17,6 +17,8 @@ link-citations: true
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  fig.height = 3.5,
+  fig.align = "center",
   comment = "#>"
 )
 

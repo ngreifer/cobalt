@@ -18,6 +18,8 @@ link-citations: true
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE,
                       fig.width = 5,
+                      fig.height = 3.5,
+                      fig.align = "center",
                       eval = rlang::is_installed("WeightIt"))
 ```
 

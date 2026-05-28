@@ -506,11 +506,11 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
       
       s <- NULL
       if (integrate) {
-        s <- try(integrate(fn, lower = min.c, upper = max.c)$value,
-                 silent = TRUE)
+        s <- tryCatch(integrate(fn, lower = min.c, upper = max.c)$value,
+                      error = function(e) NULL)
       }
       
-      if (null_or_error(s)) {
+      if (is_null(s)) {
         s <- intapprox(fn, min.c, max.c, steps = steps, method = "midpoint")
       }
       

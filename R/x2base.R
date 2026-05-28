@@ -9,7 +9,7 @@ x2base.matchit <- function(x, ...) {
   #Process matchit
   
   #Process data and get imp
-  m.data <- if (NROW(x[["model"]][["data"]]) == length(x[["treat"]])) x[["model"]][["data"]] else NULL 
+  m.data <- if (NROW(x[["model"]][["data"]]) == length(x[["treat"]])) x[["model"]][["data"]]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {

@@ -189,36 +189,6 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
   
   df
 }
-text_box_plot <- function(range.list, width = 12L) {
-  full.range <- range(unlist(range.list))
-  if (all_the_same(full.range)) {
-    for (i in seq_along(range.list)) {
-      range.list[[i]][1L] <- range.list[[i]][1L] - 1e-6
-      range.list[[i]][2L] <- range.list[[i]][2L] + 1e-6
-    }
-    full.range <- range(unlist(range.list))
-  }
-  ratio <- diff(full.range) / (width + 1)
-  rescaled.range.list <- lapply(range.list, function(x) round(x / ratio))
-  rescaled.full.range <- round(full.range / ratio)
-  d <- make_df(c("Min", space(width + 1L), "Max"),
-               names(range.list),
-               "character")
-  d[["Min"]] <- vapply(range.list, function(x) x[1L], numeric(1L))
-  d[["Max"]] <- vapply(range.list, function(x) x[2L], numeric(1L))
-  for (i in seq_row(d)) {
-    spaces1 <- rescaled.range.list[[i]][1L] - rescaled.full.range[1L]
-    dashes <- max(c(0L, diff(rescaled.range.list[[i]]) - 2L))
-    spaces2 <- max(c(0L, diff(rescaled.full.range) - (spaces1 + 1L + dashes + 1L)))
-    
-    d[i, 2L] <- sprintf("%s|%s|%s",
-                        space(spaces1),
-                        strrep("-", dashes),
-                        space(spaces2))
-  }
-  
-  d
-}
 
 equivalent.factors2 <- function(f1, f2) {
   if ((!is.character(f1) && !is.factor(f1)) ||
@@ -1007,7 +977,7 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
 is_mat_like <- function(x) {
   length(dim(x)) == 2L
 }
-is_null <- function(x) length(x) == 0L
+is_null <- function(x) {identical(length(x), 0L)}
 is_not_null <- function(x) !is_null(x)
 `%or%` <- function(x, y) {
   # like `%||%` but works for non-NULL length 0 objects
@@ -1217,10 +1187,10 @@ try_arg <- function(expr, warn = TRUE) {
   }
   
   if (warn) {
-    tryCatch(expr, error = .e, warning = .w)
+    rlang::try_fetch(expr, error = .e, warning = .w)
   }
   else {
-    tryCatch(expr, error = .e)
+    rlang::try_fetch(expr, error = .e)
   }
 }
 
