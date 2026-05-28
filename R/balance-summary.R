@@ -563,9 +563,8 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     std <- rep.int(std, NCOL(mat))
   }
   
-  arg::arg_string(type)
-  type <- tolower(type)
   type <- arg::match_arg(type, c("pearson", "spearman"))
+  
   if (type == "spearman") {
     for (i in which(!bin.vars)) {
       mat[, i] <- rank(mat[, i], na.last = "keep")

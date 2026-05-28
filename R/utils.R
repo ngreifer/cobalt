@@ -55,7 +55,7 @@ add_quotes <- function(x, quotes = 2L) {
   }
   
   if (isTRUE(quotes)) {
-    quotes <- '"'
+    quotes <- 2L
   }
   
   if (rlang::is_string(quotes)) {
@@ -98,24 +98,33 @@ num_to_superscript <- function(x) {
   vapply(splitx, function(y) paste(nums[y], collapse = ""), character(1L))
 }
 ordinal <- function(x) {
-  if (is_null(x) || !is.numeric(x)) {
-    stop("'x' must be a numeric vector.")
+  if (is_null(x)) {
+    return(x)
   }
   
-  if (length(x) > 1L) {
-    out <- setNames(vapply(x, ordinal, character(1L)), names(x))
-    return(out)
-  }
+  arg::arg_whole_numeric(x)
   
-  x0 <- abs(x)
-  out <- paste0(x0, switch(substring(x0, nchar(x0), nchar(x0)),
-                           "1" = "st",
-                           "2" = "nd",
-                           "3" = "rd",
-                           "th"))
-  if (x < 0) out <- sprintf("-%s", out)
-  
-  setNames(out, names(x))
+  vapply(x, function(.x) {
+    x0 <- abs(.x) |> as.character()
+    
+    if (any(endsWith(x0, c("11", "12", "13")))) {
+      out <- paste0(x0, "th")
+    }
+    else {
+      out <- paste0(x0, switch(substring(x0, nchar(x0), nchar(x0)),
+                               "1" = "st",
+                               "2" = "nd",
+                               "3" = "rd",
+                               "th"))
+    }
+    
+    if (.x < 0) {
+      out <- sprintf("-%s", out)
+    }
+    
+    out
+  }, character(1L)) |>
+    setNames(names(x))
 }
 firstup <- function(x) {
   #Capitalize first letter
@@ -337,9 +346,8 @@ str_rev <- function(x) {
 }
 
 #Numbers
-check_if_zero <- function(x) {
+check_if_zero <- function(x, tolerance = sqrt(.Machine$double.eps)) {
   # this is the default tolerance used in all.equal
-  tolerance <- .Machine$double.eps^0.5
   abs(x) < tolerance
 }
 between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
@@ -369,13 +377,6 @@ between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
   }
   
   out
-}
-
-check_if_int <- function(x) {
-  #Checks if integer-like
-  if (is.integer(x)) rep.int(TRUE, length(x))
-  else if (is.numeric(x)) check_if_zero(x - round(x))
-  else rep.int(FALSE, length(x))
 }
 
 #Statistics
@@ -858,11 +859,15 @@ is_0_1 <- function(x) {
 
 #R Processing
 make_list <- function(n) {
-  if (length(n) == 1L && is.numeric(n)) {
+  if (is_null(n)) {
+    vector("list", 0L)
+  }
+  else if (rlang::is_scalar_integerish(n) && n >= 0) {
     vector("list", as.integer(n))
   }
-  else if (length(n) > 0L && is.atomic(n)) {
-    setNames(vector("list", length(n)), as.character(n))
+  else if (is.atomic(n)) {
+    setNames(vector("list", length(n)),
+             as.character(n))
   }
   else {
     stop("'n' must be an integer(ish) scalar or an atomic variable.")
@@ -873,7 +878,7 @@ make_df <- function(ncol, nrow = 0L, types = "numeric") {
     ncol <- 0L
   }
   
-  if (length(ncol) == 1L && is.numeric(ncol)) {
+  if (rlang::is_scalar_integerish(ncol)) {
     col_names <- NULL
     ncol <- as.integer(ncol)
   }
@@ -886,7 +891,7 @@ make_df <- function(ncol, nrow = 0L, types = "numeric") {
     nrow <- 0L
   }
   
-  if (length(nrow) == 1L && is.numeric(nrow)) {
+  if (rlang::is_scalar_integerish(nrow)) {
     row_names <- NULL
     nrow <- as.integer(nrow)
   }
@@ -1040,6 +1045,9 @@ probably.a.bug <- function() {
 }
 is_error <- function(x) {inherits(x, "try-error")}
 null_or_error <- function(x) {is_null(x) || is_error(x)}
+is_number <- function(x) {
+  is.numeric(x) && length(x) == 1L && !anyNA(x)
+}
 
 #Extract variables from ..., similar to ...elt(), by name without evaluating list(...)
 ...get <- function(x, ifnotfound = NULL) {
@@ -1049,9 +1057,7 @@ null_or_error <- function(x) {is_null(x) || is_error(x)}
       .ifnotfound
     }
     else {
-      .m2 <- ...elt(.m1[1L])
-      if (is_not_null(.m2)) .m2
-      else .ifnotfound
+      ...elt(.m1[1L]) %or% .ifnotfound
     }
   })
   
@@ -1138,7 +1144,7 @@ check_if_call_from_fun <- function(fun) {
   FALSE
 }
 has_method <- function(class, fun) {
-  if (!is.character(fun) || length(fun) != 1) {
+  if (!rlang::is_string(fun)) {
     stop("'fun' must be a string of length 1.")
   }
   

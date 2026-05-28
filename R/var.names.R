@@ -67,8 +67,6 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
   }
   
   if (!missing(type)) {
-    arg::arg_string(type)
-    type <- tolower(type)
     type <- arg::match_arg(type, c("df", "vec"))
   }
   else if (is_not_null(file)) {

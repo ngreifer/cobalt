@@ -270,9 +270,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     which <- "unadjusted"
   }
   else {
-    which <- tolower(which)
     which <- arg::match_arg(which, unique(c("adjusted", "unadjusted", "both", weight.names)),
-                       several.ok = TRUE)
+                            several.ok = TRUE)
   }
   
   if (is_not_null(...get("size.weight"))) {
@@ -285,7 +284,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   facet <- NULL
   is.categorical.var <- is.factor(X$var) || is.character(X$var) || is_binary(X$var) 
   
-  if (is_null(X$subclass) || (length(which) == 1L && which == "unadjusted")) {
+  if (is_null(X$subclass) || (rlang::is_string(which) && which == "unadjusted")) {
     if (is_not_null(which.sub) && !all(is.na(which.sub))) {
       if (is_null(X$subclass)) {
         arg::wrn("{.arg which.sub} was specified but no subclasses were supplied. Ignoring {.arg which.sub}")
@@ -328,6 +327,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     #Process sample names
     ntypes <- length(which)
     nadj <- sum(which != "Unadjusted Sample")
+
     if (missing(sample.names)) {
       sample.names <- NULL
     }
@@ -820,7 +820,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         #Pad 0 and 1
         extra <- setNames(do.call("expand.grid", c(list(c("top", "bottom")),
-                                                 lapply(c("treat", facet), function(i) levels(D[[i]])))),
+                                                   lapply(c("treat", facet), function(i) levels(D[[i]])))),
                           c("pos_", "treat", facet))
         
         merge.extra <- data.frame(pos_ = c("top", "bottom"),

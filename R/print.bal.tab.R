@@ -813,8 +813,8 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
     arg::err("{.arg cluster.fun} must be {.or {.val {computed.cluster.funs}}}")
   }
   
-  cluster.fun <- arg::match_arg(tolower(cluster.fun), computed.cluster.funs,
-                           several.ok = TRUE)
+  cluster.fun <- arg::match_arg(cluster.fun, computed.cluster.funs,
+                                several.ok = TRUE)
   
   #Checks and Adjustments
   if (is_null(p.ops$which.cluster)) {
@@ -886,7 +886,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
     arg::err("{.arg imp.fun} must be {.or {.val {computed.imp.funs}}}")
   }
   
-  imp.fun <- arg::match_arg(tolower(imp.fun), computed.imp.funs, several.ok = TRUE)
+  imp.fun <- arg::match_arg(imp.fun, computed.imp.funs, several.ok = TRUE)
   
   #Checks and Adjustments
   if (is_null(p.ops$which.imp)) {
@@ -1119,7 +1119,6 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
   }
   
   if (!missing(stats)) {
-    arg::arg_character(stats)
     stats <- arg::match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
     stats_in_p.ops <- stats %in% p.ops$compute
     
@@ -1294,7 +1293,6 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   if (!missing(stats)) {
-    arg::arg_character(stats)
     stats <- arg::match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
     stats_in_p.ops <- stats %in% p.ops$compute
     

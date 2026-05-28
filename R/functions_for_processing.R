@@ -130,9 +130,7 @@ process_treat.list <- function(treat.list, ...) {
   hasdots <- ...length() > 0L
   
   treat.list.names <- vapply(seq_along(treat.list), function(ti) {
-    if (hasdots && is.character(treat.list[[ti]]) && length(treat.list[[ti]]) == 1L) {
-      treat.list[[ti]]
-    }
+    if (hasdots && rlang::is_string(treat.list[[ti]])) treat.list[[ti]]
     else if (rlang::is_named(treat.list)) names(treat.list)[ti]
     else as.character(ti)
   }, character(1L))
@@ -379,7 +377,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   if (is_not_null(treat)) {
     treat_c <- try({
       if (!is.atomic(treat)) arg::err("{.arg treat} must be a vector of treatment statuses")
-      if (is.character(treat) && length(treat) == 1L) get_treat_from_formula(reformulate(".", treat), data = data)
+      if (rlang::is_string(treat)) get_treat_from_formula(reformulate(".", treat), data = data)
       else get_treat_from_formula(treat ~ ., treat = treat)
     }, silent = TRUE)
   }
@@ -593,7 +591,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
 }
 .process_vector <- function(vec, name = deparse1(substitute(vec)), which = name, datalist = list(), missing.okay = FALSE) {
   bad.vec <- FALSE
-  if (is.character(vec) && length(vec) == 1L && is_not_null(datalist)) {
+  if (rlang::is_string(vec) && is_not_null(datalist)) {
     for (i in seq_along(datalist)) {
       if (is.matrix(datalist[[i]]) && vec %in% colnames(datalist[[i]])) {
         vec <- datalist[[i]][, vec]
@@ -679,7 +677,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         treat <- process_treat(treat)
       }
       
-      try.estimand <- tryCatch(arg::match_arg(toupper(estimand), c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
+      try.estimand <- tryCatch(arg::match_arg(estimand, c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
                                error = function(cond) NA_character_)
       if (anyNA(try.estimand) || any(try.estimand %in% c("ATC", "ATT")) && get.treat.type(treat) != "binary") {
         check.focal <- TRUE
@@ -842,7 +840,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                                to.sd = rep.int(TRUE, ncol(mat)), na.rm = TRUE) {
   denoms <- setNames(rep.int(1, ncol(mat)), colnames(mat))
   
-  if (is.character(s.d.denom) && length(s.d.denom) == 1L) {
+  if (rlang::is_string(s.d.denom)) {
     if (is_null(bin.vars)) {
       bin.vars <- rep.int(FALSE, ncol(mat))
       bin.vars[to.sd] <- is_binary_col(mat[subset, to.sd, drop = FALSE])

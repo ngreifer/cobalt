@@ -17,11 +17,11 @@ Depends:
     R (>= 4.1.0)
 Imports:
     stats, utils, grid, grDevices,
-    ggplot2 (>= 3.5.0),
+    ggplot2 (>= 4.0.0),
     gtable (>= 0.3.6),
     gridExtra (>= 2.3),
-    arg (>= 0.1.0),
-    rlang (>= 1.1.5),
+    arg (>= 0.1.1),
+    rlang (>= 1.2.0),
     cli (>= 3.6.5)
 Suggests:
     MatchIt (>= 4.0.0),
@@ -52,4 +52,4 @@ URL: https://ngreifer.github.io/cobalt/,
 BugReports: https://github.com/ngreifer/cobalt/issues
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0

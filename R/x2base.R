@@ -86,9 +86,7 @@ x2base.matchit <- function(x, ...) {
   #Get method
   if (inherits(x, "matchit.subclass")) {
     method <- ...get("method", "subclassification")
-    
-    arg::arg_string(method)
-    
+
     method <- arg::match_arg(method, c("weighting", "subclassification"))
   }
   else {

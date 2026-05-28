@@ -66,7 +66,7 @@ base.bal.tab.cluster <- function(X,
   }
   
   all.agg.funs <- c("min", "mean", "max")
-  agg.fun <- tolower(as.character(cluster.fun %or% A[["agg.fun"]] %or% all.agg.funs))
+  agg.fun <- as.character(cluster.fun %or% A[["agg.fun"]] %or% all.agg.funs)
   agg.fun <- arg::match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
   X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)

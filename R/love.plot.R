@@ -347,7 +347,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             else "range"
           }
         }
-        agg.fun <- tolower(agg.fun)
+
         agg.fun <- arg::match_arg(agg.fun, c("range", "max", "mean"))
         
         Agg.Fun <- firstup(agg.fun)
@@ -688,7 +688,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   color_aes <- (ntypes == 1 && colors_specified) || (ntypes > 1 && !all_the_same(colors)) || !shape_aes
   
   #Size
-  if (!is.numeric(size) || length(size) != 1L) {
+  if (!is_number(size)) {
     arg::wrn("the argument to {.arg size} must be a number. Using 3 instead")
     size <- 3
   }

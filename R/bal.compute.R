@@ -148,9 +148,7 @@ bal.init <- function(x,
                      ...) {
   arg::arg_supplied(x)
   arg::arg_supplied(stat)
-  
-  arg::arg_string(stat)
-  
+ 
   if (is_null(treat)) {
     treat.type <- "target"
   }
@@ -179,11 +177,12 @@ bal.init <- function(x,
 #' @rdname bal.compute
 #' @export
 available.stats <- function(treat.type = "binary") {
-  arg::arg_string(treat.type)
   if (identical(treat.type, "multi-category")) {
     treat.type <- "multinomial"
   }
-  treat.type <- arg::match_arg(treat.type, c("binary", "multinomial", "continuous", "target"))
+  else {
+    treat.type <- arg::match_arg(treat.type, c("binary", "multinomial", "continuous", "target"))
+  }
   
   switch(
     treat.type,
@@ -1469,7 +1468,8 @@ energy.dist.target <- function(init, weights = NULL) {
 
 bal_criterion <- function(treat.type, criterion) {
   arg::arg_supplied(treat.type)
-  arg::arg_string(treat.type)
+  treat.type <- arg::match_arg(treat.type, c("binary", "multinomial",
+                                             "continuous", "target"))
   arg::arg_supplied(criterion)
   arg::arg_string(criterion)
   
