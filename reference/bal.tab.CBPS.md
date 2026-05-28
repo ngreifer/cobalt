@@ -266,7 +266,7 @@ library(CBPS)
 #> Loading required package: numDeriv
 #> Loading required package: glmnet
 #> Loading required package: Matrix
-#> Loaded glmnet 4.1-10
+#> Loaded glmnet 5.0
 #> CBPS: Covariate Balancing Propensity Score
 #> Version: 0.24
 #> Authors: Christian Fong [aut, cre],

@@ -84,6 +84,7 @@ analysis does not necessarily represent a sound statistical analysis and
 is being used for illustrative purposes only.
 
 ``` r
+
 library("cobalt")
 data("lalonde", package = "cobalt")
 
@@ -128,6 +129,7 @@ global options by using
 Let’s examine balance on our data within each `race` group.
 
 ``` r
+
 bal.tab(m.out, cluster = "race")
 ```
 
@@ -199,6 +201,7 @@ summary across clusters and hide the individual clusters by setting
 `which.cluster = .none`:
 
 ``` r
+
 bal.tab(m.out, cluster = "race", which.cluster = .none)
 ```
 
@@ -247,6 +250,7 @@ summary. Below are examples of the use of `which.cluster` and
 output.
 
 ``` r
+
 #Just for black
 bal.tab(m.out, cluster = "race", which.cluster = "black")
 ```
@@ -273,6 +277,7 @@ bal.tab(m.out, cluster = "race", which.cluster = "black")
     ##  - - - - - - - - - - - - - -
 
 ``` r
+
 #Just the balance summary across clusters with only the mean
 bal.tab(m.out, cluster = "race", which.cluster = .none,
         cluster.fun = "mean")
@@ -315,6 +320,7 @@ of
 with clustered data:
 
 ``` r
+
 bal.plot(m.out, var.name = "age", cluster = "race", which = "both")
 ```
 
@@ -344,6 +350,7 @@ to be plotted. If `which.cluster` is set to `.all` (the default), all
 clusters will be plotted. Below is an example:
 
 ``` r
+
 love.plot(m.out, cluster = "race")
 ```
 
@@ -364,6 +371,7 @@ change which aggregate function is displayed, use the argument to
 `agg.fun`, which may be “mean” or “max”. Below is an example:
 
 ``` r
+
 love.plot(m.out, cluster = "race",
           which.cluster = .none,
           agg.fun = "mean")
@@ -377,6 +385,7 @@ values of the balance statistics for each covariate are displayed as
 well. See below for an example:
 
 ``` r
+
 love.plot(m.out, cluster = "race", which.cluster = .none, agg.fun = "range")
 ```
 
@@ -419,6 +428,7 @@ within each imputation with `educ` as the continuous treatment
 illustration).
 
 ``` r
+
 data("lalonde_mis", package = "cobalt")
 set.seed(100)
 
@@ -486,6 +496,7 @@ Because we’re using a `wimids` object, we can just call
 with it as the first argument.
 
 ``` r
+
 #Checking balance on the output object
 bal.tab(wt.out)
 ```
@@ -527,6 +538,7 @@ request a threshold on the maximum absolute treatment-covariate
 correlation across imputations, you could run
 
 ``` r
+
 bal.tab(wt.out, thresholds = c(c = .05),
         imp.fun = "max", abs = TRUE)
 ```
@@ -560,6 +572,7 @@ number to `which.imp`. (The summary across imputations is automatically
 hidden but can be forced to be displayed using `imp.summary`.)
 
 ``` r
+
 bal.tab(wt.out, which.imp = 1)
 ```
 
@@ -608,6 +621,7 @@ with imputed and weighted data from *MatchThem*, examining balance in
 the first imputation:
 
 ``` r
+
 bal.plot(wt.out, which.imp = 1, var.name = "age", which = "both")
 ```
 
@@ -628,6 +642,7 @@ recommended to display balance for multiple imputations at a time, and
 rather to display balance summarized across imputations:
 
 ``` r
+
 love.plot(wt.out, thresholds = c(c = .05))
 ```
 
@@ -659,6 +674,7 @@ use propensity score weighting to estimate the ATE of `race`. As before,
 this analysis makes no sense substantively and is just for illustration.
 
 ``` r
+
 #Estimate weights within each imputation using propensity scores
 wt3.out <- MatchThem::weightthem(race ~ age + educ + married + 
                                      nodegree + re74 + re75, 
@@ -676,6 +692,7 @@ imputations. That is, for each pair of treatments, everything described
 in the previous section will occur.
 
 ``` r
+
 bal.tab(wt3.out)
 ```
 
@@ -741,6 +758,7 @@ before, with multiply imputed data, balance can be examined on one or
 more imputations at a time.
 
 ``` r
+
 bal.plot(wt3.out, var.name = "married", which.imp = 1,
          which = "both")
 ```
@@ -762,6 +780,7 @@ length 1 (to facet at one segment of the layer). Here we’ll demonstrate
 aggregating across imputations while faceting on treatment pairs.
 
 ``` r
+
 love.plot(wt3.out, threshold = .1, agg.fun = "mean")
 ```
 

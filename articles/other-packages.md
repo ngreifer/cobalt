@@ -44,6 +44,7 @@ example splitting the `race` variable in the Lalonde data set into
 dummies, eliminating the reference category (`"black"`):
 
 ``` r
+
 head(lalonde)
 ```
 
@@ -56,6 +57,7 @@ head(lalonde)
     ## 6     1  22    9  black       0        1    0    0  4056.4940
 
 ``` r
+
 lalonde.split <- splitfactor(lalonde, "race")
 head(lalonde.split)
 ```
@@ -78,6 +80,7 @@ or otherwise and recreates the original factor variable. If the
 reference category was dropped, its value needs to be supplied.
 
 ``` r
+
 lalonde.unsplit <- unsplitfactor(lalonde.split, "race", 
                                  dropped.level = "black")
 head(lalonde.unsplit)
@@ -138,6 +141,7 @@ functions similarly to the functions
 *twang*. Below is a simple example of its use:
 
 ``` r
+
 #GBM PS weighting for the ATT
 data("lalonde", package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -247,6 +251,7 @@ simple example of the use of
 with *Matching*:
 
 ``` r
+
 #1:1 NN PS matching w/ replacement
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -312,6 +317,7 @@ the same results as the call to
 above:
 
 ``` r
+
 bal.tab(match.out, treat = lalonde$treat, covs = covs0,
         distance = ~ p.score)
 ```
@@ -350,6 +356,7 @@ for the same purpose. Note that some results will differ between
 calculated in each.
 
 ``` r
+
 #Optimal full matching on the propensity score
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -405,6 +412,7 @@ functions similarly to *CBPS*’s
 is a simple example of its use with a binary treatment:
 
 ``` r
+
 #CBPS weighting
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -417,6 +425,7 @@ cbps.out <- CBPS::CBPS(f, data = lalonde)
     ## [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"
 
 ``` r
+
 bal.tab(cbps.out)
 ```
 
@@ -490,17 +499,14 @@ example of using
 with *ebal*:
 
 ``` r
+
 #Entropy balancing
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, race))
 
 #Generating entropy balancing weights
 e.out <- ebal::ebalance(lalonde$treat, covs0)
-```
 
-    ## Converged within tolerance
-
-``` r
 bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 ```
 
@@ -548,6 +554,7 @@ using
 with *designmatch*:
 
 ``` r
+
 #Mixed integer programming matching
 library("designmatch")
 data("lalonde", package = "cobalt") #If not yet loaded
@@ -586,6 +593,7 @@ example of using
 with *sbw*:
 
 ``` r
+
 #Optimization-based weighting
 data("lalonde", package = "cobalt") #If not yet loaded
 lalonde_split <- splitfactor(lalonde, drop.first = "if2")
@@ -606,6 +614,7 @@ sbw.out <- sbw::sbw(lalonde_split,
     ##   Optimal weights found.
 
 ``` r
+
 bal.tab(sbw.out, un = TRUE, disp.means = TRUE)
 ```
 
@@ -657,6 +666,7 @@ Below is a simple example of using
 with *MatchThem*:
 
 ``` r
+
 #PS weighting on multiply imputed data
 data("lalonde_mis", package = "cobalt")
 
@@ -694,6 +704,7 @@ bal.tab(mt.out)
     ## Unmatched 244   0
 
 ``` r
+
 #Weighting for balance on covariates
 wt.out <- MatchThem::weightthem(treat ~ age + educ + married +
                                     race + re74 + re75, 
@@ -738,6 +749,7 @@ simple example of using
 with *cem*:
 
 ``` r
+
 #Coarsened exact matching
 data("lalonde", package = "cobalt") #If not yet loaded
 
@@ -769,6 +781,7 @@ Below is an example of using *cem* with multiply imputed data from
 *mice*:
 
 ``` r
+
 #Coarsened exact matching on multiply imputed data
 data("lalonde_mis", package = "cobalt")
 
@@ -819,6 +832,7 @@ method of
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md).
 
 ``` r
+
 #Optimization-based weighting
 data("lalonde", package = "cobalt")
 
@@ -838,6 +852,7 @@ names(ow.out)
     ## [11] "target.tols" "duals"       "info"        "solver"
 
 ``` r
+
 #Use bal.tab() directly on the output
 bal.tab(ow.out)
 ```

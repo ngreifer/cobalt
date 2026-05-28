@@ -245,7 +245,6 @@ covs <- subset(lalonde, select = -c(re78, treat))
 covs0 <- splitfactor(covs)
 
 e.out <- ebal::ebalance(lalonde$treat, covs0)
-#> Converged within tolerance 
 
 ## Using formula and data
 bal.tab(e.out, formula = treat ~ age + educ + race +

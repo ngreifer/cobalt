@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Optimizing Tuning Parameters for Balance">
 </head>
@@ -101,12 +101,11 @@ parameters”, in order to optimize balance. Many popular methods adjust
 tuning parameters to optimize balance as inherent parts of the method,
 like genetic matching <span class="citation">(<a href="#ref-diamondGeneticMatchingEstimating2013">Diamond and Sekhon
 2013</a>)</span>, which tunes variance importance in the distance
-matrix, or generalized boosted modeling <span class="citation">(<a href="#ref-mccaffreyPropensityScoreEstimation2004">McCaffrey, Ridgeway,
-and Morral 2004</a>)</span>, which tunes the number of trees in the
-prediction model for propensity scores. This strategy tends to yield
-methods that perform better than methods that don’t tune at all or tune
-to optimize a criterion other than balance (e.g., prediction accuracy)
-<span class="citation">Pirracchio and Carone (<a href="#ref-pirracchioBalanceSuperLearner2018">2018</a>)</span>.</p>
+matrix, or generalized boosted modeling <span class="citation">(<a href="#ref-mccaffreyPropensityScoreEstimation2004">McCaffrey et al.
+2004</a>)</span>, which tunes the number of trees in the prediction
+model for propensity scores. This strategy tends to yield methods that
+perform better than methods that don’t tune at all or tune to optimize a
+criterion other than balance (e.g., prediction accuracy) <span class="citation">Pirracchio and Carone (<a href="#ref-pirracchioBalanceSuperLearner2018">2018</a>)</span>.</p>
 <p>As of version 4.5.0, <em>cobalt</em> provides the functions
 <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> to aid in
 selecting these tuning parameters in an efficient way without needing to
@@ -146,7 +145,7 @@ difference among the included covariates, which is specified as
 sample prior to weighting.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/cobalt/">cobalt</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt;  cobalt (Version 4.6.2.9000, Build Date: 2026-04-13)</span></span>
+<span><span class="co">#&gt;  cobalt (Version 4.6.2.9000, Build Date: 2026-05-28)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">race</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -419,7 +418,7 @@ treatments and for target balance.</p>
 </h4>
 <p>The kernel distance between treatment groups, which is a scalar
 measure of the similarity between two multivariate distributions. See
-<span class="citation">Zhu, Savage, and Ghosh (<a href="#ref-zhuKernelBasedMetricBalance2018">2018</a>)</span> for
+<span class="citation">Zhu et al. (<a href="#ref-zhuKernelBasedMetricBalance2018">2018</a>)</span> for
 details. Can only be used with binary treatments.</p>
 </div>
 <div class="section level4">
@@ -427,16 +426,16 @@ details. Can only be used with binary treatments.</p>
 <code>l1.med</code><a class="anchor" aria-label="anchor" href="#l1-med"></a>
 </h4>
 <p>The median L1 statistic computed across a random selection of
-possible coarsening of the data. See <span class="citation">Iacus, King,
-and Porro (<a href="#ref-iacusMultivariateMatchingMethods2011">2011</a>)</span> for
-details. The other allowable arguments include <code>l1.min.bin</code>
-(default 2) and <code>l1.max.bin</code> default (12) to select the
-minimum and maximum number of bins with which to bin continuous
-variables and <code>l1.n</code> (default 101) to select the number of
-binnings used to select the binning at the median. <code>covs</code>
-should be supplied without splitting factors into dummies to ensure the
-binning works correctly. Can be used with binary and multi-category
-treatments.</p>
+possible coarsening of the data. See <span class="citation">Iacus et al.
+(<a href="#ref-iacusMultivariateMatchingMethods2011">2011</a>)</span>
+for details. The other allowable arguments include
+<code>l1.min.bin</code> (default 2) and <code>l1.max.bin</code> default
+(12) to select the minimum and maximum number of bins with which to bin
+continuous variables and <code>l1.n</code> (default 101) to select the
+number of binnings used to select the binning at the median.
+<code>covs</code> should be supplied without splitting factors into
+dummies to ensure the binning works correctly. Can be used with binary
+and multi-category treatments.</p>
 </div>
 <div class="section level4">
 <h4 id="r2-r2-2-r2-3">
@@ -479,7 +478,7 @@ treatments.</p>
 </h4>
 <p>The distance covariance or distance correlation between the scaled
 covariates and treatment, which is a scalar measure of the independence
-of two possibly multivariate distributions. See <span class="citation">Huling, Greifer, and Chen (<a href="#ref-hulingIndependenceWeightsCausal2023a">2023</a>)</span> for
+of two possibly multivariate distributions. See <span class="citation">Huling et al. (<a href="#ref-hulingIndependenceWeightsCausal2023a">2023</a>)</span> for
 details. Can only be used with continuous treatments. The distance
 correlation is a scaled version of the distance covariance to range from
 0 to 1.</p>
@@ -490,9 +489,8 @@ correlation is a scaled version of the distance covariance to range from
 <p>Given all these options, how should one choose? There has been some
 research into which yields the best results <span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014">Franklin et al.
 2014</a>; <a href="#ref-griffinChasingBalanceOther2017">Griffin et al.
-2017</a>; <a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart,
-Lee, and Leacy 2013</a>; <a href="#ref-belitserMeasuringBalanceModel2011">Belitser et al. 2011</a>;
-<a href="#ref-parastOptimizingVariancebiasTradeoff2017">Parast et al.
+2017</a>; <a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart et
+al. 2013</a>; <a href="#ref-belitserMeasuringBalanceModel2011"><span class="nocase">Belitser et al.</span> 2011</a>; <a href="#ref-parastOptimizingVariancebiasTradeoff2017">Parast et al.
 2017</a>)</span>, but the actual performance of each depends on the
 unique features of the data and system under study. For example, in the
 unlikely case that the true outcome model is linear in the covariates,
@@ -530,7 +528,7 @@ find the number of subclasses in propensity score subclassification.</p>
 <p>GBM has many tuning parameters that can be optimized, but the key
 parameter is the number of trees to use to calculate the predictions.
 <em>WeightIt</em> and <em>twang</em> both implement the methods
-described in <span class="citation">McCaffrey, Ridgeway, and Morral (<a href="#ref-mccaffreyPropensityScoreEstimation2004">2004</a>)</span> for
+described in <span class="citation">McCaffrey et al. (<a href="#ref-mccaffreyPropensityScoreEstimation2004">2004</a>)</span> for
 selecting the number of trees using a balance criterion. Here, we will
 do so manually both to understand the internals of these functions and
 illustrate the uses of <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and
@@ -579,7 +577,7 @@ see what it looks like:</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">trees_to_test</span>, y <span class="op">=</span> <span class="va">stats</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"ks.max"</span>, x <span class="op">=</span> <span class="st">"n.trees"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="optimizing-balance_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="optimizing-balance_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 <p>Let’s compare this to the output of <em>WeightIt</em>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">"WeightIt"</a></span><span class="op">)</span></span>
@@ -608,13 +606,13 @@ returned weights is equal to the one we computed manually. Using
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-belitserMeasuringBalanceModel2011" class="csl-entry">
-Belitser, Svetlana V., Edwin P. Martens, Wiebe R. Pestman, Rolf H. H.
-Groenwold, Anthonius de Boer, and Olaf H. Klungel. 2011.
-<span>“Measuring Balance and Model Selection in Propensity Score
-Methods.”</span> <em>Pharmacoepidemiology and Drug Safety</em> 20 (11):
-1115–29. <a href="https://doi.org/10.1002/pds.2188" class="external-link">https://doi.org/10.1002/pds.2188</a>.
+<span class="nocase">Belitser, Svetlana V., Edwin P. Martens, Wiebe R.
+Pestman, Rolf H. H. Groenwold, Anthonius de Boer, and Olaf H.
+Klungel</span>. 2011. <span>“Measuring Balance and Model Selection in
+Propensity Score Methods.”</span> <em>Pharmacoepidemiology and Drug
+Safety</em> 20 (11): 1115–29. <a href="https://doi.org/10.1002/pds.2188" class="external-link">https://doi.org/10.1002/pds.2188</a>.
 </div>
 <div id="ref-diamondGeneticMatchingEstimating2013" class="csl-entry">
 Diamond, Alexis, and Jasjeet S. Sekhon. 2013. <span>“Genetic Matching
@@ -658,14 +656,13 @@ Models.”</span> <em>Biometrika</em> 108 (1): 71–82. <a href="https://doi.org
 </div>
 <div id="ref-mccaffreyPropensityScoreEstimation2004" class="csl-entry">
 McCaffrey, Daniel F., Greg Ridgeway, and Andrew R. Morral. 2004.
-<span>“Propensity Score Estimation With Boosted Regression for
+<span>“Propensity Score Estimation with Boosted Regression for
 Evaluating Causal Effects in Observational Studies.”</span>
 <em>Psychological Methods</em> 9 (4): 403–25. <a href="https://doi.org/10.1037/1082-989X.9.4.403" class="external-link">https://doi.org/10.1037/1082-989X.9.4.403</a>.
 </div>
 <div id="ref-parastOptimizingVariancebiasTradeoff2017" class="csl-entry">
-Parast, Layla, Daniel F. McCaffrey, Lane F. Burgette, Fernando Hoces de
-la Guardia, Daniela Golinelli, Jeremy N. V. Miles, and Beth Ann Griffin.
-2017. <span>“Optimizing Variance-Bias Trade-Off in the TWANG Package for
+Parast, Layla, Daniel F. McCaffrey, Lane F. Burgette, et al. 2017.
+<span>“Optimizing Variance-Bias Trade-Off in the TWANG Package for
 Estimation of Propensity Scores.”</span> <em>Health Services and
 Outcomes Research Methodology</em> 17 (3): 175–97. <a href="https://doi.org/10.1007/s10742-016-0168-2" class="external-link">https://doi.org/10.1007/s10742-016-0168-2</a>.
 </div>

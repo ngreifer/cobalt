@@ -22,12 +22,11 @@ tuning parameters to optimize balance as inherent parts of the method,
 like genetic matching ([Diamond and Sekhon
 2013](#ref-diamondGeneticMatchingEstimating2013)), which tunes variance
 importance in the distance matrix, or generalized boosted modeling
-([McCaffrey, Ridgeway, and Morral
-2004](#ref-mccaffreyPropensityScoreEstimation2004)), which tunes the
-number of trees in the prediction model for propensity scores. This
-strategy tends to yield methods that perform better than methods that
-don’t tune at all or tune to optimize a criterion other than balance
-(e.g., prediction accuracy) Pirracchio and Carone
+([McCaffrey et al. 2004](#ref-mccaffreyPropensityScoreEstimation2004)),
+which tunes the number of trees in the prediction model for propensity
+scores. This strategy tends to yield methods that perform better than
+methods that don’t tune at all or tune to optimize a criterion other
+than balance (e.g., prediction accuracy) Pirracchio and Carone
 ([2018](#ref-pirracchioBalanceSuperLearner2018)).
 
 As of version 4.5.0, *cobalt* provides the functions
@@ -83,8 +82,9 @@ and pass its output to
 to compute the balance statistic for the sample prior to weighting.
 
 ``` r
+
 library(cobalt)
-#>  cobalt (Version 4.6.2.9000, Build Date: 2026-04-13)
+#>  cobalt (Version 4.6.2.9000, Build Date: 2026-05-28)
 data("lalonde", package = "cobalt")
 
 covs <- subset(lalonde, select = -c(treat, race, re78))
@@ -113,6 +113,7 @@ The largest absolute standardized mean difference with no weights is
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md):
 
 ``` r
+
 bal.tab(covs,
         treat = lalonde$treat,
         binary = "std",
@@ -149,6 +150,7 @@ Now, lets estimate weights using probit regression propensity scores in
 applying the weights:
 
 ``` r
+
 library("WeightIt")
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                     re74 + re75,
@@ -166,6 +168,7 @@ After weighting, our balance statistic is 0.0694, indicating a
 significant improvement. Let’s try again with logistic regression:
 
 ``` r
+
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                     re74 + re75,
                   data = lalonde,
@@ -182,6 +185,7 @@ This is better, but we can do even better with bias-reduced logistic
 regression ([Kosmidis and Firth 2020](#ref-kosmidis2020)):
 
 ``` r
+
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                     re74 + re75,
                   data = lalonde,
@@ -198,6 +202,7 @@ Instead of writing each complete call one at a time, we can do a little
 programming to make this happen automatically:
 
 ``` r
+
 # Initialize object to compute the largest SMD
 smd.init <- bal.init(covs,
                      treat = lalonde$treat,
@@ -241,6 +246,7 @@ We can use
 more finely examine balance on the chosen weights:
 
 ``` r
+
 bal.tab(covs,
         treat = lalonde$treat,
         binary = "std",
@@ -367,14 +373,14 @@ and for target balance.
 #### `kernel.dist`
 
 The kernel distance between treatment groups, which is a scalar measure
-of the similarity between two multivariate distributions. See Zhu,
-Savage, and Ghosh ([2018](#ref-zhuKernelBasedMetricBalance2018)) for
-details. Can only be used with binary treatments.
+of the similarity between two multivariate distributions. See Zhu et al.
+([2018](#ref-zhuKernelBasedMetricBalance2018)) for details. Can only be
+used with binary treatments.
 
 #### `l1.med`
 
 The median L1 statistic computed across a random selection of possible
-coarsening of the data. See Iacus, King, and Porro
+coarsening of the data. See Iacus et al.
 ([2011](#ref-iacusMultivariateMatchingMethods2011)) for details. The
 other allowable arguments include `l1.min.bin` (default 2) and
 `l1.max.bin` default (12) to select the minimum and maximum number of
@@ -417,17 +423,17 @@ Can only be used with continuous treatments.
 
 The distance covariance or distance correlation between the scaled
 covariates and treatment, which is a scalar measure of the independence
-of two possibly multivariate distributions. See Huling, Greifer, and
-Chen ([2023](#ref-hulingIndependenceWeightsCausal2023a)) for details.
-Can only be used with continuous treatments. The distance correlation is
-a scaled version of the distance covariance to range from 0 to 1.
+of two possibly multivariate distributions. See Huling et al.
+([2023](#ref-hulingIndependenceWeightsCausal2023a)) for details. Can
+only be used with continuous treatments. The distance correlation is a
+scaled version of the distance covariance to range from 0 to 1.
 
 ### Choosing a balance statistic
 
 Given all these options, how should one choose? There has been some
 research into which yields the best results ([Franklin et al.
 2014](#ref-franklinMetricsCovariateBalance2014); [Griffin et al.
-2017](#ref-griffinChasingBalanceOther2017); [Stuart, Lee, and Leacy
+2017](#ref-griffinChasingBalanceOther2017); [Stuart et al.
 2013](#ref-stuartPrognosticScorebasedBalance2013); [Belitser et al.
 2011](#ref-belitserMeasuringBalanceModel2011); [Parast et al.
 2017](#ref-parastOptimizingVariancebiasTradeoff2017)), but the actual
@@ -465,12 +471,11 @@ subclasses in propensity score subclassification.
 
 GBM has many tuning parameters that can be optimized, but the key
 parameter is the number of trees to use to calculate the predictions.
-*WeightIt* and *twang* both implement the methods described in
-McCaffrey, Ridgeway, and Morral
-([2004](#ref-mccaffreyPropensityScoreEstimation2004)) for selecting the
-number of trees using a balance criterion. Here, we will do so manually
-both to understand the internals of these functions and illustrate the
-uses of
+*WeightIt* and *twang* both implement the methods described in McCaffrey
+et al. ([2004](#ref-mccaffreyPropensityScoreEstimation2004)) for
+selecting the number of trees using a balance criterion. Here, we will
+do so manually both to understand the internals of these functions and
+illustrate the uses of
 [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
 and
 [`bal.init()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
@@ -478,6 +483,7 @@ to select the ideal number of trees for propensity score weighting with
 a binary treatment.
 
 ``` r
+
 data("lalonde")
 
 # Initialize balance
@@ -518,6 +524,7 @@ relationship between the number of trees and our balance statistic to
 see what it looks like:
 
 ``` r
+
 library("ggplot2")
 ggplot() +
     geom_line(aes(x = trees_to_test, y = stats)) +
@@ -530,6 +537,7 @@ ggplot() +
 Let’s compare this to the output of *WeightIt*:
 
 ``` r
+
 library("WeightIt")
 w.out <- weightit(treat ~ age + educ + married + race +
                     nodegree + re74 + re75,
@@ -601,14 +609,13 @@ Models.” *Biometrika* 108 (1): 71–82.
 <https://doi.org/10.1093/biomet/asaa052>.
 
 McCaffrey, Daniel F., Greg Ridgeway, and Andrew R. Morral. 2004.
-“Propensity Score Estimation With Boosted Regression for Evaluating
+“Propensity Score Estimation with Boosted Regression for Evaluating
 Causal Effects in Observational Studies.” *Psychological Methods* 9 (4):
 403–25. <https://doi.org/10.1037/1082-989X.9.4.403>.
 
-Parast, Layla, Daniel F. McCaffrey, Lane F. Burgette, Fernando Hoces de
-la Guardia, Daniela Golinelli, Jeremy N. V. Miles, and Beth Ann Griffin.
-2017. “Optimizing Variance-Bias Trade-Off in the TWANG Package for
-Estimation of Propensity Scores.” *Health Services and Outcomes Research
+Parast, Layla, Daniel F. McCaffrey, Lane F. Burgette, et al. 2017.
+“Optimizing Variance-Bias Trade-Off in the TWANG Package for Estimation
+of Propensity Scores.” *Health Services and Outcomes Research
 Methodology* 17 (3): 175–97.
 <https://doi.org/10.1007/s10742-016-0168-2>.
 

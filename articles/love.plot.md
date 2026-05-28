@@ -22,6 +22,7 @@ score weighting, which, for simplicity, will be the focus here.
 First, let’s load in the data set and estimate the weights.
 
 ``` r
+
 library("cobalt")
 library("WeightIt")
 data("lalonde", package = "cobalt")
@@ -37,6 +38,7 @@ difference for all of the covariates, let’s set the global `binary`
 option to `"std"` so we don’t have to type it every time.
 
 ``` r
+
 set.cobalt.options(binary = "std")
 ```
 
@@ -47,15 +49,17 @@ is simply to call it as you would
 the output of the preprocessing function (in this case, *WeightIt*).
 
 ``` r
+
 love.plot(w.out1)
 ```
 
 ![](love.plot_files/figure-html/unnamed-chunk-4-1.png)
 
 We could also have supplied other arguments that would normally go in
-[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)[¹](#fn1):
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)[^1]:
 
 ``` r
+
 #This produces the same output as the prior block but with 
 #the additional covariates included in the formula.
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75 +
@@ -76,6 +80,7 @@ the change in balance clearer by setting `line = TRUE`. Finally, we’ll
 add a threshold line at 0.1 by setting `thresholds = c(m = .1)`.
 
 ``` r
+
 love.plot(w.out1, 
           drop.distance = TRUE, 
           var.order = "unadjusted",
@@ -103,6 +108,7 @@ for more information. Because we only have a few variable names, we’ll
 just manually create a vector of names.
 
 ``` r
+
 new.names <- c(age = "Age (Years)",
                educ = "Education (Years)",
                married = "Married (Y/N)",
@@ -121,6 +127,7 @@ shape of the points to further clarify the different samples using the
 `shapes` argument.
 
 ``` r
+
 love.plot(w.out1, 
           drop.distance = TRUE, 
           var.order = "unadjusted",
@@ -144,6 +151,7 @@ because the `love.plot` output is a `ggplot` object. We need to load in
 *ggplot2* first to do this.
 
 ``` r
+
 library(ggplot2)
 
 love.plot(w.out1, 
@@ -179,6 +187,7 @@ political science. These can be easily added (but we’ll have to use the
 formula interface to set multiple weights).
 
 ``` r
+
 w.out2 <- weightit(treat ~ age + educ + married + nodegree +
                      race + re74 + re75,
                    data = lalonde,
@@ -222,6 +231,7 @@ another potentially useful balance measure. Below we’ll use similar
 formatting to request KS statistics:
 
 ``` r
+
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           data = lalonde,
           estimand = "ATE",
@@ -265,6 +275,7 @@ same in both plots (which it will be regardless) and ordered by the
 first balance statistic (in this case, mean differences).
 
 ``` r
+
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           data = lalonde,
           estimand = "ATE",
@@ -295,6 +306,7 @@ include those features by including an argument to `labels` and by
 supplying a `theme` object to `themes`:
 
 ``` r
+
 love.plot(w.out1,
           abs = FALSE,
           stats = c("mean.diffs", "variance.ratios"),
@@ -329,6 +341,7 @@ how that variable’s mean difference is displayed. For example, you might
 make the following plot:
 
 ``` r
+
 love.plot(w.out1, binary = "raw",
           stars = "raw",
           drop.distance = TRUE,
@@ -361,10 +374,8 @@ for Equating Groups: Basic Principles and Application in Clinical
 Treatment Outcome Research.” *Journal of Consulting and Clinical
 Psychology* 82 (5): 906–19. <https://doi.org/10.1037/a0036387>.
 
-------------------------------------------------------------------------
-
-1.  Older versions of *cobalt* required the first argument to be a call
-    to
+[^1]: Older versions of *cobalt* required the first argument to be a
+    call to
     [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md);
     this is no longer required and in fact is not recommended because
     `love.plot` is more flexible when handling its own inputs. That

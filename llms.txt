@@ -12,7 +12,7 @@ propensity score. *cobalt*’s primary function is
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
 which stands for “balance table”, and is meant to replace (or
 supplement) the balance assessment tools found in other R packages. To
-examine how
+see how
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
 integrates with these packages and others, see the help file for
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
@@ -79,6 +79,7 @@ goal of simple, unified balance assessment.
 Below are examples of *cobalt*’s primary functions:
 
 ``` r
+
 library("cobalt")
 data("lalonde", package = "cobalt")
 
@@ -122,6 +123,7 @@ bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
 ```
 
 ``` r
+
 #Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "distance",
@@ -131,6 +133,7 @@ bal.plot(m.out, var.name = "distance",
 ![](reference/figures/README-unnamed-chunk-3-1.png)![](reference/figures/README-unnamed-chunk-3-2.png)
 
 ``` r
+
 #Generating a Love plot to report balance:
 love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
           thresholds = c(m = .1, v = 2), abs = TRUE, 
@@ -143,7 +146,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using
 the *Matching* package (Sekhon, 2011), and covariate balance was
-assessed using *cobalt* (Greifer, 2026), both in R (R Core Team, 2025).”
+assessed using *cobalt* (Greifer, 2026), both in R (R Core Team, 2026).”
 Use `citation("cobalt")` to generate a bibliographic reference for the
 *cobalt* package.
 
@@ -153,6 +156,7 @@ install the latest development version of *cobalt*, which may have
 removed a bug you’re experiencing, use the following code:
 
 ``` r
+
 pak::pak("ngreifer/cobalt")
 ```
 

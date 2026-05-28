@@ -62,8 +62,8 @@ the standard deviation of the control group, \\s\\ is the standard
 deviation of the whole sample ignoring treatment group membership,
 \\s_w\\ is the weighted standard deviation of the whole sample, \\n_1\\
 and \\n_0\\ are sizes of the treated and control groups, respectively,
-and \\n = n_1 + n_0\\.[¹](#fn1) For continuous covariates, the
-unweighted standard deviation is computed as usual, i.e., as \\ s =
+and \\n = n_1 + n_0\\.[^1] For continuous covariates, the unweighted
+standard deviation is computed as usual, i.e., as \\ s =
 \sqrt{\frac{1}{n-1}\sum_i{(x_i - \bar{x})^2}} \\ and the weighted
 standard deviation is computed as \\ s = \sqrt{\frac{\sum\_{i}
 w\_{i}}{(\sum\_{i} w\_{i})^2 - \sum\_{i=1}^{n} w^2\_{i}}\sum_i{w_i(x_i -
@@ -113,6 +113,7 @@ affected the outcome equally, then each would contribute to the bias in
 the estimate to the same extent.
 
 ``` r
+
 treat <- rep(1:0, each = 20)
 X1 <- c(rep(0:1, c(1, 19)), rep(0:1, c(3, 17)))
 X2 <- c(rep(0:1, c(9, 11)), rep(0:1, c(11, 9)))
@@ -138,6 +139,7 @@ standardized mean differences vary by a huge amount, with `X1` having
 twice the imbalance of `X2`.
 
 ``` r
+
 bal.tab(treat ~ X1 + X2,
         binary = "std",
         s.d.denom = "treated")
@@ -204,6 +206,7 @@ subclassification is not used, the balance table is stored in the
 `Balance` component of the output object. Let’s take a look:
 
 ``` r
+
 data("lalonde")
 
 b <- bal.tab(treat ~ age + educ + race + married + re74,
@@ -272,6 +275,7 @@ standardization factor computed in the original sample, i.e., prior to
 subclassification. Let’s take a look below using *MatchIt*:
 
 ``` r
+
 # PS Subclassification
 msub <- MatchIt::matchit(treat ~ age + educ + race + married + re74,
                          data = lalonde, method = "subclass",
@@ -298,6 +302,7 @@ group in subclass 1, and then divide it by the pooled standard deviation
 of age (because we requested the ATE) in *the original sample*.
 
 ``` r
+
 m0 <- mean(lalonde$age[lalonde$treat == 0 & msub$subclass == 1])
 m1 <- mean(lalonde$age[lalonde$treat == 1 & msub$subclass == 1])
 
@@ -329,6 +334,7 @@ corresponding to the number of units in the subclass in the target group
 Below I’ll demonstrate how to do that manually for the `age` covariate:
 
 ``` r
+
 # SMDs across subclasses for age
 smds <- sapply(1:6, function(s) {
     m0 <- mean(lalonde$age[lalonde$treat == 0 & msub$subclass == s])
@@ -375,6 +381,7 @@ to compute propensity score weights from propensity scores. Here’s how I
 do that manually for `age`:
 
 ``` r
+
 # Compute proportion of treated units in each subclass
 prop1 <- sapply(1:6, function(s) mean(lalonde$treat[msub$subclass == s]))
 
@@ -494,12 +501,10 @@ Propensity Score Matching in the Medical Literature Between 1996 and
 2003’ by Peter Austin, Statistics in Medicine.” *Statistics in Medicine*
 27 (12): 2062–65. <https://doi.org/10.1002/sim.3207>.
 
-Yang, Dongsheng, and Jarrod E Dalton. 2012. “A Unified Approach to
-Measuring the Effect Size Between Two Groups Using SAS®,” 6.
+Yang, Dongsheng, and Jarrod E Dalton. 2012. *A Unified Approach to
+Measuring the Effect Size Between Two Groups Using SAS®*. 6.
 
-------------------------------------------------------------------------
-
-1.  For multi-category treatments, all standardization factors are
+[^1]: For multi-category treatments, all standardization factors are
     computed using the full data, not just the groups being compared.
     For example, the pooled standard deviation involves computing the
     mean of all the group-specific variances, not just the two being

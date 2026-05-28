@@ -2,7 +2,7 @@
 
 This is an introductory guide for the use of *cobalt* in most common
 scenarios. Several appendices are available for its use with more
-complicated data scenarios and packages not demonstrated here.[¹](#fn1)
+complicated data scenarios and packages not demonstrated here.[^1]
 
 ## Introduction
 
@@ -29,16 +29,15 @@ estimation, and some were reviewed by Keller and Tipton
 2011](#ref-sekhonMultivariatePropensityScore2011)), *optmatch* ([Hansen
 and Klopfer 2006](#ref-hansenOptimalFullMatching2006)), *CBPS* ([Fong et
 al. 2019](#ref-fongCBPSCovariateBalancing2019)), *ebal* ([Hainmueller
-2014](#ref-hainmuellerEbalEntropyReweighting2014)), *sbw* ([Zubizarreta,
-Li, and Kim 2021](#ref-zubizarretaSbwStableBalancing2021)),
-*designmatch* ([Zubizarreta, Kilcioglu, and Vielma
+2014](#ref-hainmuellerEbalEntropyReweighting2014)), *sbw* ([Zubizarreta
+et al. 2021](#ref-zubizarretaSbwStableBalancing2021)), *designmatch*
+([Zubizarreta et al.
 2018](#ref-zubizarretaDesignmatchMatchedSamples2018)), *WeightIt*
 ([Greifer 2021](#ref-greiferWeightItWeightingCovariate2021)),
 *MatchThem* ([Pishgar et al.
-2021](#ref-pishgarMatchThemMatchingWeighting2021)), and *cem* ([Iacus,
-King, and Porro 2009](#ref-iacusCemSoftwareCoarsened2009)); these
-together provide a near complete set of preprocessing tools in R to
-date.
+2021](#ref-pishgarMatchThemMatchingWeighting2021)), and *cem* ([Iacus et
+al. 2009](#ref-iacusCemSoftwareCoarsened2009)); these together provide a
+near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using
 data preprocessing ([Stuart
@@ -144,8 +143,8 @@ selection when there are many covariates or higher order terms to
 examine. These summaries include the proportion of covariates that have
 met a user-specified threshold for balance and the covariate with the
 highest degree of imbalance, two values that have been shown to be
-effective in diagnosing imbalance and potential bias ([Stuart, Lee, and
-Leacy 2013](#ref-stuartPrognosticScorebasedBalance2013)).
+effective in diagnosing imbalance and potential bias ([Stuart et al.
+2013](#ref-stuartPrognosticScorebasedBalance2013)).
 
 #### One tool to rule them all
 
@@ -155,15 +154,15 @@ these methods are spread across various packages; for example, full
 matching is available only in *MatchIt* and *optmatch*, generalized
 boosted modeling only in *twang*, covariate balancing propensity score
 weighting only in *CBPS*, genetic matching only in *MatchIt* and
-*Matching*, and entropy balancing only in *ebal*[²](#fn2). If a user
-wants to compare these methods on their ability to generate balance in
-the sample, they cannot do so on the same metrics and with the same
-output. Each package computes balance statistics differently (if at
-all), and the relevant balance measures are in different places in each
-package. By using *cobalt* to assess balance across packages, users can
-be sure they are using a single, equivalent balance metric across
-methods, and the relevant balance statistics will be in the same place
-and computed the same way regardless of the conditioning package used.
+*Matching*, and entropy balancing only in *ebal*[^2]. If a user wants to
+compare these methods on their ability to generate balance in the
+sample, they cannot do so on the same metrics and with the same output.
+Each package computes balance statistics differently (if at all), and
+the relevant balance measures are in different places in each package.
+By using *cobalt* to assess balance across packages, users can be sure
+they are using a single, equivalent balance metric across methods, and
+the relevant balance statistics will be in the same place and computed
+the same way regardless of the conditioning package used.
 
 #### Flexibility
 
@@ -226,6 +225,7 @@ use each, complete with example code and output. To start, install and
 load *cobalt* with the following code:
 
 ``` r
+
 install.packages("cobalt")
 library("cobalt")
 ```
@@ -309,6 +309,7 @@ with ATT weights generating using logistic regression for a
 weighting-by-the-odds analysis:
 
 ``` r
+
 data("lalonde", package = "cobalt") #If not yet loaded
 covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -360,6 +361,7 @@ Another way to specify input to
 to use the formula interface. Below is an example of its use:
 
 ``` r
+
 bal.tab(treat ~ covs, data = lalonde,
         weights = "att.weights",
         distance = "p.score")
@@ -408,6 +410,7 @@ set as global options by using, for example,
 a non-default option every time they call `bal.tab`.
 
 ``` r
+
 bal.tab(treat ~ covs, data = lalonde,
         weights = "att.weights",
         binary = "std", continuous = "std")
@@ -444,6 +447,7 @@ in `covs`, the additional variables `nodegree` and `married`, and their
 interactions and squares.
 
 ``` r
+
 # Balance on all covariates in data set, including interactions and squares
 bal.tab(treat ~ covs, data = lalonde,
         weights = "att.weights",
@@ -542,7 +546,7 @@ The next options only affect display, not the calculation of any
 statistics. First is `disp`, which controls whether sample statistics
 for each covariate in each group are displayed. Options include
 `"means"` and `"sds"`, which will request group means and standard
-deviations, respectively[³](#fn3).
+deviations, respectively[^3].
 
 Next is `stats`, which controls which balance statistics are displayed.
 For binary and multi-category treatments, options include `"mean.diffs"`
@@ -566,7 +570,7 @@ to formally assess balance is debated. Austin and Stuart
 ([2015](#ref-austinMovingBestPractice2015)) recommend its use, and it or
 a variant appears as a default balance statistic in *MatchIt*, *twang*,
 and *Matching*. On the other hand, Belitser et al.
-([2011](#ref-belitserMeasuringBalanceModel2011)), Stuart, Lee, and Leacy
+([2011](#ref-belitserMeasuringBalanceModel2011)), Stuart et al.
 ([2013](#ref-stuartPrognosticScorebasedBalance2013)), and Ali et al.
 ([2014](#ref-aliPropensityScoreBalance2014)) all found that global
 balance assessments using the KS statistic performed uniformly worse
@@ -588,6 +592,7 @@ Setting `un = FALSE`, which is the default, can de-clutter the output to
 maintain the spotlight on the group balance after adjustment.
 
 ``` r
+
 # Balance tables with mean differences, variance ratios, and 
 #  statistics for the unadjusted sample
 bal.tab(treat ~ covs, data = lalonde,
@@ -626,11 +631,11 @@ also be set as global options by using
 Finally, the user can specify a threshold for balance statistics using
 the `threshold` argument. Thresholds can be useful in determining
 whether satisfactory balance has been achieved. For standardized mean
-differences, thresholds of .1 and .25 have been proposed, but Stuart,
-Lee, and Leacy ([2013](#ref-stuartPrognosticScorebasedBalance2013))
-found that a threshold of .1 was more effective at assessing imbalance
-that would lead to biased effect estimation. In general, standardized
-mean differences should be as close to 0 as possible, but a conservative
+differences, thresholds of .1 and .25 have been proposed, but Stuart et
+al. ([2013](#ref-stuartPrognosticScorebasedBalance2013)) found that a
+threshold of .1 was more effective at assessing imbalance that would
+lead to biased effect estimation. In general, standardized mean
+differences should be as close to 0 as possible, but a conservative
 upper limit such as .1 can be a valuable heuristic in selecting models
 and defending the conditioning choice. The What Works Clearinghouse
 Standards Handbook recommends standardized mean differences of less than
@@ -646,6 +651,7 @@ exceeded the threshold. Below, thresholds are requested for mean
 differences (`m`) and variance ratios (`v`).
 
 ``` r
+
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(treat ~ covs, data = lalonde,
         weights = "att.weights",
@@ -712,6 +718,7 @@ Another example can be found in the section “Comparing Balancing
 Methods”.
 
 ``` r
+
 # Generating ATT weights with different covariates
 lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74, 
                         data = lalonde,
@@ -761,6 +768,7 @@ subclasses), as specified by the user. See `?bal.tab.subclass` for more
 details.
 
 ``` r
+
 # Subclassification for ATT with 5 subclasses
 lalonde$p.score <- glm(treat ~ age + educ + race + re74 + re75,
                        data = lalonde, 
@@ -849,13 +857,12 @@ When using
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
 with continuous treatments, the default balance statistic presented is
 the (weighted) Pearson correlation between each covariate and treatment.
-Zhu, Coffman, and Ghosh
-([2015](#ref-zhuBoostingAlgorithmEstimating2015)) recommend that
-absolute correlations should be no greater than 0.1, but correlations
-should ideally be as close to zero as possible. Spearman correlations
-and distance correlations can also be requested. See the section “Using
-*cobalt* with continuous treatments” and `?balance.stats` for more
-details.
+Zhu et al. ([2015](#ref-zhuBoostingAlgorithmEstimating2015)) recommend
+that absolute correlations should be no greater than 0.1, but
+correlations should ideally be as close to zero as possible. Spearman
+correlations and distance correlations can also be requested. See the
+section “Using *cobalt* with continuous treatments” and `?balance.stats`
+for more details.
 
 The next two sections describe the use of
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
@@ -878,6 +885,7 @@ takes in a *MatchIt* object as its input, and prints a balance table
 with the requested information. Below is a simple example of its use:
 
 ``` r
+
 data("lalonde", package = "cobalt")
 
 # Nearest neighbor 2:1 matching with replacement
@@ -934,6 +942,7 @@ simple example of using
 with *WeightIt*:
 
 ``` r
+
 data("lalonde", package = "cobalt") #If not yet loaded
 
 #Generating propensity score weights for the ATT
@@ -992,6 +1001,7 @@ after using propensity score weighting for the ATT using the output from
 *WeightIt* generated above.:
 
 ``` r
+
 bal.plot(W.out, var.name = "age")
 bal.plot(W.out, var.name = "race")
 ```
@@ -1051,6 +1061,7 @@ to display the distributions of propensity scores before and after
 weighting adjustment:
 
 ``` r
+
 #Before and after weighting; which = "both"
 bal.plot(W.out, var.name = "prop.score",
          which = "both",
@@ -1068,10 +1079,9 @@ It is generally not a useful assessment of balance to examine the
 overlap of the distance measure distributions after adjustment, as most
 conditioning methods will yield good distributional overlap on the
 distance measure whether or not balance is achieved on the covariates
-([Stuart, Lee, and Leacy
-2013](#ref-stuartPrognosticScorebasedBalance2013)). However, it may be
-useful to see the new range of the distance measure if calipers or
-common support pruning are used.
+([Stuart et al. 2013](#ref-stuartPrognosticScorebasedBalance2013)).
+However, it may be useful to see the new range of the distance measure
+if calipers or common support pruning are used.
 
 The output plot is made using *ggplot2*, which means that users familiar
 with *ggplot2* can adjust the plot with *ggplot2* commands.
@@ -1108,6 +1118,7 @@ does just this, providing the user with several options to customize
 their plot for presentation. Below is an example of its use:
 
 ``` r
+
 data("lalonde", package = "cobalt")
 
 # Nearest neighbor 1:1 matching with replacement
@@ -1197,6 +1208,7 @@ Below is an example, creating a publication-ready plot with a few other
 arguments to customize output:
 
 ``` r
+
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
                         "race_white", "married", "nodegree", "re74", "re75", "distance"),
                 new = c("Age", "Years of Education", "Black", 
@@ -1283,11 +1295,10 @@ formulas described by Hirano and Imbens
 propensity scores manually and perform weighting, subclassification, or
 covariate adjustment on them. The *WeightIt* package supports continuous
 treatments with a variety of options, including the CBPS method
-implemented in the *CBPS* package and described by Fong, Hazlett, and
-Imai ([2018](#ref-fongCovariateBalancingPropensity2018)), GBM as
-described by Zhu, Coffman, and Ghosh
-([2015](#ref-zhuBoostingAlgorithmEstimating2015)), and entropy balancing
-as described by Vegetabile et al.
+implemented in the *CBPS* package and described by Fong et al.
+([2018](#ref-fongCovariateBalancingPropensity2018)), GBM as described by
+Zhu et al. ([2015](#ref-zhuBoostingAlgorithmEstimating2015)), and
+entropy balancing as described by Vegetabile et al.
 ([2021](#ref-vegetabileNonparametricEstimationPopulation2020)), among
 others.
 
@@ -1302,7 +1313,7 @@ cases regardless of the type of treatment variable considered, but there
 are a few differences and specifics worth noting. The approach *cobalt*
 takes to assessing balance is to display correlations between each
 covariate and the treatment variable, which is the approach used in
-*CBPS* and described in Zhu, Coffman, and Ghosh
+*CBPS* and described in Zhu et al.
 ([2015](#ref-zhuBoostingAlgorithmEstimating2015)) and Austin
 ([2019](#ref-austinAssessingCovariateBalance2019)), but not that
 described in Hirano and Imbens
@@ -1333,6 +1344,7 @@ continuous variable as the treatment, though substantively this analysis
 makes little sense.
 
 ``` r
+
 data("lalonde", package = "cobalt")
 
 #Generating weights with re75 as the continuous treatment
@@ -1347,22 +1359,23 @@ First, we can assess balance numerically using
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md).
 The default balance statistic used is the Pearson correlation between
 each covariate and the treatment variable. A threshold for balance on
-correlations can be specified using `thresholds`; Zhu, Coffman, and
-Ghosh ([2015](#ref-zhuBoostingAlgorithmEstimating2015)) recommend using
-.1 as indicating balance, but in general lower is better. Because the
-goal is complete independence between treatment and covariates, not
-simply the absence of a linear correlation between treatment and
-covariates, including interactions and polynomial terms through the use
-of arguments to `int` and `poly` is recommended (we just display the use
-of `poly` here for brevity). Requesting the distance correlation can
-also be useful for assessing independence because they are 0 only when
-the treatment and covariate are completely independent, not just
+correlations can be specified using `thresholds`; Zhu et al.
+([2015](#ref-zhuBoostingAlgorithmEstimating2015)) recommend using .1 as
+indicating balance, but in general lower is better. Because the goal is
+complete independence between treatment and covariates, not simply the
+absence of a linear correlation between treatment and covariates,
+including interactions and polynomial terms through the use of arguments
+to `int` and `poly` is recommended (we just display the use of `poly`
+here for brevity). Requesting the distance correlation can also be
+useful for assessing independence because they are 0 only when the
+treatment and covariate are completely independent, not just
 uncorrelated. In addition to treatment-covariate correlations, we
 request KS statistics between the weighted and unweighted samples by
 include `"ks"` (for `"ks.statistics.target"`) in the argument to `stats`
 along with `"c"` (for `"correlations"`).
 
 ``` r
+
 #Assessing balance numerically
 bal.tab(W.out.c, stats = c("c", "k"), un = TRUE, 
         thresholds = c(cor = .1), poly = 3)
@@ -1422,6 +1435,7 @@ category should overlap with each other. A distinct lack of overlap is
 indicative of remaining dependence between treatment and the covariate.
 
 ``` r
+
 #Assessing balance graphically
 bal.plot(W.out.c, "re74", which = "both")
 ```
@@ -1429,6 +1443,7 @@ bal.plot(W.out.c, "re74", which = "both")
 ![](cobalt_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
+
 bal.plot(W.out.c, "married", which = "both")
 ```
 
@@ -1440,6 +1455,7 @@ present balance improvements in a Love plot using the
 command, just as with binary treatments.
 
 ``` r
+
 #Summarizing balance in a Love plot
 love.plot(W.out.c, stats = c("c", "ks"),
           thresholds = c(cor = .1), 
@@ -1508,6 +1524,7 @@ balanced groups by estimating generalized propensity score weights using
 multinomial logistic regression.
 
 ``` r
+
 data("lalonde", package = "cobalt")
 
 #Using WeightIt to generate weights with multinomial
@@ -1525,6 +1542,7 @@ requested with `which.treat = .all`. See `?bal.tab.multi` for more
 details.
 
 ``` r
+
 #Balance summary across treatment pairs
 bal.tab(W.out.mn, un = TRUE)
 ```
@@ -1544,6 +1562,7 @@ bal.tab(W.out.mn, un = TRUE)
     ## Adjusted   138.38  54.99 259.59
 
 ``` r
+
 #Assessing balance for each pair of treatments
 bal.tab(W.out.mn, un = TRUE,
         disp = "means",
@@ -1603,6 +1622,7 @@ multi-category treatments as do for binary treatments. Ideally,
 covariate distributions will look similar across all treatment groups.
 
 ``` r
+
 #Assessing balance graphically
 bal.plot(W.out.mn, "age", which = "both")
 ```
@@ -1610,6 +1630,7 @@ bal.plot(W.out.mn, "age", which = "both")
 ![](cobalt_files/figure-html/unnamed-chunk-24-1.png)
 
 ``` r
+
 bal.plot(W.out.mn, "married", which = "both")
 ```
 
@@ -1624,6 +1645,7 @@ request individual treatment comparisons, use `which.treat = .all` in
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md).
 
 ``` r
+
 #Summarizing balance in a Love plot
 love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
           which.treat = .all, abs = FALSE)
@@ -1646,6 +1668,7 @@ matching and inverse probability weighting for the ATT using the
 following code and the output generated above.
 
 ``` r
+
 bal.tab(treat ~ age + educ + married + race +
             nodegree + re74 + re75, data = lalonde, 
         weights = list(Matched = m.out,
@@ -1676,6 +1699,7 @@ To use
 the same syntax can be used:
 
 ``` r
+
 bal.plot(treat ~ age, data = lalonde, 
          weights = list(Matched = m.out,
                         IPW = W.out),
@@ -1691,6 +1715,7 @@ of the weights to order the variables. Also, `colors` and `shapes`
 should have the same length as the number of weights or have length 1.
 
 ``` r
+
 love.plot(treat ~ age + educ + married + race +
               nodegree + re74 + re75,
           data = lalonde, 
@@ -1710,6 +1735,7 @@ with one object as usual and supply the other(s) to the `weights`
 argument; see below for an example:
 
 ``` r
+
 bal.tab(m.out, weights = list(IPW = W.out))
 ```
 
@@ -1717,8 +1743,8 @@ bal.tab(m.out, weights = list(IPW = W.out))
 
 The prognostic score is the model-predicted outcome for an individual,
 excluding the treatment variable in the model ([Hansen
-2008](#ref-hansenPrognosticAnaloguePropensity2008)). Stuart, Lee, and
-Leacy ([2013](#ref-stuartPrognosticScorebasedBalance2013)) found that
+2008](#ref-hansenPrognosticAnaloguePropensity2008)). Stuart et al.
+([2013](#ref-stuartPrognosticScorebasedBalance2013)) found that
 prognostic scores can be an extremely effective tool for assessing
 balance, greatly outperforming mean differences on covariates and
 significance tests. This is true even if the prognostic score model is
@@ -1744,6 +1770,7 @@ do so after a call to
 [`matchit()`](https://kosukeimai.github.io/MatchIt/reference/matchit.html):
 
 ``` r
+
 ctrl.data <- lalonde[lalonde$treat == 0,]
 ctrl.fit <- glm(re78 ~ age + educ + race + 
                     married + nodegree + re74 + re75,
@@ -1806,9 +1833,9 @@ the standard deviation corresponding to the default for the method is
 the most appropriate.
 
 A key detail is that the standard deviation, no matter how it is
-computed, is always computed using the *unadjusted* sample[⁴](#fn4).
-This is line with how *MatchIt* computes standardized mean
-differences[⁵](#fn5), and is recommended by Stuart
+computed, is always computed using the *unadjusted* sample[^4]. This is
+line with how *MatchIt* computes standardized mean differences[^5], and
+is recommended by Stuart
 ([2008](#ref-stuartDevelopingPracticalRecommendations2008),
 [2010](#ref-stuartMatchingMethodsCausal2010)). One reason to favor the
 use of the standard deviation of the unadjusted sample is that it
@@ -1930,8 +1957,7 @@ there is balance, as we can do with standard hypothesis testing. But
 this view is not shared by the methodological community: many
 contemporary propensity score methodologists recommend against using
 hypothesis tests for balance assessment (e.g., [Ho et al.
-2007](#ref-hoMatchingNonparametricPreprocessing2007); [Imai, King, and
-Stuart
+2007](#ref-hoMatchingNonparametricPreprocessing2007); [Imai et al.
 2008](#ref-imaiMisunderstandingsExperimentalistsObservationalists2008);
 [Austin 2011](#ref-austinIntroductionPropensityScore2011),
 [2009](#ref-austin2009); [Stuart
@@ -2009,8 +2035,7 @@ the most reported balance statistic ([Thoemmes and Kim
 2011](#ref-thoemmesSystematicReviewPropensity2011)), variance ratios
 have been recommended in the literature as a means to further examine
 balance between groups ([Austin 2009](#ref-austin2009); [Ho et al.
-2007](#ref-hoMatchingNonparametricPreprocessing2007); [Imai, King, and
-Stuart
+2007](#ref-hoMatchingNonparametricPreprocessing2007); [Imai et al.
 2008](#ref-imaiMisunderstandingsExperimentalistsObservationalists2008)).
 When group variances are similar, the variance ratio will be close to 1.
 Common thresholds for the variance ratio for balanced groups are .5 and
@@ -2051,7 +2076,7 @@ be the same for both scenarios because both would yield the same degree
 of bias in the effect estimate. In addition, Ali et al.
 ([2014](#ref-aliPropensityScoreBalance2014)) found that the raw
 difference in proportion was a better predictor of bias than the
-standardized mean difference for binary variables[⁶](#fn6).
+standardized mean difference for binary variables[^6].
 
 *MatchIt* allows users to view either standardized mean differences for
 all covariates or raw differences for all covariates, and *twang* and
@@ -2119,8 +2144,8 @@ the two groups. Thus, an additional variable computed as the product of
 interaction between sex and age.
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
 produces this interaction term, which would otherwise be unobserved by
-the analyst[⁷](#fn7). The interactions among levels of a single factor,
-which always be equal to 0, are excluded in
+the analyst[^7]. The interactions among levels of a single factor, which
+always be equal to 0, are excluded in
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md).
 
 Interactions between the distance measure and other variables have been
@@ -2244,40 +2269,38 @@ their advice on developing an R package.
 
 ## References
 
-Ali, M. Sanni, Rolf H. H. Groenwold, Svetlana V. Belitser, Wiebe R.
-Pestman, Arno W. Hoes, Kit C. B. Roes, Anthonius de Boer, and Olaf H.
-Klungel. 2015. “Reporting of Covariate Selection and Balance Assessment
-in Propensity Score Analysis Is Suboptimal: A Systematic Review.”
-*Journal of Clinical Epidemiology* 68 (2): 122–31.
+Ali, M. Sanni, Rolf H. H. Groenwold, Svetlana V. Belitser, et al. 2015.
+“Reporting of Covariate Selection and Balance Assessment in Propensity
+Score Analysis Is Suboptimal: A Systematic Review.” *Journal of Clinical
+Epidemiology* 68 (2): 122–31.
 <https://doi.org/10.1016/j.jclinepi.2014.08.011>.
 
-Ali, M. Sanni, Rolf H. H. Groenwold, Wiebe R. Pestman, Svetlana V.
-Belitser, Kit C. B. Roes, Arno W. Hoes, Anthonius de Boer, and Olaf H.
-Klungel. 2014. “Propensity Score Balance Measures in
-Pharmacoepidemiology: A Simulation Study.” *Pharmacoepidemiology and
-Drug Safety* 23 (8): 802–11. <https://doi.org/10.1002/pds.3574>.
+Ali, M. Sanni, Rolf H. H. Groenwold, Wiebe R. Pestman, et al. 2014.
+“Propensity Score Balance Measures in Pharmacoepidemiology: A Simulation
+Study.” *Pharmacoepidemiology and Drug Safety* 23 (8): 802–11.
+<https://doi.org/10.1002/pds.3574>.
 
 Austin, Peter C. 2008a. “A Critical Appraisal of Propensity-Score
 Matching in the Medical Literature Between 1996 and 2003.” *Statistics
 in Medicine* 27 (12): 2037–49. <https://doi.org/10.1002/sim.3150>.
 
-———. 2008b. “Assessing Balance in Measured Baseline Covariates When
-Using Many-to-One Matching on the Propensity-Score.”
+Austin, Peter C. 2008b. “Assessing Balance in Measured Baseline
+Covariates When Using Many-to-One Matching on the Propensity-Score.”
 *Pharmacoepidemiology and Drug Safety* 17 (12): 1218–25.
 <https://doi.org/10.1002/pds.1674>.
 
-———. 2009. “Balance Diagnostics for Comparing the Distribution of
-Baseline Covariates Between Treatment Groups in Propensity-Score Matched
-Samples.” *Statistics in Medicine* 28 (25): 3083–3107.
-<https://doi.org/10.1002/sim.3697>.
+Austin, Peter C. 2009. “Balance Diagnostics for Comparing the
+Distribution of Baseline Covariates Between Treatment Groups in
+Propensity-Score Matched Samples.” *Statistics in Medicine* 28 (25):
+3083–107. <https://doi.org/10.1002/sim.3697>.
 
-———. 2011. “An Introduction to Propensity Score Methods for Reducing the
-Effects of Confounding in Observational Studies.” *Multivariate
-Behavioral Research* 46 (3): 399–424.
+Austin, Peter C. 2011. “An Introduction to Propensity Score Methods for
+Reducing the Effects of Confounding in Observational Studies.”
+*Multivariate Behavioral Research* 46 (3): 399–424.
 <https://doi.org/10.1080/00273171.2011.568786>.
 
-———. 2019. “Assessing Covariate Balance When Using the Generalized
-Propensity Score with Quantitative or Continuous Exposures.”
+Austin, Peter C. 2019. “Assessing Covariate Balance When Using the
+Generalized Propensity Score with Quantitative or Continuous Exposures.”
 *Statistical Methods in Medical Research* 28 (5): 1365–77.
 <https://doi.org/10.1177/0962280218756159>.
 
@@ -2305,24 +2328,24 @@ the Efficacy of Political Advertisements.” *The Annals of Applied
 Statistics* 12 (1): 156–77. <https://doi.org/10.1214/17-AOAS1101>.
 
 Fong, Christian, Marc Ratkovic, Chad Hazlett, Xiaolin Yang, and Kosuke
-Imai. 2019. “CBPS: Covariate Balancing Propensity Score.”
+Imai. 2019. *CBPS: Covariate Balancing Propensity Score*. Released.
 
 Franklin, Jessica M., Jeremy A. Rassen, Diana Ackermann, Dorothee B.
 Bartels, and Sebastian Schneeweiss. 2014. “Metrics for Covariate Balance
 in Cohort Studies of Causal Effects.” *Statistics in Medicine* 33 (10):
 1685–99. <https://doi.org/10.1002/sim.6058>.
 
-Greifer, Noah. 2021. “WeightIt: Weighting for Covariate Balance in
-Observational Studies.”
+Greifer, Noah. 2021. *WeightIt: Weighting for Covariate Balance in
+Observational Studies*.
 
-Hainmueller, Jens. 2014. “Ebal: Entropy Reweighting to Create Balanced
-Samples.”
+Hainmueller, Jens. 2014. *Ebal: Entropy Reweighting to Create Balanced
+Samples*.
 
 Hansen, Ben B. 2004. “Full Matching in an Observational Study of
 Coaching for the SAT.” *Journal of the American Statistical Association*
 99 (467): 609–18. <https://doi.org/10.1198/016214504000000647>.
 
-———. 2008. “The Prognostic Analogue of the Propensity Score.”
+Hansen, Ben B. 2008. “The Prognostic Analogue of the Propensity Score.”
 *Biometrika* 95 (2): 481–88. <https://doi.org/10.1093/biomet/asn004>.
 
 Hansen, Ben B, and Stephanie Olsen Klopfer. 2006. “Optimal Full Matching
@@ -2332,16 +2355,17 @@ Graphical Statistics* 15 (3): 609–27.
 
 Hirano, Keisuke, and Guido W. Imbens. 2005. “The Propensity Score with
 Continuous Treatments.” In *Wiley Series in Probability and Statistics*,
-edited by Andrew Gelman and Xiao-Li Meng, 73–84. Chichester, UK: John
-Wiley & Sons, Ltd. <https://doi.org/10.1002/0470090456.ch7>.
+edited by Andrew Gelman and Xiao-Li Meng. John Wiley & Sons, Ltd.
+<https://doi.org/10.1002/0470090456.ch7>.
 
 Ho, Daniel E., Kosuke Imai, Gary King, and Elizabeth A. Stuart. 2007.
 “Matching as Nonparametric Preprocessing for Reducing Model Dependence
 in Parametric Causal Inference.” *Political Analysis* 15 (3): 199–236.
 <https://doi.org/10.1093/pan/mpl013>.
 
-———. 2011. “MatchIt: Nonparametric Preprocessing for Parametric Causal
-Inference.” *Journal of Statistical Software, Articles* 42 (8): 1–28.
+Ho, Daniel E., Kosuke Imai, Gary King, and Elizabeth A. Stuart. 2011.
+“MatchIt: Nonparametric Preprocessing for Parametric Causal Inference.”
+*Journal of Statistical Software, Articles* 42 (8): 1–28.
 <https://doi.org/10.18637/jss.v042.i08>.
 
 Iacus, Stefano, Gary King, and Giuseppe Porro. 2009. “Cem: Software for
@@ -2409,8 +2433,8 @@ Propensity Score Matching in the Medical Literature Between 1996 and
 2003’ by Peter Austin, Statistics in Medicine.” *Statistics in Medicine*
 27 (12): 2062–65. <https://doi.org/10.1002/sim.3207>.
 
-———. 2010. “Matching Methods for Causal Inference: A Review and a Look
-Forward.” *Statistical Science* 25 (1): 1–21.
+Stuart, Elizabeth A. 2010. “Matching Methods for Causal Inference: A
+Review and a Look Forward.” *Statistical Science* 25 (1): 1–21.
 <https://doi.org/10.1214/09-STS313>.
 
 Stuart, Elizabeth A., Brian K. Lee, and Finbarr P. Leacy. 2013.
@@ -2437,40 +2461,38 @@ Treatments.” *Journal of Causal Inference* 3 (1).
 <https://doi.org/10.1515/jci-2014-0022>.
 
 Zubizarreta, Jose R., Cinar Kilcioglu, and Juan P. Vielma. 2018.
-“Designmatch: Matched Samples That Are Balanced and Representative by
-Design.”
+*Designmatch: Matched Samples That Are Balanced and Representative by
+Design*.
 
 Zubizarreta, Jose R., Yige Li, and Kwangho Kim. 2021. *Sbw: Stable
 Balancing Weights for Causal Inference and Missing Data*. Manual.
 
-------------------------------------------------------------------------
+[^1]: If none of the examples are working, this may be because
+    *MatchIt*, *twang*, or *WeightIt* are missing. Such issues should be
+    fixed soon.
 
-1.  If none of the examples are working, this may be because *MatchIt*,
-    *twang*, or *WeightIt* are missing. Such issues should be fixed
-    soon.
-
-2.  *WeightIt* is a wrapper for *twang*, *CBPS*, *ebal*, and other
+[^2]: *WeightIt* is a wrapper for *twang*, *CBPS*, *ebal*, and other
     packages for point treatments, so it can perform their functions as
     well.
 
-3.  Older versions used the arguments `disp.means` and `disp.sds`, and
+[^3]: Older versions used the arguments `disp.means` and `disp.sds`, and
     these are still allowed.
 
-4.  Unless common support is used in *Matching*, in which case the
+[^4]: Unless common support is used in *Matching*, in which case the
     standard deviation is computed using the remaining unadjusted
     sample, or `s.d.enom` is set to `"weighted"`, which uses the
     standard deviation computed in the weighted (or matched) sample.
 
-5.  It is important to note that both *twang* and *Matching* calculate
+[^5]: It is important to note that both *twang* and *Matching* calculate
     standardized mean differences using the standard deviation of the
     sample in question, not the unadjusted sample, though *CBPS* uses
     the standard deviation of the unadjusted sample.
 
-6.  Ali et al. (2014) compared the KS statistic to standardized mean
+[^6]: Ali et al. (2014) compared the KS statistic to standardized mean
     differences, but the KS statistic is equivalent to the raw
     difference in proportion for binary variables.
 
-7.  This value is a linear function of the other observed values, so it
-    would in principle be able to be computed by the analyst, but it
+[^7]: This value is a linear function of the other observed values, so
+    it would in principle be able to be computed by the analyst, but it
     seems more valuable to explicitly include this “redundant
     calculation” for the sake of ease and completeness.

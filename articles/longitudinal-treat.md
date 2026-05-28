@@ -9,14 +9,12 @@ goal of applying weights is to simulate a sequential randomization
 design, where the probability of being assigned to treatment at each
 time point is independent of each unit’s prior covariate and treatment
 history. For introduction to MSMs in general, see Thoemmes and Ong
-([2016](#ref-thoemmesPrimerInverseProbability2016)), VanderWeele,
-Jackson, and Li
+([2016](#ref-thoemmesPrimerInverseProbability2016)), VanderWeele et al.
 ([2016](#ref-vanderweeleCausalInferenceLongitudinal2016)), Cole and
-Hernán ([2008](#ref-coleConstructingInverseProbability2008)), or Robins,
-Hernán, and Brumback ([2000](#ref-robinsMarginalStructuralModels2000)).
-The key issue addressed by this guide and *cobalt* in general is
-assessing balance before each treatment period to ensure the removal of
-confounding.
+Hernán ([2008](#ref-coleConstructingInverseProbability2008)), or Robins
+et al. ([2000](#ref-robinsMarginalStructuralModels2000)). The key issue
+addressed by this guide and *cobalt* in general is assessing balance
+before each treatment period to ensure the removal of confounding.
 
 In preprocessing for MSMs, three types of variables are relevant:
 baseline covariates, treatments, and intermediate outcomes/time-varying
@@ -41,6 +39,7 @@ to assess and present balance.
 We’re going to use the `msmdata` data set in the *WeightIt* package.
 
 ``` r
+
 library("cobalt")
 library("WeightIt")
 data("msmdata", package = "WeightIt")
@@ -90,6 +89,7 @@ or list of covariates for each time point. We’ll use the formula
 interface here.
 
 ``` r
+
 bal.tab(list(A_1 ~ X1_0 + X2_0,
              A_2 ~ X1_1 + X2_1 +
                A_1 + X1_0 + X2_0,
@@ -132,6 +132,7 @@ default). Below we’ll request balance on all time points by setting
 points, but this can be requested again by setting `msm.summary = TRUE`.
 
 ``` r
+
 bal.tab(list(A_1 ~ X1_0 + X2_0,
              A_2 ~ X1_1 + X2_1 +
                A_1 + X1_0 + X2_0,
@@ -200,6 +201,7 @@ the *WeightIt* documentation for more information on how to use
 *WeightIt* with longitudinal treatments.
 
 ``` r
+
 Wmsm <- weightitMSM(list(A_1 ~ X1_0 + X2_0,
                          A_2 ~ X1_1 + X2_1 +
                            A_1 + X1_0 + X2_0,
@@ -217,6 +219,7 @@ set `which.time = .all` and `msm.summary = TRUE` to see balance for each
 time point and across time points.
 
 ``` r
+
 bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
 ```
 
@@ -309,6 +312,7 @@ each time point using
 just as we could with point treatments.
 
 ``` r
+
 bal.plot(Wmsm, var.name = "X1_0", which = "both",
          type = "histogram")
 ```
@@ -319,6 +323,7 @@ Balance for variables that only appear in certain time points will only
 be displayed at those time points:
 
 ``` r
+
 bal.plot(Wmsm, var.name = "X2_1", which = "both")
 ```
 
@@ -347,12 +352,14 @@ all variables will be present in all time points). When set to `.none`
 `agg.fun` argument is set to `"max"` by default.
 
 ``` r
+
 love.plot(Wmsm, binary = "std")
 ```
 
 ![](longitudinal-treat_files/figure-html/unnamed-chunk-9-1.png)
 
 ``` r
+
 love.plot(Wmsm, binary = "std", which.time = .all)
 ```
 

@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using `love.plot()` To Generate Love Plots">
 </head>
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2026-04-13</h4>
+            <h4 data-toc-skip class="date">2026-05-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/love.plot.Rmd" class="external-link"><code>vignettes/love.plot.Rmd</code></a></small>
       <div class="d-none name"><code>love.plot.Rmd</code></div>
@@ -118,7 +118,7 @@ it as you would <code><a href="../reference/bal.tab.html">bal.tab()</a></code> o
 preprocessing function (in this case, <em>WeightIt</em>).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>We could also have supplied other arguments that would normally go in
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Older versions of &lt;em&gt;cobalt&lt;/em&gt; required the first
 argument to be a call to &lt;code&gt;&lt;a href="../reference/bal.tab.html"&gt;bal.tab()&lt;/a&gt;&lt;/code&gt;; this is no longer
@@ -169,7 +169,7 @@ setting <code>line = TRUE</code>. Finally, we’ll add a threshold line at
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>          line <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>The plot is already looking much better and more informative, but
 let’s change a few things to make it more professional. First, we’ll
 change the names of the variables so they are easier to read. We can
@@ -206,7 +206,7 @@ the different samples using the <code>shapes</code> argument.</p>
 <span>          var.names <span class="op">=</span> <span class="va">new.names</span>,</span>
 <span>          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>,</span>
 <span>          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>Finally, let’s makes some changed to the legend. First, we’ll rename
 the samples to be “Unweighted” and “PS Weighted” using the
 <code>sample.names</code> argument. Second, we’ll change the plot limits
@@ -233,7 +233,7 @@ to load in <em>ggplot2</em> first to do this.</p>
 <span>          position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">.25</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.box.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_rect</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>        legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>This is starting to look like a publication-ready plot. There are
 still other options you can change, such as the title, subtitle, and
 axis names, some of which can be done using <code>love.plot</code>
@@ -271,7 +271,7 @@ have to use the formula interface to set multiple weights).</p>
 <span>        legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">.3</span><span class="op">)</span>,</span>
 <span>        legend.box.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_rect</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>        legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>We can see there is little benefit to using these weights over
 standard logistic regression weights, although significant imbalance
 remains for both sets of weights.</p>
@@ -302,7 +302,7 @@ similar formatting to request KS statistics:</p>
 <span>        legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">.25</span><span class="op">)</span>,</span>
 <span>        legend.box.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_rect</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>        legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>Below, we’ll put two plots side-by-side, one for mean differences and
 one for KS statistics. This can be done by requesting multiple values
 for the <code>stats</code> argument (e.g., with
@@ -342,7 +342,7 @@ differences).</p>
 <span>                        ks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.45</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>Below we recreate the plot in <span class="citation">West et al. (<a href="#ref-westPropensityScoresBasis2014">2014</a>)</span>, which uses a
 simple theme and avoids color, which can be important for publication.
 In addition, the plot has labels and puts the legend in a different
@@ -367,7 +367,7 @@ position. We can include those features by including an argument to
 <span>                                  legend.position.inside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">1.09</span><span class="op">)</span>, </span>
 <span>                                  legend.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>                                  legend.key.size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">.02</span>, <span class="st">"npc"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>When using <code>love.plot</code>, you might see a warning that says
 <code>Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</code>.
 We avoided this here by setting <code>binary</code> to
@@ -385,7 +385,7 @@ following plot:</p>
 <span>          stars <span class="op">=</span> <span class="st">"raw"</span>,</span>
 <span>          drop.distance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>          var.names <span class="op">=</span> <span class="va">new.names</span><span class="op">)</span></span></code></pre></div>
-<p><img src="love.plot_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="love.plot_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>By setting <code>stars = "raw"</code>, asterisks appear next to the
 variables for which the raw difference in means (i.e., proportions) is
 displayed, contradicting the axis title. In the figure’s caption, you
@@ -401,7 +401,7 @@ raw difference in proportion, so that information is not lost.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-imaiCovariateBalancingPropensity2014" class="csl-entry">
 Imai, Kosuke, and Marc Ratkovic. 2014. <span>“Covariate Balancing
 Propensity Score.”</span> <em>Journal of the Royal Statistical Society:
