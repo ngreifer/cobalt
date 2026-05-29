@@ -4,7 +4,7 @@
 ^README\.Rmd$
 ^README-.*\.png$
 ^CRANlogs$
-^do_not_include$
+^_dev$
 ^vignettes/cobalt_old\.Rmd$
 ^_config\.yml
 ^_pkgdown\.yml$
