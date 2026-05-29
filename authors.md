@@ -11,12 +11,12 @@ Source:
 [`DESCRIPTION`](https://github.com/ngreifer/cobalt/blob/master/DESCRIPTION)
 
 Greifer N (2026). *cobalt: Covariate Balance Tables and Plots*. R
-package version 4.6.2.9000, <https://ngreifer.github.io/cobalt/>.
+package version 4.6.3, <https://ngreifer.github.io/cobalt/>.
 
     @Manual{,
       title = {cobalt: Covariate Balance Tables and Plots},
       author = {Noah Greifer},
       year = {2026},
-      note = {R package version 4.6.2.9000},
+      note = {R package version 4.6.3},
       url = {https://ngreifer.github.io/cobalt/},
     }
