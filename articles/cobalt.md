@@ -1003,10 +1003,16 @@ after using propensity score weighting for the ATT using the output from
 ``` r
 
 bal.plot(W.out, var.name = "age")
+```
+
+![](cobalt_files/figure-html/unnamed-chunk-14-1.png)
+
+``` r
+
 bal.plot(W.out, var.name = "race")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-14-1.png)![](cobalt_files/figure-html/unnamed-chunk-14-2.png)
+![](cobalt_files/figure-html/unnamed-chunk-14-2.png)
 
 The first argument (or set of arguments) is the sufficient set of
 arguments for a simple call to
@@ -1771,28 +1777,29 @@ do so after a call to
 
 ``` r
 
-ctrl.data <- lalonde[lalonde$treat == 0,]
 ctrl.fit <- glm(re78 ~ age + educ + race + 
                     married + nodegree + re74 + re75,
-                data = ctrl.data)
-lalonde$prog.score <- predict(ctrl.fit, lalonde)
+                data = lalonde,
+                subset = treat == 0)
+lalonde$prog.score <- predict(ctrl.fit, newdata = lalonde)
 
-bal.tab(m.out, distance = lalonde["prog.score"])
+bal.tab(m.out, stats = c("m", "ks"),
+        distance = lalonde["prog.score"])
 ```
 
     ## Balance Measures
-    ##                 Type Diff.Adj
-    ## prog.score  Distance  -0.0485
-    ## distance    Distance   0.0044
-    ## age          Contin.   0.2395
-    ## educ         Contin.  -0.0161
-    ## married       Binary   0.0595
-    ## race_black    Binary   0.0054
-    ## race_hispan   Binary  -0.0054
-    ## race_white    Binary   0.0000
-    ## nodegree      Binary   0.0054
-    ## re74         Contin.  -0.0493
-    ## re75         Contin.   0.0087
+    ##                 Type Diff.Adj KS.Adj
+    ## prog.score  Distance  -0.0485 0.1351
+    ## distance    Distance   0.0044 0.0486
+    ## age          Contin.   0.2395 0.3405
+    ## educ         Contin.  -0.0161 0.0595
+    ## married       Binary   0.0595 0.0595
+    ## race_black    Binary   0.0054 0.0054
+    ## race_hispan   Binary  -0.0054 0.0054
+    ## race_white    Binary   0.0000 0.0000
+    ## nodegree      Binary   0.0054 0.0054
+    ## re74         Contin.  -0.0493 0.2162
+    ## re75         Contin.   0.0087 0.2378
     ## 
     ## Sample sizes
     ##                      Control Treated
@@ -1800,6 +1807,15 @@ bal.tab(m.out, distance = lalonde["prog.score"])
     ## Matched (ESS)          46.31     185
     ## Matched (Unweighted)   82.       185
     ## Unmatched             347.         0
+
+``` r
+
+bal.plot(m.out, "prog.score",
+         distance = lalonde["prog.score"],
+         which = "both")
+```
+
+![](cobalt_files/figure-html/unnamed-chunk-30-1.png)
 
 Although the prognostic score is sensitive to the outcome estimation
 model used, a defensible prognostic score model can yield valid
