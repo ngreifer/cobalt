@@ -1,9 +1,11 @@
 *cobalt* News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.6.3
 
 * [*arg*](https://ngreifer.github.io/arg/) is now used for errors and warning messages.
+
+* Documentation updates.
 
 # cobalt 4.6.2
 
