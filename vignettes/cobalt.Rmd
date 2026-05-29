@@ -17,10 +17,12 @@ link-citations: true
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(message = FALSE,
-                      eval = rlang::is_installed(c("WeightIt", "MatchIt")),
-                      fig.align = "center",
-                      fig.height = 3.5)
+knitr::opts_chunk$set(
+  message = FALSE,
+  eval = rlang::is_installed(c("WeightIt", "MatchIt")),
+  fig.align = "center",
+  fig.height = 3.5
+)
 ```
 
 This is an introductory guide for the use of *cobalt* in most common scenarios. Several appendices are available for its use with more complicated data scenarios and packages not demonstrated here.[^1]
@@ -281,7 +283,7 @@ The gold standard for covariate balance is multidimensional independence between
 
 `bal.plot()` allows users to do so by displaying density plots, histograms, empirical CDF plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from *WeightIt* generated above.:
 
-```{r, fig.show = "hold", fig.width = 3.5}
+```{r, fig.width = 3.5, fig.height=2.75}
 bal.plot(W.out, var.name = "age")
 bal.plot(W.out, var.name = "race")
 ```
@@ -528,14 +530,19 @@ Assessing balance on the prognostic score is simple in *cobalt*, and highly reco
 
 To use prognostic scores in *cobalt*, simply add the prognostic score as a variable in the argument to `distance`. Below is an example of how to do so after a call to `matchit()`:
 
-```{r}
-ctrl.data <- lalonde[lalonde$treat == 0,]
+```{r, fig.width=6}
 ctrl.fit <- glm(re78 ~ age + educ + race + 
                     married + nodegree + re74 + re75,
-                data = ctrl.data)
-lalonde$prog.score <- predict(ctrl.fit, lalonde)
+                data = lalonde,
+                subset = treat == 0)
+lalonde$prog.score <- predict(ctrl.fit, newdata = lalonde)
 
-bal.tab(m.out, distance = lalonde["prog.score"])
+bal.tab(m.out, stats = c("m", "ks"),
+        distance = lalonde["prog.score"])
+
+bal.plot(m.out, "prog.score",
+         distance = lalonde["prog.score"],
+         which = "both")
 ```
 
 Although the prognostic score is sensitive to the outcome estimation model used, a defensible prognostic score model can yield valid prognostic scores, which can then be used in balance assessment. In the above example, balance on the estimated prognostic score was good, so we can have some confidence that the effect estimate will be relatively unbiased, even though the `age` variable remains imbalanced. The logic is that that age is not a highly prognostic variable, which could be demonstrated by examining the standardized regression output of prognostic score model, so even though imbalance remains, such imbalance is unlikely to affect the effect estimate. The variables `re74` and `re75`, though, which are highly prognostic of the outcome, are quite balanced, thereby supporting an unbiased treatment effect estimate.
