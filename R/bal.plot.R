@@ -216,7 +216,10 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     
     X$var <- unlist(var.list[appears.in.time])
     
-    X$time <- rep(which(appears.in.time), times = lengths(var.list[appears.in.time]))
+    #`base::which()` is qualified throughout this branch because the `which`
+    #argument of bal.plot() has no default; an unqualified call to `which()`
+    #before `which` is resolved forces the missing argument and errors.
+    X$time <- rep(base::which(appears.in.time), times = lengths(var.list[appears.in.time]))
     
     X$treat.list[appears.in.time] <- lapply(X$treat.list[appears.in.time], function(t) {
       switch(get.treat.type(t), continuous = t, treat_vals(t)[t])
@@ -224,7 +227,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     X$treat <- unlist(X$treat.list[appears.in.time])
     
     treat.names <- {
-      if (is_null(names(X$treat.list)[appears.in.time])) which(appears.in.time)
+      if (is_null(names(X$treat.list)[appears.in.time])) base::which(appears.in.time)
       else names(X$treat.list)[appears.in.time]
     }
     
@@ -354,7 +357,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         if (!all(which.imp %in% seq_len(nlevels(X$imp)))) {
           .b <- setdiff(which.imp, seq_len(nlevels(X$imp)))
-          arg::err("the following inputs to {.arg which.imp} do not correspond to given imputations:\n\t{(.b)}")
+          arg::err("the following inputs to {.arg which.imp} do not correspond to given imputations: {(.b)}")
         }
         
         in.imp <- !is.na(X$imp) & X$imp %in% levels(X$imp)[which.imp]
@@ -375,7 +378,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         if (is.numeric(which.cluster)) {
           if (!all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
             .b <- setdiff(which.cluster, seq_len(nlevels(X$cluster)))
-            arg::err("the following inputs to {.arg which.cluster} do not correspond to given clusters:\n\t{(.b)}")
+            arg::err("the following inputs to {.arg which.cluster} do not correspond to given clusters: {(.b)}")
           }
           
           in.cluster <- !is.na(X$cluster) & X$cluster %in% levels(X$cluster)[which.cluster]
@@ -383,7 +386,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         else if (is.character(which.cluster)) {
           if (!all(which.cluster %in% levels(X$cluster))) {
             .b <- setdiff(which.cluster, levels(X$cluster))
-            arg::err("the following inputs to {.arg which.cluster} do not correspond to given clusters:\n\t{.val {(.b)}}")
+            arg::err("the following inputs to {.arg which.cluster} do not correspond to given clusters: {.val {(.b)}}")
           }
           
           in.cluster <- !is.na(X$cluster) & X$cluster %in% which.cluster
@@ -407,15 +410,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       else if (is.numeric(which.time)) {
         if (!all(which.time %in% seq_along(X$covs.list))) {
           .b <- setdiff(which.time, seq_along(X$covs.list))
-          arg::err("The following inputs to {.arg which.time} do not correspond to given time periods:\n\t{(.b)}")
+          arg::err("The following inputs to {.arg which.time} do not correspond to given time periods: {(.b)}")
         }
         
-        if (all(which.time %in% which(appears.in.time))) {
+        if (all(which.time %in% base::which(appears.in.time))) {
           #nothing; which.time is good
         }
-        else if (any(which.time %in% which(appears.in.time))) {
-          arg::wrn("{.var {var.name}} does not appear in time period {.or setdiff(which.time, which(appears.in.time))}")
-          which.time <- intersect(which.time, which(appears.in.time))
+        else if (any(which.time %in% base::which(appears.in.time))) {
+          arg::wrn("{.var {var.name}} does not appear in time period {.or setdiff(which.time, base::which(appears.in.time))}")
+          which.time <- intersect(which.time, base::which(appears.in.time))
         }
         else {
           arg::err("{.var {var.name}} does not appear in time period {.or which.time}")
@@ -425,7 +428,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       else if (is.character(which.time)) {
         if (!all(which.time %in% treat.names)) {
           .b <- setdiff(which.time, treat.names)
-          arg::err("The following inputs to {.arg which.time} do not correspond to given time periods:\n\t{.val {(.b)}}")
+          arg::err("The following inputs to {.arg which.time} do not correspond to given time periods: {.val {(.b)}}")
         }
         
         if (!all(which.time %in% treat.names[appears.in.time])) {
@@ -553,7 +556,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       #Make unadjusted sample
       D2 <- make_df(c("weights", "s.weights", "treat", "var", "subclass"), length(X$treat))
       D2$weights <- 1
-      D$s.weights <- X$s.weights
+      D2$s.weights <- X$s.weights
       D2$treat <- X$treat
       D2$var <- X$var
       D2$subclass <- rep_with("Unadjusted Sample", X$treat)
@@ -592,7 +595,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       if (is.character(bw)) {
         bw_fun <- get0(paste.("bw", bw))
         if (!is.function(bw_fun)) {
-          arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
+          arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.help [?density](stats::density)} for allowable options")
         }
         bw <- bw_fun(D$treat[D$var == smallest.cat])
       }
@@ -855,7 +858,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         if (is.character(bw)) {
           bw_fun <- get0(paste.("bw", bw))
           if (!is.function(bw_fun)) {
-            arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
+            arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.help [?density](stats::density)} for allowable options")
           }
           t.sizes <- tapply(rep.int(1, NROW(D)), D$treat, sum)
           smallest.t <- names(t.sizes)[which.min(t.sizes)]

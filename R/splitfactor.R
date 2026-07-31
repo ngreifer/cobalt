@@ -104,7 +104,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       
       if (!all(var.name %in% names(data))) {
         not.in.data.names <- setdiff(var.name, names(data))
-        arg::wrn("{.val {not.in.factor.names}} {?is/are} not the name{?s} of {?a/} factor variable{?s} in {.arg data} and will not be split")
+        arg::wrn("{.val {not.in.data.names}} {?is/are} not the name{?s} of {?a/} variable{?s} in {.arg data} and will not be split")
       }
       
       var.name <- intersect(var.name, names(data))
@@ -113,7 +113,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     if (is_not_null(split.with)) {
       if (is.list(split.with)) {
         if (!all_apply(split.with, is.atomic)) {
-          arg::err("all entries in {.arg split.with} must must be atomic vectors or factors")
+          arg::err("all entries in {.arg split.with} must be atomic vectors or factors")
         }
         
         if (!all(lengths(split.with) == ncol(data))) {
@@ -122,7 +122,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       }
       else {
         if (!is.atomic(split.with)) {
-          arg::err("{.arg split.with} must must be an atomic vector or factor or list thereof")
+          arg::err("{.arg split.with} must be an atomic vector or factor or list thereof")
         }
         
         if (length(split.with) != ncol(data)) {
@@ -153,7 +153,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     if (is_not_null(split.with)) {
       if (is.list(split.with)) {
         if (!all_apply(split.with, is.atomic)) {
-          arg::err("all entries in {.arg split.with} must must be atomic vectors or factors")
+          arg::err("all entries in {.arg split.with} must be atomic vectors or factors")
         }
         
         if (!all(lengths(split.with) == ncol(data))) {
@@ -162,7 +162,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       }
       else {
         if (!is.atomic(split.with)) {
-          arg::err("{.arg split.with} must must be an atomic vector or factor or list thereof")
+          arg::err("{.arg split.with} must be an atomic vector or factor or list thereof")
         }
         if (length(split.with) != ncol(data)) {
           arg::err("{.arg split.with} must have length 1")
@@ -172,7 +172,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     }
   }
   else {
-    arg::err("{.arg data} must a be a data.frame or factor")
+    arg::err("{.arg data} must be a data.frame or factor")
   }
   
   if (is_not_null(drop.level) && length(var.name) > 1L) {
@@ -226,7 +226,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     dropl <- rlang::rep_named(new.levels, FALSE)
     if (is_not_null(drop.level)) {
       if (!rlang::is_string(drop.level) || drop.level %nin% new.levels) {
-        arg::err("{.arg drop} must be the name of a level of {.var {v}} that is to be dropped")
+        arg::err("{.arg drop.level} must be the name of a level of {.var {v}} that is to be dropped")
       }
       
       dropl[drop.level] <- TRUE
@@ -342,7 +342,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   }
   
   if (length(sep) %nin% c(1L, length(var.name)) || !is.atomic(sep)) {
-    arg::err("{.arg sep} must be a character containing the seperating character in the names of the split variables. See {.fun unsplitfactor} for details")
+    arg::err("{.arg sep} must be a character containing the separating character in the names of the split variables. See {.help [?unsplitfactor](cobalt::unsplitfactor)} for details")
   }
   
   if (length(sep) == 1L) {
@@ -357,7 +357,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   }
   else {
     if (length(dropped.level) %nin% c(1L, length(var.name)) || !is.atomic(dropped.level)) {
-      arg::err("{.arg dropped.level} must be an atomic vector containing the value of the dropped category of each split variable. See {.fun unsplitfactor} for details")
+      arg::err("{.arg dropped.level} must be an atomic vector containing the value of the dropped category of each split variable. See {.help [?unsplitfactor](cobalt::unsplitfactor)} for details")
     }
     
     if (length(dropped.level) == 1L) {

@@ -207,7 +207,17 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   stats <- arg::match_arg(stats, all_STATS(.attr(x, "print.options")$type),
                      several.ok = TRUE)
-  
+
+  #`match_arg()` only checks that the statistic is valid for the treatment type,
+  #not that it was actually computed. Without this check a statistic that was not
+  #requested in the original `bal.tab()` call fails much later with an opaque
+  #shape mismatch; `print.bal.tab()` performs the same check.
+  computed.stats <- .attr(x, "print.options")[["compute"]]
+  if (is_not_null(computed.stats) && !all(stats %in% computed.stats)) {
+    arg::err("{.arg stats} cannot contain {.or {.val {setdiff(stats, computed.stats)}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
+  }
+
+
   #Get B and config
   if (inherits(x, "bal.tab.subclass")) {
     if (is_null(x[["Balance.Across.Subclass"]])) {
@@ -493,7 +503,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       new.labels <- unlist(var.names) #already a list
     }
     else {
-      arg::err("the argument to {.arg var.names} is not one of the accepted structures. See {.fun love.plot} for details")
+      arg::err("the argument to {.arg var.names} is not one of the accepted structures. See {.help [?love.plot](cobalt::love.plot)} for details")
     }
     
     co.names <- .attr(x, "print.options")[["co.names"]]
@@ -675,7 +685,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     shapes <- assign.shapes(colors)
   }
   else if (!shapes.ok(shapes, ntypes)) {
-    arg::wrn("the argument to {.arg shape} must be {ntypes} valid shape{?s}. See {.fun love.plot} for more information. Using default shapes instead")
+    arg::wrn("the argument to {.arg shape} must be {ntypes} valid shape{?s}. See {.help [?love.plot](cobalt::love.plot)} for more information. Using default shapes instead")
     shapes <- assign.shapes(colors)
   }
   else if (length(shapes) == 1L) {

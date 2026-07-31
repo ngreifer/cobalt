@@ -96,7 +96,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     else if (estimand[p] == "ATT") {
       w[[p]][!t1] <- x$ps[!t1, p] / (1 - x$ps[!t1, p])
     }
-    else if (estimand[p] == "ATT") {
+    else if (estimand[p] == "ATC") {
       w[[p]][t1] <- (1 - x$ps[t1, p]) / x$ps[t1, p]
     }
     else {
