@@ -69,50 +69,57 @@ base.bal.tab.cluster <- function(X,
   agg.fun <- as.character(cluster.fun %or% A[["agg.fun"]] %or% all.agg.funs)
   agg.fun <- arg::match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
-  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
-  
-  var_types <- .attr(X$covs, "var_types")
-  
-  if (get.treat.type(X$treat) != "continuous") {
-    if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-    if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+  #With longitudinal treatments, `X` has `covs.list`/`treat.list` rather than
+  #`covs`/`treat`, and `base.bal.tab.msm()` derives the covariates, treatment, and
+  #`s.d.denom` for each time point itself, so this preparation is skipped.
+  if (is_null(X$covs.list)) {
+    X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
+
+    var_types <- .attr(X$covs, "var_types")
+
+    if (get.treat.type(X$treat) != "continuous") {
+      if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+      if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+    }
+    else {
+      if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+      if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
+    }
+
+    if (get.treat.type(X$treat) != "continuous" &&
+        "mean.diffs" %in% X$stats &&
+        ((A$binary == "std" && any(var_types == "Binary")) ||
+         (A$continuous == "std" && !all(var_types == "Binary")))) {
+      X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                    estimand = X$estimand,
+                                    weights = X$weights,
+                                    subclass = X$subclass,
+                                    treat = X$treat,
+                                    focal = X$focal)
+    }
+    else if (get.treat.type(X$treat) == "continuous" &&
+             any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
+             ((A$binary == "std" && any(var_types == "Binary")) ||
+              (A$continuous == "std" && !all(var_types == "Binary")))) {
+      X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
+                                         weights = X$weights,
+                                         subclass = X$subclass)
+    }
   }
-  else {
-    if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-    if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
-  }
-  
-  if (get.treat.type(X$treat) != "continuous" &&
-      "mean.diffs" %in% X$stats &&
-      ((A$binary == "std" && any(var_types == "Binary")) ||
-       (A$continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                  estimand = X$estimand,
-                                  weights = X$weights, 
-                                  subclass = X$subclass,
-                                  treat = X$treat,
-                                  focal = X$focal)
-  }
-  else if (get.treat.type(X$treat) == "continuous" &&
-           any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
-           ((A$binary == "std" && any(var_types == "Binary")) ||
-            (A$continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
-                                       weights = X$weights,
-                                       subclass = X$subclass)
-  }
-  
+
   #Setup output object
   out <- list()
-  
-  #Get list of bal.tabs for each imputation
+
+  #Get list of bal.tabs for each cluster
   out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
-    X_cl <- subset_X(X, X$cluster == cl) |>
-      .assign_X_class()
-    
-    X_cl$call <- NULL
-    
+    #Subsetting is inside `tryCatch()` so that errors it raises (e.g., a cluster
+    #in which the treatment takes only one value) are labelled with the cluster.
     tryCatch({
+      X_cl <- subset_X(X, X$cluster == cl) |>
+        .assign_X_class()
+
+      X_cl$call <- NULL
+
       do.call("base.bal.tab", c(list(X_cl), A[setdiff(names(A), names(X_cl))]), quote = TRUE)
     },
     error = function(e) {

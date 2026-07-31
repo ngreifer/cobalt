@@ -111,11 +111,14 @@ base.bal.tab.imp <- function(X,
   #Get list of bal.tabs for each imputation
   
   out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
-    X_i <- subset_X(X, imp == i) |>
-      .assign_X_class()
-    
-    X_i$call <- NULL
+    #Subsetting is inside `tryCatch()` so that errors it raises (e.g., an imputation
+    #in which the treatment takes only one value) are labelled with the imputation.
     tryCatch({
+      X_i <- subset_X(X, imp == i) |>
+        .assign_X_class()
+
+      X_i$call <- NULL
+
       do.call("base.bal.tab", c(list(X_i), A[setdiff(names(A), names(X))]), quote = TRUE)
     },
     error = function(e) {
