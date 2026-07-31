@@ -145,7 +145,7 @@ base.bal.tab.multi <- function(X,
   }
   else {
     if (any(treat_vals(X$treat) == "All")) {
-      arg::err("{.str All} cannot be the name of a treatment level. Please rename your treatments")
+      arg::err("{.val All} cannot be the name of a treatment level. Please rename your treatments")
     }
     balance.tables <- lapply(treat.combinations, function(t) {
       n <- length(X$treat)

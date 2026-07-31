@@ -149,7 +149,7 @@ get.cobalt.options <- function(...) {
     
     not.in.accept <- opts %nin% names(acceptable.options())
     if (any(not.in.accept)) {
-      arg::err("{.val {opts[not.in.accept]}} {?is/are} not {?an/} acceptible option{?s}")
+      arg::err("{.val {opts[not.in.accept]}} {?is/are} not {?an/} acceptable option{?s}")
     }
   }
   

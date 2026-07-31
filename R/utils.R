@@ -676,7 +676,7 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
   
   if (is_not_null(focal)) {
     if (length(focal) > 1L || focal %nin% treat) {
-      arg::err("the argument supplied to `focal` must be the name of a level of treatment")
+      arg::err("the argument supplied to {.arg focal} must be the name of a level of treatment")
     }
     
     if (is_null(estimand) || !isTRUE(estimand == "ATC")) {
@@ -1002,7 +1002,7 @@ clear_attr <- function(x, all = FALSE) {
 }
 probably.a.bug <- function() {
   fun <- paste(deparse(sys.call(-1L)), collapse = "\n")
-  arg::err("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function {.fun fun}")
+  arg::err("an error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function {.fun {fun}}")
 }
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 `%pin%` <- function(x, table) {
