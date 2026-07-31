@@ -6,3 +6,5 @@ inst/doc
 .DS_Store
 docs
 .positai
+Rplots.pdf
+tests/testthat/_snaps/*.new.md

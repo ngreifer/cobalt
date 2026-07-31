@@ -9,8 +9,7 @@ test_that("(#71) `addl` argument not throwing correct error when variable not av
   m <- MatchIt::matchit(treat ~ age + educ, data = lalonde,
                         distance = "scaled_euclidean")
   
-  expect_error(bal.tab(m, addl = "race"),
-               .w("The variable \"race\" cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`."), perl = TRUE)
+  expect_err(bal.tab(m, addl = "race"), "The variable \"race\" cannot be found. Be sure it is entered correctly or supply a dataset that contains this variable to `data`.")
   
   expect_no_condition(bal.tab(m, addl = "race", data = lalonde))
 })
@@ -37,12 +36,9 @@ test_that("(#76) bal.tab() doesn't produce an error with missing covariates", {
   
   data("lalonde_mis")
   
-  expect_warning(
+  expect_wrn(
     b <- bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
-                 data = lalonde_mis, s.d.denom = "pooled"),
-    .w("Missing values exist in the covariates. Displayed values omit these observations."),
-    perl = TRUE
-  )
+                 data = lalonde_mis, s.d.denom = "pooled"), "Missing values exist in the covariates. Displayed values omit these observations.")
   
   expect_no_error(
     suppressWarnings(
@@ -95,11 +91,9 @@ test_that("(#89) love.plot() doesn't throw any error when manually removing rows
   
   covs <- subset(lalonde_mis, select = -c(treat, re78, nodegree, married))
   
-  expect_warning({
+  expect_wrn({
     b <- bal.tab(treat ~ covs, data = lalonde_mis, binary = "std", estimand = "ATE")
-  },
-  .w("Missing values exist in the covariates. Displayed values omit these observations"),
-  perl = TRUE)
+  }, "Missing values exist in the covariates. Displayed values omit these observations")
   
   b$Balance <- b$Balance[!endsWith(rownames(b$Balance), "<NA>"),]
   
