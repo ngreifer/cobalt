@@ -177,7 +177,7 @@ For \code{col_w_cov()}, \code{col_w_corr()}, \code{col_w_dcov()}, and \code{col_
 
 \item{integrate}{\code{logical}; for \code{col_w_ovl()}, whether to use \code{\link[=integrate]{integrate()}} to calculate the area of overlap for continuous variables. If \code{FALSE}, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When \code{TRUE}, \code{integrate()} will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (\code{TRUE}) is to use \code{integrate()} when possible.}
 
-\item{steps}{for \code{col_w_ovl()} when \code{integrate = FALSE}, the number of points to use to compute the Riemann sum to approximate the integral. Default is 1001 for 1000 partitions.}
+\item{steps}{for \code{col_w_ovl()}, the number of points to use to compute the Riemann sum to approximate the integral. Used when \code{integrate = FALSE} and also when \code{integrate = TRUE} but \code{\link[=integrate]{integrate()}} fails and the Riemann sum is used as a fallback. Default is 1001 for 1000 partitions.}
 
 \item{type}{for \code{col_w_cov()} and \code{col_w_corr()}, the type of covariance/correlation to be computed. Allowable options include \code{"pearson"} and \code{"spearman"}. When \code{"spearman"} is requested, the covariates and treatment are first turned into ranks using \code{\link[=rank]{rank()}} with \code{na.last = "keep"}.}
 }

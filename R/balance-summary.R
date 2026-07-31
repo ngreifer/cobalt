@@ -35,7 +35,7 @@
 #' @param weighted.weights for `col_w_smd()`, `col_w_cov()`, `col_w_corr()`, `col_w_dcov()`, and `col_w_dcorr()`, when `std = TRUE` and `s.d.denom = "weighted"`, a vector of weights to be applied to the computation of the denominator standard deviation. If not specified, will use the argument to `weights`. When `s.d.denom` is not `"weighted"`, this is ignored. The main purpose of this is to allow `weights` to be `NULL` while weighting the denominator standard deviations for assessing balance in the unweighted sample but using the standard deviations of the weighted sample.
 #' @param type for `col_w_cov()` and `col_w_corr()`, the type of covariance/correlation to be computed. Allowable options include `"pearson"` and `"spearman"`. When `"spearman"` is requested, the covariates and treatment are first turned into ranks using [rank()] with `na.last = "keep"`.
 #' @param integrate `logical`; for `col_w_ovl()`, whether to use [integrate()] to calculate the area of overlap for continuous variables. If `FALSE`, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When `TRUE`, `integrate()` will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (`TRUE`) is to use `integrate()` when possible.
-#' @param steps for `col_w_ovl()` when `integrate = FALSE`, the number of points to use to compute the Riemann sum to approximate the integral. Default is 1001 for 1000 partitions.
+#' @param steps for `col_w_ovl()`, the number of points to use to compute the Riemann sum to approximate the integral. Used when `integrate = FALSE` and also when `integrate = TRUE` but [integrate()] fails and the Riemann sum is used as a fallback. Default is 1001 for 1000 partitions.
 #' @param ... for all functions, additional arguments supplied to [splitfactor()] when `mat` is a data.frame. `data`, `var.name`, `drop.first`, and `drop.level` are ignored; `drop.first` is automatically set to `"if2"`. For `col_w_ovl()`, other arguments passed to [density()] besides `x` and `weights`. Note that the default value for `bw` when unspecified is `"nrd"` rather than the default in `density()`, which is `"nrd0"`.
 #' 
 #' @returns
@@ -420,8 +420,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   }
   
   all_pos_w <- all(weights >= 0)
-  steps <- 1001L
-  
+
   unique.treat <- unique(treat, nmax = 2L)
   t.sizes <- setNames(vapply(unique.treat, function(x) sum(treat == x), numeric(1L)),
                       unique.treat)
@@ -430,12 +429,12 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   
   if (!all(bin.vars)) {
     arg::arg_flag(integrate)
-    
-    if (!integrate) {
-      arg::arg_count(steps)
-      arg::arg_gte(steps, 5)
-    }
-    
+
+    #`steps` is also used when `integrate = TRUE` but `integrate()` fails and
+    #the Riemann approximation is used as a fallback, so always check it.
+    arg::arg_count(steps)
+    arg::arg_gte(steps, 5)
+
     bw <- ...get("bw", "nrd")
     
     A <- ...mget(setdiff(names(formals(density_neg_w_safe)),
@@ -443,7 +442,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
     
     bw_fun <- get0(paste.("bw", bw))
     if (!is.function(bw_fun)) {
-      arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.fun stats::density} for allowable options")
+      arg::err("{.val {bw}} is not an acceptable entry to {.arg bw}. See {.help [?density](stats::density)} for allowable options")
     }
     
     .w_ovl <- function(x) {
@@ -626,19 +625,23 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
   arg::arg_vector(treat)
   arg::arg_no_NA(treat)
   
+  mat <- process_mat2(mat, ...)
+
   arg::arg_logical(std)
   arg::arg_no_NA(std)
   if (length(std) %nin% c(1L, NCOL(mat))) {
     arg::err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
   }
-  
-  mat <- process_mat2(mat, ...)
-  
+
+  if (length(std) == 1L) {
+    std <- rep.int(std, NCOL(mat))
+  }
+
   check_arg_lengths(mat, treat, weights, s.weights, subset)
-  
+
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
-  
+
   arg::arg_numeric(weights)
   arg::arg_numeric(s.weights)
   
@@ -704,7 +707,11 @@ col_w_dcorr <- function(mat, treat, weights = NULL, s.d.denom = "all",
 
 process_mat1 <- function(mat, ...) {
   needs.splitting <- FALSE
-  
+
+  if (length(dim(mat)) > 2L) {
+    arg::err("{.arg mat} must be a data frame or numeric matrix")
+  }
+
   if (!is.matrix(mat)) {
     if (is.numeric(mat)) {
       return(matrix(mat, ncol = 1L))

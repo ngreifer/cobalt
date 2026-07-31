@@ -23,7 +23,7 @@
 #'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments and for target balance.
 #'     }
 #'     \item{`ovl.mean`, `ovl.max`, `ovl.rms`}{
-#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `integrate` to select whether integration is done using using [integrate()] (`TRUE`) or a Riemann sum (`FALSE`, the default), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments and for target balance.
+#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `integrate` to select whether integration is done using [integrate()] (`TRUE`, the default) or a midpoint Riemann sum (`FALSE`), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments and for target balance.
 #'     }
 #'     \item{`mahalanobis`}{
 #'         The Mahalanobis distance between the treatment group means. This is similar to `smd.rms` but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`) and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments and for target balance.
@@ -271,6 +271,8 @@ bal_stat.to.phrase <- function(stat) {
                    "kernel.dist" = "kernel distance",
                    "l1.med" = "L1 median",
                    "r2" = "post-weighting treatment R-squared",
+                   "r2.2" = "post-weighting treatment R-squared including squared terms",
+                   "r2.3" = "post-weighting treatment R-squared including squared and cubic terms",
                    "p.mean" = "average Pearson correlation",
                    "p.max" = "maximum Pearson correlation",
                    "p.rms" = "root-mean-square Pearson correlation",
@@ -605,7 +607,7 @@ init_mahalanobis <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
   bin.vars <- .attr(x, "bin")
   
   if (anyNA(x)) {
-    arg::err('{.val "mahalanobis"} cannot be used when there are missing values in the covariates')
+    arg::err("{.val mahalanobis} cannot be used when there are missing values in the covariates")
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -695,7 +697,7 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
   bin.vars <- .attr(x, "bin")
   
   if (anyNA(x)) {
-    arg::err('{.val "energy.dist"} cannot be used when there are missing values in the covariates')
+    arg::err("{.val energy.dist} cannot be used when there are missing values in the covariates")
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -807,7 +809,7 @@ init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
   bin.vars <- .attr(x, "bin")
   
   if (anyNA(x)) {
-    arg::err('{.val "kernel.dist"} cannot be used when there are missing values in the covariates')
+    arg::err("{.val kernel.dist} cannot be used when there are missing values in the covariates")
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -900,7 +902,7 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
     arg::err("{.arg treat} must be a continuous (numeric) variable")
   }
   
-  for (i in seq_col(x)[!bin.vars[i]]) {
+  for (i in which(!bin.vars)) {
     x[, i] <- rank(x[, i], na.last = "keep")
   }
   treat <- rank(treat, na.last = "keep")
@@ -927,7 +929,7 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
   arg::arg_vector(treat)
   
   if (anyNA(x)) {
-    arg::err('{.val "r2"} cannot be used when there are missing values in the covariates')
+    arg::err("{.val r2} cannot be used when there are missing values in the covariates")
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -964,7 +966,7 @@ init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
   
   if (anyNA(x)) {
     .s <- if (std) "distance.cor" else "distance.cov"
-    arg::err('{.val "{.s}"} cannot be used when there are missing values in the covariates')
+    arg::err("{.val {(.s)}} cannot be used when there are missing values in the covariates")
   }
   
   check_arg_lengths(x, treat, s.weights)
@@ -1039,7 +1041,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   arg::arg_vector(treat)
   
   if (anyNA(x)) {
-    arg::err('{.val "l1.med"} cannot be used when there are missing values in the covariates')
+    arg::err("{.val l1.med} cannot be used when there are missing values in the covariates")
   }
   
   check_arg_lengths(x, treat, s.weights)
