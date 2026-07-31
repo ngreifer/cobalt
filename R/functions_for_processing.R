@@ -206,7 +206,7 @@ initialize_X_msm <- function() {
   }
   
   if (anyNA(w, recursive = TRUE)) {
-    arg::err("{.val NA}s are not allowed in the {wname}")
+    arg::err("{.val {NA}}s are not allowed in the {wname}")
   }
   
   for (x in w) {
@@ -245,11 +245,11 @@ initialize_X_msm <- function() {
   }
   
   if (stop_warn["cw"]) {
-    arg::wrn("some clusters have only one unit in them, which may yield unxpected results")
+    arg::wrn("some clusters have only one unit in them, which may yield unexpected results")
   }
   
   if (stop_warn["bw"]) {
-    arg::wrn("some clusters have only one member of a treatment group in them, which may yield unxpected results")
+    arg::wrn("some clusters have only one member of a treatment group in them, which may yield unexpected results")
   }
   
   if (stop_warn["bs"]) {
@@ -385,13 +385,13 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   covs_to_use <- treat_to_use <- "c"
   if (is_error(covs_c)) {
     if (is_error(covs_f)) {
-      arg::err(.attr(covs_c, "condition")$message)
+      arg::err("{(.attr(covs_c, 'condition')$message)}")
     }
     covs_to_use <- "f"
   }
   else if (is_null(covs_c)) {
     if (is_error(covs_f)) {
-      arg::err(.attr(covs_f, "condition")$message)
+      arg::err("{(.attr(covs_f, 'condition')$message)}")
     }
     if (is_null(covs_f) && needs.covs) {
       arg::err("no covariates were specified")
@@ -401,13 +401,13 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   if (is_error(treat_c)) {
     if (is_error(treat_f)) {
-      arg::err(.attr(treat_c, "condition")$message)
+      arg::err("{(.attr(treat_c, 'condition')$message)}")
     }
     treat_to_use <- "f"
   }
   else if (is_null(treat_c)) {
     if (is_error(treat_f)) {
-      arg::err(.attr(treat_f, "condition")$message)
+      arg::err("{(.attr(treat_f, 'condition')$message)}")
     }
     if (is_null(treat_f) && needs.treat) {
       arg::err("no treatment variable was specified")
@@ -966,11 +966,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       denoms[] <- s.d.denom
     }
     else {
-      arg::err("{.arg s.d.denom} must be an allowable value or a numeric vector of with length equal to the number of columns of {.arg mat}. See {.fun col_w_smd} for allowable values")
+      arg::err("{.arg s.d.denom} must be an allowable value or a numeric vector of with length equal to the number of columns of {.arg mat}. See {.help [?col_w_smd](cobalt::col_w_smd)} for allowable values")
     }
   }
   else {
-    arg::err("{.arg s.d.denom} must be an allowable value or a numeric vector of with length equal to the number of columns of {.arg mat}. See {.fun col_w_smd} for allowable values")
+    arg::err("{.arg s.d.denom} must be an allowable value or a numeric vector of with length equal to the number of columns of {.arg mat}. See {.help [?col_w_smd](cobalt::col_w_smd)} for allowable values")
   }
   
   denoms
@@ -982,13 +982,16 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     X[["treat"]] <- assign.treat.type(X[["treat"]])
   }
   
-  if (is_not_null(X[["subclass"]])) {
+  #`cluster` is checked before `subclass` so that clustered subclassification is
+  #handled by nesting the subclass tables within each cluster, as is done for
+  #multi-category treatments and imputations.
+  if (is_not_null(X[["cluster"]]) && nlevels(X[["cluster"]]) > 1L) X.class <- "cluster"
+  else if (is_not_null(X[["subclass"]])) {
     X.class <- switch(get.treat.type(X[["treat"]]),
                       binary = "subclass.binary",
                       continuous = "subclass.cont",
                       arg::err("multi-category treatments are not currently compatible with subclasses"))
   }
-  else if (is_not_null(X[["cluster"]]) && nlevels(X[["cluster"]]) > 1L) X.class <- "cluster"
   else if (is_not_null(X[["covs.list"]])) X.class <- "msm"
   else if (get.treat.type(X[["treat"]]) == "multinomial") X.class <- "multi"
   else if (is_not_null(X[["imp"]]) && nlevels(X[["imp"]]) > 1L) X.class <- "imp"
@@ -1514,7 +1517,7 @@ process_disp <- function(disp = NULL, ...) {
 process_addl <- function(addl = NULL, datalist = list()) {
   if (is_not_null(addl) && !is.atomic(addl) && !rlang::is_formula(addl) &&
       !is.matrix(addl) && !is.data.frame(addl)) {
-    arg::err("{.arg addl} must be a formula or variable containing the distance values")
+    arg::err("{.arg addl} must be a formula or variable containing the additional covariates")
   }
   
   data <- do.call("data.frame", unname(clear_null(datalist)))
@@ -1589,7 +1592,15 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   if (is_null(obj.distance) || all(is.na(obj.distance))) {
     return(distance_t.c[["covs"]])
   }
-  
+
+  #Callers may pass `obj.distance.name = NULL` (e.g., when the name attribute was
+  #dropped while coercing the component to a data frame). Falling through to
+  #`setNames(., NULL)` would leave the column unnamed and silently discard the
+  #distance variable, so recover the name from the object or use the default.
+  if (is_null(obj.distance.name)) {
+    obj.distance.name <- colnames(as.data.frame(obj.distance)) %or% "distance"
+  }
+
   obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
   obj.distance <- get_covs_from_formula(data = obj.distance)
   
@@ -1735,7 +1746,7 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
   else if (any(is.character(sm))) {
     rule1 <- sm_avail[vapply(tolower(sm_avail), function(x) any(startsWith(x, tolower(sm))), logical(1L))]
     if (is_null(rule1)) {
-      arg::wrn("{.arg sm} should be {.or {.val {sm_avail}}}. Using all available stop methods instead")
+      arg::wrn("{.arg stop.method} should be {.or {.val {sm_avail}}}. Using all available stop methods instead")
       rule1 <- sm_avail
     }
   }
@@ -2037,7 +2048,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         
         if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
           v <- sub("object '([^']+)' not found", "\\1", ee)
-          arg::err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to {.arg data}")
+          arg::err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this variable to {.arg data}")
         }
         
         arg::err("{ee}")
@@ -2143,7 +2154,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     if (null_or_error(evaled.var)) {
       evaled.var <- try(eval(str2expression(add_quotes(rownames(ttfactors)[i], "`")), tmpcovs), silent = TRUE)
       if (null_or_error(evaled.var)) {
-        arg::err(conditionMessage(.attr(evaled.var, "condition")))
+        arg::err('{conditionMessage(.attr(evaled.var, "condition"))}')
       }
       rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
     }
@@ -2163,7 +2174,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
   if (any(covs.with.inf)) {
     s <- if (sum(covs.with.inf) == 1L) c("", "s") else c("s", "")
-    arg::err("the variable{?s} {.var {names(tmpcovs)[covs.with.inf]}} {?contain/contains} non-finite values, which are not allowed")
+    arg::err("the variable{?s} {.var {names(tmpcovs)[covs.with.inf]}} contain{?s} non-finite values, which are not allowed")
   }
   
   attr(tt.covs, "intercept") <- 1 #Add intercept to correctly process single-level factors
@@ -2325,14 +2336,17 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                       function(x) any(c("na", "isep") %in% x[["type"]]),
                       logical(1L))
     
-    new <- .int_poly_f2(C_list[["C"]], ex = exclude, int = int, poly = poly, center = center, 
+    new <- .int_poly_f2(C_list[["C"]], ex = exclude, int = int, poly = poly, center = center,
                         orth = orth, sep = rep.int(seps["int"], nsep), co.names = co_list[["C"]])
-    
-    C_list[["int.poly"]] <- new
-    co_list[["int.poly"]] <- .attr(new, "co.names")
-    names(co_list[["int.poly"]]) <- vapply(co_list[["int.poly"]], 
-                                           function(x) paste(x[["component"]], collapse = ""),
-                                           character(1L))
+
+    #`new` is NULL when there are no interactions or polynomial terms to add
+    if (is_not_null(new)) {
+      C_list[["int.poly"]] <- new
+      co_list[["int.poly"]] <- .attr(new, "co.names")
+      names(co_list[["int.poly"]]) <- vapply(co_list[["int.poly"]],
+                                             function(x) paste(x[["component"]], collapse = ""),
+                                             character(1L))
+    }
   }
   
   #Drop 0 category of 0/1 variables and rename 1 category
@@ -2588,7 +2602,13 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   out <- do.call("cbind", c(poly_terms, int_terms))
   out_co.names <- c(do.call("c", poly_co.names), do.call("c", int_co.names))
-  
+
+  #No terms to add; e.g., `poly = 1` and `int = FALSE`, `int = TRUE` with only one
+  #covariate, or `poly > 1` when every covariate is binary or excluded.
+  if (is_null(out)) {
+    return(NULL)
+  }
+
   if (cn) {
     names(out_co.names) <- vapply(out_co.names, 
                                   function(x) paste(x[["component"]], collapse = ""), character(1L))
@@ -2688,18 +2708,18 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
 }
 
 model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
-  data <- withCallingHandlers(force(data),
-                              error = function(e) arg::err("{conditionMessage(e)}"),
-                              warning = function(w) arg::wrn("{conditionMessage(w)}"))
+  data <- rlang::try_fetch(force(data),
+                           error = function(e) arg::err("{conditionMessage(e)}"),
+                           warning = function(w) arg::wrn("{conditionMessage(w)}"))
   
-  tryCatch({
+  rlang::try_fetch({
     stats::model.frame(formula, data = data, na.action = na.action, ...)
   },
   error = function(e) {
     ee <- conditionMessage(e)
     if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
       v <- sub("object '([^']+)' not found", "\\1", ee)
-      arg::err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to {.arg data}")
+      arg::err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this variable to {.arg data}")
     }
     
     arg::err("{ee}")

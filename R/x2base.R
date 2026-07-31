@@ -272,7 +272,12 @@ x2base.ps <- function(x, ...) {
     #Process covs
     covs <- t.c[["covs"]]
   }
-  else if (all(x[["gbm.obj"]][["feature_names"]] %in% names(ps.data))) {
+  #`is_not_null()` is required as well as the `%in%` test: `all()` of an empty set
+  #is TRUE, so a model object with no `feature_names` (e.g., an xgboost 3.x
+  #booster, which exposes them elsewhere) would otherwise enter this branch and
+  #fail inside `reformulate()` instead of reaching the informative error below.
+  else if (is_not_null(x[["gbm.obj"]][["feature_names"]]) &&
+           all(x[["gbm.obj"]][["feature_names"]] %in% names(ps.data))) {
     covs <- reformulate(x[["gbm.obj"]][["feature_names"]]) |>
       get_covs_from_formula(data = ps.data)
   }
@@ -1520,7 +1525,7 @@ x2base.ebalance <- function(x, ...) {
 x2base.optmatch <- function(x, ...) {
   #Process optmatch
   if (all(is.na(x))) {
-    arg::err("the supplied {.cls optmatch} abject contains no valid matches")
+    arg::err("the supplied {.cls optmatch} object contains no valid matches")
   }
   
   #Process data and get imp
@@ -2726,7 +2731,13 @@ x2base.iptw <- function(x, ...) {
                  needs.treat = FALSE)[["covs"]]
     })
   }
-  else if (all_apply(x[["psList"]], function(z) all(z[["gbm.obj"]][["feature_names"]] %in% names(z[["data"]])))) {
+  #See the note in `x2base.ps()`: `feature_names` must be non-empty for this
+  #branch, or `all()` of an empty set sends a model object that does not record
+  #them into `reformulate(NULL)`.
+  else if (all_apply(x[["psList"]], function(z) {
+    is_not_null(z[["gbm.obj"]][["feature_names"]]) &&
+      all(z[["gbm.obj"]][["feature_names"]] %in% names(z[["data"]]))
+  })) {
     covs.list <- lapply(x[["psList"]], function(z) {
       reformulate(z[["gbm.obj"]][["feature_names"]]) |>
         get_covs_from_formula(data = z[["data"]])
@@ -4149,7 +4160,10 @@ x2base.default <- function(x, ...) {
                                  covs.list = covs.list)
   
   #Process distance
-  distance.list <- process_distance.list(...get("distance.list", ...get("distance", obj[["distance.list"]])),
+  #A distance supplied in the input object is stored in `obj[["distance"]]`,
+  #whatever name it was given (`distance.list` is among the accepted aliases), so
+  #that is the component to fall back on.
+  distance.list <- process_distance.list(...get("distance.list", ...get("distance", obj[["distance"]])),
                                          datalist = list(data, o.data),
                                          covs.list = covs.list)
   
