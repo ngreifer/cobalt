@@ -1,6 +1,46 @@
 *cobalt* News and Updates
 ======
 
+# cobalt 4.6.4
+
+* `bal.tab()` now supports clustered longitudinal treatments. Previously, supplying `cluster` with a list of formulas or data frames failed with an uninformative error.
+
+* `bal.tab()` now supports clustered subclassification, with the subclass tables nested within each cluster, as is already done for multi-category treatments and imputations. Previously, supplying both `subclass` and `cluster` silently ignored `cluster`.
+
+* Fixed a bug in `bal.compute()` and `bal.init()` in which `stat = "r2"` failed for all inputs. The same underlying problem affected `bal.tab()` when `int = TRUE` was supplied with a single covariate or when `poly` was greater than 1 and all covariates were binary.
+
+* Fixed a bug in `bal.compute()` and `bal.init()` in which the Spearman correlation statistics (`stat = "s.mean"`, `"s.max"`, or `"s.rms"`) failed for all inputs.
+
+* Fixed a bug in `col_w_dcov()` and `col_w_dcorr()` in which supplying a `mat` with more than one column failed unless `std` was given a value for each column.
+
+* Fixed a bug in `col_w_ovl()` in which the `steps` argument was ignored. `steps` is now also validated when `integrate = TRUE`, since it is used if `integrate()` fails and the Riemann sum is used as a fallback.
+
+* Fixed a bug in which `print()` failed on a `bal.init` object with `stat = "r2.2"` or `"r2.3"`.
+
+* Fixed a bug in `bal.plot()` in which supplying `subclass` along with `which = "both"` failed when a subset of subclasses was requested, and dropped the sampling weights from the unadjusted sample otherwise.
+
+* Fixed a bug in `bal.plot()` in which longitudinal treatments failed unless `which` was supplied explicitly.
+
+* Fixed a bug in `get.w()` for `ps` objects in which `estimand = "ATC"` was ignored and the weights stored in the object were returned instead.
+
+* Fixed a bug in `bal.tab()`'s default method in which a distance measure supplied as a component of the input object (using any of `distance`, `ps`, `pscore`, `p.score`, or `propensity.score`) was silently dropped. This also affected longitudinal treatments processed through the default method.
+
+* `love.plot()` now gives an informative error when `stats` names a statistic that was not requested in the original call to `bal.tab()`, matching the behavior of `print()`. Previously this failed with an uninformative error about differing numbers of rows.
+
+* For `ps` and `iptw` objects fit with `version = "xgboost"`, `bal.tab()` now asks for `formula`/`covs` (or `formula.list`/`covs.list`) when the fitted model records no feature names at all, rather than failing with an uninformative error from `reformulate()`. This is the case for models fit with *xgboost* 3.0.0 or later, which no longer store feature names in the model object.
+
+* Errors arising within a single cluster or imputation are now consistently labelled with that cluster or imputation. Previously, errors raised while subsetting the data escaped unlabelled.
+
+* Fixed a bug in `splitfactor()` in which supplying `check = FALSE` along with a mix of valid and invalid variable names failed to produce the intended warning.
+
+* `col_w_mean()` and `col_w_sd()` now reject an array with more than two dimensions rather than silently collapsing it into a single column, consistent with the other `col_w_*()` functions.
+
+* Improvements to condition messages.
+
+* The documentation for `integrate` in `bal.compute()` now correctly states that the default is `TRUE`; the documented default had been `FALSE` since the default changed in 4.6.0. The documentation for `steps` in `col_w_ovl()` now notes that it is also used when `integrate()` fails.
+
+* Greatly expanded the test suite, including tests for `ps` and `iptw` objects fit with `version = "xgboost"`.
+
 # cobalt 4.6.3
 
 * [*arg*](https://ngreifer.github.io/arg/) is now used for errors and warning messages.
