@@ -16,3 +16,4 @@
 ^\.lintr$
 ^\.positai$
 ^\.claude$
+^Rplots\.pdf$
