@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,45 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="4.6.3" id="cobalt-463">cobalt 4.6.3<a class="anchor" aria-label="anchor" href="#cobalt-463"></a></h2>
+<h2 class="pkg-version" data-toc-text="4.6.4" id="cobalt-464">cobalt 4.6.4<a class="anchor" aria-label="anchor" href="#cobalt-464"></a></h2>
+<ul><li><p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> now supports clustered longitudinal treatments. Previously, supplying <code>cluster</code> with a list of formulas or data frames failed with an uninformative error.</p></li>
+<li><p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> now supports clustered subclassification, with the subclass tables nested within each cluster, as is already done for multi-category treatments and imputations. Previously, supplying both <code>subclass</code> and <code>cluster</code> silently ignored <code>cluster</code>.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> in which <code>stat = "r2"</code> failed for all inputs. The same underlying problem affected <code><a href="../reference/bal.tab.html">bal.tab()</a></code> when <code>int = TRUE</code> was supplied with a single covariate or when <code>poly</code> was greater than 1 and all covariates were binary.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> in which the Spearman correlation statistics (<code>stat = "s.mean"</code>, <code>"s.max"</code>, or <code>"s.rms"</code>) failed for all inputs.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/balance-summary.html">col_w_smd()</a></code>, <code><a href="../reference/balance-summary.html">col_w_cov()</a></code>, <code><a href="../reference/balance-summary.html">col_w_corr()</a></code>, <code><a href="../reference/balance-summary.html">col_w_dcov()</a></code>, and <code><a href="../reference/balance-summary.html">col_w_dcorr()</a></code> in which <code>s.weights</code> were applied twice to the standardization factor when <code>s.d.denom = "weighted"</code> and <code>weighted.weights</code> was left at its default. This made the resulting standardized statistics disagree with the corresponding values from <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, which were correct. Supplying <code>weighted.weights</code> explicitly was unaffected, as was the case where <code>s.weights</code> were absent.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/balance-summary.html">col_w_dcov()</a></code> and <code><a href="../reference/balance-summary.html">col_w_dcorr()</a></code> in which supplying a <code>mat</code> with more than one column failed unless <code>std</code> was given a value for each column.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/balance-summary.html">col_w_ovl()</a></code> in which the <code>steps</code> argument was ignored. <code>steps</code> is now also validated when <code>integrate = TRUE</code>, since it is used if <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> fails and the Riemann sum is used as a fallback.</p></li>
+<li><p>Fixed a bug in which <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> failed on a <code>bal.init</code> object with <code>stat = "r2.2"</code> or <code>"r2.3"</code>.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/bal.plot.html">bal.plot()</a></code> in which supplying <code>subclass</code> along with <code>which = "both"</code> failed when a subset of subclasses was requested, and dropped the sampling weights from the unadjusted sample otherwise.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/bal.plot.html">bal.plot()</a></code> in which longitudinal treatments failed unless <code>which</code> was supplied explicitly.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/get.w.html">get.w()</a></code> for <code>ps</code> objects in which <code>estimand = "ATC"</code> was ignored and the weights stored in the object were returned instead.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>’s default method in which a distance measure supplied as a component of the input object (using any of <code>distance</code>, <code>ps</code>, <code>pscore</code>, <code>p.score</code>, or <code>propensity.score</code>) was silently dropped. This also affected longitudinal treatments processed through the default method.</p></li>
+<li><p><code><a href="../reference/love.plot.html">love.plot()</a></code> now gives an informative error when <code>stats</code> names a statistic that was not requested in the original call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, matching the behavior of <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>. Previously this failed with an uninformative error about differing numbers of rows.</p></li>
+<li><p>For <code>ps</code> and <code>iptw</code> objects fit with <code>version = "xgboost"</code>, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> now asks for <code>formula</code>/<code>covs</code> (or <code>formula.list</code>/<code>covs.list</code>) when the fitted model records no feature names at all, rather than failing with an uninformative error from <code><a href="https://rdrr.io/r/stats/delete.response.html" class="external-link">reformulate()</a></code>. This is the case for models fit with <em>xgboost</em> 3.0.0 or later, which no longer store feature names in the model object.</p></li>
+<li><p>Errors arising within a single cluster or imputation are now consistently labelled with that cluster or imputation. Previously, errors raised while subsetting the data escaped unlabelled.</p></li>
+<li><p>Fixed a bug in <code><a href="../reference/splitfactor.html">splitfactor()</a></code> in which supplying <code>check = FALSE</code> along with a mix of valid and invalid variable names failed to produce the intended warning.</p></li>
+<li><p><code><a href="../reference/balance-summary.html">col_w_mean()</a></code> and <code><a href="../reference/balance-summary.html">col_w_sd()</a></code> now reject an array with more than two dimensions rather than silently collapsing it into a single column, consistent with the other <code>col_w_*()</code> functions.</p></li>
+<li>
+<p>Fixed several bugs in the display arguments of <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> for <code>bal.tab</code> objects:</p>
+<ul><li><p><code>disp</code> was ignored, and produced a spurious warning, whenever the requested quantities had in fact been computed. The subclass method was unaffected.</p></li>
+<li><p><code>disp.means</code>, <code>disp.sds</code>, and the per-statistic <code>disp.&lt;stat&gt;</code> arguments could only turn a column on, never off. Setting <code>disp.ks = FALSE</code>, for example, displayed the KS statistics rather than hiding them.</p></li>
+<li><p>Supplying <code>disp.thresholds</code> with a name that is not among the object’s thresholds warned and then failed with an error about attribute lengths.</p></li>
+<li><p>A <code>which.subclass</code> containing no valid subclass index warned and then failed rather than displaying no subclasses.</p></li>
+</ul></li>
+<li><p>Fixed a bug in which a <code>bal.tab</code> object with subclasses and <code>quick = FALSE</code> could not be printed at all, failing with “undefined columns selected”. The columns of the across-subclass table are now selected by name rather than by position, which cannot fall out of step with the table’s width.</p></li>
+<li><p>Fixed a bug in which the sample sizes for longitudinal treatments never collapsed the “All (ESS)” and “All (Unweighted)” rows when the two agreed, though the corresponding “Matched” rows did.</p></li>
+<li><p>Fixed a bug in which <code><a href="../reference/bal.plot.html">bal.plot()</a></code> failed for a longitudinal treatment combined with <code>cluster</code>, and in the ordering of facets when neither <code>which</code> nor <code>imp</code> is displayed.</p></li>
+<li>
+<p>Fixed bugs in <code><a href="../reference/splitfactor.html">unsplitfactor()</a></code>:</p>
+<ul><li><p>A dropped numeric level was not inferred for a <code>data.frame</code> that did not come from <code><a href="../reference/splitfactor.html">splitfactor()</a></code> (e.g. one built with <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>), because the level was extracted one character too early and so never parsed as a number.</p></li>
+<li><p><code>dropped.na</code> could not be given as the name of the column holding the missingness indicator, as documented; it was rejected as a non-logical value.</p></li>
+</ul></li>
+<li><p>Improvements to condition messages.</p></li>
+<li><p>The documentation for <code>integrate</code> in <code><a href="../reference/bal.compute.html">bal.compute()</a></code> now correctly states that the default is <code>TRUE</code>; the documented default had been <code>FALSE</code> since the default changed in 4.6.0. The documentation for <code>steps</code> in <code><a href="../reference/balance-summary.html">col_w_ovl()</a></code> now notes that it is also used when <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> fails.</p></li>
+<li><p>Greatly expanded the test suite, including tests for <code>ps</code> and <code>iptw</code> objects fit with <code>version = "xgboost"</code>.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="4.6.3" id="cobalt-463">cobalt 4.6.3<a class="anchor" aria-label="anchor" href="#cobalt-463"></a></h2><p class="text-muted">CRAN release: 2026-05-30</p>
 <ul><li><p><a href="https://ngreifer.github.io/arg/" class="external-link"><em>arg</em></a> is now used for errors and warning messages.</p></li>
 <li><p>Documentation updates.</p></li>
 </ul></div>
@@ -525,7 +563,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

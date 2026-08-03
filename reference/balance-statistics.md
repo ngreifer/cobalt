@@ -149,9 +149,9 @@ love.plot(treat ~ age + educ + married + re74, data = lalonde,
 bal.tab(re75 ~ age + educ + married + re74, data = lalonde,
         stats = c("cor", "sp"))
 #> Error: The variable "educ" cannot be found. Be sure it is entered correctly or
-#> supply a dataset that contains this varialble to `data`.
+#> supply a dataset that contains this variable to `data`.
 love.plot(re75 ~ age + educ + married + re74, data = lalonde,
           thresholds = c(cor = .1, sp = .1))
 #> Error: The variable "educ" cannot be found. Be sure it is entered correctly or
-#> supply a dataset that contains this varialble to `data`.
+#> supply a dataset that contains this variable to `data`.
 ```

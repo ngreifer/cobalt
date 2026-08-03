@@ -326,9 +326,12 @@ col_w_dcorr(
 
 - steps:
 
-  for `col_w_ovl()` when `integrate = FALSE`, the number of points to
-  use to compute the Riemann sum to approximate the integral. Default is
-  1001 for 1000 partitions.
+  for `col_w_ovl()`, the number of points to use to compute the Riemann
+  sum to approximate the integral. Used when `integrate = FALSE` and
+  also when `integrate = TRUE` but
+  [`integrate()`](https://rdrr.io/r/stats/integrate.html) fails and the
+  Riemann sum is used as a fallback. Default is 1001 for 1000
+  partitions.
 
 - type:
 

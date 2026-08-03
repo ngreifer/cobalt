@@ -93,7 +93,7 @@ v1["married"] <- "Married"
 love.plot(b1, var.names = v1)
 #> Warning: Standardized mean differences and raw mean differences are present in the same
 #> plot. Use the `stars` argument to distinguish between them and appropriately
-#> label the x-axis. See `love.plot()` for details.
+#> label the x-axis. See ?love.plot (`?cobalt::love.plot()`) for details.
 
 if (FALSE) { # \dontrun{
 b2 <- bal.tab(treat ~ age + race + married + educ + nodegree +

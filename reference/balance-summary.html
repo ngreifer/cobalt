@@ -33,7 +33,7 @@ col_w_dcov() and col_w_dcorr() compute the (weighted) treatment-covariate distan
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -272,7 +272,7 @@ col_w_dcov() and col_w_dcorr() compute the (weighted) treatment-covariate distan
 
 
 <dt id="arg-steps">steps<a class="anchor" aria-label="anchor" href="#arg-steps"></a></dt>
-<dd><p>for <code>col_w_ovl()</code> when <code>integrate = FALSE</code>, the number of points to use to compute the Riemann sum to approximate the integral. Default is 1001 for 1000 partitions.</p></dd>
+<dd><p>for <code>col_w_ovl()</code>, the number of points to use to compute the Riemann sum to approximate the integral. Used when <code>integrate = FALSE</code> and also when <code>integrate = TRUE</code> but <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> fails and the Riemann sum is used as a fallback. Default is 1001 for 1000 partitions.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -407,7 +407,7 @@ col_w_dcov() and col_w_dcorr() compute the (weighted) treatment-covariate distan
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

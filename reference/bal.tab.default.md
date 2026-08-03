@@ -447,16 +447,17 @@ out <- ate.weights(lalonde$treat, covs)
 
 bal.tab(out, un = TRUE)
 #> Balance Measures
-#>                Type Diff.Un Diff.Adj
-#> age         Contin. -0.2419  -0.1676
-#> educ        Contin.  0.0448   0.1296
-#> race_black   Binary  0.6404   0.0499
-#> race_hispan  Binary -0.0827   0.0047
-#> race_white   Binary -0.5577  -0.0546
-#> married      Binary -0.3236  -0.0944
-#> nodegree     Binary  0.1114  -0.0547
-#> re74        Contin. -0.5958  -0.2740
-#> re75        Contin. -0.2870  -0.1579
+#>                 Type Diff.Un Diff.Adj
+#> distance    Distance  1.7569   0.1360
+#> age          Contin. -0.2419  -0.1676
+#> educ         Contin.  0.0448   0.1296
+#> race_black    Binary  0.6404   0.0499
+#> race_hispan   Binary -0.0827   0.0047
+#> race_white    Binary -0.5577  -0.0546
+#> married       Binary -0.3236  -0.0944
+#> nodegree      Binary  0.1114  -0.0547
+#> re74         Contin. -0.5958  -0.2740
+#> re75         Contin. -0.2870  -0.1579
 #> 
 #> Effective sample sizes
 #>            Control Treated

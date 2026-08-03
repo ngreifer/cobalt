@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,7 +145,7 @@ difference among the included covariates, which is specified as
 sample prior to weighting.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/cobalt/">cobalt</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt;  cobalt (Version 4.6.3, Build Date: 2026-05-29)</span></span>
+<span><span class="co">#&gt;  cobalt (Version 4.6.4, Build Date: 2026-08-03)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">race</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -545,7 +545,7 @@ propensity score weighting with a binary treatment.</p>
 <span>                    estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fit a GBM model using *WeightIt* and `twang` defaults</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gbm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gbm/man/gbm.html" class="external-link">gbm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gbm</span><span class="fu">::</span><span class="fu"><a href="https://gbm-developers.github.io/gbm/reference/gbm.html" class="external-link">gbm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
 <span>                    <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
 <span>                data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span>                distribution <span class="op">=</span> <span class="st">"bernoulli"</span>,</span>
@@ -698,7 +698,7 @@ Causal Inference</em> 6 (2). <a href="https://doi.org/10.1515/jci-2016-0029" cla
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

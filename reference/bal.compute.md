@@ -115,11 +115,11 @@ a sample and the same sample but weighted.
   [`col_w_ovl()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md).
   The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or
   `"ATC"`) to select the estimand (default is `"ATE"`), `integrate` to
-  select whether integration is done using using
-  [`integrate()`](https://rdrr.io/r/stats/integrate.html) (`TRUE`) or a
-  Riemann sum (`FALSE`, the default), `focal` to identify the focal
-  treatment group when the ATT is the estimand and the treatment has
-  more than two categories, `pairwise` to select whether statistics
+  select whether integration is done using
+  [`integrate()`](https://rdrr.io/r/stats/integrate.html) (`TRUE`, the
+  default) or a midpoint Riemann sum (`FALSE`), `focal` to identify the
+  focal treatment group when the ATT is the estimand and the treatment
+  has more than two categories, `pairwise` to select whether statistics
   should be computed between each pair of treatment groups or between
   each treatment group and the target group identified by `estimand`
   (default `TRUE`). Can be used with binary and multi-category

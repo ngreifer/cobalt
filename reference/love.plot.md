@@ -418,7 +418,7 @@ love.plot(w.out1, thresholds = c(m = .1),
           var.order = "unadjusted")
 #> Warning: Standardized mean differences and raw mean differences are present in the same
 #> plot. Use the `stars` argument to distinguish between them and appropriately
-#> label the x-axis. See `love.plot()` for details.
+#> label the x-axis. See ?love.plot (`?cobalt::love.plot()`) for details.
 
 
 ## Using alternate variable names
@@ -434,7 +434,7 @@ love.plot(w.out1, stats = "m", threshold = .1,
           var.order = "unadjusted", var.names = v)
 #> Warning: Standardized mean differences and raw mean differences are present in the same
 #> plot. Use the `stars` argument to distinguish between them and appropriately
-#> label the x-axis. See `love.plot()` for details.
+#> label the x-axis. See ?love.plot (`?cobalt::love.plot()`) for details.
 
 
 #Using multiple stats

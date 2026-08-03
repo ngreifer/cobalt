@@ -1,6 +1,189 @@
 # Changelog
 
+## cobalt 4.6.4
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now supports clustered longitudinal treatments. Previously, supplying
+  `cluster` with a list of formulas or data frames failed with an
+  uninformative error.
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now supports clustered subclassification, with the subclass tables
+  nested within each cluster, as is already done for multi-category
+  treatments and imputations. Previously, supplying both `subclass` and
+  `cluster` silently ignored `cluster`.
+
+- Fixed a bug in
+  [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  and
+  [`bal.init()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  in which `stat = "r2"` failed for all inputs. The same underlying
+  problem affected
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  when `int = TRUE` was supplied with a single covariate or when `poly`
+  was greater than 1 and all covariates were binary.
+
+- Fixed a bug in
+  [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  and
+  [`bal.init()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  in which the Spearman correlation statistics (`stat = "s.mean"`,
+  `"s.max"`, or `"s.rms"`) failed for all inputs.
+
+- Fixed a bug in
+  [`col_w_smd()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md),
+  [`col_w_cov()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md),
+  [`col_w_corr()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md),
+  [`col_w_dcov()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md),
+  and
+  [`col_w_dcorr()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  in which `s.weights` were applied twice to the standardization factor
+  when `s.d.denom = "weighted"` and `weighted.weights` was left at its
+  default. This made the resulting standardized statistics disagree with
+  the corresponding values from
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
+  which were correct. Supplying `weighted.weights` explicitly was
+  unaffected, as was the case where `s.weights` were absent.
+
+- Fixed a bug in
+  [`col_w_dcov()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  and
+  [`col_w_dcorr()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  in which supplying a `mat` with more than one column failed unless
+  `std` was given a value for each column.
+
+- Fixed a bug in
+  [`col_w_ovl()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  in which the `steps` argument was ignored. `steps` is now also
+  validated when `integrate = TRUE`, since it is used if
+  [`integrate()`](https://rdrr.io/r/stats/integrate.html) fails and the
+  Riemann sum is used as a fallback.
+
+- Fixed a bug in which [`print()`](https://rdrr.io/r/base/print.html)
+  failed on a `bal.init` object with `stat = "r2.2"` or `"r2.3"`.
+
+- Fixed a bug in
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  in which supplying `subclass` along with `which = "both"` failed when
+  a subset of subclasses was requested, and dropped the sampling weights
+  from the unadjusted sample otherwise.
+
+- Fixed a bug in
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  in which longitudinal treatments failed unless `which` was supplied
+  explicitly.
+
+- Fixed a bug in
+  [`get.w()`](https://ngreifer.github.io/cobalt/reference/get.w.md) for
+  `ps` objects in which `estimand = "ATC"` was ignored and the weights
+  stored in the object were returned instead.
+
+- Fixed a bug in
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)’s
+  default method in which a distance measure supplied as a component of
+  the input object (using any of `distance`, `ps`, `pscore`, `p.score`,
+  or `propensity.score`) was silently dropped. This also affected
+  longitudinal treatments processed through the default method.
+
+- [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+  now gives an informative error when `stats` names a statistic that was
+  not requested in the original call to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
+  matching the behavior of
+  [`print()`](https://rdrr.io/r/base/print.html). Previously this failed
+  with an uninformative error about differing numbers of rows.
+
+- For `ps` and `iptw` objects fit with `version = "xgboost"`,
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now asks for `formula`/`covs` (or `formula.list`/`covs.list`) when the
+  fitted model records no feature names at all, rather than failing with
+  an uninformative error from
+  [`reformulate()`](https://rdrr.io/r/stats/delete.response.html). This
+  is the case for models fit with *xgboost* 3.0.0 or later, which no
+  longer store feature names in the model object.
+
+- Errors arising within a single cluster or imputation are now
+  consistently labelled with that cluster or imputation. Previously,
+  errors raised while subsetting the data escaped unlabelled.
+
+- Fixed a bug in
+  [`splitfactor()`](https://ngreifer.github.io/cobalt/reference/splitfactor.md)
+  in which supplying `check = FALSE` along with a mix of valid and
+  invalid variable names failed to produce the intended warning.
+
+- [`col_w_mean()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  and
+  [`col_w_sd()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  now reject an array with more than two dimensions rather than silently
+  collapsing it into a single column, consistent with the other
+  `col_w_*()` functions.
+
+- Fixed several bugs in the display arguments of
+  [`print()`](https://rdrr.io/r/base/print.html) for `bal.tab` objects:
+
+  - `disp` was ignored, and produced a spurious warning, whenever the
+    requested quantities had in fact been computed. The subclass method
+    was unaffected.
+
+  - `disp.means`, `disp.sds`, and the per-statistic `disp.<stat>`
+    arguments could only turn a column on, never off. Setting
+    `disp.ks = FALSE`, for example, displayed the KS statistics rather
+    than hiding them.
+
+  - Supplying `disp.thresholds` with a name that is not among the
+    object’s thresholds warned and then failed with an error about
+    attribute lengths.
+
+  - A `which.subclass` containing no valid subclass index warned and
+    then failed rather than displaying no subclasses.
+
+- Fixed a bug in which a `bal.tab` object with subclasses and
+  `quick = FALSE` could not be printed at all, failing with “undefined
+  columns selected”. The columns of the across-subclass table are now
+  selected by name rather than by position, which cannot fall out of
+  step with the table’s width.
+
+- Fixed a bug in which the sample sizes for longitudinal treatments
+  never collapsed the “All (ESS)” and “All (Unweighted)” rows when the
+  two agreed, though the corresponding “Matched” rows did.
+
+- Fixed a bug in which
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  failed for a longitudinal treatment combined with `cluster`, and in
+  the ordering of facets when neither `which` nor `imp` is displayed.
+
+- Fixed bugs in
+  [`unsplitfactor()`](https://ngreifer.github.io/cobalt/reference/splitfactor.md):
+
+  - A dropped numeric level was not inferred for a `data.frame` that did
+    not come from
+    [`splitfactor()`](https://ngreifer.github.io/cobalt/reference/splitfactor.md)
+    (e.g. one built with
+    [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html)),
+    because the level was extracted one character too early and so never
+    parsed as a number.
+
+  - `dropped.na` could not be given as the name of the column holding
+    the missingness indicator, as documented; it was rejected as a
+    non-logical value.
+
+- Improvements to condition messages.
+
+- The documentation for `integrate` in
+  [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  now correctly states that the default is `TRUE`; the documented
+  default had been `FALSE` since the default changed in 4.6.0. The
+  documentation for `steps` in
+  [`col_w_ovl()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  now notes that it is also used when
+  [`integrate()`](https://rdrr.io/r/stats/integrate.html) fails.
+
+- Greatly expanded the test suite, including tests for `ps` and `iptw`
+  objects fit with `version = "xgboost"`.
+
 ## cobalt 4.6.3
+
+CRAN release: 2026-05-30
 
 - [*arg*](https://ngreifer.github.io/arg/) is now used for errors and
   warning messages.
