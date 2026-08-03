@@ -69,6 +69,13 @@ cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
       WeightIt::weightit(treat ~ age + educ + race + married + nodegree + re74 + re75,
                          data = lalonde, method = "glm", estimand = "ATT")
     }),
+    #Carries sampling weights, so `get.w(., s.weights = TRUE)` has something to
+    #multiply by.
+    weightit_sw = list(pkg = "WeightIt", build = function() {
+      WeightIt::weightit(treat ~ age + educ + re74, data = lalonde,
+                         method = "glm", estimand = "ATT",
+                         s.weights = rep(c(1, 1.5, 2), length.out = nrow(lalonde)))
+    }),
     weightit_multi = list(pkg = "WeightIt", build = function() {
       WeightIt::weightit(race ~ age + educ + married + re74, data = lalonde,
                          method = "glm", estimand = "ATE")
@@ -94,6 +101,14 @@ cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
     mnps = list(pkg = "twang", build = function() {
       twang::mnps(race ~ age + educ + married + re74, data = lalonde,
                   estimand = "ATE", stop.method = "es.mean",
+                  n.trees = 200, verbose = FALSE)
+    }),
+    #`estimand = "ATT"` and two stop methods, to reach the ATT weighting branch
+    #and the multi-column naming in get.w.mnps().
+    mnps_att = list(pkg = "twang", build = function() {
+      twang::mnps(race ~ age + educ + married + re74, data = lalonde,
+                  estimand = "ATT", treatATT = "white",
+                  stop.method = c("es.mean", "ks.max"),
                   n.trees = 200, verbose = FALSE)
     }),
     iptw = list(pkg = "twang", build = function() {

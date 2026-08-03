@@ -247,3 +247,221 @@ test_that("error messages from print are stable", {
   expect_snapshot(error = TRUE, print(b, stats = "ks.statistics"))
   expect_snapshot(error = TRUE, print(b, un = "yes"))
 })
+
+# ---------------------------------------------------------------------------
+# Coverage of the deprecated `...` arguments, the `which.*` validation branches in
+# each wrapper method, and the display paths that need a purpose-built object.
+
+test_that("deprecated disp.means / disp.sds select the mean and SD columns", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", un = TRUE, disp = c("means", "sds"),
+               quick = FALSE)
+
+  out <- printed(b, disp.means = TRUE)
+  expect_match(out, "M.0.Adj")
+
+  out <- printed(b, disp.sds = TRUE)
+  expect_match(out, "SD.0.Adj")
+
+  #Setting them FALSE removes the corresponding columns.
+  expect_false(grepl("M.0.Adj", printed(b, disp.means = FALSE, disp.sds = FALSE),
+                     fixed = TRUE))
+
+  #Requesting a quantity that `quick = TRUE` skipped warns.
+  bq <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+                s.d.denom = "pooled")
+  expect_wrn(print(bq, disp.means = TRUE), "cannot be set to")
+})
+
+test_that("deprecated disp.<stat> toggles a statistic on and off", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", quick = FALSE,
+               stats = c("mean.diffs", "variance.ratios", "ks.statistics"))
+
+  #Each toggle both adds and removes its own column.
+  toggles <- list(disp.v.ratio = "V.Ratio", disp.ks = "KS")
+  for (nm in names(toggles)) {
+    col <- toggles[[nm]]
+    on <- do.call(printed, c(list(b), setNames(list(TRUE), nm)))
+    off <- do.call(printed, c(list(b), setNames(list(FALSE), nm)))
+    expect_true(grepl(col, on, fixed = TRUE), info = nm)
+    expect_false(grepl(col, off, fixed = TRUE), info = nm)
+  }
+
+  #A statistic that was not computed cannot be switched on.
+  bq <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+                s.d.denom = "pooled", stats = "mean.diffs")
+  expect_wrn(print(bq, disp.ks = TRUE), "cannot be set to")
+})
+
+test_that("a deprecated <stat>.threshold of NULL suppresses the threshold column", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", thresholds = c(m = .1))
+
+  expect_match(printed(b), "M.Threshold")
+  expect_false(grepl("M.Threshold", printed(b, m.threshold = NULL), fixed = TRUE))
+})
+
+test_that("un = TRUE on an object built with un = FALSE warns", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", un = FALSE)
+
+  expect_wrn(print(b, un = TRUE), "cannot be set to")
+})
+
+test_that("imbalanced.only without a threshold warns", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled")
+
+  expect_wrn(print(b, imbalanced.only = TRUE), "threshold must be specified")
+})
+
+test_that("imbalanced.only reports when everything is balanced", {
+  #A very loose threshold leaves nothing imbalanced.
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", thresholds = c(m = 100))
+
+  expect_match(printed(b, imbalanced.only = TRUE), "All covariates are balanced")
+})
+
+test_that("disp.thresholds accepts unnamed and partially-named input", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", stats = c("mean.diffs", "variance.ratios"),
+               thresholds = c(m = .1, v = 2))
+
+  #A single unnamed value applies to every threshold.
+  expect_false(grepl("Threshold", printed(b, disp.thresholds = FALSE), fixed = TRUE))
+
+  #More entries than there are thresholds is an error.
+  expect_err(print(b, disp.thresholds = c(FALSE, FALSE, FALSE)),
+             "more entries were given")
+
+  #A name that is not a threshold warns.
+  expect_wrn(print(b, disp.thresholds = c(ks = FALSE)), "threshold")
+})
+
+test_that("two weight sets with different methods are reported side by side", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
+               weights = data.frame(m = w_fixed, w = sw_fixed),
+               method = c("matching", "weighting"), s.d.denom = "pooled")
+
+  out <- printed(b)
+  expect_match(out, "Diff.m")
+  expect_match(out, "Diff.w")
+
+  #One sample-size row per weight set, plus the unadjusted row.
+  expect_setequal(rownames(b$Observations), c("All", "m", "w"))
+})
+
+test_that("pairwise = FALSE prints balance by treatment group", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race, weights = w_fixed,
+               pairwise = FALSE, un = TRUE)
+
+  out <- printed(b, which.treat = NULL)
+  expect_match(out, "Balance by treatment group")
+  expect_match(out, "vs.")
+  expect_setequal(names(b$Pair.Balance),
+                  c("All vs. black", "All vs. hispan", "All vs. white"))
+})
+
+test_that("which.cluster accepts every documented form and warns otherwise", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, cluster = cl_idx,
+               weights = w_fixed, s.d.denom = "pooled", cluster.summary = TRUE)
+
+  expect_match(printed(b, which.cluster = 1L), "Cluster")
+  expect_match(printed(b, which.cluster = c("a", "b")), "Cluster")
+
+  expect_wrn(print(b, which.cluster = 99L), "are cluster indices")
+  expect_wrn(print(b, which.cluster = "zzz"), "are cluster names")
+  expect_wrn(print(b, which.cluster = TRUE), "must be")
+})
+
+test_that("which.imp accepts every documented form and warns otherwise", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, imp = imp_idx,
+               weights = w_fixed, s.d.denom = "pooled", imp.summary = TRUE)
+
+  expect_match(printed(b, which.imp = 1L), "Imputation")
+  expect_wrn(print(b, which.imp = 99L), "are imputation numbers")
+  expect_wrn(print(b, which.imp = TRUE), "must be")
+})
+
+test_that("which.treat accepts every documented form and warns otherwise", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race, weights = w_fixed,
+               multi.summary = TRUE)
+
+  expect_match(printed(b, which.treat = 1L), "vs.")
+  expect_match(printed(b, which.treat = "black"), "black")
+  expect_wrn(print(b, which.treat = 99L), "correspond to treatment values")
+  expect_wrn(print(b, which.treat = "zzz"), "correspond to treatment values")
+  expect_wrn(print(b, which.treat = TRUE), "must be")
+})
+
+test_that("which.time accepts every documented form and warns otherwise", {
+  b <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ + treat),
+               data = lalonde, msm.summary = TRUE)
+
+  expect_match(printed(b, which.time = 1L), "Time")
+  expect_wrn(print(b, which.time = 99L), "are treatment time points")
+  expect_wrn(print(b, which.time = TRUE), "must be")
+})
+
+test_that("a subclass bal.tab with thresholds prints tallies and max imbalance", {
+  b <- bal.tab(lalonde[c("age", "educ", "married")], treat = lalonde$treat,
+               subclass = sub_idx, s.d.denom = "pooled", un = TRUE,
+               subclass.summary = TRUE, thresholds = c(m = .1))
+
+  out <- printed(b)
+  expect_match(out, "Balance measures across subclasses")
+  expect_match(out, "Balance tally for")
+  expect_match(out, "Variable with the greatest")
+
+  #The per-subclass tables and their threshold column.
+  out <- printed(b, which.subclass = NULL)
+  expect_match(out, "Subclass 1")
+  expect_match(out, "M.Threshold")
+})
+
+test_that("the subclass print method honours stats, disp.call, and disp.thresholds", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, subclass = sub_idx,
+               s.d.denom = "pooled", un = TRUE, subclass.summary = TRUE,
+               stats = c("mean.diffs", "variance.ratios"),
+               thresholds = c(m = .1), quick = FALSE)
+
+  out <- printed(b, stats = "mean.diffs")
+  expect_match(out, "Diff.Adj")
+  expect_false(grepl("V.Ratio", out, fixed = TRUE))
+
+  b_quick <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
+                     subclass = sub_idx, s.d.denom = "pooled",
+                     subclass.summary = TRUE, stats = "mean.diffs")
+  expect_err(print(b_quick, stats = "ks.statistics"), "cannot contain")
+
+  expect_false(grepl("M.Threshold", printed(b, disp.thresholds = c(m = FALSE)),
+                     fixed = TRUE))
+
+  #`disp.call` warns when the object carries no call.
+  expect_wrn(print(b, disp.call = TRUE), "does not have a call")
+
+  #`disp` selects the mean columns on the subclass path too.
+  expect_match(printed(b, disp = "means"), "M.0.Adj")
+
+  #`which.subclass` validation.
+  expect_wrn(print(b, which.subclass = 99L), "subclass")
+  expect_wrn(print(b, which.subclass = "a"), "subclass")
+})
+
+test_that("print() rewrites the .all and .none shorthands", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race, weights = w_fixed,
+               multi.summary = TRUE)
+
+  #The rewrite inspects print()'s own call, so these must be called directly
+  #rather than through a wrapper: passing `.all` down through another frame
+  #leaves it to be evaluated as an ordinary object, and it does not exist.
+  expect_match(squish(capture.output(print(b, which.treat = .all))), "vs.")
+  expect_false(grepl("vs.", squish(capture.output(print(b, which.treat = .none))),
+                     fixed = TRUE))
+
+  #NULL and NA are the equivalent literal values.
+  expect_match(printed(b, which.treat = NULL), "vs.")
+  expect_false(grepl("vs.", printed(b, which.treat = NA), fixed = TRUE))
+})

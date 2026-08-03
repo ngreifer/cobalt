@@ -13,9 +13,18 @@ geoms <- function(p) {
   unname(vapply(p$layers, function(l) class(l$geom)[1L], character(1L)))
 }
 
+#Build a single-statistic love.plot. Multi-statistic calls return a gtable, which
+#`ggplot_build()` cannot take -- assert the class and build `attr(p, "plots")`
+#instead.
 built <- function(p) {
-  expect_no_condition(b <- ggplot2::ggplot_build(p))
-  invisible(b)
+  expect_no_condition(.built <- ggplot2::ggplot_build(p))
+  invisible(.built)
+}
+
+built_all <- function(p) {
+  expect_s3_class(p, "gtable")
+  for (pp in attr(p, "plots")) built(pp)
+  invisible(p)
 }
 
 #`binary = "std"` standardizes the binary covariates too. Without it the plot
@@ -250,4 +259,194 @@ test_that("love.plot() rejects invalid arguments", {
   expect_err(love.plot(b_ci, stats = "mean.diffs",
                        which.cluster = NULL, which.imp = NULL),
              "must be")
+})
+
+# ---------------------------------------------------------------------------
+# Aggregation, the inline-bal.tab.call path, faceting subsets, and the argument
+# validation warnings. The blocks above leave every facet displayed, so no real
+# aggregation ever happens.
+
+b_cluster <- function() {
+  bal.tab(lalonde[c("age", "educ", "married")], treat = lalonde$treat,
+          cluster = cl_idx, weights = w_fixed, s.d.denom = "pooled",
+          un = TRUE, binary = "std")
+}
+
+test_that("collapsing a facet aggregates across it", {
+  b <- b_cluster()
+
+  #`agg.fun = "range"` draws a segment per variable plus the endpoint markers.
+  p <- love.plot(b, stats = "mean.diffs", agg.fun = "range",
+                 which.cluster = .none)
+  expect_s3_class(p, "love.plot")
+  built(p)
+  expect_true(any(grepl("Linerange|Segment|Point", geoms(p))))
+
+  #"mean" and "max" collapse to a single value per variable.
+  for (af in c("mean", "max")) {
+    p <- love.plot(b, stats = "mean.diffs", agg.fun = af, which.cluster = .none)
+    built(p)
+    expect_true("GeomPoint" %in% geoms(p))
+  }
+
+  #`agg.fun = "max"` forces absolute values, so nothing plotted is negative.
+  p <- love.plot(b, stats = "mean.diffs", agg.fun = "max", which.cluster = .none)
+  pd <- ggplot2::layer_data(p, which(geoms(p) == "GeomPoint")[1L])
+  expect_true(all(pd$x >= 0))
+
+  #With no `agg.fun`, one is chosen from what is being aggregated over.
+  built(love.plot(b, stats = "mean.diffs", which.cluster = .none))
+})
+
+test_that("aggregation works for imputations, treatment groups, and time points", {
+  covs <- lalonde[c("age", "educ")]
+
+  b_imp <- bal.tab(covs, treat = lalonde$treat, imp = imp_idx, weights = w_fixed,
+                   s.d.denom = "pooled", un = TRUE, binary = "std")
+  built(love.plot(b_imp, stats = "mean.diffs", agg.fun = "range",
+                  which.imp = .none))
+
+  b_multi <- bal.tab(covs, treat = lalonde$race, weights = w_fixed, un = TRUE,
+                     binary = "std")
+  built(love.plot(b_multi, stats = "mean.diffs", which.treat = .none))
+
+  b_msm <- bal.tab(list(treat ~ age, nodegree ~ age + educ), data = lalonde,
+                   un = TRUE, binary = "std")
+  built(love.plot(b_msm, stats = "mean.diffs", which.time = .none))
+})
+
+test_that("love.plot() accepts an inline bal.tab() call", {
+  #Written literally rather than via a variable, so the call is rewritten to add
+  #`un = TRUE` and the requested statistics.
+  p <- love.plot(bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
+                         weights = w_fixed, s.d.denom = "pooled"),
+                 stats = "mean.diffs", binary = "std")
+  expect_s3_class(p, "love.plot")
+  built(p)
+
+  #The same through do.call().
+  p2 <- love.plot(do.call(bal.tab, list(lalonde[c("age", "educ")],
+                                        treat = lalonde$treat,
+                                        weights = w_fixed,
+                                        s.d.denom = "pooled")),
+                  stats = "mean.diffs", binary = "std")
+  expect_s3_class(p2, "love.plot")
+})
+
+test_that("which.* select facet levels numerically and by name", {
+  b <- b_cluster()
+
+  built(love.plot(b, stats = "mean.diffs", which.cluster = 1:2))
+  built(love.plot(b, stats = "mean.diffs", which.cluster = c("a", "b")))
+  expect_err(love.plot(b, stats = "mean.diffs", which.cluster = TRUE), "must be")
+
+  b_multi <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race,
+                     weights = w_fixed, un = TRUE, binary = "std")
+  built(love.plot(b_multi, stats = "mean.diffs", which.treat = 1L))
+  built(love.plot(b_multi, stats = "mean.diffs", which.treat = "black"))
+  expect_err(love.plot(b_multi, stats = "mean.diffs", which.treat = "zzz"),
+             "must be names or indices")
+
+  #`pairwise = FALSE` changes the set of comparisons being faceted.
+  b_np <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race,
+                  weights = w_fixed, un = TRUE, binary = "std", pairwise = FALSE)
+  built(love.plot(b_np, stats = "mean.diffs", which.treat = .none))
+})
+
+test_that("subclass objects can display the individual subclasses", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, subclass = sub_idx,
+               s.d.denom = "pooled", un = TRUE, binary = "std",
+               subclass.summary = TRUE, which.subclass = .all)
+
+  p <- love.plot(b, stats = "mean.diffs")
+  expect_s3_class(p, "love.plot")
+  built(p)
+})
+
+test_that("var.names renames interaction terms", {
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, weights = w_fixed,
+               s.d.denom = "pooled", un = TRUE, binary = "std", int = TRUE)
+
+  old <- rownames(b$Balance)
+  nm <- setNames(paste0("V", seq_along(old)), old)
+  built(love.plot(b, stats = "mean.diffs", var.names = nm))
+
+  #Renaming only the base variables still labels the interaction rows.
+  built(love.plot(b, stats = "mean.diffs",
+                  var.names = c(age = "Age", educ = "Education")))
+})
+
+test_that("colors, shapes, size, and alpha are validated", {
+  b <- b_ref()
+
+  #A single color is recycled across the sample types.
+  built(love.plot(b, stats = "mean.diffs", colors = "red"))
+
+  expect_wrn(love.plot(b, stats = "mean.diffs", colors = c("red", "blue", "green")),
+             "colors")
+  expect_wrn(love.plot(b, stats = "mean.diffs", colors = c("notacolor", "blue")),
+             "color")
+  expect_wrn(love.plot(b, stats = "mean.diffs", shapes = c(1, 2, 3)), "shape")
+  expect_wrn(love.plot(b, stats = "mean.diffs", size = "big"), "size")
+  expect_wrn(love.plot(b, stats = "mean.diffs", alpha = 5), "alpha")
+
+  #Valid shapes with no colors give an all-black plot.
+  built(love.plot(b, stats = "mean.diffs", shapes = c(16, 17)))
+
+  #A single shape is recycled.
+  built(love.plot(b, stats = "mean.diffs", shapes = 16))
+})
+
+test_that("limits, themes, labels, and position accept their documented forms", {
+  b <- b_ref()
+
+  #A named list of limits is matched to the statistics by name.
+  built_all(love.plot(b, stats = c("mean.diffs", "ks.statistics"),
+                      limits = list(ks.statistics = c(0, 1))))
+  expect_wrn(love.plot(b, stats = "mean.diffs", limits = list(c(0, 1, 2))),
+             "limits")
+
+  #A bare theme, not wrapped in a list.
+  built(love.plot(b, stats = "mean.diffs", themes = ggplot2::theme_bw()))
+  expect_wrn(love.plot(b, stats = "mean.diffs", themes = "notatheme"), "theme")
+
+  #A named list of themes.
+  p <- love.plot(b, stats = c("mean.diffs", "ks.statistics"),
+                 themes = list(ks.statistics = ggplot2::theme_bw()))
+  expect_s3_class(p, "gtable")
+
+  #Character labels, one per statistic.
+  p <- love.plot(b, stats = c("mean.diffs", "ks.statistics"),
+                 labels = c("A", "B"))
+  expect_s3_class(p, "gtable")
+
+  #`position = "none"` drops the legend; a single statistic with use.grid = TRUE
+  #still returns a gtable.
+  built(love.plot(b, stats = "mean.diffs", position = "none"))
+  expect_s3_class(love.plot(b, stats = "mean.diffs", use.grid = TRUE), "love.plot")
+})
+
+test_that("var.order accepts a weight-set name and warns on mismatch", {
+  b <- bal.tab(lalonde[c("age", "educ", "married")], treat = lalonde$treat,
+               weights = list(a = w_fixed, b = sw_fixed), s.d.denom = "pooled",
+               un = TRUE, binary = "std")
+
+  built(love.plot(b, stats = "mean.diffs", var.order = "a"))
+
+  #An ordering taken from a plot of different variables cannot be applied.
+  other <- love.plot(bal.tab(lalonde[c("re74", "re75")], treat = lalonde$treat,
+                             weights = w_fixed, s.d.denom = "pooled", un = TRUE,
+                             binary = "std"),
+                     stats = "mean.diffs")
+  expect_wrn(love.plot(b, stats = "mean.diffs", var.order = other), "var.order")
+})
+
+test_that("deprecated cluster.fun and no.missing are accepted", {
+  b <- b_cluster()
+
+  expect_s3_class(suppressWarnings(
+    love.plot(b, stats = "mean.diffs", cluster.fun = "mean", which.cluster = .none)),
+    "love.plot")
+  expect_s3_class(suppressWarnings(
+    love.plot(b, stats = "mean.diffs", no.missing = FALSE)), "love.plot")
 })

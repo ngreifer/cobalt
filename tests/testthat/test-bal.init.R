@@ -248,3 +248,97 @@ test_that("bal.compute() validates weights against the init object", {
   expect_err(bal.compute(init, weights = w_fixed[-1L]),
              "must have the same number of units")
 })
+
+# ---------------------------------------------------------------------------
+# The remaining `...` options, and the `init = NULL` fallback that every entry of
+# the statistic registry carries.
+
+test_that("each statistic's function builds its own init when not given one", {
+  #`bal.init()` always constructs the init and stores the computing function on
+  #the object, so `bal.compute()` never exercises the fallback inside each
+  #registry entry. Calling it directly must give the same answer.
+  x <- covs_num()
+
+  treats <- list(binary = t_bin(), multinomial = t_multi(), continuous = t_cont(),
+                 target = NULL)
+
+  for (tt in names(treats)) {
+    treat <- treats[[tt]]
+
+    for (s in available.stats(tt)) {
+      init <- bal.init(x, treat = treat, stat = s)
+      fun <- attr(init, "fun")
+
+      #`l1.med` bins the covariates at random, so both calls need the same seed
+      #for their results to be comparable at all.
+      set.seed(11L)
+      via_init <- fun(init = init, weights = NULL)
+
+      #Without it, so the entry builds its own.
+      set.seed(11L)
+      built <- fun(covs = x, treat = treat, weights = NULL)
+
+      expect_equal(built, via_init,
+                   info = sprintf("%s / %s", tt, s))
+    }
+  }
+})
+
+test_that("s.weights are honoured by every statistic, not just smd", {
+  x <- covs_num()
+
+  for (s in c("ks.max", "ovl.mean", "energy.dist", "mahalanobis", "r2.2")) {
+    plain <- bal.compute(x, treat = t_bin(), stat = s)
+    weighted <- bal.compute(x, treat = t_bin(), stat = s, s.weights = sw_fixed)
+    expect_true(is.finite(weighted), label = s)
+    expect_false(isTRUE(all.equal(plain, weighted)), label = s)
+  }
+
+  for (s in c("p.mean", "s.max", "distance.cov")) {
+    expect_true(is.finite(bal.compute(x, treat = t_cont(), stat = s,
+                                      s.weights = sw_fixed)), label = s)
+  }
+})
+
+test_that("focal applies to binary treatments and estimand to energy.dist", {
+  x <- covs_num()
+
+  #`focal` with a binary treatment names the group to compare against.
+  for (f in as.character(unique(lalonde$treat))) {
+    expect_true(is.finite(bal.compute(bal.init(x, treat = t_bin(),
+                                              stat = "smd.mean",
+                                              estimand = "ATT", focal = f))),
+                label = f)
+  }
+
+  for (e in c("ATE", "ATT", "ATC")) {
+    expect_true(is.finite(bal.compute(bal.init(x, treat = t_bin(),
+                                              stat = "energy.dist",
+                                              estimand = e))), label = e)
+  }
+})
+
+test_that("distance.cov honours std and matches distance.cor", {
+  x <- covs_num()
+
+  raw <- bal.compute(bal.init(x, treat = t_cont(), stat = "distance.cov",
+                              std = FALSE))
+  std <- bal.compute(bal.init(x, treat = t_cont(), stat = "distance.cov",
+                              std = TRUE))
+  expect_true(is.finite(raw))
+  expect_true(is.finite(std))
+  expect_false(isTRUE(all.equal(raw, std)))
+
+  #`distance.cor` is the standardized version.
+  expect_equal(bal.compute(x, treat = t_cont(), stat = "distance.cor"), std)
+})
+
+test_that("l1.med accepts its remaining options", {
+  x <- covs_num()
+
+  expect_true(is.finite(bal.compute(bal.init(x, treat = t_bin(), stat = "l1.med",
+                                            l1.n = 5))))
+  #`.covs` overrides which covariates the binning uses.
+  expect_true(is.finite(bal.compute(bal.init(x, treat = t_bin(), stat = "l1.med",
+                                            .covs = x[1L]))))
+})
