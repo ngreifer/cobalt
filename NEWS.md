@@ -11,6 +11,8 @@
 
 * Fixed a bug in `bal.compute()` and `bal.init()` in which the Spearman correlation statistics (`stat = "s.mean"`, `"s.max"`, or `"s.rms"`) failed for all inputs.
 
+* Fixed a bug in `col_w_smd()`, `col_w_cov()`, `col_w_corr()`, `col_w_dcov()`, and `col_w_dcorr()` in which `s.weights` were applied twice to the standardization factor when `s.d.denom = "weighted"` and `weighted.weights` was left at its default. This made the resulting standardized statistics disagree with the corresponding values from `bal.tab()`, which were correct. Supplying `weighted.weights` explicitly was unaffected, as was the case where `s.weights` were absent.
+
 * Fixed a bug in `col_w_dcov()` and `col_w_dcorr()` in which supplying a `mat` with more than one column failed unless `std` was given a value for each column.
 
 * Fixed a bug in `col_w_ovl()` in which the `steps` argument was ignored. `steps` is now also validated when `integrate = TRUE`, since it is used if `integrate()` fails and the Riemann sum is used as a fallback.

@@ -193,12 +193,17 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     arg::err("{.arg treat} must be a binary variable")
   }
   
+  #`weighted.weights` defaults to `weights`, so force its promise before `weights`
+  #is combined with `s.weights`; otherwise it resolves to the product and
+  #`.compute_s.d.denom()` applies `s.weights` to the denominator a second time.
+  force(weighted.weights)
+
   weights <- weights * s.weights
-  
+
   if (length(std) == 1L) {
     std <- rep.int(std, NCOL(mat))
   }
-  
+
   tval1_0 <- treat[1L]
   
   if (all(weights[treat == tval1_0] == 0) || 
@@ -555,13 +560,18 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
   
+  #`weighted.weights` defaults to `weights`, so force its promise before `weights`
+  #is combined with `s.weights` below; otherwise it resolves to the product and
+  #`.compute_s.d.denom()` applies `s.weights` to the denominator a second time.
+  force(weighted.weights)
+
   arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
-  
+
   if (length(std) == 1L) {
     std <- rep.int(std, NCOL(mat))
   }
-  
+
   type <- arg::match_arg(type, c("pearson", "spearman"))
   
   if (type == "spearman") {
@@ -644,9 +654,14 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
 
   arg::arg_numeric(weights)
   arg::arg_numeric(s.weights)
-  
+
+  #`weighted.weights` defaults to `weights`, so force its promise before `weights`
+  #is combined with `s.weights` below; otherwise it resolves to the product and the
+  #`"weighted"` denominator applies `s.weights` a second time.
+  force(weighted.weights)
+
   s.weights <- s.weights / sum(s.weights)
-  
+
   arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
