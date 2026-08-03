@@ -207,8 +207,113 @@ test_that("splictfactor() and unsplitfactor() work", {
 })
 
 # ---------------------------------------------------------------------------
-# The block above uses a fixture with no NAs, always more than one column, never
-# a bare factor, and never `split.with`, `check`, or `replace` in
+# The block above checks the *names* of the columns produced, and round-trips with
+# `ignore_attr = TRUE`. The two blocks immediately below check the column contents
+# and the attributes, which is where a refactor of the splitting loop would go
+# wrong without changing a single name.
+
+sf_fixture <- function() {
+  set.seed(123)
+  n <- 100
+
+  data.frame(x1 = factor(sample(c("A", "B"), n, TRUE)),
+             x2 = factor(sample(c("A", "B", "C"), n, TRUE)),
+             x3 = rbinom(n, 1, .5),
+             x4a = factor(rep("A", n), levels = c("A")),
+             x4b = factor(rep("A", n), levels = c("A", "B")),
+             x5 = factor(sample(c("A", "B", "C", "D"), n, TRUE)))
+}
+
+test_that("splitfactor() produces correct dummy values, not just correct names", {
+  d <- sf_fixture()
+
+  s <- splitfactor(d, drop.first = FALSE)
+
+  #Each dummy is the indicator for its own level, as an integer. `as.vector()`
+  #strips the provenance attributes, which are checked separately below.
+  for (v in c("x1", "x2", "x5")) {
+    for (lev in levels(d[[v]])) {
+      nm <- paste0(v, "_", lev)
+
+      expect_identical(as.vector(s[[nm]]), as.integer(d[[v]] == lev), info = nm)
+    }
+  }
+
+  #A factor's dummies partition the rows: exactly one is 1 in every row.
+  for (v in c("x1", "x2", "x4a", "x4b", "x5")) {
+    dummies <- s[startsWith(names(s), paste0(v, "_"))]
+
+    expect_true(all(rowSums(dummies) == 1), info = v)
+  }
+
+  #A level with no observations gets no column at all, so the split is driven by
+  #the data rather than by `levels()`.
+  expect_false("x4b_B" %in% names(s))
+  expect_identical(as.vector(s[["x4b_A"]]), rep(1L, nrow(d)))
+
+  #Non-factor columns pass through untouched -- same values, same type, no
+  #`split.var`/`level` attributes bolted on.
+  expect_identical(s[["x3"]], d[["x3"]])
+  expect_null(attr(s[["x3"]], "split.var"))
+
+  #Each dummy carries the provenance attributes `unsplitfactor()` reads back.
+  expect_identical(attr(s[["x2_B"]], "split.var"), "x2")
+  expect_identical(attr(s[["x2_B"]], "level"), "B")
+
+  #Dropping a level removes only that column; the rest are unchanged.
+  s_drop <- splitfactor(d, drop.first = TRUE)
+
+  expect_false("x2_A" %in% names(s_drop))
+  expect_identical(s_drop[["x2_B"]], s[["x2_B"]])
+  expect_identical(s_drop[["x2_C"]], s[["x2_C"]])
+
+  #`sep` changes the name and nothing else.
+  s_sep <- splitfactor(d, "x2", sep = "|", drop.first = FALSE)
+
+  expect_identical(as.vector(s_sep[["x2|B"]]), as.vector(s[["x2_B"]]))
+
+  #`replace = FALSE` keeps the original column intact alongside the dummies.
+  s_keep <- splitfactor(d, "x2", replace = FALSE, drop.first = FALSE)
+
+  expect_identical(s_keep[["x2"]], d[["x2"]])
+  expect_identical(s_keep[["x2_B"]], s[["x2_B"]])
+})
+
+test_that("unsplitfactor() restores factors exactly, including level order", {
+  d <- sf_fixture()
+
+  #`x2` has all its levels observed, so the round trip is exact -- levels, order,
+  #and class. The block above only checks this with `ignore_attr = TRUE`, which
+  #would not notice levels coming back in a different order.
+  s <- splitfactor(d, drop.first = FALSE)
+  u <- unsplitfactor(s)
+
+  for (v in c("x1", "x2", "x5")) {
+    expect_identical(u[[v]], d[[v]], info = v)
+  }
+
+  #Column order and position are restored too.
+  expect_identical(names(u), names(d))
+
+  #`x4b`'s unused level cannot be recovered: nothing in the split frame records
+  #that "B" was ever a possibility, so it comes back with only the observed level.
+  expect_identical(levels(u[["x4b"]]), "A")
+  expect_identical(levels(d[["x4b"]]), c("A", "B"))
+
+  #Round-tripping is idempotent from the second pass on, whatever `drop.first`
+  #dropped, given the information needed to put it back.
+  for (df in list(TRUE, FALSE, "if2")) {
+    s2 <- splitfactor(d, drop.first = df)
+    u2 <- unsplitfactor(s2, dropped.level = "A")
+
+    expect_identical(unsplitfactor(splitfactor(u2, drop.first = FALSE)), u2,
+                     info = paste("drop.first =", df))
+  }
+})
+
+# ---------------------------------------------------------------------------
+# The original block also uses a fixture with no NAs, always more than one column,
+# never a bare factor, and never `split.with`, `check`, or `replace` in
 # `unsplitfactor()`. The blocks below cover those.
 
 #A factor with genuine NAs, plus a non-factor column to check positioning.
