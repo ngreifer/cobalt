@@ -35,6 +35,28 @@
 
 * `col_w_mean()` and `col_w_sd()` now reject an array with more than two dimensions rather than silently collapsing it into a single column, consistent with the other `col_w_*()` functions.
 
+* Fixed several bugs in the display arguments of `print()` for `bal.tab` objects:
+
+  * `disp` was ignored, and produced a spurious warning, whenever the requested quantities had in fact been computed. The subclass method was unaffected.
+  
+  * `disp.means`, `disp.sds`, and the per-statistic `disp.<stat>` arguments could only turn a column on, never off. Setting `disp.ks = FALSE`, for example, displayed the KS statistics rather than hiding them.
+  
+  * Supplying `disp.thresholds` with a name that is not among the object's thresholds warned and then failed with an error about attribute lengths.
+  
+  * A `which.subclass` containing no valid subclass index warned and then failed rather than displaying no subclasses.
+
+* Fixed a bug in which a `bal.tab` object with subclasses and `quick = FALSE` could not be printed at all, failing with "undefined columns selected". The columns of the across-subclass table are now selected by name rather than by position, which cannot fall out of step with the table's width.
+
+* Fixed a bug in which the sample sizes for longitudinal treatments never collapsed the "All (ESS)" and "All (Unweighted)" rows when the two agreed, though the corresponding "Matched" rows did.
+
+* Fixed a bug in which `bal.plot()` failed for a longitudinal treatment combined with `cluster`, and in the ordering of facets when neither `which` nor `imp` is displayed.
+
+* Fixed bugs in `unsplitfactor()`:
+
+  * A dropped numeric level was not inferred for a `data.frame` that did not come from `splitfactor()` (e.g. one built with `model.matrix()`), because the level was extracted one character too early and so never parsed as a number.
+  
+  * `dropped.na` could not be given as the name of the column holding the missingness indicator, as documented; it was rejected as a non-logical value.
+
 * Improvements to condition messages.
 
 * The documentation for `integrate` in `bal.compute()` now correctly states that the default is `TRUE`; the documented default had been `FALSE` since the default changed in 4.6.0. The documentation for `steps` in `col_w_ovl()` now notes that it is also used when `integrate()` fails.
