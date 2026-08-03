@@ -952,19 +952,34 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
     }
     else if (length(facet) >= 2L) {
+      #Decide which dimensions go on the rows and which on the columns, then build
+      #`rows ~ cols` for facet_grid(). Either side may hold more than one
+      #dimension, in which case it is written as a sum (e.g. `time + cluster ~
+      #which`). `reformulate()` cannot be used here: its `response` must be a
+      #single name, so it fails as soon as two dimensions share the rows.
       if ("which" %in% facet) {
-        facet.formula <- reformulate("which", setdiff(facet, "which"))
+        facet.rows <- setdiff(facet, "which")
+        facet.cols <- "which"
       }
       else if ("imp" %in% facet) {
-        facet.formula <- reformulate(setdiff(facet, "imp"), "imp")
+        facet.rows <- "imp"
+        facet.cols <- setdiff(facet, "imp")
       }
       else {
+        #Put the dimension with the fewest levels on the columns, ties broken by
+        #name, so that wide facets do not run off the page.
         facets <- data.frame(facet = facet,
                              length = vapply(facet, function(x) nlevels(D[[x]]), numeric(1L)),
                              stringsAsFactors = FALSE)
-        facets <- facets[order(facet$length, facet$facet, decreasing = c(FALSE, TRUE)), ]
-        facet.formula <- formula(facets)
+        facets <- facets[order(facets$length, facets$facet,
+                               decreasing = c(FALSE, TRUE), method = "radix"), ]
+        facet.cols <- facets$facet[1L]
+        facet.rows <- facets$facet[-1L]
       }
+
+      facet.formula <- stats::as.formula(paste(paste(facet.rows, collapse = " + "),
+                                               "~",
+                                               paste(facet.cols, collapse = " + ")))
     }
     else {
       facet.formula <- reformulate(facet, ".")

@@ -401,10 +401,20 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
       dropped.na <- FALSE
     }
     
-    arg::arg_flag(dropped.na)
-    if (!dropped.na) {
+    #`dropped.na` may also name the column holding the NA indicator, as documented
+    #and as the `else dropped.na` branch below assumes; only validate it as a flag
+    #when it is not a string.
+    if (!rlang::is_string(dropped.na)) {
+      arg::arg_flag(dropped.na)
+    }
+
+    if (!isTRUE(dropped.na)) {
       NA.column <- {
-        if (v.is.split)
+        #Only use the attribute-marked dummy when there actually is one; otherwise
+        #fall back to the name, so that a column named by `dropped.na` but absent
+        #from the data reaches the error below rather than producing an empty
+        #`NA.column`.
+        if (v.is.split && any(na.dummy))
           names(var.to.combine)[na.dummy]
         else
           paste0(v, sep[v], {if (isFALSE(dropped.na)) "NA" else dropped.na})
@@ -434,7 +444,9 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
         
         k.levels0 <- {
           if (v.is.split) unlist(lapply(var.to.combine, .attr, "level"))
-          else substr(names(var.to.combine), nchar(v_sep), nchar(names(var.to.combine)))
+          #`v_sep` is the stem plus the separator, so the level begins one
+          #character later; cf. the same extraction further down.
+          else substr(names(var.to.combine), 1L + nchar(v_sep), nchar(names(var.to.combine)))
         }
         
         if (can_str2num(k.levels0)) {
