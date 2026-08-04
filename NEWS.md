@@ -9,6 +9,8 @@
 
 * Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
 
+* Fixed inconsistencies in the sample size table in how discarded units are counted. A discarded unit now contributes only to the `Discarded` row, so `Matched`, `Unmatched`, and `Discarded` always sum to `All`; previously, for binary treatments, a discarded unit with a nonzero weight was counted as matched as well as discarded. Relatedly, the effective sample size of a weighted or matched sample now always excludes discarded units and always uses the product of `weights` and `s.weights`; for continuous treatments with more than one set of weights, `s.weights` were previously ignored when `method = "matching"`. These only differ from the previous values when a discarded unit has a nonzero weight, which does not arise for any object `bal.tab()` accepts.
+
 * Fixed a bug in `love.plot()` in which a `bal.tab` object that did not include the default statistic (`"mean.diffs"` for binary and multi-category treatments, `"correlations"` for continuous treatments) could not be plotted at all: `love.plot(bal.tab(..., stats = "ks.statistics"))` failed with an error saying `"mean.diffs"` was not requested. `love.plot()` now falls back to a statistic that was computed. When the default statistic is available it is still used, so plots of objects that include it are unchanged.
 
 * Fixed a bug in `print()` for `bal.tab` objects with subclasses in which supplying both `disp.thresholds` and `disp.call` failed with an uninformative error.

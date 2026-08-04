@@ -3093,9 +3093,9 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
                                       numeric(1L))
           nn["All (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & s.weights > 0),
                                              numeric(1L))
-          nn["Matched (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat == tn, 1L] * s.weights[treat == tn]),
+          nn["Matched (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS((weights[, 1L] * s.weights)[treat == tn & !discarded]),
                                           numeric(1L))
-          nn["Matched (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & weights[, 1L] > 0 & s.weights > 0),
+          nn["Matched (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & weights[, 1L] > 0 & s.weights > 0 & !discarded),
                                                  numeric(1L))
           nn["Unmatched", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & weights[, 1L] == 0 & !discarded),
                                       numeric(1L))
@@ -3112,7 +3112,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
         else if (method == "weighting") {
           nn <- make_df(treat_names(treat), c("Unadjusted", "Adjusted", "Discarded"))
           nn["Unadjusted", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat == tn]), numeric(1L))
-          nn["Adjusted", ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat == tn, 1L] * s.weights[treat == tn]), numeric(1L))
+          nn["Adjusted", ] <- vapply(treat_vals(treat), function(tn) ESS((weights[, 1L] * s.weights)[treat == tn & !discarded]), numeric(1L))
           nn["Discarded", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & discarded), numeric(1L))
           attr(nn, "ss.type") <- c("ss", "ess", "ss")
           
@@ -3126,7 +3126,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
         nn <- make_df(treat_names(treat), c("All", names(weights)))
         nn["All", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat == tn]), numeric(1L))
         for (i in seq_col(weights)) {
-          nn[1L + i, ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat == tn, i] * s.weights[treat == tn]), numeric(1L))
+          nn[1L + i, ] <- vapply(treat_vals(treat), function(tn) ESS((weights[, i] * s.weights)[treat == tn & !discarded]), numeric(1L))
         }
         attr(nn, "ss.type") <- c("ss", rep_with("ess", method))
       }
@@ -3179,7 +3179,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
                                    "Unmatched", "Discarded"))
           nn["All (ESS)", ] <- ESS(s.weights)
           nn["All (Unweighted)", ] <- sum(s.weights > 0)
-          nn["Matched (ESS)", ] <- ESS(weights[, 1L] * s.weights)
+          nn["Matched (ESS)", ] <- ESS((weights[, 1L] * s.weights)[!discarded])
           nn["Matched (Unweighted)", ] <- sum(weights[, 1L] > 0 & s.weights > 0 & !discarded)
           nn["Unmatched", ] <- sum(weights[, 1L] == 0 & !discarded)
           nn["Discarded", ] <- sum(discarded)
@@ -3207,14 +3207,11 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       else {
         nn <- make_df("Total", c("All", names(weights)))
         nn["All", ] <- ESS(s.weights)
-        
+
         for (i in seq_col(weights)) {
-          nn[1L + i, ] <- switch(method[i],
-                                 "matching" = ESS(weights[!discarded, i]),
-                                 "weighting" = ESS(weights[!discarded, i] * s.weights[!discarded]))
-          
+          nn[1L + i, ] <- ESS((weights[, i] * s.weights)[!discarded])
         }
-        
+
         attr(nn, "ss.type") <- c("ss", rep_with("ess", method))
       }
       

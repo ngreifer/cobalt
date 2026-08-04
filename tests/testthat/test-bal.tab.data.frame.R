@@ -390,3 +390,63 @@ test_that("bal.tab() adds `addl` and interaction terms without altering the orig
                unname(col_w_smd(data.frame(x = covs$age * covs$educ), treat = f$treat,
                                 weights = f$w, s.d.denom = "pooled", std = TRUE)))
 })
+test_that("discarded units are counted only in the Discarded row", {
+  f <- btf()
+
+  #A discarded unit with a nonzero weight is the only case in which the sample
+  #size rows can disagree with each other. Real objects give discarded units a
+  #weight of 0, so this has to be built by hand.
+  n <- length(f$treat)
+
+  w <- rep(c(0, 1, 2), length.out = n)
+  disc <- rep(FALSE, n)
+  disc[c(1:5, 300:304)] <- TRUE
+
+  expect_gt(sum(disc & w > 0), 0L)
+
+  ess <- function(x) sum(x)^2 / sum(x^2)
+
+  #Matching: `Matched`, `Unmatched`, and `Discarded` must partition `All`, in the
+  #unweighted count and in the effective sample size. The binary path previously
+  #omitted `!discarded` from `Matched`, so those rows summed to more than `All`.
+  nn_bin <- bal.tab(f$covs, treat = f$treat, s.d.denom = "pooled", weights = w,
+                    s.weights = f$sw, discarded = disc, method = "matching",
+                    un = TRUE)$Observations
+
+  expect_equal(sum(nn_bin["Matched (Unweighted)", ]) + sum(nn_bin["Unmatched", ]) +
+                 sum(nn_bin["Discarded", ]),
+               sum(nn_bin["All (Unweighted)", ]))
+
+  expect_equal(nn_bin["Matched (ESS)", "Treated"],
+               ess((w * f$sw)[f$treat == 1 & !disc]))
+
+  nn_cont <- bal.tab(f$covs[c("age", "educ")], treat = lalonde$re75, weights = w,
+                     s.weights = f$sw, discarded = disc, method = "matching",
+                     un = TRUE)$Observations
+
+  expect_equal(nn_cont["Matched (Unweighted)", "Total"] +
+                 nn_cont["Unmatched", "Total"] +
+                 nn_cont["Discarded", "Total"],
+               nn_cont["All (Unweighted)", "Total"])
+
+  expect_equal(nn_cont["Matched (ESS)", "Total"], ess((w * f$sw)[!disc]))
+
+  #Weighting: the `Adjusted` row excludes discarded units.
+  b_w <- bal.tab(f$covs, treat = f$treat, s.d.denom = "pooled", weights = w,
+                 s.weights = f$sw, discarded = disc, method = "weighting",
+                 un = TRUE)
+
+  expect_equal(b_w$Observations["Adjusted", "Treated"],
+               ess((w * f$sw)[f$treat == 1 & !disc]))
+
+  #Several weight sets: every row uses the product of the two weight vectors and
+  #excludes discarded units, whatever `method` says. The continuous path used to
+  #drop `s.weights` entirely for `method = "matching"`.
+  b_m <- bal.tab(f$covs[c("age", "educ")], treat = lalonde$re75,
+                 weights = list(m = w, g = w), s.weights = f$sw, discarded = disc,
+                 method = c("matching", "weighting"), un = TRUE)
+
+  expect_equal(b_m$Observations["m", "Total"], ess((w * f$sw)[!disc]))
+  expect_equal(b_m$Observations["m", "Total"],
+               b_m$Observations["g", "Total"])
+})
