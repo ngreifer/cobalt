@@ -4,6 +4,28 @@ x2base <- function(x, ...) {
   UseMethod("x2base")
 }
 
+#Reject arguments that do not apply to the input class. `.what` completes the
+#sentence "... not allowed with <.what>" and carries its own cli markup, so it is
+#pasted into the template rather than interpolated -- cli does not re-render markup
+#found inside an interpolated value.
+#
+#The subject is per-argument so the message names the concept the user supplied
+#rather than the internal slot. `...` is forwarded rather than materialized so only
+#the arguments actually checked are forced.
+.reject_args <- function(.args, .what, ...) {
+  for (a in .args) {
+    if (is_null(...get(a))) next
+
+    subject <- switch(a,
+                      "subclass" = "subclasses are",
+                      "match.strata" = "matching strata are",
+                      "s.weights" = "sampling weights are",
+                      sprintf("{.arg %s} is", a))
+
+    arg::err(paste(subject, "not allowed with", .what))
+  }
+}
+
 #' @exportS3Method NULL
 x2base.matchit <- function(x, ...) {
   #Process matchit
@@ -117,18 +139,14 @@ x2base.matchit <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls matchit} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args("subclass", "{.cls matchit} objects", ...)
   subclass <- switch(method,
                      "subclassification" = as.factor(x[["subclass"]]),
                      NULL)
   
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls matchit} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args("match.strata", "{.cls matchit} objects", ...)
   
   #Process weights
   if (is_not_null(x[["weights"]]) && !all_the_same(x[["weights"]])) {
@@ -266,9 +284,7 @@ x2base.ps <- function(x, ...) {
   
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls ps} objects")
-  }
+  .reject_args("focal", "{.cls ps} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -284,15 +300,8 @@ x2base.ps <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls ps} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls ps} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls ps} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, ps.data), 
@@ -403,15 +412,8 @@ x2base.mnps <- function(x, ...) {
   #Process focal
   focal <- x[["treatATT"]]
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls mnps} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls mnps} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls mnps} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, mnps.data), 
@@ -501,21 +503,8 @@ x2base.ps.cont <- function(x, ...) {
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, ps.data))
   
-  #Process focal
-  focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls ps.cont} objects")
-  }
-  
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls ps.cont} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls ps.cont} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "{.cls ps.cont} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, ps.data))
@@ -611,9 +600,7 @@ x2base.Match <- function(x, ...) {
   
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls Match} objects")
-  }
+  .reject_args("focal", "{.cls Match} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -629,15 +616,8 @@ x2base.Match <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls Match} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls Match} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls Match} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
@@ -1019,12 +999,10 @@ x2base.CBPS <- function(x, ...) {
   #Process covs
   covs <- get_covs_from_formula(x[["formula"]], c.data)
   
-  #Get estimand
+  #Process estimand
   estimand <- ...get("estimand")
-  if (is_not_null(estimand)) {
-    arg::err("{.arg estimand} is not allowed with {.cls CBPS} objects")
-  }
-  
+  .reject_args("estimand", "{.cls CBPS} objects", ...)
+
   #Get method
   method <- "weighting"
   
@@ -1037,9 +1015,7 @@ x2base.CBPS <- function(x, ...) {
                                obj.distance.name = "prop.score")
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls CBPS} objects")
-  }
+  .reject_args("focal", "{.cls CBPS} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -1055,15 +1031,8 @@ x2base.CBPS <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls CBPS} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls CBPS} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls CBPS} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, c.data), 
@@ -1159,24 +1128,15 @@ x2base.ebalance <- function(x, ...) {
   
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls ebalance} objects")
-  }
+  .reject_args("focal", "{.cls ebalance} objects", ...)
   
   focal <- switch(toupper(estimand), 
                   "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                   "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
                   NULL)
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls ebalance} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls ebalance} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls ebalance} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
@@ -1269,16 +1229,9 @@ x2base.optmatch <- function(x, ...) {
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, covs))
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls optmatch} objects")
-  }
-  
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls optmatch} objects")
-  }
+  .reject_args(c("subclass", "focal"), "{.cls optmatch} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -1294,10 +1247,8 @@ x2base.optmatch <- function(x, ...) {
     }
   }
   
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls optmatch} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args("match.strata", "{.cls optmatch} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
@@ -1407,10 +1358,8 @@ x2base.cem.match <- function(x, ...) {
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, covs))
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls cem.match} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args("subclass", "{.cls cem.match} objects", ...)
   
   #Process focal
   focal <- x[["baseline.group"]]
@@ -1420,10 +1369,8 @@ x2base.cem.match <- function(x, ...) {
     attr(treat, "treat.type") <- "multinomial"
   }
   
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls cem.match} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args("match.strata", "{.cls cem.match} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
@@ -1527,15 +1474,8 @@ x2base.weightit <- function(x, ...) {
     attr(treat, "treat.type") <- "multinomial"
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls weightit} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls weightit} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls weightit} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, weightit.data))
@@ -1634,9 +1574,7 @@ x2base.designmatch <- function(x, ...) {
   
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.pkg designmatch} objects")
-  }
+  .reject_args("focal", "{.pkg designmatch} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -1652,15 +1590,8 @@ x2base.designmatch <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.pkg designmatch} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.pkg designmatch} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.pkg designmatch} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
@@ -1768,9 +1699,7 @@ x2base.mimids <- function(x, ...) {
   
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls mimids} objects")
-  }
+  .reject_args("focal", "{.cls mimids} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -1786,15 +1715,8 @@ x2base.mimids <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls mimids} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls mimids} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls mimids} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, m.data))
@@ -1909,15 +1831,8 @@ x2base.wimids <- function(x, ...) {
     attr(treat, "treat.type") <- "multinomial"
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls wimids} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls wimids} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls wimids} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, w.data))
@@ -2012,9 +1927,7 @@ x2base.sbwcau <- function(x, ...) {
   
   #Process focal
   focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls sbwcau} objects")
-  }
+  .reject_args("focal", "{.cls sbwcau} objects", ...)
   
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
@@ -2030,15 +1943,8 @@ x2base.sbwcau <- function(x, ...) {
     }
   }
   
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls sbwcau} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls sbwcau} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("subclass", "match.strata"), "{.cls sbwcau} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, sbw.data))
@@ -2236,21 +2142,8 @@ x2base.iptw <- function(x, ...) {
                                            else "prop.score"
                                          })
   
-  #Process focal
-  focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls iptw} objects")
-  }
-  
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls iptw} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls iptw} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "{.cls iptw} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat.list[[1L]], covs.list[[1L]],
@@ -2407,21 +2300,8 @@ x2base.data.frame.list <- function(x, ...) {
                                          datalist = list(data),
                                          covs.list = covs.list)
   
-  #Process focal
-  focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with longitudinal treatments")
-  }
-  
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with longitudinal treatments")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with longitudinal treatments")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "longitudinal treatments", ...)
   
   #Process weights
   weights <- ...get("weights")
@@ -2562,31 +2442,16 @@ x2base.CBMSM <- function(x, ...) {
                                          covs.list = covs.list, obj.distance = x[["fitted.values"]],
                                          obj.distance.name = "prop.score")
   
-  #Process focal
-  focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls CBMSM} objects")
-  }
-  
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls CBMSM} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls CBMSM} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "{.cls CBMSM} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat.list[[1L]], covs.list[[1L]], method,
                              addl.data = list(data, cbmsm.data))
   method <- .attr(weights, "method")
   
-  #Process s.weights
-  if (is_not_null(...get("s.weights"))) {
-    arg::err("sampling weights are not allowed with {.cls CBMSM} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args("s.weights", "{.cls CBMSM} objects", ...)
   
   #Process cluster
   cluster <- process_cluster(...get("cluster"), data, cbmsm.data)
@@ -2694,21 +2559,8 @@ x2base.weightitMSM <- function(x, ...) {
                                          covs.list = covs.list, obj.distance = x[["ps.list"]],
                                          obj.distance.name = "prop.score")
   
-  #Process focal
-  focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with {.cls weightitMSM} objects")
-  }
-  
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with {.cls weightitMSM} objects")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with {.cls weightitMSM} objects")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "{.cls weightitMSM} objects", ...)
   
   #Process weights
   weights <- process_weights(x, list(...), treat.list[[1L]], covs.list[[1L]], method, 
@@ -3417,21 +3269,8 @@ x2base.default <- function(x, ...) {
                                          datalist = list(data, o.data),
                                          covs.list = covs.list)
   
-  #Process focal
-  focal <- ...get("focal")
-  if (is_not_null(focal)) {
-    arg::err("{.arg focal} is not allowed with longitudinal treatments")
-  }
-  
-  #Process subclass
-  if (is_not_null(...get("subclass"))) {
-    arg::err("subclasses are not allowed with longitudinal treatments")
-  }
-  
-  #Process match.strata
-  if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with longitudinal treatments")
-  }
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "longitudinal treatments", ...)
   
   #Process weights
   if ("weights" %in% .using) {
