@@ -677,9 +677,24 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         treat <- process_treat(treat)
       }
       
-      try.estimand <- tryCatch(arg::match_arg(estimand, c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
+      allowable.estimands <- c("ATT", "ATC", "ATE", "ATO", "ATM")
+
+      try.estimand <- tryCatch(arg::match_arg(estimand, allowable.estimands, several.ok = TRUE),
                                error = function(cond) NA_character_)
-      if (anyNA(try.estimand) || any(try.estimand %in% c("ATC", "ATT")) && get.treat.type(treat) != "binary") {
+
+      if (anyNA(try.estimand)) {
+        #An unrecognized `estimand` is ignored rather than fatal, but ignoring it
+        #silently would substitute a different standardization factor without
+        #saying so -- a typo such as {.str ATTT} would read as {.str ATE}.
+        if (!quietly) {
+          arg::wrn("{.arg estimand} should be {.or {.str {allowable.estimands}}}; ignoring it")
+        }
+
+        check.focal <- TRUE
+      }
+      #An ATT or ATC with a non-binary treatment is legitimate; the focal group
+      #determines the denominator instead.
+      else if (any(try.estimand %in% c("ATC", "ATT")) && get.treat.type(treat) != "binary") {
         check.focal <- TRUE
       }
       else {
@@ -1356,11 +1371,16 @@ process_stats_and_thresholds <- function(.treat, ...) {
   }
 
   for (s in all_STATS(type)) {
-    #A `disp.<stat>` flag adds the statistic or removes it.
-    if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
+    #A `disp.<stat>` flag adds the statistic or removes it, falling back to the
+    #corresponding global option as `process_disp()` does for `disp.means` and
+    #`disp.sds`.
+    disp.stat <- ...get(STATS[[s]][["disp_stat"]],
+                        getOption(paste0("cobalt_", STATS[[s]][["disp_stat"]])))
+
+    if (isTRUE(disp.stat)) {
       stats <- unique(c(stats, s))
     }
-    else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
+    else if (isFALSE(disp.stat)) {
       stats <- setdiff(stats, s)
     }
 

@@ -130,9 +130,30 @@ test_that("set.cobalt.options() rejects invalid input", {
   expect_err(set.cobalt.options(binary = "bogus"), "No options will be set")
   expect_err(set.cobalt.options(un = "yes"), "No options will be set")
 
-  #`stats` only accepts "mean.diffs".
-  expect_err(set.cobalt.options(stats = "ks.statistics"), "No options will be set")
-  expect_no_error(set.cobalt.options(stats = "mean.diffs"))
+  #`stats` accepts every statistic in the registry, and the option is honoured.
+  for (s in cobalt:::all_STATS()) {
+    expect_no_error(set.cobalt.options(stats = s))
+  }
+
+  set.cobalt.options(stats = "ks.statistics")
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
+               s.d.denom = "pooled", un = TRUE)
+  expect_identical(names(b$Balance), c("Type", "KS.Un", "KS.Adj"))
+
+  set.cobalt.options(default = TRUE)
+  expect_err(set.cobalt.options(stats = "nosuchstat"), "No options will be set")
+
+  #The per-statistic display flags are registry-generated and take effect.
+  expect_setequal(grep("^disp\\.", names(cobalt:::acceptable.options()), value = TRUE),
+                  c("disp.means", "disp.sds", "disp.subclass", "disp.bal.tab",
+                    "disp.call", unique(cobalt:::get_from_STATS("disp_stat"))))
+
+  set.cobalt.options(disp.ks = TRUE)
+  b2 <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
+                s.d.denom = "pooled", un = TRUE)
+  expect_true(all(c("Diff.Adj", "KS.Adj") %in% names(b2$Balance)))
+
+  set.cobalt.options(default = TRUE)
 
   #An unrecognized name warns rather than erroring.
   expect_wrn(set.cobalt.options(nosuchoption = TRUE))

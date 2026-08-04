@@ -9,6 +9,12 @@
 
 * Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
 
+* `set.cobalt.options()` now accepts any statistic for `stats`. Previously only `"mean.diffs"` was allowed, even though `getOption("cobalt_stats")` was honoured for all of them, so the option could not be set to anything else.
+
+* The per-statistic display options (`disp.diff`, `disp.v.ratio`, `disp.ks`, `disp.ovl`, `disp.corr`, `disp.spear`, and `disp.dcorr`) now take effect when set with `set.cobalt.options()`. `disp.v.ratio` and `disp.ks` were previously accepted but never read; the rest were rejected. The full set is now generated from the statistic registry, and the vestigial `target.summary` option, which was never read, has been removed.
+
+* `bal.tab()` now warns when `estimand` is not one of `"ATT"`, `"ATC"`, `"ATE"`, `"ATO"`, or `"ATM"`. Previously an unrecognized value was silently ignored, so a typo such as `estimand = "ATTT"` quietly produced the pooled standardization factor used for the ATE. The value is still ignored rather than treated as an error, and supplying `"ATT"` or `"ATC"` with a multi-category treatment remains silent, since the focal group determines the denominator in that case.
+
 * Fixed a bug in which supplying `imp` as the name of a variable in `data` failed for `ps` objects, though it worked for every other supported input.
 
 * Fixed a bug in which `treatATT`, a documented alias for `focal` in `bal.tab()`'s default method, was silently ignored.

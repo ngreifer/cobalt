@@ -276,3 +276,41 @@ test_that("`s.d.denom` is irrelevant to statistics that do not standardize", {
     expect_equal(b_std$Balance$Diff.Adj[!binary_rows],
                  b_p$Balance$Diff.Adj[!binary_rows])
 })
+
+test_that("an unrecognized `estimand` warns instead of silently becoming ATE", {
+    fx <- sdd_fixture()
+
+    #`estimand` picks the standardization factor, so a typo previously changed the
+    #numbers with no indication: "ATTT" produced the same table as "ATE".
+    expect_wrn(bal.tab(fx$covs, treat = fx$treat, estimand = "ATTT"),
+               '`estimand` should be "ATT", "ATC", "ATE", "ATO", or "ATM"')
+    expect_wrn(bal.tab(fx$covs, treat = fx$treat, estimand = "nope"), "ignoring it")
+
+    #The value is still ignored rather than fatal, and the fallback is unchanged.
+    expect_equal(suppressWarnings(suppressMessages(
+        bal.tab(fx$covs, treat = fx$treat, estimand = "nope")))$Balance,
+        suppressMessages(bal.tab(fx$covs, treat = fx$treat))$Balance)
+
+    #Recognized values, including abbreviations, stay silent.
+    for (e in c("ATT", "att", "ATC", "ATE", "ATO", "ATM")) {
+        expect_no_warning(suppressMessages(
+            bal.tab(fx$covs, treat = fx$treat, estimand = e)))
+    }
+
+    #An ATT or ATC with a multi-category treatment is legitimate -- the focal group
+    #supplies the denominator -- and must not warn.
+    covs_m <- fx$covs[setdiff(fx$cov_names, "race")]
+
+    expect_no_warning(suppressMessages(
+        bal.tab(covs_m, treat = lalonde$race, estimand = "ATT", focal = "white")))
+    expect_no_warning(suppressMessages(
+        bal.tab(covs_m, treat = lalonde$race, estimand = "ATT")))
+
+    #An explicit `s.d.denom` short-circuits the estimand entirely.
+    expect_no_warning(
+        bal.tab(fx$covs, treat = fx$treat, estimand = "nope", s.d.denom = "pooled"))
+
+    #`col_w_smd()` and friends pass `quietly = TRUE` and must stay silent.
+    expect_no_warning(col_w_smd(fx$covs[c("age", "educ")], treat = fx$treat,
+                                s.d.denom = "pooled", std = TRUE))
+})

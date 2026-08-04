@@ -161,17 +161,25 @@ get.cobalt.options <- function(...) {
 #set.cobalt.options
 acceptable.options <- function() {
   TF <- c(TRUE, FALSE)
-  list(stats = c("mean.diffs"),
-       un = TF,
-       continuous = c("raw", "std"),
-       binary = c("raw", "std"),
-       imbalanced.only = TF,
-       disp = c("means", "sds"),
-       disp.means = TF,
-       disp.sds = TF,
-       disp.v.ratio = TF,
-       disp.ks = TF,
-       disp.subclass = TF,
+
+  #The per-statistic display flags are named in the `STATS` registry, so listing
+  #them here from it keeps the two in step as statistics are added. The names are
+  #deduplicated because each `*.target` statistic shares its flag with the
+  #statistic it targets.
+  disp_stat_names <- unique(get_from_STATS("disp_stat"))
+  disp_stats <- setNames(rep.int(list(TF), length(disp_stat_names)),
+                         disp_stat_names)
+
+  c(list(stats = all_STATS(),
+         un = TF,
+         continuous = c("raw", "std"),
+         binary = c("raw", "std"),
+         imbalanced.only = TF,
+         disp = c("means", "sds"),
+         disp.means = TF,
+         disp.sds = TF),
+    disp_stats,
+    list(disp.subclass = TF,
        disp.bal.tab = TF,
        cluster.summary = TF,
        cluster.fun = c("min", "mean", "max"),
@@ -179,12 +187,11 @@ acceptable.options <- function() {
        imp.fun = c("min", "mean", "max"),
        multi.summary = TF,
        msm.summary = TF,
-       target.summary = TF,
        subclass.summary = TF,
        int_sep = " * ",
        factor_sep = "_",
        center = TF,
        orth = TF,
        remove_perfect_col = TF,
-       disp.call = TF)
+       disp.call = TF))
 }
