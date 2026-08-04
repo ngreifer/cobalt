@@ -225,6 +225,17 @@ golden_grid <- function() {
     bal.tab(as.matrix(splitfactor(covs, drop.first = FALSE)), treat = treat,
             s.d.denom = "pooled", weights = w, un = TRUE)
   }
+  #`treat` and `cluster` named as strings rather than passed as vectors. These take
+  #a different resolution path, and `treat` in particular is a name that also
+  #appears in `...` the whole way down the call chain.
+  g$treat_as_string <- function() {
+    bal.tab(covs, treat = "treat", data = lalonde, s.d.denom = "pooled",
+            weights = w, un = TRUE, stats = c("m", "ks"), thresholds = c(m = .1))
+  }
+  g$cluster_as_string <- function() {
+    bal.tab(reformulate(names(covs_nr), "treat"), data = lalonde,
+            s.d.denom = "pooled", weights = w, cluster = "race", un = TRUE)
+  }
 
   ## ---- continuous treatment ------------------------------------------------
 

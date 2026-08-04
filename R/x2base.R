@@ -156,48 +156,10 @@ x2base.matchit <- function(x, ...) {
                      original.call.to = "{.fun matchit}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -356,46 +318,10 @@ x2base.ps <- function(x, ...) {
                      original.call.to = "{.fun ps}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -511,46 +437,10 @@ x2base.mnps <- function(x, ...) {
                      original.call.to = "{.fun mnps}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -650,46 +540,10 @@ x2base.ps.cont <- function(x, ...) {
                      original.call.to = "{.fun ps.cont}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -811,47 +665,10 @@ x2base.Match <- function(x, ...) {
                      original.call.to = "{.fun Match}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -1149,48 +966,10 @@ x2base.data.frame <- function(x, ...) {
                      imp = imp)
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -1313,48 +1092,10 @@ x2base.CBPS <- function(x, ...) {
                      original.call.to = "{.fun CBPS}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -1459,46 +1200,10 @@ x2base.ebalance <- function(x, ...) {
                      original.call.to = "{.fun ebalance}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -1616,49 +1321,10 @@ x2base.optmatch <- function(x, ...) {
                      original.call.to = sprintf("{.fun %s}", deparse1(.attr(x, "call")[[1L]])))
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -1781,48 +1447,10 @@ x2base.cem.match <- function(x, ...) {
                      original.call.to = "{.fun cem}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -1933,48 +1561,10 @@ x2base.weightit <- function(x, ...) {
                      original.call.to = "{.fun weightit}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -2094,48 +1684,10 @@ x2base.designmatch <- function(x, ...) {
                      original.call.to = "the matching function in {.pkg designmatch}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -2268,48 +1820,10 @@ x2base.mimids <- function(x, ...) {
                      original.call.to = "{.fun matchthem}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -2429,48 +1943,10 @@ x2base.wimids <- function(x, ...) {
                      original.call.to = "{.fun weightthem}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -2586,48 +2062,10 @@ x2base.sbwcau <- function(x, ...) {
                      original.call.to = "{.fun sbw}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -2841,48 +2279,10 @@ x2base.iptw <- function(x, ...) {
                      original.call.to = "{.fun iptw}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat.list)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat.list)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat.list, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
@@ -3050,48 +2450,10 @@ x2base.data.frame.list <- function(x, ...) {
                      imp = imp)
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat.list)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat.list)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat.list, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
@@ -3243,48 +2605,10 @@ x2base.CBMSM <- function(x, ...) {
                      original.call.to = "{.fun CBMSM}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat.list)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat.list)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat.list, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
@@ -3412,48 +2736,10 @@ x2base.weightitMSM <- function(x, ...) {
                      original.call.to = "{.fun weightitMSM}")
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat.list)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat.list)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat.list, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
@@ -3950,48 +3236,10 @@ x2base.default <- function(x, ...) {
                      imp = imp)
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs) || anyNA(addl)) {
@@ -4212,48 +3460,10 @@ x2base.default <- function(x, ...) {
                      imp = imp)
   
   #Process stats and thresholds
-  if (!check_if_call_from_fun(bal.plot)) {
-    stats <- process_stats(...get("stats"), treat = treat.list)
-    type <- .attr(stats, "type")
-    thresholds <- ...get("thresholds", list())
-    
-    if (is_not_null(thresholds)) {
-      thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) {
-        stats <- unique(c(stats, names(thresholds)))
-      }
-    }
-    
-    for (s in all_STATS(type)) {
-      #If disp.stat is TRUE, add stat to stats
-      if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- unique(c(stats, s))
-      }
-      else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
-        stats <- setdiff(stats, s)
-      }
-      
-      #Process and check thresholds
-      if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
-        thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
-      }
-      if (is_not_null(thresholds[[s]])) {
-        thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
-        if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
-          stats <- unique(c(stats, s))
-        }
-        else {
-          thresholds[[s]] <- NULL
-          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
-        }
-      }
-    }
-    
-    stats <- process_stats(stats, treat = treat.list)
-    
-    #Get s.d.denom
-    s.d.denom <- ...get("s.d.denom")
-  }
+  .stats <- process_stats_and_thresholds(treat.list, ...)
+  stats <- .stats[["stats"]]
+  thresholds <- .stats[["thresholds"]]
+  s.d.denom <- .stats[["s.d.denom"]]
   
   #Missing values warning
   if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {

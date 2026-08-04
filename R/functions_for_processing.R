@@ -1319,8 +1319,72 @@ process_thresholds <- function(thresholds, stats) {
   }
   
   thresholds[names(thresholds)] <- as.numeric(thresholds)
-  
+
   as.list(na.rem(thresholds))
+}
+#Resolve `stats`, `thresholds`, and `s.d.denom` from the arguments `bal.tab()`
+#forwards to `x2base()`. Each `x2base` method calls this once, passing its own
+#`treat` (or `treat.list`) and `...`.
+#
+#`...` is forwarded rather than `list(...)` so that only the elements actually
+#looked up are forced, matching the inline code this replaces. The legacy
+#per-statistic arguments -- `disp.<stat>` and `<stat>.threshold`, named in the
+#`STATS` registry -- are among them, which is why they are read through `...get()`
+#rather than declared.
+#
+#`bal.plot()` also goes through `x2base()` but needs no balance statistics, so it
+#gets an empty list back and all three slots stay `NULL`.
+#
+#The first formal is `.treat`, not `treat`: `...` carries the user's own `treat`
+#argument, and a named element of `...` matches a formal of the same name even when
+#the caller supplied that formal positionally -- so a formal named `treat` would be
+#handed the unprocessed argument (a column name, say) instead of the processed
+#treatment vector.
+process_stats_and_thresholds <- function(.treat, ...) {
+  if (check_if_call_from_fun(bal.plot)) {
+    return(list())
+  }
+
+  stats <- process_stats(...get("stats"), treat = .treat)
+  type <- .attr(stats, "type")
+
+  thresholds <- ...get("thresholds", list())
+
+  if (is_not_null(thresholds)) {
+    thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
+    stats <- unique(c(stats, names(thresholds)))
+  }
+
+  for (s in all_STATS(type)) {
+    #A `disp.<stat>` flag adds the statistic or removes it.
+    if (isTRUE(...get(STATS[[s]][["disp_stat"]]))) {
+      stats <- unique(c(stats, s))
+    }
+    else if (isFALSE(...get(STATS[[s]][["disp_stat"]]))) {
+      stats <- setdiff(stats, s)
+    }
+
+    #A `<stat>.threshold` overrides `thresholds` and implies the statistic.
+    if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
+      thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
+    }
+
+    if (is_not_null(thresholds[[s]])) {
+      thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
+
+      if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
+        stats <- unique(c(stats, s))
+      }
+      else {
+        thresholds[[s]] <- NULL
+        arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
+      }
+    }
+  }
+
+  list(stats = process_stats(stats, treat = .treat),
+       thresholds = thresholds,
+       s.d.denom = ...get("s.d.denom"))
 }
 process_subset <- function(subset = NULL, n) {
   if (is_null(subset)) {
