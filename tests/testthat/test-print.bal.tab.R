@@ -442,6 +442,15 @@ test_that("the subclass print method honours stats, disp.call, and disp.threshol
   #`disp.call` warns when the object carries no call.
   expect_wrn(print(b, disp.call = TRUE), "does not have a call")
 
+  #`disp.thresholds` and `disp.call` together used to abort: the loop over
+  #`names(disp.thresholds)` overwrote `x`, and `disp.call` then read `x$call` off
+  #a character vector. Either argument alone was fine, which is why the two tests
+  #above did not catch it.
+  expect_wrn(out2 <- printed(b, disp.thresholds = c(m = FALSE), disp.call = TRUE),
+             "does not have a call")
+  expect_false(grepl("M.Threshold", out2, fixed = TRUE))
+  expect_match(out2, "Diff.Adj")
+
   #`disp` selects the mean columns on the subclass path too.
   expect_match(printed(b, disp = "means"), "M.0.Adj")
 

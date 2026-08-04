@@ -9,6 +9,8 @@
 
 * Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
 
+* Fixed a bug in `print()` for `bal.tab` objects with subclasses in which supplying both `disp.thresholds` and `disp.call` failed with an uninformative error.
+
 * Fixed a bug in the per-subclass balance tables in which every statistic was compared to its threshold using its absolute value, even when the statistic defines a different one. This affected variance ratios, which are compared using `pmax(x, 1/x)`: a ratio below 1 whose reciprocal exceeded the threshold was labelled as balanced. The across-subclass summary table was already correct.
 
 * Fixed a bug in `bal.compute()` and `bal.init()` in which `stat = "r2"` failed for all inputs. The same underlying problem affected `bal.tab()` when `int = TRUE` was supplied with a single covariate or when `poly` was greater than 1 and all covariates were binary.

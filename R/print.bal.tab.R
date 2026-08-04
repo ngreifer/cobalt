@@ -1360,7 +1360,6 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   for (s in all_STATS(p.ops$type)) {
     if (is_not_null(...get(STATS[[s]]$disp_stat))) {
       arg::arg_flag(...get(STATS[[s]]$disp_stat), STATS[[s]]$disp_stat)
-      
       #Branch on the flag first: `disp.<stat> = FALSE` must remove the statistic
       #from `disp`, not add it. Previously the `else` ran whenever the flag was
       #FALSE, so `disp.ks = FALSE` turned the KS column on.
@@ -1379,7 +1378,6 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   for (s in p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)]) {
     if (STATS[[s]]$threshold %in% ...names()) {
       temp.thresh <- ...get(STATS[[s]]$threshold)
-      
       if (is_not_null(temp.thresh) &&
           (!is.numeric(temp.thresh) || length(temp.thresh) != 1L ||
            is_null(p.ops[["thresholds"]][[s]]) ||
@@ -1414,17 +1412,18 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
     }
     
     if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
-      arg::wrn('{names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]} {?is/are} not available in thresholds and will be ignored')
+      arg::wrn('{.val {names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]}} {?is/are} not available in thresholds and will be ignored')
       disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
     }
-    
-    #As above: the check may have dropped every supplied name, and naming a
-    #zero-length vector is an error.
+
+    #Every supplied name may have been dropped by the check above; assigning names
+    #to a zero-length vector is an error, so only proceed if something is left.
     if (is_not_null(disp.thresholds)) {
       names(disp.thresholds) <- arg::match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
-      for (x in names(disp.thresholds)) {
-        if (!disp.thresholds[x]) {
-          drop.thresholds <- c(drop.thresholds, x)
+
+      for (i in names(disp.thresholds)) {
+        if (!disp.thresholds[i]) {
+          drop.thresholds <- c(drop.thresholds, i)
         }
       }
     }
@@ -1452,7 +1451,6 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   
   if (!missing(disp.call)) {
     arg::arg_flag(disp.call)
-    
     if (disp.call && is_null(x$call)) {
       arg::wrn("{.arg disp.call} cannot be set to {.val {TRUE}} if the input object does not have a {.field call} component")
     }
@@ -1464,7 +1462,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   if (!missing(subclass.summary)) {
     arg::arg_flag(subclass.summary)
     if (p.ops$quick && !p.ops$subclass.summary && subclass.summary) {
-      arg::wrn("`subclass.summary` cannot be set to `TRUE` if `quick = TRUE` in the original call to `bal.tab()`")
+      arg::wrn("{.arg subclass.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
     else {
       p.ops$subclass.summary <- subclass.summary
