@@ -103,6 +103,27 @@ test_that("`subclass`, `match.strata`, and `estimand` aliases are honoured", {
   }
 })
 
+test_that("`focal` accepts its documented `treatATT` alias", {
+  covs <- lalonde[c("age", "educ")]
+
+  #The component names are lowercased before the aliases are matched, so a
+  #mixed-case alias could never match and `treatATT` was silently ignored.
+  ref <- suppressMessages(
+    bal.tab(list(treat = lalonde$race, covs = covs, weights = w_fixed,
+                 focal = "white"))
+  )
+  alias <- suppressMessages(
+    bal.tab(list(treat = lalonde$race, covs = covs, weights = w_fixed,
+                 treatATT = "white"))
+  )
+  none <- suppressMessages(
+    bal.tab(list(treat = lalonde$race, covs = covs, weights = w_fixed))
+  )
+
+  expect_equal(alias, ref)
+  expect_false(isTRUE(all.equal(alias, none)))
+})
+
 test_that("`focal` restricts non-pairwise comparisons for multi-category treatments", {
   covs <- lalonde[c("age", "educ")]
 

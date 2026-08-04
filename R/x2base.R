@@ -188,7 +188,7 @@ x2base.matchit <- function(x, ...) {
         else {
           thresholds[[s]] <- NULL
           
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -253,8 +253,8 @@ x2base.ps <- function(x, ...) {
   }
   
   #Process imp
-  imp <- process_imp(imp, ps.data)
-  
+  imp <- process_imp(imp, data, ps.data)
+
   #Process treat
   treat <- process_treat(x[["treat"]], data, ps.data)
   
@@ -386,7 +386,7 @@ x2base.ps <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -541,7 +541,7 @@ x2base.mnps <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -680,7 +680,7 @@ x2base.ps.cont <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -842,7 +842,7 @@ x2base.Match <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -1181,7 +1181,7 @@ x2base.data.frame <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -1345,7 +1345,7 @@ x2base.CBPS <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -1489,7 +1489,7 @@ x2base.ebalance <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -1649,7 +1649,7 @@ x2base.optmatch <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -1813,7 +1813,7 @@ x2base.cem.match <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -1965,7 +1965,7 @@ x2base.weightit <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -2126,7 +2126,7 @@ x2base.designmatch <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -2300,7 +2300,7 @@ x2base.mimids <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -2461,7 +2461,7 @@ x2base.wimids <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -2618,7 +2618,7 @@ x2base.sbwcau <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -2873,7 +2873,7 @@ x2base.iptw <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -3082,7 +3082,7 @@ x2base.data.frame.list <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -3275,7 +3275,7 @@ x2base.CBMSM <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -3444,7 +3444,7 @@ x2base.weightitMSM <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -3513,7 +3513,9 @@ x2base.default <- function(x, ...) {
                             type = c("character", "numeric", "logical")),
             s.weights = list(name = c("s.weights", "sw", "sweights", "sampw"),
                              type = c("numeric")),
-            focal = list(name = c("focal", "treatATT"), 
+            #`names(x)` is lowercased below before these are matched, so the
+            #aliases must be lowercase too.
+            focal = list(name = c("focal", "treatatt"),
                          type = c("character", "numeric")),
             call = list(name = c("call"),
                         type = c("call")))
@@ -3980,7 +3982,7 @@ x2base.default <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }
@@ -4242,7 +4244,7 @@ x2base.default <- function(x, ...) {
         }
         else {
           thresholds[[s]] <- NULL
-          arg::wrn('{.arg STATS[[s]][["threshold"]]} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg STATS[[s]][["threshold"]]}')
+          arg::wrn('{.arg {STATS[[s]][["threshold"]]}} must be between {STATS[[s]][["threshold_range"]]}; ignoring {.arg {STATS[[s]][["threshold"]]}}')
         }
       }
     }

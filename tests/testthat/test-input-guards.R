@@ -205,3 +205,42 @@ test_that("optweight objects go through the default method", {
   b <- suppressMessages(bal.tab(ow))
   expect_s3_class(b, "bal.tab")
 })
+
+test_that("`imp` may be named as a string for every input class", {
+  #Every method but one resolved a character `imp` against `data`; `x2base.ps()`
+  #passed only the object's own data frame to `process_imp()`, so a string named a
+  #column it could not see.
+  for (nm in c("ps", "matchit", "weightit", "cbps")) {
+    if (!fx_available(nm)) next
+
+    obj <- fx(nm)
+
+    d <- lalonde
+    d$myimp <- imp_idx
+
+    b_str <- suppressMessages(bal.tab(obj, imp = "myimp", data = d))
+    b_vec <- suppressMessages(bal.tab(obj, imp = imp_idx))
+
+    expect_s3_class(b_str, "bal.tab.imp")
+    expect_equal(b_str, b_vec, info = nm)
+  }
+})
+
+test_that("an out-of-range threshold names the argument it is ignoring", {
+  covs <- lalonde[c("age", "educ")]
+
+  #The message interpolated its own source text, reporting
+  #`STATS[[s]][["threshold"]]` rather than `ks.threshold`.
+  expect_wrn(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled",
+                     thresholds = c(ks = 5)),
+             "`ks.threshold` must be between 0 and 1")
+
+  expect_wrn(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled",
+                     stats = "variance.ratios", thresholds = c(v = -3)),
+             "`v.threshold` must be between 1 and Inf")
+
+  #The out-of-range threshold is dropped, not applied.
+  b <- suppressWarnings(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled",
+                                thresholds = c(ks = 5)))
+  expect_false("KS.Threshold" %in% names(b$Balance))
+})
