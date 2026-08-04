@@ -103,20 +103,5 @@ bal.tab.default <- function(x, stats, int = FALSE, poly = 1, distance = NULL,
                             cluster = NULL, imp = NULL, pairwise = TRUE,
                             s.weights = NULL, abs = FALSE, subset = NULL,
                             quick = TRUE, ...) {
-  args <- try_arg(c(as.list(environment()), list(...))[-1L])
-  
-  #Adjustments to arguments
-  args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
-  args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
-  
-  #Initializing variables
-  X <- do.call("x2base.default", c(list(x = x), args),
-               quote = TRUE)
-  
-  args[intersect(names(args), names(X))] <- NULL
-  
-  X <- .assign_X_class(X)
-  
-  do.call("base.bal.tab", c(list(X), args),
-          quote = TRUE)
+  .bal.tab_dispatch(x, "x2base.default")
 }
