@@ -397,6 +397,12 @@ golden_grid <- function() {
   g$obj_matchit_cluster <- function() {
     bal.tab(gfx("matchit"), cluster = cl, un = TRUE, cluster.summary = TRUE)
   }
+  #The `matchit_discard`/`matchit_sub_discard` fixtures are picked up by the loop
+  #above; this adds the subclass-display view of the latter, which is where the
+  #`Discarded` column of the sample size table shows up.
+  g$obj_matchit_sub_discard_disp <- function() {
+    bal.tab(gfx("matchit_sub_discard"), un = TRUE, disp.subclass = TRUE)
+  }
   g$obj_matchit_addl_int <- function() {
     bal.tab(gfx("matchit"), addl = ~ I(age^2), int = TRUE, un = TRUE)
   }

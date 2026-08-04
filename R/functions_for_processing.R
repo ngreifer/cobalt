@@ -3055,7 +3055,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       
       nn[["All"]] <- c(vapply(treat_vals(treat), function(tn) sum(treat == tn), numeric(1L)), length(treat))
       nn[["Discarded"]] <- {
-        if (any(discarded)) c(vapply(treat_vals(treat), function(tn) sum(treat[discarded] == tn), numeric(1L)), length(treat))
+        if (any(discarded)) c(vapply(treat_vals(treat), function(tn) sum(treat[discarded] == tn), numeric(1L)), sum(discarded))
         else NULL
       }
       

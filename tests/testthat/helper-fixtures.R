@@ -63,6 +63,16 @@ cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
       MatchIt::matchit(treat ~ age + educ + race + re74, data = lalonde,
                        caliper = .1)
     }),
+    #`discard` is the only way to populate the `Discarded` row of the sample size
+    #table for matching, and its `Discarded` column for subclassification.
+    matchit_discard = list(pkg = "MatchIt", build = function() {
+      MatchIt::matchit(treat ~ age + educ + re74, data = lalonde,
+                       discard = "both")
+    }),
+    matchit_sub_discard = list(pkg = "MatchIt", build = function() {
+      MatchIt::matchit(treat ~ age + educ + re74, data = lalonde,
+                       method = "subclass", subclass = 4, discard = "both")
+    }),
 
     ## ---- WeightIt -----------------------------------------------------------
     weightit = list(pkg = "WeightIt", build = function() {

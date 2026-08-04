@@ -7,6 +7,8 @@
 
 * `bal.tab()` now supports clustered subclassification, with the subclass tables nested within each cluster, as is already done for multi-category treatments and imputations. Previously, supplying both `subclass` and `cluster` silently ignored `cluster`.
 
+* Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
+
 * Fixed a bug in `bal.compute()` and `bal.init()` in which `stat = "r2"` failed for all inputs. The same underlying problem affected `bal.tab()` when `int = TRUE` was supplied with a single covariate or when `poly` was greater than 1 and all covariates were binary.
 
 * Fixed a bug in `bal.compute()` and `bal.init()` in which the Spearman correlation statistics (`stat = "s.mean"`, `"s.max"`, or `"s.rms"`) failed for all inputs.

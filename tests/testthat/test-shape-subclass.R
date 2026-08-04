@@ -94,6 +94,34 @@ test_that("subclassification from a matchit object is accepted", {
   expect_no_error(capture.output(print(b)))
 })
 
+test_that("the subclass sample-size table counts discarded units correctly", {
+  skip_if_not_installed("MatchIt")
+
+  m <- MatchIt::matchit(treat ~ age + educ + re74, data = lalonde,
+                        method = "subclass", subclass = 4, discard = "both")
+
+  nn <- bal.tab(m)$Observations
+
+  expect_true("Discarded" %in% colnames(nn))
+
+  #Every column's Total is the sum of its treatment-group rows. The `Discarded`
+  #column previously reported `length(treat)` here instead of `sum(discarded)`.
+  groups <- setdiff(rownames(nn), "Total")
+
+  for (col in colnames(nn)) {
+    expect_equal(nn["Total", col], sum(nn[groups, col]), info = col)
+  }
+
+  expect_equal(nn["Total", "Discarded"], sum(m$discarded))
+  expect_equal(nn["Total", "All"], nrow(lalonde))
+
+  #With nothing discarded the column is dropped entirely.
+  m2 <- MatchIt::matchit(treat ~ age + educ + re74, data = lalonde,
+                         method = "subclass", subclass = 4)
+
+  expect_false("Discarded" %in% colnames(bal.tab(m2)$Observations))
+})
+
 test_that("longitudinal treatments accept data frames and addl/distance lists", {
   covs <- lalonde[c("age", "educ")]
   ps <- fitted(glm(treat ~ age + educ, data = lalonde, family = binomial))
