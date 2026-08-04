@@ -715,7 +715,6 @@ x2base.data.frame <- function(x, ...) {
   if (rlang::is_formula(covs)) {
     covs <- get_covs_from_formula(covs, data = data)
     # if (is_null(covs)) {
-    #     arg::err("The right hand side of the formula must contain covariates for which balance is to be assessed")
     # }
   }
   
@@ -2729,13 +2728,6 @@ x2base.default <- function(x, ...) {
     else {
       P[["distance"]] <- as.data.frame(P[["distance"]])
     }
-  }
-  
-  #distance.list
-  if (is_not_null(P[["distance.list"]]) &&
-      !all_apply(P[["distance.list"]], function(z) any_apply(Q[["distance"]][["type"]],
-                                                             function(c) is_(z, c)))) {
-    P[["distance.list"]] <- NULL
   }
   
   #subclass

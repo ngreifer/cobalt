@@ -424,8 +424,6 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
     arg::err("the sum of weights in each treatment group must be nonzero to compute weighted OVL statistics")
   }
   
-  all_pos_w <- all(weights >= 0)
-
   unique.treat <- unique(treat, nmax = 2L)
   t.sizes <- setNames(vapply(unique.treat, function(x) sum(treat == x), numeric(1L)),
                       unique.treat)
@@ -465,9 +463,8 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
       }
       
       #If perfect separation, return 1
-      if (all(all_pos_w) &&
-          (min(x[t == tval1]) > max(x[t != tval1]) ||
-           min(x[t != tval1]) > max(x[t == tval1]))) {
+      if (min(x[t == tval1]) > max(x[t != tval1]) ||
+          min(x[t != tval1]) > max(x[t == tval1])) {
         return(1)
       }
       

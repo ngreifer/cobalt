@@ -968,9 +968,6 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
   #   s0 <- if (arg.to) "the argument to " else ""
   #   s2 <- if (any(types %in% c("factor", "character", "numeric", "logical"))) "vector" else ""
   #   
-  #   arg::err(sprintf("%s'%s' must be a %s %s",
-  #                s0, s1, word_list(types, and.or = "or"), s2))
-  # }
   
   it.is
 }

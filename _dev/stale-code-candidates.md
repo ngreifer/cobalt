@@ -6,6 +6,18 @@ been deleted — this is input to the planned refactor, not a change log.
 
 Line numbers are as of the commit that added this file; re-grep before acting.
 
+## Status
+
+The **Provably dead** entries below were removed on the `refactor-bal.tab` branch
+(commit "Remove provably dead code"), along with the never-reassigned
+`bad.s.d.denom`/`bad.estimand` flags and their three warning branches, the thirteen
+`set_class()` calls on the `X` list that nothing read, and the `target.summary`
+option that nothing read. The `treatATT` alias was repaired rather than removed.
+
+The **Unreachable defensive guards** are deliberately kept: they cost nothing and
+document the invariant they check. The **Behaviour worth a decision** items are
+still open.
+
 ## Provably dead
 
 - **`R/functions_for_processing.R:1351–1353`** — a repeat of the check at `:1342`.

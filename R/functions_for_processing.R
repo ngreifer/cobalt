@@ -1420,15 +1420,11 @@ process_subset <- function(subset = NULL, n) {
       arg::err("numeric values for {.arg subset} cannot be larger than the number of units")
     }
     subset <- subset[!is.na(subset) & subset != 0]
-    
+
     if (any(subset < 0) && any(subset > 0)) {
       arg::err("positive and negative indices cannot be mixed with {.arg subset}")
     }
-    
-    if (any(abs(subset) > n)) {
-      arg::err("if {.arg subset} is numeric, none of its values can exceed the number of units")
-    }
-    
+
     logical.subset <- rep.int(any(subset < 0), n)
     logical.subset[abs(subset)] <- !logical.subset[abs(subset)]
     subset <- logical.subset
