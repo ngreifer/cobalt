@@ -3441,23 +3441,25 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
     
     for (s in all_STATS(type)) {
       if (s %in% compute && !subclass_w_empty[i]) {
-        SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]] <- STATS[[s]]$fun(C, treat = treat, weights = NULL, 
-                                                                                     std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                                     s.d.denom = s.d.denom,
-                                                                                     abs = FALSE, s.weights = s.weights, 
-                                                                                     bin.vars = bin.vars, subset = in.subclass)
-        
-        if (all_apply(SB[[i]][paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")], 
-                      function(x) !any(is.finite(x)))) {
-          disp <- disp[disp != s] 
+        stat.col <- paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")
+
+        SB[[i]][[stat.col]] <- STATS[[s]]$fun(C, treat = treat, weights = NULL,
+                                              std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                              s.d.denom = s.d.denom,
+                                              abs = FALSE, s.weights = s.weights,
+                                              bin.vars = bin.vars, subset = in.subclass)
+
+        if (all_apply(SB[[i]][stat.col], function(x) !any(is.finite(x)))) {
+          disp <- disp[disp != s]
           thresholds[[s]] <- NULL
         }
-        
-        
+
         if (is_not_null(thresholds[[s]])) {
-          
-          SB[[i]][[paste.(STATS[[s]]$Threshold, "Adj")]] <- ifelse(SB[[i]][["Type"]] != "Distance" & is.finite(SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]]), 
-                                                                   paste0(ifelse(abs_(SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]]) < thresholds[[s]], "Balanced, <", "Not Balanced, >"), round(thresholds[[s]], 3L)), "")
+          SB[[i]][[paste.(STATS[[s]]$Threshold, "Adj")]] <-
+            ifelse_(SB[[i]][["Type"]] == "Distance" | !is.finite(SB[[i]][[stat.col]]), "",
+                    STATS[[s]]$abs(SB[[i]][[stat.col]]) < thresholds[[s]],
+                    paste0("Balanced, <", round(thresholds[[s]], 3L)),
+                    paste0("Not Balanced, >", round(thresholds[[s]], 3L)))
         }
         names(SB[[i]])[names(SB[[i]]) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
       }

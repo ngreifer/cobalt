@@ -52,6 +52,40 @@ test_that("thresholds are computed per subclass", {
   expect_true("M.Threshold" %in% names(b[["Subclass.Balance"]][[1L]]))
 })
 
+test_that("per-subclass thresholds use each statistic's own absolute value", {
+  #Variance ratios are compared on `pmax(x, 1/x)`, not `abs(x)`, so a ratio below
+  #1 can still exceed the threshold. The per-subclass tables previously used
+  #`abs()` for every statistic and so labelled those as balanced.
+  covs <- lalonde[c("age", "educ", "re74")]
+
+  b <- bal.tab(covs, treat = lalonde$treat, subclass = sub_idx,
+               s.d.denom = "pooled", stats = c("mean.diffs", "variance.ratios"),
+               thresholds = c(v = 2), disp.subclass = TRUE)
+
+  for (i in names(b[["Subclass.Balance"]])) {
+    sb <- b[["Subclass.Balance"]][[i]]
+    vr <- sb[["V.Ratio.Adj"]]
+
+    expect_identical(sb[["V.Threshold"]],
+                     ifelse(pmax(vr, 1 / vr) < 2, "Balanced, <2", "Not Balanced, >2"),
+                     info = i)
+  }
+
+  #At least one subclass must actually exercise the ratio: a variance ratio below
+  #1 whose reciprocal exceeds the threshold. Otherwise the test proves nothing.
+  vrs <- unlist(lapply(b[["Subclass.Balance"]], `[[`, "V.Ratio.Adj"))
+  expect_true(any(vrs < 1 & 1 / vrs > 2))
+
+  #Mean differences are unaffected -- their registry entry is plain `abs()`.
+  b2 <- bal.tab(covs, treat = lalonde$treat, subclass = sub_idx,
+                s.d.denom = "pooled", thresholds = c(m = .1), disp.subclass = TRUE)
+
+  sb2 <- b2[["Subclass.Balance"]][[1L]]
+  expect_identical(sb2[["M.Threshold"]],
+                   ifelse(abs(sb2[["Diff.Adj"]]) < .1,
+                          "Balanced, <0.1", "Not Balanced, >0.1"))
+})
+
 test_that("quick, s.weights, and raw statistics work with subclasses", {
   covs <- lalonde[c("age", "educ", "married")]
 
