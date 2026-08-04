@@ -9,6 +9,8 @@
 
 * Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
 
+* Fixed a bug in `love.plot()` in which a `bal.tab` object that did not include the default statistic (`"mean.diffs"` for binary and multi-category treatments, `"correlations"` for continuous treatments) could not be plotted at all: `love.plot(bal.tab(..., stats = "ks.statistics"))` failed with an error saying `"mean.diffs"` was not requested. `love.plot()` now falls back to a statistic that was computed. When the default statistic is available it is still used, so plots of objects that include it are unchanged.
+
 * Fixed a bug in `print()` for `bal.tab` objects with subclasses in which supplying both `disp.thresholds` and `disp.call` failed with an uninformative error.
 
 * Fixed a bug in the per-subclass balance tables in which every statistic was compared to its threshold using its absolute value, even when the statistic defines a different one. This affected variance ratios, which are compared using `pmax(x, 1/x)`: a ratio below 1 whose reciprocal exceeded the threshold was labelled as balanced. The across-subclass summary table was already correct.

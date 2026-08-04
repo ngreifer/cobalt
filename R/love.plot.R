@@ -200,19 +200,29 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     abs <- .attr(x, "print.options")[["abs"]] %or% TRUE
   }
   
+  type <- .attr(x, "print.options")$type
+  computed.stats <- .attr(x, "print.options")[["compute"]]
+
   #Process stats
   if (is_null(stats)) {
-    stats <- .attr(x, "print.options")$stats
+    #The documented default is the same as `bal.tab()`'s, but that statistic is
+    #only available if it was requested there. When it was not, fall back to the
+    #first computed one rather than erroring on a default the user never chose.
+    stats <- switch(type,
+                    "bin" = getOption("cobalt_stats", "mean.diffs"),
+                    "cont" = getOption("cobalt_stats", "correlations"))
+
+    if (is_not_null(computed.stats) && !all(stats %in% computed.stats)) {
+      stats <- intersect(all_STATS(type), computed.stats)[1L]
+    }
   }
-  
-  stats <- arg::match_arg(stats, all_STATS(.attr(x, "print.options")$type),
-                     several.ok = TRUE)
+
+  stats <- arg::match_arg(stats, all_STATS(type), several.ok = TRUE)
 
   #`match_arg()` only checks that the statistic is valid for the treatment type,
   #not that it was actually computed. Without this check a statistic that was not
   #requested in the original `bal.tab()` call fails much later with an opaque
   #shape mismatch; `print.bal.tab()` performs the same check.
-  computed.stats <- .attr(x, "print.options")[["compute"]]
   if (is_not_null(computed.stats) && !all(stats %in% computed.stats)) {
     arg::err("{.arg stats} cannot contain {.or {.val {setdiff(stats, computed.stats)}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
   }

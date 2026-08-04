@@ -450,3 +450,45 @@ test_that("deprecated cluster.fun and no.missing are accepted", {
   expect_s3_class(suppressWarnings(
     love.plot(b, stats = "mean.diffs", no.missing = FALSE)), "love.plot")
 })
+
+test_that("love.plot() falls back to a computed statistic when the default was not requested", {
+  local_null_device()
+
+  covs <- lalonde[c("age", "educ", "re74")]
+
+  #`print.options$stats` records what `bal.tab()` was asked for. Without it,
+  #`love.plot()`'s default resolved to "mean.diffs" whatever the object held, and
+  #then rejected it as uncomputed -- so a `stats = "ks"` object could not be
+  #plotted at all without naming the statistic again.
+  b_ks <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled",
+                  weights = w_fixed, un = TRUE, stats = "ks.statistics")
+
+  expect_identical(as.character(attr(b_ks, "print.options")$stats), "ks.statistics")
+
+  expect_s3_class(love.plot(b_ks), "love.plot")
+  expect_s3_class(love.plot(b_ks, stats = "ks.statistics"), "love.plot")
+
+  #Naming a statistic that genuinely was not computed still errors.
+  expect_err(love.plot(b_ks, stats = "mean.diffs"), "cannot contain")
+
+  #Continuous treatments take the same path.
+  b_sp <- bal.tab(covs[c("age", "educ")], treat = lalonde$re74, weights = w_fixed,
+                  un = TRUE, stats = "spearman.correlations")
+
+  expect_s3_class(love.plot(b_sp), "love.plot")
+
+  #When the documented default *was* computed it still wins, even alongside
+  #others, so a multi-statistic object keeps producing a single-panel plot.
+  b_many <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled",
+                    weights = w_fixed, un = TRUE,
+                    stats = c("mean.diffs", "variance.ratios", "ks.statistics"))
+
+  p <- love.plot(b_many)
+  expect_s3_class(p, "ggplot")
+  expect_false(inherits(p, "gtable"))
+  expect_match(ggplot2::ggplot_build(p)$plot$labels$x, "Mean Difference")
+
+  #The fallback picks a statistic that was computed, and labels the axis for it.
+  expect_match(ggplot2::ggplot_build(love.plot(b_ks))$plot$labels$x,
+               "Kolmogorov-Smirnov")
+})
