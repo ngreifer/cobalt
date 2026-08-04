@@ -624,7 +624,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
 } 
 .get_s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL,
                            subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
-  check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
+  check.estimand <- check.weights <- check.focal <- FALSE
   s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
   estimand.specified <- is_not_null(estimand)
   
@@ -754,12 +754,6 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     if (s.d.denom.specified && is_null(weights) && any(s.d.denom == "weighted")) {
       arg::msg("note: {.arg s.d.denom} specified as {.str weighted}, but no weights supplied; setting to {.str all}")
     }
-    else if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-      arg::wrn("{.arg s.d.denom} should be one of {.or {.str {unique(c(unique.treats, allowable.s.d.denoms))}}}. Using {.str {s.d.denom}} instead")
-    }
-    else if (estimand.specified && bad.estimand) {
-      arg::wrn("{.arg estimand} should be one of {.str ATT}, {.str ATC}, or {.str ATE}. Ignoring {.arg estimand}")
-    }
     else if ((check.focal || check.weights) && !all(s.d.denom %in% treat_vals(treat))) {
       if (all_the_same(s.d.denom)) {
         arg::msg("note: {.arg s.d.denom} not specified; assuming {.str {s.d.denom[1L]}}")
@@ -784,7 +778,6 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   s.d.denom
 }
 .get_s.d.denom.cont <- function(s.d.denom, weights = NULL, subclass = NULL, quietly = FALSE) {
-  bad.s.d.denom <- FALSE
   s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
   
   if (s.d.denom.specified) {
@@ -826,11 +819,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     if (s.d.denom.specified && is_null(weights) && any(s.d.denom == "weighted")) {
       arg::msg("note: {.arg s.d.denom} specified as {.str weighted}, but no weights supplied; setting to {.str all}")
     }
-    else if (s.d.denom.specified && bad.s.d.denom) {
-      arg::wrn("{.arg s.d.denom} should be {.or {.str {unique(allowable.s.d.denoms)}}}. Using {.str {s.d.denom}} instead")
-    }
   }
-  
+
   attr(s.d.denom, "checked") <- TRUE
   
   s.d.denom
