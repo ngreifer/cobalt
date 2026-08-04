@@ -41,8 +41,9 @@ base.bal.tab.base <- function(X,
     arg::err("the treatment must be a binary variable")
   }
   
-  if (is_null(continuous)) continuous <- getOption("cobalt_continuous", "std")
-  if (is_null(binary)) binary <- getOption("cobalt_binary", switch(type, bin = "raw", "std"))
+  std.defaults <- .get_std_defaults(X$treat, continuous, binary)
+  continuous <- std.defaults$continuous
+  binary <- std.defaults$binary
   
   if (is_null(X$weights)) {
     un <- TRUE
@@ -72,31 +73,8 @@ base.bal.tab.base <- function(X,
   
   var_types <- .attr(C, "var_types")
   
-  if (is_not_null(X$s.d.denom.list)) {
-    X$s.d.denom <- NULL
-  }
-  else if (get.treat.type(X$treat) != "continuous" &&
-           "mean.diffs" %in% X$stats &&
-           ((binary == "std" && any(var_types == "Binary")) ||
-            (continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                  estimand = X$estimand,
-                                  weights = X$weights, 
-                                  subclass = X$subclass,
-                                  treat = X$treat,
-                                  focal = X$focal)
-  }
-  else if (get.treat.type(X$treat) == "continuous" &&
-           any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
-           ((binary == "std" && any(var_types == "Binary")) ||
-            (continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
-                                       weights = X$weights,
-                                       subclass = X$subclass)
-  }
-  else {
-    X$s.d.denom <- NULL
-  }
+  #The leaf clears `s.d.denom` when nothing is standardized; a wrapper keeps it.
+  X$s.d.denom <- .resolve_s.d.denom(X, var_types, continuous, binary)
   
   out[["Balance"]] <- do.call("balance_table",
                               c(list(C, type = type, weights = X$weights, treat = X$treat, 

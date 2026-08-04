@@ -102,20 +102,20 @@ base.bal.tab.multi <- function(X,
   
   var_types <- .attr(X$covs, "var_types")
   
-  if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-  if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+  std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
+  A$continuous <- std.defaults$continuous
+  A$binary <- std.defaults$binary
   
   
-  if ("mean.diffs" %in% X$stats &&
-      ((A$binary == "std" && any(var_types == "Binary")) ||
-       (A$continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                  estimand = X$estimand,
-                                  weights = X$weights, 
-                                  subclass = X$subclass,
-                                  treat = X$treat,
-                                  focal = X$focal)
-    
+  #A multi-category treatment is never continuous, so this is always the binary
+  #branch of the resolver. When it returns a denominator, one is precomputed per
+  #weight set across the whole sample and handed to every pairwise child, so that
+  #the pairs share a denominator rather than each deriving its own.
+  s.d.denom <- .resolve_s.d.denom(X, var_types, A$continuous, A$binary)
+
+  if (is_not_null(s.d.denom)) {
+    X$s.d.denom <- s.d.denom
+
     bin.vars <- var_types == "Binary"
     
     if (is_null(X$weights)) {

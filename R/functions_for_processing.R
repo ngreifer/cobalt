@@ -840,6 +840,49 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   s.d.denom
 }
+#The `continuous`/`binary` defaults. `type == "cont"` and
+#`get.treat.type(treat) == "continuous"` are the same condition -- `process_stats()`
+#sets the type attribute from the treatment type -- so one expression serves both
+#the leaf and the wrapper call sites, which spelled it four different ways.
+.get_std_defaults <- function(treat, continuous = NULL, binary = NULL) {
+  list(continuous = continuous %or% getOption("cobalt_continuous", "std"),
+       binary = binary %or% getOption("cobalt_binary",
+                                      switch(get.treat.type(treat),
+                                             "continuous" = "std", "raw")))
+}
+
+#Resolve the standardization factor, or `NULL` when nothing will be standardized.
+#
+#Returns the value rather than assigning it, because the leaf and the wrappers want
+#different things when it comes back `NULL`: the leaf clears `X$s.d.denom`, while a
+#wrapper must keep whatever the user supplied so that each per-stratum child does
+#not re-resolve it from scratch -- and possibly differently, since a covariate that
+#is continuous overall can be constant within one stratum.
+.resolve_s.d.denom <- function(X, var_types, continuous, binary) {
+  #A multi-category treatment precomputes one denominator per weight set across the
+  #whole sample and passes it down as `s.d.denom.list`; that supersedes this.
+  if (is_not_null(X$s.d.denom.list)) {
+    return(NULL)
+  }
+
+  any_std <- (binary == "std" && any(var_types == "Binary")) ||
+    (continuous == "std" && !all(var_types == "Binary"))
+
+  if (!any_std) {
+    return(NULL)
+  }
+
+  if (!any(vapply(X$stats, function(s) STATS[[s]]$needs_s.d.denom, logical(1L)))) {
+    return(NULL)
+  }
+
+  if (get.treat.type(X$treat) == "continuous") {
+    return(.get_s.d.denom.cont(X$s.d.denom, weights = X$weights, subclass = X$subclass))
+  }
+
+  .get_s.d.denom(X$s.d.denom, estimand = X$estimand, weights = X$weights,
+                 subclass = X$subclass, treat = X$treat, focal = X$focal)
+}
 .compute_s.d.denom <- function(mat, treat = NULL, s.d.denom = "pooled", s.weights = NULL,
                                bin.vars = NULL, subset = NULL, weighted.weights = NULL,
                                to.sd = rep.int(TRUE, ncol(mat)), na.rm = TRUE) {
@@ -3347,9 +3390,19 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
         else x
       }
       
+      #A statistic may name its own aggregator for a given function -- variance
+      #ratios are averaged geometrically, not arithmetically. Indexing by a name the
+      #vector does not carry yields NA, and indexing NULL yields NULL, so both mean
+      #"no override".
+      own <- unname(STATS[[s]]$agg_fun[tolower(Agg.Fun)])
+
+      if (anyNA(own)) {
+        own <- NULL
+      }
+
       agg <- function(x, ...) {
         if (!any(is.finite(x))) NA_real_
-        else if (s == "variance.ratios" && tolower(Agg.Fun) == "mean") .geom_mean(x)
+        else if (is_not_null(own)) get(own)(x)
         else if (tolower(Agg.Fun) == "rms") sqrt(mean_fast(STATS[[s]]$abs(x)^2, TRUE))
         else get(tolower(Agg.Fun))(x, ...)
       }

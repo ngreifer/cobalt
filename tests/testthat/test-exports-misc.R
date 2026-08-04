@@ -167,3 +167,69 @@ test_that("get.cobalt.options() validates its arguments", {
              "must be strings containing the name of an option")
   expect_err(get.cobalt.options("bogus"), "not an acceptable option")
 })
+
+test_that("the STATS registry is the single point of extension", {
+  S <- cobalt:::STATS
+
+  #Every entry carries the full field set. Adding a statistic without one of these
+  #would fail at a distance, in whichever consumer reads it first.
+  required <- c("type", "threshold", "Threshold", "disp_stat", "adj_only", "abs",
+                "bal.tab_column_prefix", "threshold_range", "balance_tally_for",
+                "variable_with_the_greatest", "love.plot_xlab", "love.plot_add_stars",
+                "baseline.xintercept", "threshold.xintercepts", "love.plot_axis_scale",
+                "fun", "needs_s.d.denom", "agg_fun")
+
+  for (s in names(S)) {
+    expect_true(all(required %in% names(S[[s]])), info = s)
+    expect_true(rlang::is_bool(S[[s]]$needs_s.d.denom), info = s)
+  }
+
+  #`needs_s.d.denom` replaced hardcoded lists of statistic names in five files. It
+  #must be TRUE exactly for the statistics whose `fun` forwards `s.d.denom` to a
+  #`col_w_*()` computer rather than hardcoding it.
+  expect_setequal(names(S)[vapply(S, function(x) x$needs_s.d.denom, logical(1L))],
+                  c("mean.diffs", "correlations", "spearman.correlations",
+                    "distance.correlations"))
+
+  #`agg_fun` is stored by name, not as a function: STATS is built at load time,
+  #before the aggregators exist.
+  for (s in names(S)) {
+    if (is_null(S[[s]]$agg_fun)) next
+
+    expect_type(S[[s]]$agg_fun, "character")
+    expect_true(rlang::is_named(S[[s]]$agg_fun), info = s)
+
+    for (fn in S[[s]]$agg_fun) {
+      expect_true(is.function(get(fn, envir = asNamespace("cobalt"))), info = fn)
+    }
+  }
+
+  #Every registry-named display flag is settable.
+  expect_true(all(unique(cobalt:::get_from_STATS("disp_stat")) %in%
+                    names(cobalt:::acceptable.options())))
+})
+
+test_that("variance ratios are averaged geometrically across strata", {
+  covs <- lalonde[c("age", "educ", "re74")]
+
+  b <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
+               cluster = cl_idx, cluster.summary = TRUE,
+               cluster.fun = c("min", "mean", "max"),
+               stats = c("mean.diffs", "variance.ratios"), un = TRUE)
+
+  per <- do.call(cbind, lapply(b$Cluster.Balance,
+                               function(z) z$Balance$V.Ratio.Adj))
+
+  geometric <- unname(apply(per, 1L, function(x) exp(mean(log(x)))))
+
+  expect_equal(b$Balance.Across.Clusters$Mean.V.Ratio.Adj, geometric)
+
+  #The override matters: the two means are not the same number here.
+  expect_false(isTRUE(all.equal(geometric, unname(rowMeans(per)))))
+
+  #Mean differences have no override and stay arithmetic.
+  per_d <- do.call(cbind, lapply(b$Cluster.Balance,
+                                 function(z) z$Balance$Diff.Adj))
+
+  expect_equal(b$Balance.Across.Clusters$Mean.Diff.Adj, unname(rowMeans(per_d)))
+})

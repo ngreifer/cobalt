@@ -57,8 +57,11 @@ base.bal.tab.subclass <- function(X,
     arg::err("the treatment must be a binary variable")
   }
   
-  if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
-  if (missing(binary)) binary <- getOption("cobalt_binary", switch(type, bin = "raw", "std"))
+  std.defaults <- .get_std_defaults(X$treat,
+                                    if (!missing(continuous)) continuous,
+                                    if (!missing(binary)) binary)
+  continuous <- std.defaults$continuous
+  binary <- std.defaults$binary
   
   X$subclass <- factor(X$subclass)
   
@@ -99,25 +102,10 @@ base.bal.tab.subclass <- function(X,
   
   var_types <- .attr(C, "var_types")
   
-  if (get.treat.type(X$treat) != "continuous" &&
-      "mean.diffs" %in% X$stats &&
-      ((binary == "std" && any(var_types == "Binary")) ||
-       (continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                  estimand = X$estimand,
-                                  weights = X$weights, 
-                                  subclass = X$subclass,
-                                  treat = X$treat,
-                                  focal = X$focal)
-  }
-  else if (get.treat.type(X$treat) == "continuous" &&
-           any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
-           ((binary == "std" && any(var_types == "Binary")) ||
-            (continuous == "std" && !all(var_types == "Binary")))) {
-    X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
-                                       weights = X$weights,
-                                       subclass = X$subclass)
-  }
+  #A wrapper keeps the user's `s.d.denom` when nothing is standardized, so
+  #that each per-stratum child does not re-resolve it independently.
+  X$s.d.denom <- .resolve_s.d.denom(X, var_types, continuous, binary) %or%
+    X$s.d.denom
   
   out[["Subclass.Balance"]] <- do.call("balance_table_subclass", 
                                        c(list(C,

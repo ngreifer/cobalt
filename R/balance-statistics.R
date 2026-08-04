@@ -65,6 +65,8 @@ STATS[["mean.diffs"]] <- {list(
   Threshold = "M.Threshold",
   disp_stat = "disp.diff",
   adj_only = FALSE,
+  needs_s.d.denom = TRUE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "Diff", #Also which.stat in love.plot
   threshold_range = c(0, Inf),
@@ -160,6 +162,8 @@ STATS[["variance.ratios"]] <- {list(
   Threshold = "V.Threshold",
   disp_stat = "disp.v.ratio",
   adj_only = FALSE,
+  needs_s.d.denom = FALSE,
+  agg_fun = c(mean = ".geom_mean"),
   abs = function(x) abs_(x, ratio = TRUE),
   bal.tab_column_prefix = "V.Ratio", #Also which.stat in love.plot
   threshold_range = c(1, Inf),
@@ -195,6 +199,8 @@ STATS[["ks.statistics"]] <- {list(
   Threshold = "KS.Threshold",
   disp_stat = "disp.ks",
   adj_only = FALSE,
+  needs_s.d.denom = FALSE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "KS", #Also which.stat in love.plot
   threshold_range = c(0, 1),
@@ -223,6 +229,8 @@ STATS[["ovl.coefficients"]] <- {list(
   Threshold = "OVL.Threshold",
   disp_stat = "disp.ovl",
   adj_only = FALSE,
+  needs_s.d.denom = FALSE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "OVL", #Also which.stat in love.plot
   threshold_range = c(0, 1),
@@ -251,6 +259,8 @@ STATS[["correlations"]] <- {list(
   Threshold = "R.Threshold",
   disp_stat = "disp.corr",
   adj_only = FALSE,
+  needs_s.d.denom = TRUE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "Corr", #Also which.stat in love.plot
   threshold_range = c(0, 1),
@@ -284,6 +294,8 @@ STATS[["spearman.correlations"]] <- {list(
   Threshold = "S.Threshold",
   disp_stat = "disp.spear",
   adj_only = FALSE,
+  needs_s.d.denom = TRUE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "S.Corr", #Also which.stat in love.plot
   threshold_range = c(0, 1),
@@ -317,6 +329,8 @@ STATS[["distance.correlations"]] <- {list(
   Threshold = "DC.Threshold",
   disp_stat = "disp.dcorr",
   adj_only = FALSE,
+  needs_s.d.denom = TRUE,
+  agg_fun = NULL,
   abs = function(x) x,
   bal.tab_column_prefix = "D.Corr", #Also which.stat in love.plot
   threshold_range = c(0, 1),
@@ -348,6 +362,8 @@ STATS[["mean.diffs.target"]] <- {list(
   Threshold = "M.Threshold",
   disp_stat = "disp.diff",
   adj_only = TRUE,
+  needs_s.d.denom = FALSE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "Diff.Target", #Also which.stat in love.plot
   threshold_range = c(0, Inf),
@@ -456,6 +472,8 @@ STATS[["ks.statistics.target"]] <- {list(
   Threshold = "KS.Threshold",
   disp_stat = "disp.ks",
   adj_only = TRUE,
+  needs_s.d.denom = FALSE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "KS.Target", #Also which.stat in love.plot
   threshold_range = c(0, 1),
@@ -491,6 +509,8 @@ STATS[["ovl.coefficients.target"]] <- {list(
   Threshold = "OVL.Threshold",
   disp_stat = "disp.ovl",
   adj_only = TRUE,
+  needs_s.d.denom = FALSE,
+  agg_fun = NULL,
   abs = function(x) abs_(x),
   bal.tab_column_prefix = "OVL.Target", #Also which.stat in love.plot
   threshold_range = c(0, 1),

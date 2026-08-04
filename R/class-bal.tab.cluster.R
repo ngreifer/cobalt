@@ -77,34 +77,14 @@ base.bal.tab.cluster <- function(X,
 
     var_types <- .attr(X$covs, "var_types")
 
-    if (get.treat.type(X$treat) != "continuous") {
-      if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-      if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
-    }
-    else {
-      if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-      if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
-    }
+    std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
+    A$continuous <- std.defaults$continuous
+    A$binary <- std.defaults$binary
 
-    if (get.treat.type(X$treat) != "continuous" &&
-        "mean.diffs" %in% X$stats &&
-        ((A$binary == "std" && any(var_types == "Binary")) ||
-         (A$continuous == "std" && !all(var_types == "Binary")))) {
-      X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                    estimand = X$estimand,
-                                    weights = X$weights,
-                                    subclass = X$subclass,
-                                    treat = X$treat,
-                                    focal = X$focal)
-    }
-    else if (get.treat.type(X$treat) == "continuous" &&
-             any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
-             ((A$binary == "std" && any(var_types == "Binary")) ||
-              (A$continuous == "std" && !all(var_types == "Binary")))) {
-      X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
-                                         weights = X$weights,
-                                         subclass = X$subclass)
-    }
+    #A wrapper keeps the user's `s.d.denom` when nothing is standardized, so
+    #that each per-stratum child does not re-resolve it independently.
+    X$s.d.denom <- .resolve_s.d.denom(X, var_types, A$continuous, A$binary) %or%
+      X$s.d.denom
   }
 
   #Setup output object
