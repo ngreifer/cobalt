@@ -218,8 +218,11 @@ cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
     ## ---- mice / MatchThem ---------------------------------------------------
     mids = list(pkg = "mice", build = function() {
       #m = 2 is the minimum that makes nlevels(X$imp) > 1 in .assign_X_class().
+      #`seed` is required for reproducibility: without it every session imputes
+      #different values, so anything downstream of this fixture (`mimids`,
+      #`wimids`) can only be checked for shape, never for value.
       mice::mice(lalonde_mis[c("treat", "age", "educ", "race", "married", "re74")],
-                 m = 2, maxit = 1, printFlag = FALSE)
+                 m = 2, maxit = 1, printFlag = FALSE, seed = 5678L)
     }),
     mimids = list(pkg = c("mice", "MatchThem"), build = function() {
       MatchThem::matchthem(treat ~ age + educ + race + married + re74,
