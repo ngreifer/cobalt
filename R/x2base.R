@@ -12,6 +12,36 @@ x2base <- function(x, ...) {
 #The subject is per-argument so the message names the concept the user supplied
 #rather than the internal slot. `...` is forwarded rather than materialized so only
 #the arguments actually checked are forced.
+#Resolve `data` and `imp` from the arguments `bal.tab()` forwards. A `mids` object
+#given as `data` is completed to a long data frame, and its `.imp` column supplies
+#`imp` unless the caller named one; anything else that is not a data frame is
+#discarded.
+#
+#`.datalist` holds the data frames the input object carries, against which a
+#character `imp` is resolved. `.imp` is for the classes whose imputation index comes
+#from the object itself rather than from the user; supplying it replaces the `imp`
+#argument entirely.
+#
+#As elsewhere, `...` is forwarded rather than materialized and the named formals are
+#dot-prefixed, since `data` and `imp` are themselves elements of `...`.
+.x2base_data <- function(..., .datalist = list(), .imp) {
+  imp <- if (missing(.imp)) ...get("imp") else .imp
+  data <- ...get("data")
+
+  if (is_not_null(data)) {
+    if (inherits(data, "mids")) {
+      data <- .mids_complete(data)
+      imp <- imp %or% data[[".imp"]]
+    }
+    else if (!is.data.frame(data)) {
+      data <- NULL
+    }
+  }
+
+  list(data = data,
+       imp = do.call("process_imp", c(list(imp, data), .datalist)))
+}
+
 .reject_args <- function(.args, .what, ...) {
   for (a in .args) {
     if (is_null(...get(a))) next
@@ -32,20 +62,9 @@ x2base.matchit <- function(x, ...) {
   
   #Process data and get imp
   m.data <- if (NROW(x[["model"]][["data"]]) == length(x[["treat"]])) x[["model"]][["data"]]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, m.data)
+  .d <- .x2base_data(..., .datalist = list(m.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(x[["treat"]], data, m.data)
@@ -220,20 +239,9 @@ x2base.ps <- function(x, ...) {
   
   #Process data and get imp
   ps.data <- x[["data"]]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, ps.data)
+  .d <- .x2base_data(..., .datalist = list(ps.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
 
   #Process treat
   treat <- process_treat(x[["treat"]], data, ps.data)
@@ -374,20 +382,9 @@ x2base.mnps <- function(x, ...) {
   
   #Process data and get imp
   mnps.data <- x[["data"]]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, mnps.data)
+  .d <- .x2base_data(..., .datalist = list(mnps.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(x[["treatVar"]], data, mnps.data)
@@ -470,20 +467,9 @@ x2base.mnps <- function(x, ...) {
 x2base.ps.cont <- function(x, ...) {
   #Process data and get imp
   ps.data <- x[["data"]]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, ps.data)
+  .d <- .x2base_data(..., .datalist = list(ps.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(x[["treat"]], data, ps.data)
@@ -564,20 +550,9 @@ x2base.Match <- function(x, ...) {
   }
   
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   t.c <- .use_tc_fd(...get("formula"), data, ...get("treat"), ...get("covs"))
@@ -682,20 +657,9 @@ x2base.data.frame <- function(x, ...) {
   #Process data.frame
   
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- {
@@ -976,20 +940,9 @@ x2base.CBPS <- function(x, ...) {
   
   #Process data and get imp
   c.data <- x[["data"]]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, c.data)
+  .d <- .x2base_data(..., .datalist = list(c.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- get_treat_from_formula(x[["formula"]], c.data) |>
@@ -1091,20 +1044,9 @@ x2base.ebalance <- function(x, ...) {
   #Process ebalance
   
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   t.c <- .use_tc_fd(...get("formula"), data, ...get("treat"), ...get("covs"))
@@ -1193,20 +1135,9 @@ x2base.optmatch <- function(x, ...) {
   }
   
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   t.c <- .use_tc_fd(...get("formula"), data = data, covs = ...get("covs"),
@@ -1313,24 +1244,13 @@ x2base.cem.match <- function(x, ...) {
   }
   
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
+
   if (is_null(data)) {
     arg::err("an argument to {.arg data} must be specified with {.cls cem.match} objects")
   }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
   
   if (is_null(imp) && inherits(x, "cem.match.list") &&
       sum(vapply(x, is_, logical(1L), "cem.match")) != 1L) {
@@ -1427,20 +1347,9 @@ x2base.weightit <- function(x, ...) {
   d.e.in.w <- vapply(c("covs", "exact", "by", "moderator"), function(z) is_not_null(x[[z]]), logical(1L))
   weightit.data <- if (any(d.e.in.w)) do.call("data.frame", unname(x[c("covs", "exact", "by", "moderator")[d.e.in.w]]))
   
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, weightit.data)
+  .d <- .x2base_data(..., .datalist = list(weightit.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(x[["treat"]], data, weightit.data)
@@ -1534,20 +1443,9 @@ x2base.designmatch <- function(x, ...) {
   }
   
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   t.c <- .use_tc_fd(...get("formula"), data, ...get("treat"), ...get("covs"))
@@ -1654,22 +1552,9 @@ x2base.mimids <- function(x, ...) {
     else .mids_complete(x[["others"]][["source"]])
   }
   
-  imp <- m.data[[".imp"]]
-  data <- ...get("data")
-  
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      # arg::wrn("The argument to data is not a data frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, m.data)
+  .d <- .x2base_data(..., .datalist = list(m.data), .imp = m.data[[".imp"]])
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(unlist(grab(models, "treat")))
@@ -1781,22 +1666,9 @@ x2base.wimids <- function(x, ...) {
     else .mids_complete(x[["others"]][["source"]])
   }
   
-  imp <- w.data[[".imp"]]
-  data <- ...get("data")
-  
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      # arg::wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, w.data)
+  .d <- .x2base_data(..., .datalist = list(w.data), .imp = w.data[[".imp"]])
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(unlist(grab(models, "treat")))
@@ -1890,20 +1762,9 @@ x2base.sbwcau <- function(x, ...) {
   
   #Process data and get imp
   sbw.data <- x[["dat_weights"]][names(x[["dat_weights"]]) != "weights"]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, sbw.data)
+  .d <- .x2base_data(..., .datalist = list(sbw.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- process_treat(x[["ind"]], data, sbw.data)
@@ -2015,20 +1876,9 @@ x2base.iptw <- function(x, ...) {
   
   #Process data and get imp
   ps.data <- x[["psList"]][[1L]][["data"]]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, ps.data)
+  .d <- .x2base_data(..., .datalist = list(ps.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat.list
   treat.list <- process_treat.list(grab(x[["psList"]], "treat"), data, ps.data)
@@ -2200,20 +2050,9 @@ x2base.iptw <- function(x, ...) {
 #' @exportS3Method NULL
 x2base.data.frame.list <- function(x, ...) {
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat.list
   treat.list <- process_treat.list(...get("treat.list"), data)
@@ -2388,20 +2227,9 @@ x2base.CBMSM <- function(x, ...) {
   
   #Process data and get imp
   cbmsm.data <- x[["data"]][x[["time"]] == 1, , drop = FALSE]
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data)
+  .d <- .x2base_data(...)
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat.list
   treat.list <- process_treat.list(lapply(times, function(z) x[["treat.hist"]][ID, z]), 
@@ -2508,20 +2336,9 @@ x2base.weightitMSM <- function(x, ...) {
     else NULL
   }
   
-  imp <- ...get("imp")
-  data <- ...get("data")
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, weightitMSM.data, weightitMSM.data2)
+  .d <- .x2base_data(..., .datalist = list(weightitMSM.data, weightitMSM.data2))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat.list
   treat.list <- process_treat.list(x[["treat.list"]],
@@ -2784,9 +2601,6 @@ x2base.default <- function(x, ...) {
 
 .x2base_default_point <- function(obj, ...) {
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  
   o.data <- obj[["data"]]
   if (is_null(o.data) && is_not_null(obj[["model"]]) && utils::hasName(obj[["model"]], "data")) {
     o.data <- obj[["model"]][["data"]]
@@ -2794,19 +2608,10 @@ x2base.default <- function(x, ...) {
   if (inherits(o.data, "mids")) {
     o.data <- .mids_complete(o.data)
   }
-  
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, o.data)
+
+  .d <- .x2base_data(..., .datalist = list(o.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat
   treat <- ...get("treat")
@@ -3107,9 +2912,6 @@ x2base.default <- function(x, ...) {
 
 .x2base_default_msm <- function(obj, ...) {
   #Process data and get imp
-  imp <- ...get("imp")
-  data <- ...get("data")
-  
   o.data <- obj[["data"]]
   if (is_null(o.data) && is_not_null(obj[["model"]]) && utils::hasName(obj[["model"]], "data")) {
     o.data <- obj[["model"]][["data"]]
@@ -3117,19 +2919,10 @@ x2base.default <- function(x, ...) {
   if (inherits(o.data, "mids")) {
     o.data <- .mids_complete(o.data)
   }
-  
-  if (is_not_null(data)) {
-    if (inherits(data, "mids")) {
-      data <- .mids_complete(data)
-      if (is_null(imp)) imp <- data[[".imp"]]
-    }
-    else if (!is.data.frame(data)) {
-      data <- NULL
-    }
-  }
-  
-  #Process imp
-  imp <- process_imp(imp, data, o.data)
+
+  .d <- .x2base_data(..., .datalist = list(o.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
   
   #Process treat.list
   treat.list <- process_treat.list(...get("treat.list"), data)
