@@ -883,6 +883,16 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   .get_s.d.denom(X$s.d.denom, estimand = X$estimand, weights = X$weights,
                  subclass = X$subclass, treat = X$treat, focal = X$focal)
 }
+#The verdict string for one statistic column. The threshold value is baked into the
+#label, which is how `.baltal()` recovers it later, and is rounded to three places
+#independently of `print()`'s `digits`.
+#
+#Distance rows and non-finite values get an empty label rather than a verdict.
+.threshold_label <- function(x, var_types, threshold, abs_stat) {
+  ifelse_(var_types == "Distance" | !is.finite(x), "",
+          abs_stat(x) < threshold, paste0("Balanced, <", round(threshold, 3L)),
+          paste0("Not Balanced, >", round(threshold, 3L)))
+}
 .compute_s.d.denom <- function(mat, treat = NULL, s.d.denom = "pooled", s.weights = NULL,
                                bin.vars = NULL, subset = NULL, weighted.weights = NULL,
                                to.sd = rep.int(TRUE, ncol(mat)), na.rm = TRUE) {
@@ -3118,15 +3128,15 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
       
       if (is_not_null(thresholds[[s]])) {
         if (!get_from_STATS("adj_only")[s] && no.adj) {
-          B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]] == "Distance" | !is.finite(B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
-                                                             STATS[[s]]$abs(B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3L)),
-                                                             paste0("Not Balanced, >", round(thresholds[[s]], 3L)))
+          B[[paste.(STATS[[s]]$Threshold, "Un")]] <-
+            .threshold_label(B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Un")]],
+                             B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
         }
         else if (!no.adj) {
           for (i in weight.names) {
-            B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]] == "Distance" | !is.finite(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]]), "", 
-                                                            STATS[[s]]$abs(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3L)),
-                                                            paste0("Not Balanced, >", round(thresholds[[s]], 3L)))
+            B[[paste.(STATS[[s]]$Threshold, i)]] <-
+              .threshold_label(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]],
+                               B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
           }
         }
       }
@@ -3420,15 +3430,15 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
     for (s in compute[compute %in% all_STATS(type)]) {
       if (is_not_null(thresholds[[s]])) {
         if (!get_from_STATS("adj_only")[s] && no.adj) {
-          B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]] == "Distance" | !is.finite(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
-                                                             STATS[[s]]$abs(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3L)),
-                                                             paste0("Not Balanced, >", round(thresholds[[s]], 3)))
+          B[[paste.(STATS[[s]]$Threshold, "Un")]] <-
+            .threshold_label(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]],
+                             B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
         }
         else {
           for (i in weight.names) {
-            B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]] == "Distance" | !is.finite(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, i)]]), "", 
-                                                            STATS[[s]]$abs(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3L)),
-                                                            paste0("Not Balanced, >", round(thresholds[[s]], 3)))
+            B[[paste.(STATS[[s]]$Threshold, i)]] <-
+              .threshold_label(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, i)]],
+                               B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
           }
         }
       }
@@ -3576,10 +3586,8 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
 
         if (is_not_null(thresholds[[s]])) {
           SB[[i]][[paste.(STATS[[s]]$Threshold, "Adj")]] <-
-            ifelse_(SB[[i]][["Type"]] == "Distance" | !is.finite(SB[[i]][[stat.col]]), "",
-                    STATS[[s]]$abs(SB[[i]][[stat.col]]) < thresholds[[s]],
-                    paste0("Balanced, <", round(thresholds[[s]], 3L)),
-                    paste0("Not Balanced, >", round(thresholds[[s]], 3L)))
+            .threshold_label(SB[[i]][[stat.col]], SB[[i]][["Type"]],
+                             thresholds[[s]], STATS[[s]]$abs)
         }
         names(SB[[i]])[names(SB[[i]]) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
       }
