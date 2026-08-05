@@ -6,8 +6,10 @@
 #'     
 #' There are two main components of the output of `bal.tab()` with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only "adjusted" values are available, because the subclassification itself is the adjustment.
 #'     
-#' The balance summary is, for each variable, like a weighted average of the balance statistics across subclasses. This is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the `match.strata` argument rather than to `subclass`. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be. 
-#'     
+#' The balance summary is, for each variable, like a weighted average of the balance statistics across subclasses. With a binary treatment, this is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the `match.strata` argument rather than to `subclass`. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be.
+#'
+#' With a continuous treatment, subclassification cannot be expressed as weights, because no set of weights makes a continuous treatment independent of the covariates within a subclass. The balance summary is therefore computed by combining the subclass-specific statistics directly, weighting each subclass by its share of the subclassified units (using `s.weights`, if supplied). Every statistic is a weighted average of the subclass-specific values, except the standard deviations, which are combined in quadrature so that the summary value is the pooled within-subclass standard deviation. The summary means are consequently the same as the means in the original sample, since subclassification does not change the distribution of the covariates.
+#'
 #' @section Allowable arguments:
 #' 
 #' There are three arguments for `bal.tab()` that relate to subclasses: `subclass`, `which.subclass`, and `subclass.summary`.
@@ -146,28 +148,32 @@ base.bal.tab.subclass <- function(X,
                        s.d.denom.list = X[["s.d.denom.list"]]), A), quote = TRUE)
       }
       else if (type == "cont") {
-        do.call("balance_table_across_subclass_cont", 
-                c(list(do.call("balance_table", c(list(C, 
-                                                       type = type, 
-                                                       weights = NULL,
-                                                       treat = X[["treat"]], 
-                                                       s.d.denom = X[["s.d.denom"]][1L], 
-                                                       s.weights = X[["s.weights"]], 
-                                                       continuous = continuous, 
-                                                       binary = binary, 
-                                                       thresholds = X[["thresholds"]],
-                                                       un = un, 
-                                                       disp = disp,
-                                                       stats = X[["stats"]], 
-                                                       abs = abs, 
-                                                       no.adj = TRUE, 
-                                                       quick = quick, 
-                                                       var_types = .attr(C, "var_types"),
-                                                       s.d.denom.list = X[["s.d.denom.list"]]), A),
-                               quote = TRUE), 
-                       balance.table.subclass.list = out[["Subclass.Balance"]], 
-                       subclass.obs = out[["Observations"]], 
-                       r.threshold = X[["thresholds"]][["correlations"]]), A), quote = TRUE)
+        balance_table_across_subclass(
+          do.call("balance_table",
+                  c(list(C,
+                         type = type,
+                         weights = NULL,
+                         treat = X[["treat"]],
+                         s.d.denom = X[["s.d.denom"]][1L],
+                         s.weights = X[["s.weights"]],
+                         continuous = continuous,
+                         binary = binary,
+                         thresholds = X[["thresholds"]],
+                         un = un,
+                         disp = disp,
+                         stats = X[["stats"]],
+                         abs = abs,
+                         no.adj = TRUE,
+                         quick = quick,
+                         var_types = var_types,
+                         s.d.denom.list = X[["s.d.denom.list"]]), A),
+                  quote = TRUE),
+          subclass.balance = out[["Subclass.Balance"]],
+          subclass = X[["subclass"]],
+          type = type,
+          s.weights = X[["s.weights"]],
+          thresholds = X[["thresholds"]],
+          abs = abs)
       }
     }
   }
@@ -228,10 +234,6 @@ base.bal.tab.subclass.binary <- function(X, ...) {
   base.bal.tab.subclass(X, type = "bin", ...)
 }
 
-#Not implemented. `base.bal.tab.subclass()` takes a `type` argument and would accept
-#`"cont"`, but `samplesize()`'s continuous subclassification branch and
-#`balance_table_across_subclass_cont()` have never been exercised, so this errors rather
-#than producing numbers nobody has checked.
 base.bal.tab.subclass.cont <- function(X, ...) {
-  arg::err("subclasses are not yet compatible with continuous treatments")
+  base.bal.tab.subclass(X, type = "cont", ...)
 }

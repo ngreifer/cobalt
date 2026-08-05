@@ -3446,7 +3446,7 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
       }
       else if (type == "cont") {
         sds <- rep.int(NA_real_, NCOL(C))
-        sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == in.subclass,
+        sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = in.subclass,
                                        s.weights = s.weights)
         SB[[i]][["SD.Adj"]] <- sds
       }
@@ -3489,35 +3489,67 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
   SB
 }
 
-# !!! NEEDS TO BE UPDATED !!!
-balance_table_across_subclass_cont <- function(balance.table, balance.table.subclass.list, subclass.obs, r.threshold = NULL) {
-  #NEEDS TO BE UPDATED
-  
-  B.A <- balance.table.subclass.list[[1L]][names(balance.table.subclass.list[[1L]]) %in% c("M.Adj", "SD.Adj", "Corr.Adj")]
-  
-  for (i in rownames(B.A)) {
-    for (j in colnames(B.A)) {
-      B.A[[i, j]] <- {
-        if (startsWith(j, "SD."))
-          sqrt(sum(vapply(seq_along(balance.table.subclass.list),
-                          function(s) subclass.obs[[s]] / sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]^2),
-                          numeric(1L))))
-        else
-          sum(vapply(seq_along(balance.table.subclass.list),
-                     function(s) subclass.obs[[s]] / sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]),
-                     numeric(1L)))
-      }
-    }
+#The balance summary across subclasses for a continuous treatment.
+#
+#A binary treatment expresses subclassification as weights and hands the whole job to
+#`balance_table()`. That is unavailable here: no set of unit weights makes a continuous
+#treatment independent of the covariates within a subclass. So the subclass-specific
+#statistics are combined instead, weighting each subclass by its share of the
+#subclassified units -- the share `strata2weights()` gives it in the binary case.
+#Standard deviations are combined in quadrature so that the result is itself a standard
+#deviation rather than an average of them.
+#
+#`balance.table` is an unadjusted `balance_table()`, which supplies the layout, the
+#variable types, and the unadjusted half of the values. The only columns of the layout
+#it leaves out are the adjusted thresholds, since it had nothing to adjust.
+balance_table_across_subclass <- function(balance.table, subclass.balance, subclass,
+                                          type, s.weights = NULL, thresholds = list(),
+                                          abs = FALSE) {
+  #`threshold.samples` is what a `balance_table()` with something to adjust would use,
+  #and has to be: `print()` decides which columns to show from the print options alone,
+  #so a column the layout does not predict shifts every column after it.
+  spec <- .bal_tab_col_spec(type, .attr(balance.table, "compute"), thresholds,
+                            samples = c("Un", "Adj"), threshold.samples = "Adj")
+
+  B <- make_df(spec[["name"]], rownames(balance.table))
+
+  shared <- intersect(names(B), names(balance.table))
+  B[shared] <- balance.table[shared]
+
+  if (is_null(s.weights)) {
+    s.weights <- rep_with(1, subclass)
   }
-  
-  B.A.df <- cbind(balance.table[c("Type", "M.Un", "SD.Un", "Corr.Un", "R.Threshold.Un")], 
-                  B.A, R.Threshold = NA_character_)
-  
-  if (is_not_null(r.threshold)) {
-    B.A.df[["R.Threshold"]] <- ifelse(B.A.df[["Type"]] == "Distance", "", paste0(ifelse(is.finite(B.A.df[["Corr.Adj"]]) & abs_(B.A.df[["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold))
+
+  #Sampling weights make a subclass's share its share of the population rather than of
+  #the sample, which is what keeps the aggregated means equal to the unadjusted ones.
+  in.subclass <- !is.na(subclass)
+  p <- vapply(levels(subclass), function(k) {
+    sum(s.weights[in.subclass & subclass == k])
+  }, numeric(1L)) |>
+    prop.table()
+
+  across <- function(col, quadrature = FALSE) {
+    x <- do.call("cbind", lapply(subclass.balance, `[[`, col))
+
+    if (quadrature) sqrt(drop(x^2 %*% p)) else drop(x %*% p)
   }
-  
-  B.A.df
+
+  for (i in which(spec[["sample"]] == "Adj")) {
+    nm <- spec[["name"]][i]
+    s <- spec[["stat"]][i]
+
+    #A statistic is folded the way that statistic defines, and a threshold is read off
+    #the statistic column filled just above it -- the spec orders each statistic before
+    #its own threshold.
+    B[[nm]] <- switch(spec[["quantity"]][i],
+                      "sds" = across(nm, quadrature = TRUE),
+                      "stat" = if (abs) STATS[[s]]$abs(across(nm)) else across(nm),
+                      "threshold" = .threshold_label(B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]],
+                                                     B[["Type"]], thresholds[[s]], STATS[[s]]$abs),
+                      across(nm))
+  }
+
+  B
 }
 
 #Misc

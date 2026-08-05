@@ -31,6 +31,8 @@
 
 * The error `bal.plot()` raises when `var.name` names one level of a factor rather than the factor itself now says which variable to supply instead. Splitting a factor into dummies is how `bal.tab()` summarizes it one level at a time, so a name like `race_black` appears in the balance table; `bal.plot()` plots the factor, so the dummy's name is still rejected.
 
+* `bal.tab()` now supports subclassification with continuous treatments, which previously failed with "subclasses are not yet compatible with continuous treatments". The output has the same shape as for a binary treatment: a balance table for each subclass, a balance summary across subclasses, and the subclass sample sizes. Because subclassification cannot be written as a set of weights for a continuous treatment, the summary across subclasses combines the subclass-specific statistics directly, weighting each subclass by its share of the subclassified units; see `?class-bal.tab.subclass`. `bal.plot()` already supported this case.
+
 * Fixed a bug in which supplying `imp` as the name of a variable in `data` failed for `ps` objects, though it worked for every other supported input.
 
 * Fixed a bug in which `treatATT`, a documented alias for `focal` in `bal.tab()`'s default method, was silently ignored.

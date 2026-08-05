@@ -1,7 +1,8 @@
 # The `refactor-bal.tab` branch: what changed, and what to know before changing it again
 
-46 commits on top of `48a3094`. `R/` went **20,256 → 18,395 lines (−1,861)**, and that is
-*after* adding 350 lines of new feature, so the refactor itself removed about 2,200.
+52 commits on top of `48a3094`. `R/` went **20,256 → 18,463 lines (−1,793)**, and that is
+*after* adding 350 lines of new feature and implementing continuous subclassification, so
+the refactor itself removed about 2,200.
 `x2base.R` 4,262 → 2,586 (−39%); `print.bal.tab.R` 1,487 → 1,146 (−23%).
 
 Every commit was verified against three gates. **Read the next section before touching
@@ -13,16 +14,16 @@ anything** — the gates are the reason this was safe, and they are cheap to run
 
 ### `_dev/refactor-golden.R` — the golden-output harness
 
-118 `bal.tab()` cells covering every fixture in `tests/testthat/helper-fixtures.R`
+122 `bal.tab()` cells covering every fixture in `tests/testthat/helper-fixtures.R`
 crossed with the option grid, plus nested shapes. Each cell stores the whole object, the
 captured stdout of `print()` under **10** argument sets, the conditions those raise
 (whitespace-collapsed, so cli's line wrapping is not a diff), and `love.plot()`'s
-`$plot$data` for 10 cells. That is ~1,180 captured outputs.
+`$plot$data` for 10 cells. That is ~1,220 captured outputs.
 
 ```r
 devtools::load_all(); source("_dev/refactor-golden.R")
 compare_golden()    # objects via all.equal(), printed output via identical()
-check_col_spec()    # 295 tables: columns re-derived from print.options must match
+check_col_spec()    # 311 tables: columns re-derived from print.options must match
 golden_build(filter = "regex")   # regenerate only cells a change intentionally alters
 ```
 
@@ -42,7 +43,7 @@ property `print()`'s column selection and `as.data.frame()` both depend on.
 NOT_CRAN=true COBALT_SLOW_TESTS=true Rscript -e 'devtools::load_all(quiet=TRUE); r <- testthat::test_local(reporter="silent"); d <- as.data.frame(r); cat(sum(d$passed), sum(d$failed), sum(d$skipped), "\n")'
 ```
 
-Now **2,392 passed / 0 failed / 12 skipped** (was 1,653 at the start of this work). A
+Now **2,429 passed / 0 failed / 12 skipped** (was 1,653 at the start of this work). A
 changed *skip* count means a fixture broke, not that a refactor worked.
 
 ### `R CMD check`
@@ -63,10 +64,19 @@ warning is the clue. `_R_CHECK_CRAN_INCOMING_=false` skips a CRAN network call t
 73 s once and hung the next time. Do **not** pass `--no-build-vignettes`: it produces two
 spurious warnings, and building them is the only check that they still knit.
 
-**Current result: 0 errors, 2 warnings, 1 note — and all three consist solely of
-`couldn't connect to display …org.xquartz:0`** while preparing `bal.tab.cem.match.Rd`.
-`cem` Depends on `tcltk`, which needs X11 on macOS, so the three checks that run
-`prepare_Rd` each report it. Uninstalling `cem` removes all three.
+**`cem` must not be installed when checking this package.** It Depends on `tcltk`, which
+on macOS needs X11, and `bal.tab.cem.match.Rd` makes `prepare_Rd` load it. Sometimes that
+only warns — three checks then report `couldn't connect to display …org.xquartz:0` as
+2 warnings and a note whose body is otherwise empty. But it can also **hang `R CMD build`
+indefinitely at "installing the package"**, which is what two of the earlier wedges
+actually were, not the `TMPDIR` problem. The diagnosis is
+`lsof -p <pid> | grep -i 'tcltk\|libX11'`: if `tcltk.so`, `libtk8.6`, and `libX11` are
+mapped into a build that is producing no output, that is it. `R CMD REMOVE cem` fixes it,
+costs nothing — the `cem` example is guarded by `@examplesIf rlang::is_installed("cem") &&
+FALSE` and so never runs, and the `cem` test fixture is a stored
+`tests/testthat/fixtures/cem_match.rds` — and makes the check come out clean.
+
+**Current result, with `cem` removed: `Status: OK`. 0 errors, 0 warnings, 0 notes.**
 
 ---
 
@@ -110,6 +120,58 @@ worth remembering as a *class*:
 The first two are now *unrepresentable*, not merely fixed: they were length mismatches
 between a positionally-built display index and the actual columns, and there is now
 exactly one spec row per column.
+
+### The four open behaviour questions, resolved
+
+`_dev/stale-code-candidates.md` is gone: it held four decisions rather than refactors, and
+all four were made. Recorded here because each changed behaviour.
+
+- **A multi-category ATC is an ATT.** With more than two groups there is no single control
+  group for an ATC to name, so `focal` identifies the reference group either way and is
+  required either way. The two used to be separate branches in
+  `process_focal_and_estimand()` that could disagree; reachable only from `bal.init()`,
+  since `bal.tab()` resolves `focal`/`estimand` in each `x2base()` method.
+- **`s.d.denom` is honoured per time point.** `base.bal.tab.msm()` used to *overwrite* it
+  with `switch(X.class, cont = "all", "pooled")`. That value is still the default — a
+  longitudinal treatment targets the ATE and those are the ATE's denominators — but a
+  supplied value now survives, and an unusable one is now rejected instead of ignored.
+- **`bal.plot(var.name = )` still refuses a split dummy**, and now says which variable to
+  supply instead. A factor's dummies exist so `bal.tab()` can summarize the factor one
+  level at a time; `bal.plot()` plots the factor.
+- **Subclassification with a continuous treatment is implemented** (see below).
+
+### Subclassification with continuous treatments
+
+`base.bal.tab.subclass.cont()` was a stub, and `base.bal.tab.subclass()` already took a
+`type`. What was missing was the summary across subclasses, and the reason it was missing
+matters: **a binary treatment can express subclassification as weights** — that is exactly
+what `strata2weights()` does, and the summary is then an ordinary `balance_table()` on the
+reweighted sample. **A continuous treatment cannot.** No set of unit weights makes a
+continuous treatment independent of the covariates within a subclass.
+
+So `balance_table_across_subclass()` combines the subclass-specific statistics instead,
+weighting each subclass by its share of the subclassified units — the same share
+`strata2weights()` gives it, which is worth checking if the aggregation is ever revisited:
+for the ATE that function assigns `n_k / n_{k,t}`, so subclass *k*'s total weight is
+proportional to `n_k`, **not** `n_k²`. `s.weights` make the share a population share, which
+is what keeps the aggregated means equal to the unadjusted ones. Standard deviations are
+combined in quadrature, so the summary value is the pooled within-subclass SD.
+
+Two things to know if this is touched again:
+
+- **The layout must be the one a `balance_table()` with something to adjust would produce.**
+  My first version passed the default `threshold.samples`, so the table carried an
+  `R.Threshold.Un` column that `print()`'s spec does not predict — and since
+  `.keep_bal_cols()` returns a logical vector indexed against the table, R *recycled* it and
+  silently displayed the wrong columns. `check_col_spec()` is the gate for this; the two new
+  `subclass_cont*` golden cells put continuous subclassification under it.
+- `balance_table_subclass()`'s continuous SD branch read `subset = treat == in.subclass`
+  where it meant `subset = in.subclass`. Nothing had ever run it.
+
+The abandoned `balance_table_across_subclass_cont()` (marked `# !!! NEEDS TO BE UPDATED !!!`)
+is deleted. It happened to reach the same aggregation rule, but it was called with
+`subclass.obs = out[["Observations"]]` at a point where `Observations` is still NULL, so it
+could not have run.
 
 ### Feature 2
 
@@ -203,17 +265,24 @@ left untouched, which also preserved their per-block `cat()` conventions.
     object's columns against a `quick = TRUE` one. The column spec must stay a pure
     function of `p.ops`.
 18. **`balance_table_subclass()`'s `compute` is deliberately not intersected with `stats`**,
-    unlike `balance_table()`'s. `test-print.bal.tab.R` depends on it.
-19. **The subclass `print_process()` must *remove* `nweights`, not set it to NULL.** For a
+    unlike `balance_table()`'s. `test-print.bal.tab.R` depends on it. `compute` is also the
+    one attribute `balance_table()` returns *untouched* — `disp` and `thresholds` both lose
+    entries whose columns came out non-finite — which is why
+    `balance_table_across_subclass()` can rebuild the layout from it.
+19. **A balance table with a column its `print.options` do not predict displays the wrong
+    columns, silently.** `.keep_bal_cols()` returns a logical vector that is indexed against
+    the table, so an extra column makes R recycle it rather than error. `check_col_spec()`
+    exists for exactly this; add a golden cell for any new table shape.
+20. **The subclass `print_process()` must *remove* `nweights`, not set it to NULL.** For a
     nested object `p.ops` is `c(parent, child)` and `$` takes the first match, so a
     present-but-NULL entry masks the parent's count.
-20. **Separators are substituted at the very end of `.get_C2()`.** Everything above
+21. **Separators are substituted at the very end of `.get_C2()`.** Everything above
     compares names built with the separators the pieces arrived with; hoisting the
     substitution changes which columns count as duplicates.
-21. **`.get_C2()`'s pieces carry their own `co.names`.** `.C_keep()` is the only thing that
+22. **`.get_C2()`'s pieces carry their own `co.names`.** `.C_keep()` is the only thing that
     removes a column, so the matrix and its parsed names cannot desynchronise. Keep it that
     way.
-22. **`x2base.ps` probes a positional `stop.method` from raw `...`** via
+23. **`x2base.ps` probes a positional `stop.method` from raw `...`** via
     `...names()`/`...elt()`, reachable only from `bal.plot()`. And **`bal.plot()` passes its
     own lazy `...` through**, so converting `...get("foo")` to `A[["foo"]]` forces those
     promises and changes when an erroring unused argument fails. `.finish_X()` forwards
@@ -221,7 +290,7 @@ left untouched, which also preserved their per-block `cat()` conventions.
 
 ### Fixture hazards
 
-23. `lalonde` is sorted treated-first (185 of 614), so `rep(..., length.out = n)` indices
+24. `lalonde` is sorted treated-first (185 of 614), so `rep(..., length.out = n)` indices
     are collinear with treatment at some periods. The `mids` fixture needs `seed = 5678L`
     or `mice()` is nondeterministic across sessions. `covr` needs `NOT_CRAN` in the
     **shell** environment, not `Sys.setenv()` in-R.
@@ -264,30 +333,28 @@ left untouched, which also preserved their per-block `cat()` conventions.
    censoring model. So it is worth *reading* rather than discarding — the parts to leave
    behind are its hardcoded `s.d.denom`, and its `stop()`s for `cluster` and `subclass`,
    which the new `X.class = "target"` leaf makes unnecessary.
-2. **The four items in `_dev/stale-code-candidates.md`** — each a decision, not a refactor.
-   The `s.d.denom`-ignored-on-cluster+longitudinal one is a genuine bug.
-3. **`get_covs_from_formula()` is still 345 lines** and has no duplication left that I could
+2. **`get_covs_from_formula()` is still 345 lines** and has no duplication left that I could
    find; the length is genuine surface area (`.` expansion, nested data frames and matrices,
    backtick-quoting, missingness indicators, single-level factors, the `co.names`
    construction). It now has `test-get-covs-from-formula.R` as a gate, so a future attempt
    is safe. **`get_covs_and_treat_from_formula2()` in WeightIt cannot replace it** — checked
    against WeightIt 2.0.0: circular dependency (WeightIt Imports cobalt), a different return
    contract, and decisively no `co.names`. Do not revisit without new information.
-4. **`.use_tc_fd()` (93 lines)** resolves the treat/covs versus formula/data conventions. A
+3. **`.use_tc_fd()` (93 lines)** resolves the treat/covs versus formula/data conventions. A
    decision table over genuinely different inputs; long but not repetitive.
-5. **The four `bal.tab()` wrapper *heads* are still four functions.** Deliberate: they
+4. **The four `bal.tab()` wrapper *heads* are still four functions.** Deliberate: they
    differ on eight axes, and the msm one does not subset at all (it reshapes `X`). Only the
    shared tail was extracted. A 9-field spec with two callback slots would read worse than
    what it replaced.
-6. **`base.bal.tab()`'s hand-rolled `switch()` on `attr(X, "X.class")` stays.** 12 clear
+5. **`base.bal.tab()`'s hand-rolled `switch()` on `attr(X, "X.class")` stays.** 12 clear
    lines, and a string key is a better dispatch key than an S3 class here.
-7. **`_dev/Under_construction/_as.data.frame.bal.tab.R` is superseded** by
+6. **`_dev/Under_construction/_as.data.frame.bal.tab.R` is superseded** by
    `R/extract.bal.tab.R`. It was a 21-line `reshape(direction = "long")` sketch; the
    shipped version is long-by-default with segmentation as columns, and `format()` covers
    the printed-table case. `bal.tab2tableone.R` was assessed and rejected in the plan: the
    prototype *fabricates* `median`/`p25`/`p75`/`skew`/`kurt` that `bal.tab` never computed.
    Neither is referenced by anything.
 
-8. **Tests still to write:** `bal.plot()` has the thinnest coverage of the exported
+7. **Tests still to write:** `bal.plot()` has the thinnest coverage of the exported
    surface. And `love.plot()`'s aggregation path is pinned by exactly one test — the golden
    set captures `love.plot()` data for 10 cells, **none of which aggregate**.

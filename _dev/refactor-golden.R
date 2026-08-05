@@ -352,6 +352,16 @@ golden_grid <- function() {
             stats = c("mean.diffs", "variance.ratios"), quick = FALSE,
             disp.subclass = TRUE)
   }
+  g$subclass_cont <- function() {
+    bal.tab(covs, treat = lalonde$re75, subclass = sub, un = TRUE,
+            subclass.summary = TRUE, disp.subclass = TRUE,
+            disp = c("means", "sds"), thresholds = c(cor = .1))
+  }
+  g$subclass_cont_quick_false <- function() {
+    bal.tab(covs, treat = lalonde$re75, subclass = sub, un = TRUE, quick = FALSE,
+            stats = c("correlations", "spearman.correlations"),
+            subclass.summary = TRUE, disp.subclass = TRUE)
+  }
 
   ## ---- longitudinal ---------------------------------------------------------
 

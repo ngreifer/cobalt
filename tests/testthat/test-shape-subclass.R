@@ -1,13 +1,109 @@
 #`bal.tab()` with subclassification: the arguments handled by
 #`base.bal.tab.subclass()` rather than by `print()`.
 
-test_that("subclasses require a binary treatment", {
+test_that("subclasses reject multi-category treatments", {
   covs <- lalonde[c("age", "educ")]
 
-  expect_err(bal.tab(covs, treat = lalonde$re75, subclass = sub_idx),
-             "not yet compatible with continuous treatments")
   expect_err(bal.tab(covs, treat = lalonde$race, subclass = sub_idx),
              "not currently compatible with subclasses")
+})
+
+test_that("subclassification works with a continuous treatment", {
+  covs <- lalonde[c("age", "educ", "married", "race")]
+  sub_levels <- as.character(sort(unique(sub_idx)))
+
+  b <- bal.tab(covs, treat = lalonde$re75, subclass = sub_idx, un = TRUE,
+               subclass.summary = TRUE, thresholds = c(cor = .1),
+               disp = c("means", "sds"))
+
+  expect_s3_class(b, "bal.tab.subclass")
+  expect_named(b$Subclass.Balance, sub_levels)
+  expect_no_error(capture.output(print(b)))
+
+  #Only adjusted values exist within a subclass, because the subclassification is the
+  #adjustment; the summary carries both samples. The threshold column belongs to the
+  #adjusted sample alone, as it does for a binary treatment -- `print()` predicts the
+  #layout from the print options, so an unexpected column shifts every column after it.
+  expect_identical(names(b$Subclass.Balance[[1L]]),
+                   c("Type", "M.Adj", "SD.Adj", "Corr.Adj", "R.Threshold"))
+  expect_identical(names(b$Balance.Across.Subclass),
+                   c("Type", "M.Un", "SD.Un", "Corr.Un",
+                     "M.Adj", "SD.Adj", "Corr.Adj", "R.Threshold"))
+
+  #The summary weights each subclass by its share of the subclassified units.
+  p <- as.numeric(prop.table(table(sub_idx)))
+  from_subclasses <- function(col) {
+    do.call("cbind", lapply(b$Subclass.Balance, `[[`, col))
+  }
+
+  expect_equal(b$Balance.Across.Subclass$Corr.Adj,
+               drop(from_subclasses("Corr.Adj") %*% p))
+
+  #Standard deviations are combined in quadrature, so the summary value is the pooled
+  #within-subclass standard deviation rather than an average of standard deviations.
+  expect_equal(b$Balance.Across.Subclass$SD.Adj,
+               sqrt(drop(from_subclasses("SD.Adj")^2 %*% p)))
+  expect_true(all(b$Balance.Across.Subclass$SD.Adj <=
+                    b$Balance.Across.Subclass$SD.Un))
+
+  #Subclassification does not change the covariate distribution, so the summary means
+  #are the means of the original sample.
+  expect_equal(b$Balance.Across.Subclass$M.Adj,
+               b$Balance.Across.Subclass$M.Un)
+
+  #The tally and max-imbalance tables have one column or row per subclass.
+  expect_named(b$Balanced.correlations.Subclass, paste("Subclass", sub_levels))
+  expect_identical(rownames(b$Max.Imbalance.correlations.Subclass),
+                   paste("Subclass", sub_levels))
+
+  #A continuous treatment's sample-size table is a single `Total` row.
+  expect_identical(rownames(b$Observations), "Total")
+  expect_identical(colnames(b$Observations), c(sub_levels, "All"))
+  expect_equal(b$Observations[["All"]], nrow(lalonde))
+  expect_equal(sum(b$Observations[sub_levels]), nrow(lalonde))
+})
+
+test_that("continuous subclassification honours the display arguments", {
+  covs <- lalonde[c("age", "educ", "married", "race")]
+
+  #`s.weights` make a subclass's share its share of the population, which is what keeps
+  #the summary means equal to the unadjusted ones.
+  b_sw <- bal.tab(covs, treat = lalonde$re75, subclass = sub_idx, s.weights = sw_fixed,
+                  un = TRUE, subclass.summary = TRUE, disp = "means")
+
+  expect_equal(b_sw$Balance.Across.Subclass$M.Adj,
+               b_sw$Balance.Across.Subclass$M.Un)
+
+  #`abs` folds the summary statistic, and some correlation here is negative, so this
+  #is not vacuous.
+  b <- bal.tab(covs, treat = lalonde$re75, subclass = sub_idx,
+               subclass.summary = TRUE, un = TRUE)
+  b_abs <- bal.tab(covs, treat = lalonde$re75, subclass = sub_idx,
+                   subclass.summary = TRUE, un = TRUE, abs = TRUE)
+
+  expect_true(any(b$Balance.Across.Subclass$Corr.Adj < 0))
+  expect_equal(b_abs$Balance.Across.Subclass$Corr.Adj,
+               abs(b$Balance.Across.Subclass$Corr.Adj))
+
+  #`quick = FALSE` computes the columns otherwise skipped, and the per-subclass tables
+  #then carry statistics the summary does not -- `print()` must cope with both.
+  b_slow <- bal.tab(covs, treat = lalonde$re75, subclass = sub_idx, quick = FALSE,
+                    stats = c("correlations", "spearman.correlations"),
+                    subclass.summary = TRUE, un = TRUE)
+  expect_no_error(capture.output(print(b_slow)))
+  expect_no_error(capture.output(print(b_slow, which.subclass = .all)))
+  expect_no_error(capture.output(print(b_slow, stats = "spearman.correlations")))
+
+  #And the other consumers of a subclassified object.
+  expect_s3_class(love.plot(b), "love.plot")
+  expect_s3_class(as.data.frame(b), "data.frame")
+  expect_s3_class(format(b), "data.frame")
+
+  #Nested inside a cluster, as a binary treatment can be.
+  b_cl <- bal.tab(covs, treat = lalonde$re75, subclass = sub_idx, cluster = cl_idx)
+  expect_s3_class(b_cl, "bal.tab.cluster")
+  expect_s3_class(b_cl$Cluster.Balance[[1L]], "bal.tab.subclass")
+  expect_no_error(capture.output(print(b_cl)))
 })
 
 test_that("which.subclass and disp.subclass are honoured at bal.tab() time", {
