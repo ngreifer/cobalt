@@ -603,7 +603,7 @@ test_that("unsplitfactor() validates its arguments", {
 
   #An inconsistent NA pattern across the dummy set is an error.
   s_bad <- s
-  s_bad[["f_A"]][1L] <- NA
+  is.na(s_bad[["f_A"]][1L]) <- TRUE
   expect_err(unsplitfactor(s_bad, "f"), "do not seem to form a split variable")
 
   #Row sums that are neither 0 nor 1 are an error.

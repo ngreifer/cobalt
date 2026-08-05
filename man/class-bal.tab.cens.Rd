@@ -14,7 +14,9 @@ Balance is therefore assessed between two samples built from the same units:
 
 Setting \code{un = TRUE} adds the same comparison with the uncensored units unweighted, which is the balance the weights were estimated to remove.
 
-The two samples are compared using the same statistics available for binary treatments (\code{mean.diffs}, \code{variance.ratios}, \code{ks.statistics}, and \code{ovl.coefficients}), because internally they are stacked into a binary comparison: group \code{0} is the uncensored sample and group \code{1} the full sample. So in the balance table, \code{M.0} and \code{SD.0} describe the uncensored sample, \code{M.1} and \code{SD.1} the full sample, and \code{Diff} is the difference between the full sample and the uncensored one. This is the same arrangement described under "Assessing balance" in \code{WeightIt::.cens()}, so the values agree with the manual computation documented there.
+The two samples are compared using the same statistics available for binary treatments (\code{mean.diffs}, \code{variance.ratios}, \code{ks.statistics}, and \code{ovl.coefficients}), because internally they are stacked into a binary comparison. The two samples name their own columns rather than taking a binary treatment's positional \code{0} and \code{1}, so the balance table has \code{M.Uncensored} and \code{SD.Uncensored} for the uncensored sample and \code{M.Full} and \code{SD.Full} for the full one, and \code{Diff} is the difference between the full sample and the uncensored one. That direction is the arrangement described under "Assessing balance" in \code{WeightIt::.cens()}, so the values agree with the manual computation documented there.
+
+\code{\link[=bal.plot]{bal.plot()}} works too, showing the weighted uncensored sample against the unweighted full sample.
 }
 \section{Allowable arguments}{
 
@@ -24,15 +26,25 @@ Every argument to \code{bal.tab()} applies as it does with a binary treatment, w
 \describe{
 \item{\code{s.d.denom}}{allowable values are \code{"full"} (the default), which uses the standard deviation of the covariate in the full at-risk sample; \code{"uncensored"}, which uses that of the uncensored sample; and \code{"pooled"}, \code{"all"}, \code{"weighted"}, and \code{"hedges"}, which behave as they do for a binary treatment. Because a censoring model's target is fixed by its design rather than inferred, no note is printed about the value used.}
 \item{\code{estimand} and \code{focal}}{do not apply and are ignored with a warning. The target is the full at-risk sample.}
-\item{\code{subclass} and \code{match.strata}}{do not apply, as subclassification is not a way of estimating censoring weights.}
+\item{\code{subclass}}{applies: subclassifying is itself a way of solving a censoring problem, in that within each subclass the uncensored units should resemble every at-risk unit in it. See "With subclasses" below.}
+\item{\code{match.strata}}{does not apply. It turns strata into weights before the two samples exist; the same strata say the same thing supplied to \code{subclass}.}
 }
 
 \code{cluster} and \code{imp} apply as usual, and produce a \code{bal.tab.cluster} or \code{bal.tab.imp} object whose per-cluster or per-imputation components are the censoring balance tables described here.
 }
 
+\section{With subclasses}{
+
+Subclassification is an alternative to weighting for solving a censoring problem: within each subclass, the units still under observation should resemble every at-risk unit in that subclass. Supplying \code{subclass} therefore produces a \code{bal.tab.cens} object that also inherits from \code{bal.tab.subclass}, with a balance table for each subclass and a summary across them, as described at \code{\link{class-bal.tab.subclass}}.
+
+The summary across subclasses is subclassification expressed as censoring weights: a unit still under observation in subclass \eqn{k} receives \eqn{n_k / n_{k1}}, where \eqn{n_k} is the number of at-risk units in the subclass and \eqn{n_{k1}} the number of them still under observation, and the full sample is left unweighted. This is the same summary one would get from supplying those weights to a censoring model directly.
+
+The sample sizes have one column per subclass, with \code{Full}, \code{Uncensored}, and \code{Censored} rows.
+}
+
 \section{Output}{
 
-The output is a \code{bal.tab.cens} object, which inherits from \code{bal.tab.bin} and \code{bal.tab}, and has the same elements as an ordinary binary-treatment \code{bal.tab} object. Its \code{Observations} component differs: it has a single \code{Total} column, because the target sample is the same in every row, and the rows
+The output is a \code{bal.tab.cens} object, which inherits from \code{bal.tab.bin} and \code{bal.tab} (or from \code{bal.tab.subclass} when \code{subclass} is supplied), and has the same elements as an ordinary binary-treatment \code{bal.tab} object. Its \code{Observations} component differs: it has a single \code{Total} column, because the target sample is the same in every row, and the rows
 \itemize{
 \item \code{Full}: the number (or effective number) of at-risk units,
 \item \code{Uncensored}: the number of units still under observation,
@@ -47,6 +59,7 @@ The output is a \code{bal.tab.cens} object, which inherits from \code{bal.tab.bi
 \itemize{
 \item \code{\link[=bal.tab]{bal.tab()}}
 \item \code{\link[=.cens]{.cens()}} for marking an indicator as censoring
-\item \code{\link{class-bal.tab.cluster}} and \code{\link{class-bal.tab.imp}} for the segmented cases
+\item \code{\link{class-bal.tab.cluster}}, \code{\link{class-bal.tab.imp}}, and \code{\link{class-bal.tab.subclass}} for the segmented cases
+\item \code{\link[=treat-class]{treat}} for the attributes that decide how a treatment is compared and what its groups are called
 }
 }

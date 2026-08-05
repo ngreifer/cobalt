@@ -8,6 +8,8 @@
 #'     
 #' The balance summary is, for each variable, like a weighted average of the balance statistics across subclasses. With a binary treatment, this is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the `match.strata` argument rather than to `subclass`. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be.
 #'
+#' With a censoring indicator, subclassification is itself the solution: within each subclass the units still under observation should resemble every at-risk unit in it, and the summary across subclasses is that subclassification expressed as censoring weights. See [`class-bal.tab.cens`].
+#'
 #' With a continuous treatment, subclassification cannot be expressed as weights, because no set of weights makes a continuous treatment independent of the covariates within a subclass. The balance summary is therefore computed by combining the subclass-specific statistics directly, weighting each subclass by its share of the subclassified units (using `s.weights`, if supplied). Every statistic is a weighted average of the subclass-specific values, except the standard deviations, which are combined in quadrature so that the summary value is the pooled within-subclass standard deviation. The summary means are consequently the same as the means in the original sample, since subclassification does not change the distribution of the covariates.
 #'
 #' @section Allowable arguments:
@@ -50,6 +52,7 @@ base.bal.tab.subclass <- function(X,
                                   disp.call = getOption("cobalt_disp.call", FALSE),
                                   abs = FALSE,
                                   quick = TRUE,
+                                  .obs = NULL,
                                   ...) {
   #Preparations
   A <- clear_null(list(...))
@@ -198,13 +201,16 @@ base.bal.tab.subclass <- function(X,
     }
   }
   
-  out[["Observations"]] <- samplesize(treat = X[["treat"]], 
-                                      type = type,
-                                      weights = NULL, 
-                                      subclass = X[["subclass"]],
-                                      s.weights = X[["s.weights"]], 
-                                      method = X[["method"]], 
-                                      discarded = X[["discarded"]])
+  #`.obs` is for a caller whose `X` was reshaped before it got here; see
+  #`base.bal.tab.base()`.
+  out[["Observations"]] <- .obs %or%
+    samplesize(treat = X[["treat"]],
+               type = type,
+               weights = NULL,
+               subclass = X[["subclass"]],
+               s.weights = X[["s.weights"]],
+               method = X[["method"]],
+               discarded = X[["discarded"]])
   
   out[["call"]] <- X[["call"]]
   attr(out, "print.options") <- list(thresholds = thresholds,
@@ -224,6 +230,7 @@ base.bal.tab.subclass <- function(X,
                                      binary = binary,
                                      quick = quick,
                                      treat_names = treat_vals(X[["treat"]]),
+                                     group.labels = group_labels(X[["treat"]]),
                                      type = type,
                                      co.names = co.names)
   

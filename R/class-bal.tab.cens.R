@@ -11,7 +11,9 @@
 #'
 #' Setting `un = TRUE` adds the same comparison with the uncensored units unweighted, which is the balance the weights were estimated to remove.
 #'
-#' The two samples are compared using the same statistics available for binary treatments (`mean.diffs`, `variance.ratios`, `ks.statistics`, and `ovl.coefficients`), because internally they are stacked into a binary comparison: group `0` is the uncensored sample and group `1` the full sample. So in the balance table, `M.0` and `SD.0` describe the uncensored sample, `M.1` and `SD.1` the full sample, and `Diff` is the difference between the full sample and the uncensored one. This is the same arrangement described under "Assessing balance" in `WeightIt::.cens()`, so the values agree with the manual computation documented there.
+#' The two samples are compared using the same statistics available for binary treatments (`mean.diffs`, `variance.ratios`, `ks.statistics`, and `ovl.coefficients`), because internally they are stacked into a binary comparison. The two samples name their own columns rather than taking a binary treatment's positional `0` and `1`, so the balance table has `M.Uncensored` and `SD.Uncensored` for the uncensored sample and `M.Full` and `SD.Full` for the full one, and `Diff` is the difference between the full sample and the uncensored one. That direction is the arrangement described under "Assessing balance" in `WeightIt::.cens()`, so the values agree with the manual computation documented there.
+#'
+#' [bal.plot()] works too, showing the weighted uncensored sample against the unweighted full sample.
 #'
 #' @section Allowable arguments:
 #'
@@ -20,13 +22,21 @@
 #' \describe{
 #'     \item{`s.d.denom`}{allowable values are `"full"` (the default), which uses the standard deviation of the covariate in the full at-risk sample; `"uncensored"`, which uses that of the uncensored sample; and `"pooled"`, `"all"`, `"weighted"`, and `"hedges"`, which behave as they do for a binary treatment. Because a censoring model's target is fixed by its design rather than inferred, no note is printed about the value used.}
 #'     \item{`estimand` and `focal`}{do not apply and are ignored with a warning. The target is the full at-risk sample.}
-#'     \item{`subclass` and `match.strata`}{do not apply, as subclassification is not a way of estimating censoring weights.}
+#'     \item{`subclass`}{applies: subclassifying is itself a way of solving a censoring problem, in that within each subclass the uncensored units should resemble every at-risk unit in it. See "With subclasses" below.}
+#'     \item{`match.strata`}{does not apply. It turns strata into weights before the two samples exist; the same strata say the same thing supplied to `subclass`.}
 #' }
 #'
 #' `cluster` and `imp` apply as usual, and produce a `bal.tab.cluster` or `bal.tab.imp` object whose per-cluster or per-imputation components are the censoring balance tables described here.
 #'
+#' @section With subclasses:
+#' Subclassification is an alternative to weighting for solving a censoring problem: within each subclass, the units still under observation should resemble every at-risk unit in that subclass. Supplying `subclass` therefore produces a `bal.tab.cens` object that also inherits from `bal.tab.subclass`, with a balance table for each subclass and a summary across them, as described at [`class-bal.tab.subclass`].
+#'
+#' The summary across subclasses is subclassification expressed as censoring weights: a unit still under observation in subclass \eqn{k} receives \eqn{n_k / n_{k1}}, where \eqn{n_k} is the number of at-risk units in the subclass and \eqn{n_{k1}} the number of them still under observation, and the full sample is left unweighted. This is the same summary one would get from supplying those weights to a censoring model directly.
+#'
+#' The sample sizes have one column per subclass, with `Full`, `Uncensored`, and `Censored` rows.
+#'
 #' @section Output:
-#' The output is a `bal.tab.cens` object, which inherits from `bal.tab.bin` and `bal.tab`, and has the same elements as an ordinary binary-treatment `bal.tab` object. Its `Observations` component differs: it has a single `Total` column, because the target sample is the same in every row, and the rows
+#' The output is a `bal.tab.cens` object, which inherits from `bal.tab.bin` and `bal.tab` (or from `bal.tab.subclass` when `subclass` is supplied), and has the same elements as an ordinary binary-treatment `bal.tab` object. Its `Observations` component differs: it has a single `Total` column, because the target sample is the same in every row, and the rows
 #'
 #' * `Full`: the number (or effective number) of at-risk units,
 #' * `Uncensored`: the number of units still under observation,
@@ -38,11 +48,41 @@
 #' @seealso
 #' * [bal.tab()]
 #' * [.cens()] for marking an indicator as censoring
-#' * [`class-bal.tab.cluster`] and [`class-bal.tab.imp`] for the segmented cases
+#' * [`class-bal.tab.cluster`], [`class-bal.tab.imp`], and [`class-bal.tab.subclass`] for the segmented cases
+#' * [`treat-class`] for the attributes that decide how a treatment is compared and what its groups are called
 #'
 NULL
 
 base.bal.tab.cens <- function(X, ...) {
+  s <- .stack_cens_X(X)
+
+  out <- base.bal.tab.base(s[["X"]], type = "bin", .obs = s[["obs"]], ...)
+
+  set_class(out, c("bal.tab.cens", class(out)))
+}
+
+base.bal.tab.subclass.cens <- function(X, ...) {
+  s <- .stack_cens_X(X)
+
+  X <- s[["X"]]
+
+  #Subclassification is itself the censoring solution: within each subclass the
+  #uncensored units should look like every at-risk unit in it. Expressed as weights that
+  #is `n_k / n_{k,uncensored}` for the uncensored units and 1 for the full sample, which
+  #is exactly what `strata2weights()` produces for an ATT whose focal group is the full
+  #sample. So the summary across subclasses needs nothing new either; it just needs to
+  #be told which group is the target.
+  X[["estimand"]] <- "ATT"
+
+  out <- base.bal.tab.subclass(X, type = "bin", .obs = s[["obs"]], ...)
+
+  set_class(out, c("bal.tab.cens", class(out)))
+}
+
+#The two samples of a censoring model, stacked into one `X` with a binary
+#pseudo-treatment, together with the sample sizes of the units they were built from.
+#Both the plain and the subclassified leaf start here.
+.stack_cens_X <- function(X, .count = TRUE) {
   C <- X[["treat"]]
 
   #A unit with a missing indicator is not at risk -- in a longitudinal model it was
@@ -56,7 +96,13 @@ base.bal.tab.cens <- function(X, ...) {
 
   n.uncensored <- length(uncensored)
 
-  obs <- samplesize_cens(C, weights = X[["weights"]], s.weights = X[["s.weights"]])
+  #`bal.plot()` wants the stacking but not the counting, which would also warn about
+  #subclasses too small to compute a balance statistic in -- irrelevant to a plot.
+  obs <- {
+    if (.count) samplesize_cens(C, weights = X[["weights"]], s.weights = X[["s.weights"]],
+                                subclass = X[["subclass"]])
+    else NULL
+  }
 
   #The two samples become one stacked data set: the uncensored units, then every
   #at-risk unit. `subset_X()` does the stacking, since it takes indices and nothing
@@ -84,9 +130,7 @@ base.bal.tab.cens <- function(X, ...) {
 
   X[c("estimand", "focal")] <- NULL
 
-  out <- base.bal.tab.base(X, type = "bin", .obs = obs, ...)
-
-  set_class(out, c("bal.tab.cens", class(out)))
+  list(X = X, obs = obs)
 }
 
 #The stacked pseudo-treatment. Built as a processed binary treatment so that every
@@ -99,6 +143,10 @@ base.bal.tab.cens <- function(X, ...) {
 
   treat_names(treat) <- setNames(c("Uncensored", "Full"), c("control", "treated"))
   treat_vals(treat) <- setNames(c("0", "1"), treat_names(treat))
+
+  #Once the two samples exist they are what the balance table's columns are about, so
+  #they name those columns: `M.Uncensored` and `M.Full` rather than `M.0` and `M.1`.
+  group_labels(treat) <- unname(treat_names(treat))
 
   treat
 }
@@ -120,13 +168,42 @@ base.bal.tab.cens <- function(X, ...) {
 #in every row, and the rows describe the samples rather than the adjustment: the
 #at-risk sample, the units still under observation before and after weighting, and how
 #many were censored.
-samplesize_cens <- function(C, weights = NULL, s.weights = NULL) {
+samplesize_cens <- function(C, weights = NULL, s.weights = NULL, subclass = NULL) {
   if (is_null(s.weights)) {
     s.weights <- rep_with(1, C)
   }
 
   at.risk <- !is.na(C)
   uncensored <- at.risk & C == 0
+
+  #Subclassification is the adjustment, so there is nothing to weight and the interest
+  #is in how the two samples divide up. One column per subclass, transposed relative to
+  #the unsubclassified table for the same reason the binary one is.
+  if (is_not_null(subclass)) {
+    subclass <- factor(subclass)
+    in.subclass <- !is.na(subclass)
+
+    nn <- make_df(c(levels(subclass), "All"), c("Full", "Uncensored", "Censored"))
+
+    counts <- function(i) {
+      c(vapply(levels(subclass),
+               function(k) sum(i & in.subclass & subclass == k), numeric(1L)),
+        "All" = sum(i))
+    }
+
+    nn["Full", ] <- counts(at.risk)
+    nn["Uncensored", ] <- counts(uncensored)
+    nn["Censored", ] <- counts(at.risk & C == 1)
+
+    small.subclass <- nn["Uncensored", levels(subclass)] <= 1L
+    if (any(small.subclass)) {
+      arg::wrn("not enough uncensored units in {cli::qty(sum(small.subclass))} subclass{?es} {levels(subclass)[small.subclass]}")
+    }
+
+    attr(nn, "tag") <- "Sample sizes by subclass"
+
+    return(nn)
+  }
 
   adj.rows <- {
     if (is_null(weights)) character()

@@ -4,7 +4,7 @@
 #'
 #' @param x a censoring indicator: a numeric variable taking only the values 0 (still under observation) and 1 (censored), a logical variable, or a factor with levels `0`/`1` or `FALSE`/`TRUE`. Missing values are allowed and preserved.
 #'
-#' @returns `x` coerced to a 0/1 numeric vector of class `treat` with a `"treat.type"` attribute of `"censoring"`. Any value other than 0, 1, or `NA` throws an error.
+#' @returns `x` coerced to a 0/1 numeric vector of class `treat` (see [`treat-class`]) with a `"treat.type"` attribute of `"censoring"`. Any value other than 0, 1, or `NA` throws an error.
 #'
 #' Inside a formula the marker is stripped before the formula is processed, so `.cens()` is not actually evaluated there and the treatment name remains that of the indicator itself (e.g., `C` rather than `.cens(C)`).
 #'
@@ -54,11 +54,10 @@
   attr(out, "treat.type") <- "censoring"
   attr(out, "treat.name") <- treat.name
 
-  #The `treat` class is what `WeightIt::.cens()` uses, and matching it means an
-  #indicator tagged by either package is accepted by both. No `[.treat` method is
-  #defined here; that would collide with WeightIt's. `process_treat()` converts the
-  #tag to a `processed.treat` immediately, and `subset_processed.treat()` carries it.
-  set_class(out, "treat", .replace = FALSE)
+  #See `?treat-class`: `treat` is the class every processed treatment has, and the one
+  #`WeightIt::.cens()` uses, so an indicator tagged by either package is accepted by
+  #both.
+  set_class(out, c("cobalt.treat", "treat"), .replace = FALSE, .last = FALSE)
 }
 
 #Coerce a censoring indicator to a plain 0/1 numeric vector, stripped of attributes

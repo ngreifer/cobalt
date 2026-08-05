@@ -10,7 +10,7 @@
 \item{x}{a censoring indicator: a numeric variable taking only the values 0 (still under observation) and 1 (censored), a logical variable, or a factor with levels \code{0}/\code{1} or \code{FALSE}/\code{TRUE}. Missing values are allowed and preserved.}
 }
 \value{
-\code{x} coerced to a 0/1 numeric vector of class \code{treat} with a \code{"treat.type"} attribute of \code{"censoring"}. Any value other than 0, 1, or \code{NA} throws an error.
+\code{x} coerced to a 0/1 numeric vector of class \code{treat} (see \code{\link[=treat-class]{treat}}) with a \code{"treat.type"} attribute of \code{"censoring"}. Any value other than 0, 1, or \code{NA} throws an error.
 
 Inside a formula the marker is stripped before the formula is processed, so \code{.cens()} is not actually evaluated there and the treatment name remains that of the indicator itself (e.g., \code{C} rather than \code{.cens(C)}).
 }

@@ -55,124 +55,6 @@ process_obj <- function(obj) {
 }
 
 #x2base
-process_treat <- function(treat, ..., keep_values = FALSE) {
-  
-  arg::arg_supplied(treat)
-  
-  if (inherits(treat, "unprocessed.treat")) {
-    attrs <- attributes(treat)
-    renamed_original <- setNames(names(treat_vals(treat)), treat_vals(treat))
-    treat <- factor(renamed_original[as.character(treat)], levels = renamed_original)
-
-    for (at in c("treat_names", "treat_vals", "keep_values", "treat.type", "names")) {
-      attr(treat, at) <- attrs[[at]]
-    }
-  }
-  #A censoring indicator keeps its own two values and gets no `treat_names`: the two
-  #samples balance is assessed between are the uncensored units and the full at-risk
-  #sample, and those are built at the leaf. It may be missing, unlike a treatment,
-  #because a unit censored earlier has no later indicator.
-  else if (.is_cens(treat)) {
-    treat.name <- .attr(treat, "treat.name")
-
-    treat <- .process_vector(treat, name = "treat",
-                             which = "censoring statuses",
-                             datalist = list(...), missing.okay = TRUE) |>
-      .make_cens_treat()
-
-    attr(treat, "treat.type") <- "censoring"
-    attr(treat, "treat.name") <- treat.name
-  }
-  else {
-    # keep_values <- isTRUE(attr(treat, "keep_values")) || 
-    #     (has.treat.type(treat) && get.treat.type(treat) == "multinomial")
-    
-    treat <- .process_vector(treat, name = "treat", 
-                             which = "treatment statuses", 
-                             datalist = list(...), missing.okay = FALSE) |>
-      assign.treat.type()
-    
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type == "binary") {
-      if (!is.factor(treat)) {
-        treat <- factor(treat, levels = sort(unique(treat, nmax = 2L)))
-      }
-      
-      original_values <- intersect(levels(treat), unique(treat, nmax = 2L))
-      
-      treat_names(treat) <- {
-        if (!keep_values && can_str2num(as.character(treat)) &&
-            all(original_values %in% c("0", "1"))) {
-          setNames(c("Control", "Treated"), c("control", "treated"))
-        }
-        else {
-          setNames(original_values, c("control", "treated"))
-        }
-      }
-      
-      treat_vals(treat) <- setNames(original_values, treat_names(treat))
-    }
-    else if (treat.type == "multinomial") {
-      treat <- factor(treat, ordered = FALSE)
-      treat_names(treat) <- setNames(levels(treat), levels(treat))
-      treat_vals(treat) <- setNames(levels(treat), treat_names(treat))
-    }
-    attr(treat, "treat.type") <- treat.type
-    # attr(treat, "keep_values") <- keep_values
-  }
-  
-  set_class(treat, "processed.treat", .replace = FALSE)
-}
-process_treat.list <- function(treat.list, ...) {
-  arg::arg_supplied(treat.list)
-  
-  if (!is.list(treat.list)) {
-    treat.list <- as.list(treat.list)
-  }
-  
-  hasdots <- ...length() > 0L
-  
-  treat.list.names <- vapply(seq_along(treat.list), function(ti) {
-    if (hasdots && rlang::is_string(treat.list[[ti]])) treat.list[[ti]]
-    else if (rlang::is_named(treat.list)) names(treat.list)[ti]
-    else as.character(ti)
-  }, character(1L))
-  
-  lapply(treat.list, process_treat, ...) |>
-    setNames(treat.list.names)
-}
-`treat_names<-` <- function(treat, value) {
-  `attr<-`(treat, "treat_names", value)
-}
-treat_names <- function(treat) {
-  .attr(treat, "treat_names")
-}
-`treat_vals<-` <- function(treat, value) {
-  `attr<-`(treat, "treat_vals", value)
-}
-treat_vals <- function(treat) {
-  .attr(treat, "treat_vals")
-}
-subset_processed.treat <- function(x, index) {
-  y <- x[index]
-
-  #A censoring indicator has no levels to narrow, and reclassifying it would turn it
-  #back into a binary treatment. Its tag is the whole of what has to survive.
-  if (.is_cens(x)) {
-    attr(y, "treat.type") <- "censoring"
-    attr(y, "treat.name") <- .attr(x, "treat.name")
-
-    return(set_class(y, class(x)))
-  }
-
-  treat_names(y) <- treat_names(x)[treat_vals(x) %in% unique(y)]
-  treat_vals(y) <- treat_vals(x)[treat_vals(x) %in% unique(y)]
-
-  assign.treat.type(y) |>
-    set_class(class(x))
-}
-
 #Every slot of `X`, in the order `bal.tab()` returns them. `.finish_X()` fills each
 #from the like-named local in the calling `x2base()` method, so a slot missing here is
 #a slot silently dropped.
@@ -648,7 +530,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   specified <- is_not_null(s.d.denom)
 
   .treat <- function() {
-    if (inherits(treat, "processed.treat")) treat
+    if (inherits(treat, "treat")) treat
     else process_treat(treat)
   }
 
@@ -1001,7 +883,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     else {
       unique.treats <- {
-        if (inherits(treat, "processed.treat")) as.character(treat_vals(treat))
+        if (inherits(treat, "treat")) as.character(treat_vals(treat))
         else as.character(unique(treat))
       }
       
@@ -1105,7 +987,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     X.class <- switch(get.treat.type(X[["treat"]]),
                       binary = "subclass.binary",
                       continuous = "subclass.cont",
-                      censoring = arg::err("censoring indicators are not compatible with subclasses"),
+                      censoring = "subclass.cens",
                       arg::err("multi-category treatments are not currently compatible with subclasses"))
   }
   else if (is_not_null(X[["covs.list"]])) X.class <- "msm"
@@ -1169,7 +1051,7 @@ subset_X <- function(X, subset = NULL) {
     
     out <- {
       if (is_null(x)) x
-      else if (inherits(x, "processed.treat")) subset_processed.treat(x, subset)
+      else if (inherits(x, "treat")) subset_treat(x, subset)
       else if ((is.matrix(x) || is.data.frame(x))) x[subset, , drop = FALSE]
       else if (is.factor(x)) factor(x[subset], nmax = nlevels(x))
       else if (is.atomic(x)) x[subset]
@@ -1181,7 +1063,7 @@ subset_X <- function(X, subset = NULL) {
       return(out)
     }
     
-    if (inherits(x, "processed.treat")) {
+    if (inherits(x, "treat")) {
       return(process_treat(out, keep_values = TRUE))
     }
     
@@ -3031,7 +2913,8 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   #B=Balance frame
   spec <- .bal_tab_col_spec(type, compute, thresholds,
                             samples = c("Un", weight.names),
-                            threshold.samples = if (no.adj) "Un" else weight.names)
+                            threshold.samples = if (no.adj) "Un" else weight.names,
+                            group.labels = group_labels(treat))
 
   B <- make_df(spec[["name"]], NCOL(C))
   rownames(B) <- colnames(C)
@@ -3043,17 +2926,17 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   #Means for each group
   if ("means" %in% compute) {
     if (type == "bin") {
-      tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
+      tn01 <- .bin_groups(treat)
       
       if (un || !quick) {
-        for (t in c("0", "1")) {
+        for (t in names(tn01)) {
           B[[paste.("M", t, "Un")]] <- col_w_mean(C, weights = NULL, s.weights = s.weights, subset = treat == tn01[t])
         }
       }
       
       if (!no.adj && (!quick || "means" %in% disp)) {
         for (i in weight.names) {
-          for (t in c("0", "1")) {
+          for (t in names(tn01)) {
             B[[paste.("M", t, i)]] <- col_w_mean(C, weights = weights[[i]], s.weights = s.weights, subset = treat == tn01[t])
           }
         }
@@ -3076,10 +2959,10 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   if ("sds" %in% compute) {
     sd.computable <- if (binary == "std") rep.int(TRUE, nrow(B)) else !bin.vars
     if (type == "bin") {
-      tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
+      tn01 <- .bin_groups(treat)
       
       if (un || !quick) {
-        for (t in c("0", "1")) {
+        for (t in names(tn01)) {
           sds <- rep.int(NA_real_, NCOL(C))
           if (any(sd.computable)) {
             sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], weights = NULL, s.weights = s.weights,
@@ -3091,7 +2974,7 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
       
       if (!no.adj && (!quick || "sds" %in% disp)) {
         for (i in weight.names) {
-          for (t in c("0", "1")) {
+          for (t in names(tn01)) {
             sds <- rep.int(NA_real_, NCOL(C))
             if (any(sd.computable)) {
               sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], weights = weights[[i]], s.weights = s.weights,
@@ -3324,6 +3207,7 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   quick <- .attr(bal.tab.list[[1L]], "print.options")[["quick"]]
   weight.names <- .attr(bal.tab.list[[1L]], "print.options")[["weight.names"]] %or% "Adj"
   abs <- .attr(bal.tab.list[[1L]], "print.options")[["abs"]]
+  group.labels <- .attr(bal.tab.list[[1L]], "print.options")[["group.labels"]]
   #Read from `disp.adj`, as `threshold_summary()`'s callers do: a subclassified child
   #carries no `nweights`, and `NULL == 0` is `logical(0)`, not `TRUE`.
   no.adj <- !isTRUE(.attr(bal.tab.list[[1L]], "print.options")[["disp.adj"]])
@@ -3350,6 +3234,7 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
                               else if (no.adj) "Un"
                               else weight.names
                             },
+                            group.labels = group.labels,
                             threshold.agg.fun = Agg.Funs.Given,
                             include.times = include.times)
 
@@ -3460,7 +3345,8 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
   compute <- if (quick) disp else c("means", "sds", all_STATS(type))
   
   #B=Balance frame
-  spec <- .bal_tab_col_spec(type, compute, thresholds, samples = "Adj")
+  spec <- .bal_tab_col_spec(type, compute, thresholds, samples = "Adj",
+                            group.labels = group_labels(treat))
 
   B <- make_df(spec[["name"]], colnames(C))
   
@@ -3489,8 +3375,8 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
     #Means for each group
     if ("means" %in% compute) {
       if (type == "bin") {
-        tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
-        for (t in c("0", "1")) {
+        tn01 <- .bin_groups(treat)
+        for (t in names(tn01)) {
           SB[[i]][[paste.("M", t, "Adj")]] <- col_w_mean(C, subset = treat == tn01[t] & in.subclass, s.weights = s.weights)
         }
       }
@@ -3502,8 +3388,8 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
     #SDs for each group
     if ("sds" %in% compute) {
       if (type == "bin") {
-        tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
-        for (t in c("0", "1")) {
+        tn01 <- .bin_groups(treat)
+        for (t in names(tn01)) {
           sds <- rep.int(NA_real_, NCOL(C))
           sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == tn01[t] & in.subclass,
                                          s.weights = s.weights)

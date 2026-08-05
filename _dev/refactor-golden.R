@@ -392,6 +392,14 @@ golden_grid <- function() {
     bal.tab(covs_nr, treat = .cens(cens), weights = cens_w, imp = imp, un = TRUE,
             imp.summary = TRUE)
   }
+  g$cens_subclass <- function() {
+    bal.tab(covs, treat = .cens(cens), subclass = sub, un = TRUE,
+            subclass.summary = TRUE, disp.subclass = TRUE,
+            disp = c("means", "sds"), thresholds = c(m = .1))
+  }
+  g$cens_subclass_cluster <- function() {
+    bal.tab(covs_nr, treat = .cens(cens), subclass = sub, cluster = cl, un = TRUE)
+  }
   #The `weightit_cens` fixture is picked up by the per-object loop below, which covers
   #the object interface and its `quick = FALSE` view.
 
@@ -738,7 +746,8 @@ check_col_spec <- function(dir = GOLDEN_DIR) {
 
     if (is.data.frame(x[["Balance"]])) {
       out[["Balance"]] <- spec(type, p[["compute"]], p[["thresholds"]],
-                               samples = c("Un", wn), threshold.samples = thr.s)
+                               samples = c("Un", wn), threshold.samples = thr.s,
+                               group.labels = p[["group.labels"]])
     }
 
     for (nm in names(x)[startsWith(names(x), "Balance.Across.")]) {
@@ -748,7 +757,8 @@ check_col_spec <- function(dir = GOLDEN_DIR) {
       #aggregated summaries carrying an aggregating function per statistic.
       if (nm == "Balance.Across.Subclass") {
         out[[nm]] <- spec(type, .compute(p, type, TRUE), p[["thresholds"]],
-                          samples = c("Un", "Adj"), threshold.samples = "Adj")
+                          samples = c("Un", "Adj"), threshold.samples = "Adj",
+                          group.labels = p[["group.labels"]])
         next
       }
 
@@ -763,11 +773,13 @@ check_col_spec <- function(dir = GOLDEN_DIR) {
                         agg.funs = agg.all,
                         threshold.samples = if (length(agg) != 1L) character(0L) else thr.s,
                         threshold.agg.fun = agg,
-                        include.times = nm == "Balance.Across.Times")
+                        include.times = nm == "Balance.Across.Times",
+                        group.labels = p[["group.labels"]])
     }
 
     if (is.list(x[["Subclass.Balance"]]) && !is.data.frame(x[["Subclass.Balance"]])) {
-      sb <- spec(type, p[["compute"]], p[["thresholds"]], samples = "Adj")
+      sb <- spec(type, p[["compute"]], p[["thresholds"]], samples = "Adj",
+                 group.labels = p[["group.labels"]])
 
       for (i in names(x[["Subclass.Balance"]])) {
         out[[paste0("Subclass.Balance[[", i, "]]")]] <- sb

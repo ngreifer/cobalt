@@ -5,6 +5,7 @@ base.bal.tab <- function(X, ...) {
                 "cens" = base.bal.tab.cens,
                 "subclass.binary" = base.bal.tab.subclass.binary,
                 "subclass.cont" = base.bal.tab.subclass.cont,
+                "subclass.cens" = base.bal.tab.subclass.cens,
                 "cluster" = base.bal.tab.cluster,
                 "msm" = base.bal.tab.msm,
                 "multi" = base.bal.tab.multi,
@@ -128,6 +129,7 @@ base.bal.tab.base <- function(X,
                                      nweights = if (no.adj) 0L else ncol(X[["weights"]]),
                                      weight.names = names(X[["weights"]]),
                                      treat_names = treat_names(X[["treat"]]),
+                                     group.labels = group_labels(X[["treat"]]),
                                      type = type,
                                      co.names = co.names)
   

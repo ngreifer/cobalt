@@ -262,7 +262,7 @@ get.w.CBMSM <- function(x, ...) {
 get.w.ebalance <- function(x, treat, ...) {
   arg::arg_supplied(treat)
   
-  if (!inherits(treat, "processed.treat")) {
+  if (!inherits(treat, "treat")) {
     treat <- process_treat(treat)
   }
   

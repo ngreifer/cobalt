@@ -915,6 +915,9 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
        #`weight.names` names the adjusted columns rather than merely counting them;
        #`quick` and `stats` say which columns a table was given in the first place.
        weight.names = p.ops[["weight.names"]],
+       #`group.labels` names the two groups of a binary comparison in the column
+       #names, so the layout cannot be rebuilt at print time without it.
+       group.labels = p.ops[["group.labels"]],
        quick = p.ops[["quick"]],
        stats = p.ops[["stats"]],
        disp.call = p.ops[["disp.call"]])

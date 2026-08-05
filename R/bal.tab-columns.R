@@ -17,15 +17,19 @@
 .bal_tab_col_spec <- function(type, compute, thresholds = list(), samples,
                               quantities = c("means", "sds"), agg.funs = NULL,
                               threshold.samples = samples,
-                              threshold.agg.fun = NULL, include.times = FALSE) {
+                              threshold.agg.fun = NULL, include.times = FALSE,
+                              group.labels = NULL) {
   moments <- c(M = "means", SD = "sds")
   moments <- moments[moments %in% intersect(quantities, compute)]
-  
+
   stats <- intersect(compute, all_STATS(type))
   adj_only <- get_from_STATS("adj_only")
-  
-  #A continuous treatment has no groups, so its moment columns carry no group part.
-  groups <- switch(type, "bin" = as.list(c("0", "1")), list(NULL))
+
+  #A continuous treatment has no groups, so its moment columns carry no group part. The
+  #labels come from the treatment (`group_labels()`), which is `c("0", "1")` for an
+  #ordinary binary treatment and something self-describing when the two groups are not
+  #a control and a treated group.
+  groups <- switch(type, "bin" = as.list(group.labels %or% c("0", "1")), list(NULL))
   aggs <- {
     if (is_null(agg.funs)) list(NULL)
     else as.list(firstup(agg.funs))
@@ -99,7 +103,8 @@
                       else wn
                     },
                     threshold.agg.fun = requested.agg.funs,
-                    include.times = include.times)
+                    include.times = include.times,
+                    group.labels = p.ops[["group.labels"]])
 }
 
 #The columns of the innermost balance tables that hold the requested statistics, in

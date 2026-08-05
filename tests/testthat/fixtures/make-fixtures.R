@@ -68,7 +68,7 @@ make_cem_match <- function() {
 
   #`mstrata` is NA for unmatched units, as in cem's output.
   mstrata <- as.integer(factor(strata))
-  mstrata[!matched] <- NA_integer_
+  is.na(mstrata[!matched]) <- TRUE
 
   structure(
     list(

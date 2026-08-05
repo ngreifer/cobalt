@@ -15,15 +15,32 @@ cens_w <- function(C = cens_idx) {
 }
 
 #The comparison spelled out by hand, with no censoring code involved.
-cens_manual <- function(covs, C = cens_idx, weights = NULL, s.weights = NULL, ...) {
+#
+#The moment columns come back named for the pseudo-treatment's groups -- `M.0` and
+#`M.1` -- and are renamed to the two samples, so that the correspondence (group 0 is the
+#uncensored sample, group 1 the full one) is part of what the comparison asserts rather
+#than something the test works around.
+cens_manual <- function(covs, C = cens_idx, weights = NULL, s.weights = NULL,
+                        subclass = NULL, ...) {
   u <- which(!is.na(C) & C == 0)
   a <- which(!is.na(C))
 
-  bal.tab(rbind(covs[u, , drop = FALSE], covs[a, , drop = FALSE]),
-          treat = rep(0:1, times = c(length(u), length(a))),
-          weights = if (is_not_null(weights)) c(weights[u], rep.int(1, length(a))),
-          s.weights = if (is_not_null(s.weights)) s.weights[c(u, a)],
-          estimand = "ATT", s.d.denom = "treated", ...)
+  b <- bal.tab(rbind(covs[u, , drop = FALSE], covs[a, , drop = FALSE]),
+               treat = rep(0:1, times = c(length(u), length(a))),
+               weights = if (is_not_null(weights)) c(weights[u], rep.int(1, length(a))),
+               s.weights = if (is_not_null(s.weights)) s.weights[c(u, a)],
+               subclass = if (is_not_null(subclass)) subclass[c(u, a)],
+               estimand = "ATT", s.d.denom = "treated", ...)
+
+  for (tab in c("Balance", "Balance.Across.Subclass")) {
+    if (is.data.frame(b[[tab]])) {
+      names(b[[tab]]) <- names(b[[tab]]) |>
+        sub("^(M|SD)\\.0\\.", "\\1.Uncensored.", x = _) |>
+        sub("^(M|SD)\\.1\\.", "\\1.Full.", x = _)
+    }
+  }
+
+  b
 }
 
 test_that(".cens() tags an indicator without changing its values", {
@@ -40,7 +57,7 @@ test_that(".cens() tags an indicator without changing its values", {
 
   #Missing values are preserved: a unit censored earlier has no later indicator.
   C_na <- cens_idx
-  C_na[1:10] <- NA
+  is.na(C_na[1:10]) <- TRUE
   expect_identical(which(is.na(.cens(C_na))), 1:10)
 
   #Anything else is an error, including a coercion that would silently produce NAs.
@@ -66,10 +83,19 @@ test_that("censoring balance is the uncensored sample against the full one", {
   #Every statistic and every moment, not just the mean differences.
   expect_equal(b$Balance, manual$Balance)
 
-  #Group 0 is the uncensored sample and group 1 the full one, so the unadjusted means
-  #of group 1 are the means of every at-risk unit.
-  expect_equal(b$Balance$M.1.Un,
+  #The moment columns are named for the two samples rather than for a control and a
+  #treated group, and the full sample's unadjusted means are the means of every at-risk
+  #unit.
+  expect_true(all(c("M.Uncensored.Un", "M.Full.Un", "SD.Uncensored.Adj", "SD.Full.Adj")
+                  %in% names(b$Balance)))
+  expect_false(any(grepl("M.0", names(b$Balance), fixed = TRUE)))
+
+  expect_equal(b$Balance$M.Full.Un,
                unname(col_w_mean(splitfactor(covs, drop.first = "if2"))))
+
+  #Weighting the uncensored units cannot change the target, so the full sample's
+  #moments are the same before and after.
+  expect_equal(b$Balance$M.Full.Adj, b$Balance$M.Full.Un)
 
   #`un = TRUE` is the unweighted uncensored sample against the full one, which is not
   #the same comparison as the weighted one.
@@ -116,7 +142,7 @@ test_that("the censoring sample-size table counts the two samples", {
 test_that("units with a missing indicator are in neither sample", {
   covs <- lalonde[c("age", "educ")]
   C <- cens_idx
-  C[1:40] <- NA
+  is.na(C[1:40]) <- TRUE
   w <- cens_w(ifelse(is.na(C), 0L, C))
 
   b <- bal.tab(covs, treat = .cens(C), weights = w, un = TRUE)
@@ -308,11 +334,10 @@ test_that("what does not apply to a censoring indicator says so", {
   covs <- lalonde[c("age", "educ")]
   w <- cens_w()
 
-  #Subclassification is not a way of estimating censoring weights.
-  expect_err(bal.tab(covs, treat = .cens(cens_idx), subclass = sub_idx),
-             "subclasses are not allowed with a censoring indicator")
+  #Matching strata become weights before the two samples exist, and say the same thing
+  #given to `subclass`, which is supported.
   expect_err(bal.tab(covs, treat = .cens(cens_idx), match.strata = sub_idx),
-             "matching strata are not allowed with a censoring indicator")
+             "matching strata are not allowed with a censoring indicator; supply them to `subclass`")
 
   #`estimand` and `focal` name a treatment group; there is none to name.
   expect_wrn(bal.tab(covs, treat = .cens(cens_idx), weights = w, estimand = "ATT"),
@@ -324,8 +349,160 @@ test_that("what does not apply to a censoring indicator says so", {
   expect_err(bal.tab(covs, treat = .cens(rep(1L, n_lalonde))),
              "every unit is censored")
 
-  #`bal.plot()` does not handle the two samples yet, and says so rather than failing
-  #somewhere further in.
-  expect_err(bal.plot(covs, treat = .cens(cens_idx), weights = w, var.name = "age"),
-             "does not yet support censoring indicators")
+  #A censoring indicator among longitudinal treatments is not supported yet, and says so
+  #rather than failing somewhere further in.
+  expect_err(bal.plot(list(.cens(cens_idx) ~ age, treat ~ age + educ),
+                      data = transform(lalonde, cens_idx = cens_idx), var.name = "age"),
+             "does not yet support a censoring indicator among longitudinal treatments")
+})
+
+test_that("subclassification is itself a censoring solution", {
+  covs <- lalonde[c("age", "educ", "race")]
+  p <- fitted(glm(cens_idx ~ age + educ + race, data = lalonde, family = binomial))
+  sub <- findInterval(p, quantile(p, c(.25, .5, .75))) + 1L
+
+  b <- bal.tab(covs, treat = .cens(cens_idx), subclass = sub, un = TRUE,
+               thresholds = c(m = .1))
+
+  expect_s3_class(b, "bal.tab.cens")
+  expect_s3_class(b, "bal.tab.subclass")
+  expect_named(b$Subclass.Balance, as.character(sort(unique(sub))))
+  expect_no_error(capture.output(print(b, which.subclass = .all)))
+
+  #Within each subclass, the uncensored units are compared against every at-risk unit in
+  #it -- nothing is weighted, because the subclassification is the adjustment. The oracle
+  #is the same documented stacking with the subclasses stacked along with it.
+  manual <- cens_manual(covs, subclass = sub, un = TRUE, thresholds = c(m = .1))
+
+  expect_equal(b$Subclass.Balance, manual$Subclass.Balance)
+
+  #The summary across subclasses is subclassification expressed as censoring weights:
+  #`n_k / n_{k,uncensored}` for the uncensored units and 1 for the full sample.
+  n.k <- table(sub)
+  n.k.u <- table(sub[cens_idx == 0])
+  w <- ifelse(cens_idx == 0, (n.k / n.k.u)[as.character(sub)], 0)
+
+  expect_equal(b$Balance.Across.Subclass,
+               cens_manual(covs, weights = w, un = TRUE,
+                           thresholds = c(m = .1))$Balance)
+
+  #Which is also what the same stacking produces when it is subclassified.
+  expect_equal(b$Balance.Across.Subclass, manual$Balance.Across.Subclass)
+
+  #The sample sizes divide the two samples up by subclass.
+  nn <- b$Observations
+  expect_identical(rownames(nn), c("Full", "Uncensored", "Censored"))
+  expect_identical(colnames(nn), c(names(b$Subclass.Balance), "All"))
+  expect_equal(unlist(nn["Uncensored", ] + nn["Censored", ]), unlist(nn["Full", ]))
+  expect_equal(nn[["Full", "All"]], n_lalonde)
+
+  #And it composes with clusters, as the other subclassified shapes do.
+  b_cl <- bal.tab(covs, treat = .cens(cens_idx), subclass = sub, cluster = cl_idx)
+  expect_s3_class(b_cl, "bal.tab.cluster")
+  expect_s3_class(b_cl$Cluster.Balance[[1L]], "bal.tab.cens")
+})
+
+test_that("bal.plot() shows the weighted sample against the full one", {
+  covs <- lalonde[c("age", "educ", "race")]
+  w <- cens_w()
+  p <- fitted(glm(cens_idx ~ age + educ + race, data = lalonde, family = binomial))
+  sub <- findInterval(p, quantile(p, c(.25, .5, .75))) + 1L
+
+  local_null_device()
+
+  #`bal.plot()` gives each group its own layer, so what it plots is their union. The
+  #column naming the panel is `which` when the panels are samples and `subclass` when
+  #they are subclasses.
+  plot_data <- function(p) {
+    do.call("rbind", lapply(p$layers, function(l) {
+      panel <- intersect(c("which", "subclass"), names(l$data))[1L]
+
+      setNames(l$data[c("treat", panel, "weights")], c("treat", "panel", "weights"))
+    }))
+  }
+
+  #The two groups are the two samples, and they are labelled as such rather than as a
+  #control and a treated group.
+  pl <- bal.plot(covs, treat = .cens(cens_idx), weights = w, var.name = "age",
+                 which = "both")
+  d <- plot_data(pl)
+
+  expect_setequal(as.character(unique(d$treat)), c("Uncensored", "Full"))
+  expect_setequal(as.character(unique(d$panel)),
+                  c("Unadjusted Sample", "Adjusted Sample"))
+
+  #The full sample is every at-risk unit; the uncensored sample is the units still under
+  #observation.
+  is.full <- d$treat == "Full"
+  is.adj <- d$panel == "Adjusted Sample"
+
+  expect_equal(sum(is.full & is.adj), sum(!is.na(cens_idx)))
+  expect_equal(sum(!is.full & is.adj), sum(cens_idx == 0))
+
+  #The full sample is the target and so is never reweighted, in either panel; the
+  #uncensored sample carries the weights in the adjusted panel only. (`bal.plot()`
+  #rescales weights for plotting, so what is checked is that they vary, not their values.)
+  expect_true(all_the_same(d$weights[is.full]))
+  expect_true(all_the_same(d$weights[!is.full & !is.adj]))
+  expect_false(all_the_same(d$weights[!is.full & is.adj]))
+
+  #The other plot shapes work too.
+  for (a in list(list(var.name = "race"),
+                 list(var.name = "age", type = "histogram", mirror = TRUE),
+                 list(var.name = "age", type = "ecdf"),
+                 list(var.name = "age", disp.means = TRUE))) {
+    pl <- do.call(bal.plot, c(list(covs, treat = .cens(cens_idx), weights = w), a))
+    expect_no_error(ggplot2::ggplot_build(pl))
+  }
+
+  #With subclasses, one panel per subclass.
+  pl <- bal.plot(covs, treat = .cens(cens_idx), subclass = sub, var.name = "age")
+  expect_setequal(as.character(unique(plot_data(pl)$panel)),
+                  paste("Subclass", sort(unique(sub))))
+
+  #And on a weightit object.
+  skip_if_not_installed("WeightIt")
+  expect_no_error(ggplot2::ggplot_build(bal.plot(fx("weightit_cens"),
+                                                var.name = "age", which = "both")))
+})
+
+test_that("a treat carries its type and group names through subsetting", {
+  #`[` on a `treat` keeps every attribute the class exists to hold; `[.factor` alone
+  #would drop them, which would silently turn a censoring indicator back into a binary
+  #treatment.
+  C <- process_treat(.cens(cens_idx))
+
+  expect_identical(get.treat.type(C), "censoring")
+  expect_identical(treat_names(C),
+                   setNames(c("Uncensored", "Censored"), c("control", "treated")))
+  expect_identical(group_labels(C), c("Uncensored", "Censored"))
+
+  for (obj in list(C[1:20], subset_treat(C, 1:20))) {
+    expect_identical(get.treat.type(obj), "censoring")
+    expect_identical(treat_names(obj), treat_names(C))
+    expect_identical(group_labels(obj), group_labels(C))
+  }
+
+  #A subset in which nobody is censored is still a censoring indicator, with both
+  #levels named.
+  none <- subset_treat(C, which(cens_idx == 0))
+  expect_identical(get.treat.type(none), "censoring")
+  expect_identical(treat_names(none), treat_names(C))
+
+  #An ordinary binary treatment keeps `c("0", "1")` as its column labels -- `M.0` has
+  #always meant the control group -- and narrows its levels when subset.
+  tb <- process_treat(lalonde$treat)
+
+  expect_identical(group_labels(tb), c("0", "1"))
+  expect_identical(treat_names(tb[1:20]), treat_names(tb))
+
+  #Narrowing a binary treatment to a single group leaves nothing to compare, which
+  #`subset_treat()` reports rather than silently returning a one-level treatment.
+  expect_err(subset_treat(tb, which(lalonde$treat == 1)),
+             "the treatment must have at least two unique values")
+
+  #A binary treatment's balance table still uses the positional labels.
+  b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, s.d.denom = "pooled",
+               disp = "means")
+  expect_true("M.0.Un" %in% names(b$Balance))
 })

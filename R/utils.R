@@ -604,57 +604,6 @@ subbars <- function(term) {
 }
 
 #treat/covs
-assign.treat.type <- function(treat, use.multi = FALSE, censoring = NULL) {
-  #Returns treat with treat.type attribute
-  if (is_null(censoring)) {
-    censoring <- .is_cens(treat)
-  }
-
-  #A censoring indicator is validated rather than classified, and keeps its tag. Unlike
-  #a treatment it may take a single value -- a time point at which no unit (or every
-  #unit) is censored is degenerate but not malformed -- and it may be missing.
-  if (censoring) {
-    .make_cens_treat(treat)
-
-    attr(treat, "treat.type") <- "censoring"
-
-    return(treat)
-  }
-
-  nunique.treat <- nunique(treat)
-
-  if (nunique.treat < 2L) {
-    arg::err("the treatment must have at least two unique values")
-  }
-  
-  if (!use.multi && nunique.treat == 2L) {
-    treat.type <- "binary"
-  }
-  else if (use.multi || is.character(treat) || is.factor(treat)) {
-    treat.type <- "multinomial"
-    if (!inherits(treat, "processed.treat")) {
-      treat <- factor(treat)
-    }
-  }
-  else {
-    treat.type <- "continuous"
-  }
-  
-  attr(treat, "treat.type") <- treat.type
-  treat
-}
-get.treat.type <- function(treat) {
-  out <- .attr(treat, "treat.type")
-  
-  if (identical(out, "multi-category")) {
-    return("multinomial")
-  }
-  
-  out
-}
-has.treat.type <- function(treat) {
-  is_not_null(get.treat.type(treat))
-}
 get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
   if (is_not_null(.attr(treat, "control")) &&
       is_not_null(.attr(treat, "treated"))) {

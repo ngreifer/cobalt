@@ -101,11 +101,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   X <- process_obj(x) |>
     x2base(..., cluster = cluster, imp = imp)
 
-  #The two samples `bal.tab()` compares for a censoring indicator share units -- the
-  #uncensored ones appear in both -- which nothing in the faceting below is built for.
-  if (.is_cens(X[["treat"]]) ||
-      any(vapply(X[["treat.list"]], .is_cens, logical(1L)))) {
-    arg::err("{.fun bal.plot} does not yet support censoring indicators; use {.fun bal.tab} to assess their balance")
+  #A censoring indicator names two samples rather than two treatment groups, so it is
+  #stacked into the same binary pseudo-treatment `bal.tab()` builds -- the uncensored
+  #units carrying the weights, then every at-risk unit carrying 1 -- and everything below
+  #plots the two as it would any binary treatment.
+  if (.is_cens(X[["treat"]])) {
+    X <- .stack_cens_X(X, .count = FALSE)[["X"]]
+  }
+  else if (any(vapply(X[["treat.list"]], .is_cens, logical(1L)))) {
+    arg::err("{.fun bal.plot} does not yet support a censoring indicator among longitudinal treatments")
   }
 
   if (is_null(X[["covs.list"]])) {
@@ -152,7 +156,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
 
     if (get.treat.type(X[["treat"]]) != "continuous") {
-      X[["treat"]] <- treat_vals(X[["treat"]])[X[["treat"]]]
+      X[["treat"]] <- treat_labels(X[["treat"]])[X[["treat"]]]
     }
   }
   else {

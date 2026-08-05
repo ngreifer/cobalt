@@ -67,8 +67,12 @@ x2base <- function(x, ...) {
     arg::wrn("{.arg {supplied}} {?does/do} not apply to a censoring indicator, whose target is the full at-risk sample; ignoring {?it/them}")
   }
 
-  #Subclassification is not a way of estimating censoring weights.
-  .reject_args(c("subclass", "match.strata"), "a censoring indicator", ...)
+  #`subclass` is supported -- subclassifying *is* a way of solving a censoring problem --
+  #but `match.strata`, which turns strata into weights before the two samples exist, is
+  #not, and the same strata say the same thing given to `subclass`.
+  if (is_not_null(...get("match.strata"))) {
+    arg::err("matching strata are not allowed with a censoring indicator; supply them to {.arg subclass} instead")
+  }
 }
 
 #The tail every method shares: expand anything supplied for a single imputation,
