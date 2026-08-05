@@ -60,25 +60,29 @@ x2base <- function(x, ...) {
 #assemble `X` from the locals the method has built, resolve the requested statistics,
 #warn about missing covariate values, and apply `subset`.
 #
-#`.length` holds `length_imp_process()`'s arguments; `imp` and the environment come
-#from the caller. All formals are dot-prefixed because `...` carries the user's own
-#arguments, and a named element of `...` matches a formal of the same name even when
-#the caller supplied that formal positionally. `...` must reach
-#`process_stats_and_thresholds()` unforced: `bal.plot()` passes its own lazy dots
-#through, and materializing them changes when an erroring unused argument fails.
+#`.length` holds `length_imp_process()`'s arguments, naming which of the method's
+#locals must be length-compatible and how each expands. All formals are dot-prefixed
+#because `...` carries the user's own arguments, and a named element of `...` matches a
+#formal of the same name even when the caller supplied that formal positionally. `...`
+#must reach `process_stats_and_thresholds()` unforced: `bal.plot()` passes its own lazy
+#dots through, and materializing them changes when an erroring unused argument fails.
 .finish_X <- function(.length, ..., .call = NULL, .msm = FALSE,
                       .env = parent.frame()) {
   .get <- function(nm) get0(nm, envir = .env, inherits = FALSE)
 
-  do.call("length_imp_process",
-          c(.length, list(imp = .get("imp"), env = .env)))
+  checked <- unlist(.length[c("vectors", "data.frames", "lists")], use.names = FALSE)
+
+  expanded <- do.call("length_imp_process",
+                      c(list(setNames(lapply(checked, .get), checked)), .length,
+                        list(imp = .get("imp"))))
 
   X <- if (.msm) initialize_X_msm() else initialize_X()
 
-  #`X`'s slots are named after the locals that fill them. A slot the method never
-  #assigned stays NULL, which is what every consumer expects of an absent one.
+  #`X`'s slots are named after the locals that fill them, taking the expanded value
+  #where there is one. A slot the method never assigned stays NULL, which is what
+  #every consumer expects of an absent one.
   for (i in names(X)) {
-    X[[i]] <- .get(i)
+    X[[i]] <- if (i %in% checked) expanded[[i]] else .get(i)
   }
 
   .stats <- process_stats_and_thresholds(X[[if (.msm) "treat.list" else "treat"]], ...)

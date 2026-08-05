@@ -1183,118 +1183,101 @@ subset_X <- function(X, subset = NULL) {
   cmp
 }
 
-length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
-                               imp = NULL, data = NULL, original.call.to = NULL,
-                               env = sys.frame(-1L)) {
-  #Processes imp and assigns it to imp in env
-  #Processes vectors, data.frames, and lists for length
-  #If object correspond to one imputation, assigns expanded object in env 
-  
+#Expands anything that was supplied for a single imputation to the full stacked data,
+#and checks that everything has a compatible number of observations. `objects` is a
+#named list of the values to check, named after the `vectors`/`data.frames`/`lists`
+#arguments that say how each should be expanded; the (possibly expanded) list comes
+#back. `.finish_X()` is the only caller, and it reads and writes the method's locals
+#itself, so this does not touch its caller's frame.
+length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
+                               lists = NULL, imp = NULL, original.call.to = NULL) {
   all.objects <- c(vectors, data.frames, lists)
   ensure.equal.lengths <- TRUE
   problematic <- rlang::rep_named(all.objects, FALSE)
-  lengths <- setNames(c(vapply(vectors, 
-                               function(x) {len(get0(x, envir = env, inherits = FALSE))
-                               }, numeric(1L)), 
-                        vapply(data.frames, 
-                               function(x) {len(get0(x, envir = env, inherits = FALSE))
-                               }, numeric(1L)),
-                        vapply(lists, function(x) {
-                          if (is_null(get0(x, envir = env, inherits = FALSE))) 0 
-                          else max(vapply(get(x, envir = env, inherits = FALSE), len, numeric(1L)))
-                        }, numeric(1L))), 
-                      all.objects)
-  
+
+  lengths <- vapply(all.objects, function(x) {
+    if (x %in% lists) {
+      if (is_null(objects[[x]])) 0
+      else max(vapply(objects[[x]], len, numeric(1L)))
+    }
+    else len(objects[[x]])
+  }, numeric(1L))
+
   #Process imp further
   if (is_not_null(imp)) {
-    
     imp.lengths <- vapply(levels(imp), function(i) sum(imp == i), numeric(1L))
-    
-    if (all_the_same(imp.lengths)) { #all the same
+
+    if (all_the_same(imp.lengths)) {
       unsorted.imp <- is.unsorted(imp)
-      
+
+      #Repeats one imputation's worth of values across all of them, keeping each
+      #imputation's block in the order `imp` gives.
+      stack <- function(x, i_) {
+        new_x <- x[rep(i_, length(imp.lengths))]
+
+        if (unsorted.imp) {
+          for (i in levels(imp)) {
+            new_x[imp == i] <- x
+          }
+        }
+
+        new_x
+      }
+
+      stack_rows <- function(x) {
+        new_x <- x[rep(seq_row(x), length(imp.lengths)), , drop = FALSE]
+
+        if (unsorted.imp) {
+          for (i in levels(imp)) {
+            new_x[imp == i, ] <- x
+          }
+        }
+
+        new_x
+      }
+
       for (i in all.objects[lengths > 0 & lengths != length(imp)]) {
         if (lengths[i] != imp.lengths[1L]) {
           problematic[i] <- TRUE
           next
         }
-        
-        i_obj <- get(i, envir = env, inherits = FALSE)
-        
-        if (i %in% vectors) {
-          new_i <- i_obj[rep(seq_along(i_obj), length(imp.lengths))]
-          
-          if (unsorted.imp) {
-            for (i_ in levels(imp)) {
-              new_i[imp == i_] <- i_obj
-            }
-          }
-        }
-        else if (i %in% data.frames) {
-          new_i <- i_obj[rep(seq_row(i_obj), length(imp.lengths)), , drop = FALSE]
-          
-          if (unsorted.imp) {
-            for (i_ in levels(imp)) {
-              new_i[imp == i_, ] <- i_obj
-            }
-          }
-        }
-        else if (i %in% lists) {
-          new_i <- lapply(i_obj, function(j) {
+
+        objects[[i]] <- {
+          if (i %in% vectors) stack(objects[[i]], seq_along(objects[[i]]))
+          else if (i %in% data.frames) stack_rows(objects[[i]])
+          else lapply(objects[[i]], function(j) {
             if (!is.factor(j) && !is_mat_like(j)) {
               arg::err("{.arg {i}} can only contain vectors or data frames")
             }
-            
-            if (is.factor(j)) {
-              newj <- j[rep(seq_along(j), length(imp.lengths))]
-              if (unsorted.imp) {
-                for (i_ in levels(imp)) {
-                  newj[imp == i_] <- j
-                }
-              }
-              
-              return(newj)
-            }
-            
-            newj <- j[rep(seq_row(j), length(imp.lengths)), , drop = FALSE]
-            if (unsorted.imp) {
-              for (i_ in levels(imp)) {
-                newj[imp == i_, ] <- j
-              }
-            }
-            
-            newj
+
+            if (is.factor(j)) stack(j, seq_along(j))
+            else stack_rows(j)
           })
         }
-        
-        assign(i, new_i, pos = env)
-        
       }
     }
     else {
       problematic <- lengths > 0L & lengths != length(imp)
     }
-    
+
     if (any(problematic)) {
       arg::err("{.arg {names(problematic)[problematic]}} must have the same number of observations as {.arg imp}")
     }
-    
+
     ensure.equal.lengths <- FALSE
-    
-    assign("imp", imp, pos = env)
   }
-  
+
   #Ensure all input lengths are the same.
   anchor <- {
     if ("treat" %in% all.objects) "treat"
     else if ("treat.list" %in% all.objects) "treat.list"
     else all.objects[which(lengths[all.objects] != 0L)[1L]]
   }
-  
+
   if (ensure.equal.lengths) {
     problematic[lengths %nin% c(0L, lengths[anchor])] <- TRUE
   }
-  
+
   if (any(problematic)) {
     if (is_not_null(original.call.to)) {
       arg::err(sprintf("{.arg {names(problematic)[problematic]}} must have the same number of observations as in the original call to %s", original.call.to))
@@ -1303,6 +1286,8 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       arg::err("{.arg {names(problematic)[problematic]}} must have the same number of observations as {.arg {anchor}}")
     }
   }
+
+  objects
 }
 process_imp <- function(imp = NULL, ...) {
   if (is_null(imp)) {

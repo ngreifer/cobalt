@@ -69,3 +69,46 @@ test_that("the wrapper classes nest in the documented precedence", {
   expect_s3_class(bal.tab(list(treat ~ age, treat ~ age + educ), data = lalonde,
                           imp = imp_idx), "bal.tab.msm")
 })
+
+test_that("arguments supplied once are expanded across imputations", {
+  # `length_imp_process()` stacks anything given for a single imputation up to the
+  # full stacked data, keeping each imputation's block in the order `imp` gives. It
+  # used to read and write its caller's frame by name; it is now pure, so the
+  # expansion is worth pinning directly.
+  set.seed(4)
+  n <- 100L
+  d1 <- data.frame(age = rnorm(n), educ = rnorm(n))
+  t1 <- rbinom(n, 1L, .5)
+
+  #Two imputations' worth of covariates, one imputation's worth of treatment.
+  d2 <- rbind(d1, transform(d1, age = age + 1))
+
+  for (sorted in c(TRUE, FALSE)) {
+    imp <- if (sorted) rep(1:2, each = n) else rep(1:2, times = n)
+
+    b <- bal.tab(d2, treat = t1, imp = imp, s.d.denom = "pooled")
+
+    expect_length(b$Imputation.Balance, 2L)
+
+    #Each imputation's table must equal the one computed from that imputation's rows
+    #with the treatment as given -- which is only true if `treat` was replicated into
+    #the right positions.
+    for (i in c("1", "2")) {
+      ref <- bal.tab(d2[imp == as.integer(i), , drop = FALSE], treat = t1,
+                     s.d.denom = "pooled")
+
+      expect_equal(b$Imputation.Balance[[i]]$Balance, ref$Balance, info = i)
+    }
+  }
+
+  #Data frames, factors, and weights expand the same way.
+  imp <- rep(1:2, times = n)
+  b_w <- bal.tab(d2, treat = t1, imp = imp, s.d.denom = "pooled",
+                 weights = rep(c(1, 2), n), addl = d1["age"],
+                 cluster = factor(rep(c("a", "b"), length.out = n)))
+  expect_length(b_w$Cluster.Balance, 2L)
+
+  #A length that matches neither `imp` nor one imputation is an error.
+  expect_err(bal.tab(d2[1:50, ], treat = t1, imp = rep(1:2, each = n)),
+             "must have the same number of observations as")
+})
