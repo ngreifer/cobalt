@@ -236,8 +236,11 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     else .cat_heading("Balance by treatment group")
     
     for (i in p.ops[["disp.treat.pairs"]]) {
-      headings[i] <- "\n - - - " %+% .it(.attr(m.balance[[i]], "print.options")$treat_names[1L] %+% " (0) vs. " %+%
-                                           .attr(m.balance[[i]], "print.options")$treat_names[2L] %+% " (1)") %+% " - - - \n"
+      tn <- .attr(m.balance[[i]], "print.options")[["treat_names"]]
+
+      headings[i] <- paste0("\n - - - ",
+                            .it(paste0(tn[1L], " (0) vs. ", tn[2L], " (1)")),
+                            " - - - \n")
       cat(headings[i])
       print(m.balance[[i]])
       # bal.tab_print(m.balance[[i]], p.ops)

@@ -512,7 +512,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
       }
       
       if (is_null(s)) {
-        s <- intapprox(fn, min.c, max.c, steps = steps, method = "midpoint")
+        s <- intapprox(fn, min.c, max.c, steps = steps)
       }
       
       min(max(1 - s, 0), 1) #Reverse: measure imbalance

@@ -148,44 +148,22 @@ subset_processed.treat <- function(x, index) {
     set_class(class(x))
 }
 
+#Every slot of `X`, in the order `bal.tab()` returns them. `.finish_X()` fills each
+#from the like-named local in the calling `x2base()` method, so a slot missing here is
+#a slot silently dropped.
+X_SLOTS <- c("covs", "treat", "weights", "distance", "addl", "s.d.denom", "estimand",
+             "call", "cluster", "imp", "s.weights", "focal", "discarded", "method",
+             "subclass", "stats", "thresholds")
+
+X_MSM_SLOTS <- c("covs.list", "treat.list", "weights", "distance.list", "addl.list",
+                 "s.d.denom", "call", "cluster", "imp", "s.weights", "focal",
+                 "discarded", "method", "subclass", "stats", "thresholds")
+
 initialize_X <- function() {
-  c("covs",
-    "treat",
-    "weights",
-    "distance",
-    "addl",
-    "s.d.denom",
-    "estimand",
-    "call",
-    "cluster",
-    "imp",
-    "s.weights",
-    "focal",
-    "discarded",
-    "method",
-    "subclass",
-    "stats",
-    "thresholds") |>
-    make_list()
+  make_list(X_SLOTS)
 }
 initialize_X_msm <- function() {
-  c("covs.list",
-    "treat.list",
-    "weights",
-    "distance.list",
-    "addl.list",
-    "s.d.denom",
-    "call",
-    "cluster",
-    "imp",
-    "s.weights",
-    "focal",
-    "discarded",
-    "method",
-    "subclass",
-    "stats",
-    "thresholds") |>
-    make_list()
+  make_list(X_MSM_SLOTS)
 }
 .weight_check <- function(w) {
   wname <- deparse1(substitute(w))
@@ -1057,24 +1035,14 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   else if (is_not_null(X[["covs.list"]])) nrow(X[["covs.list"]][[1L]])
   else arg::err("couldn't determine length of {.arg X} components")
 }
-subsettable <- function() {
-  c("covs",
-    "treat",
-    "weights",
-    "distance",
-    "addl",
-    "cluster",
-    "imp",
-    "s.weights",
-    "discarded",
-    "subclass",
-    "covs.list",
-    "treat.list",
-    "distance.list",
-    "addl.list")
-}
+#The slots `subset_X()` knows how to subset: everything with one entry per unit. The
+#others -- `estimand`, `focal`, `method`, `stats`, and so on -- describe the analysis
+#rather than the units.
+SUBSETTABLE_SLOTS <- c("covs", "treat", "weights", "distance", "addl", "cluster",
+                       "imp", "s.weights", "discarded", "subclass", "covs.list",
+                       "treat.list", "distance.list", "addl.list")
 subset_X <- function(X, subset = NULL) {
-  if (is_null(subset) || !any(names(X) %in% subsettable())) {
+  if (is_null(subset) || !any(names(X) %in% SUBSETTABLE_SLOTS)) {
     return(X)
   }
   
@@ -1144,7 +1112,7 @@ subset_X <- function(X, subset = NULL) {
     out
   }
   
-  for (i in intersect(names(X), subsettable())) {
+  for (i in intersect(names(X), SUBSETTABLE_SLOTS)) {
     X[[i]] <- subset_X_internal(X[[i]], subset)
   }
   
@@ -2678,17 +2646,14 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   out
 }
-co.cbind <- function(..., deparse.level = 1) {
-  if (...length() == 0L) {
+co.cbind <- function(...) {
+  args <- clear_null(list(...))
+  
+  if (length(args) == 0L) {
     return(NULL)
   }
   
-  if (...length() == 1L) {
-    return(...elt(1L))
-  }
-  
-  args <- clear_null(list(...))
-  if (length(args) <= 1L) {
+  if (length(args) == 1L) {
     return(args[[1L]])
   }
   
@@ -2708,11 +2673,14 @@ co.cbind <- function(..., deparse.level = 1) {
 }
 
 .get_types <- function(C) {
-  vapply(colnames(C), function(x) {
-    if (any(.attr(C, "distance.names") == x)) "Distance"
-    else if (all_the_same(C[, x]) || is_binary(C[, x]))  "Binary"
+  distance.names <- .attr(C, "distance.names")
+
+  vapply(seq_col(C), function(i) {
+    if (colnames(C)[i] %in% distance.names) "Distance"
+    else if (all_the_same(C[, i]) || is_binary(C[, i])) "Binary"
     else "Contin."
-  }, character(1L))
+  }, character(1L)) |>
+    setNames(colnames(C))
 }
 find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
   
@@ -2812,10 +2780,13 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
   b
 }
 .max_imbal <- function(balance.table, col.name, thresh.col.name, abs_stat) {
-  balance.table.clean <- balance.table[balance.table$Type != "Distance" & is.finite(balance.table[, col.name]), ]
-  maxed <- balance.table.clean[which.max(abs_stat(balance.table.clean[, col.name])), match(c(col.name, thresh.col.name), names(balance.table.clean))]
+  clean <- balance.table[balance.table[["Type"]] != "Distance" &
+                           is.finite(balance.table[[col.name]]), , drop = FALSE]
   
-  cbind(Variable = rownames(maxed), as.data.frame(maxed))
+  maxed <- clean[which.max(abs_stat(clean[[col.name]])),
+                 intersect(c(col.name, thresh.col.name), names(clean)), drop = FALSE]
+  
+  cbind(Variable = rownames(maxed), maxed)
 }
 #Resolve the covariates and the standardization defaults once in the wrapper, so that
 #every child inherits them instead of deriving its own. `s.d.denom` is left to the
@@ -3483,33 +3454,13 @@ balance_table_across_subclass_cont <- function(balance.table, balance.table.subc
 }
 
 #Misc
-`%+%` <- function(...) {
-  if (!is.atomic(..1) || !is.atomic(..2)) {
-    return(ggplot2::`%+%`(...))
-  }
-  
-  lhs <- ..1
-  rhs <- ..2
-  
-  if (is_null(lhs) == is_null(rhs)) {
-    paste0(lhs, rhs)
-  }
-  else if (is_null(lhs)) {
-    lhs
-  }
-  else if (is_null(rhs)) {
-    rhs
-  }
-}
 
 check_arg_lengths <- function(...) {
   dots_names <- vapply(match.call(expand.dots = FALSE)$..., deparse1,
                        character(1L))
   
-  lens <- setNames(integer(...length()), dots_names)
-  for (i in seq_along(lens)) {
-    lens[i] <- len(...elt(i))
-  }
+  lens <- setNames(vapply(seq_len(...length()), function(i) len(...elt(i)), numeric(1L)),
+                   dots_names)
   
   supplied <- lens > 0L
   if (!all_the_same(lens[supplied])) {
@@ -3517,25 +3468,11 @@ check_arg_lengths <- function(...) {
   }
 }
 
-intapprox <- function(f, from, to, steps, method = "midpoint") {
-  method <- arg::match_arg(method, c("midpoint", "trapezoidal", "simpsons"))
-  
-  seg <- seq(from, to, length = steps)
-  delta <- seg[2L] - seg[1L]
-  
-  if (method == "midpoint") {
-    mids <- (seg[-1L] + seg[-steps]) / 2
-    s <- sum(f(mids)) * delta
-  }
-  else if (method == "trapezoidal") {
-    s <- (f(from) + 2 * sum(f(seg[-c(1L, steps)])) + f(to)) * delta / 2
-  }
-  else if (method == "simpsons") {
-    mids <- (seg[-1L] + seg[-steps]) / 2
-    sm <- sum(f(mids)) * delta
-    st <- (f(from) + 2 * sum(f(seg[-c(1L, steps)])) + f(to)) * delta / 2
-    s <- (2 * sm + st) / 3
-  }
-  
-  s
+#The midpoint rule, used as `col_w_ovl()`'s fallback when `integrate()` fails. The
+#trapezoidal and Simpson's rules this also offered were never asked for.
+intapprox <- function(f, from, to, steps) {
+  seg <- seq(from, to, length.out = steps)
+  mids <- (seg[-1L] + seg[-steps]) / 2
+
+  sum(f(mids)) * (seg[2L] - seg[1L])
 }
