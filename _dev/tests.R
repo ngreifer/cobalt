@@ -5,6 +5,13 @@
 # stop("Done sourcing.", call. = FALSE)
 devtools::load_all(".") #Cmd + Shift + L
 
+#Sourced non-interactively, the plotting below has no device to draw on, so R starts
+#the default one and leaves an Rplots.pdf in the package root. Interactively there is
+#already a device, so this is a no-op and plots still go to the plot pane.
+if (!interactive() && is.null(grDevices::dev.list())) {
+  grDevices::pdf(NULL)
+}
+
 #Tests things quickly
 #library("cobalt")
 data("lalonde", package = "cobalt")
