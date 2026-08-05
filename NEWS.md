@@ -27,6 +27,8 @@
 
 * `bal.init()` now treats `estimand = "ATC"` with a multi-category treatment identically to `estimand = "ATT"`, as documented: `focal` names the group every other group is compared against, and is required. The two were previously handled by separate branches that could disagree about what to do when `focal` was omitted.
 
+* `bal.tab()` now honours `s.d.denom` with longitudinal treatments. Each time point's standardization factor was previously overwritten with the one the ATE implies -- `"pooled"` for binary and multi-category treatments, `"all"` for continuous ones -- so any value supplied to `s.d.denom` was silently discarded, and an unusable value went unreported. That value is still the default, since longitudinal treatments target the ATE, so results are unchanged unless `s.d.denom` was supplied.
+
 * Fixed a bug in which supplying `imp` as the name of a variable in `data` failed for `ps` objects, though it worked for every other supported input.
 
 * Fixed a bug in which `treatATT`, a documented alias for `focal` in `bal.tab()`'s default method, was silently ignored.

@@ -277,6 +277,53 @@ test_that("`s.d.denom` is irrelevant to statistics that do not standardize", {
                  b_p$Balance$Diff.Adj[!binary_rows])
 })
 
+test_that("`s.d.denom` is honoured at each time point of a longitudinal treatment", {
+    fx <- sdd_fixture()
+
+    set.seed(28)
+    d <- data.frame(lalonde[c("age", "educ", "re74")],
+                    t1 = lalonde$treat,
+                    t2 = rbinom(nrow(lalonde), 1L, 0.4),
+                    c1 = lalonde$re75,
+                    c2 = lalonde$re78,
+                    w = fx$w)
+
+    fs <- list(t1 ~ age + educ, t2 ~ age + educ + t1)
+
+    #A longitudinal treatment defaults to the ATE's denominator at every time point,
+    #which is what `estimand = "ATE"` gives for a point treatment.
+    b_default <- bal.tab(fs, data = d, weights = "w")
+    b_ate <- bal.tab(fs, data = d, weights = "w", s.d.denom = "pooled")
+
+    expect_equal(b_default$Balance.Across.Times, b_ate$Balance.Across.Times)
+
+    #But the default is only a default: another value changes the numbers rather than
+    #being discarded, which is what used to happen.
+    b_treated <- bal.tab(fs, data = d, weights = "w", s.d.denom = "treated")
+
+    expect_false(isTRUE(all.equal(b_treated$Balance.Across.Times,
+                                  b_default$Balance.Across.Times)))
+    expect_equal(b_treated$Time.Balance[[1L]]$Balance$Diff.Adj,
+                 bal.tab(t1 ~ age + educ, data = d, weights = "w",
+                         s.d.denom = "treated")$Balance$Diff.Adj)
+
+    #The same for a continuous longitudinal treatment, whose ATE default is "all".
+    fs_c <- list(c1 ~ age + educ, c2 ~ age + educ + c1)
+
+    expect_equal(bal.tab(fs_c, data = d, weights = "w")$Balance.Across.Times,
+                 bal.tab(fs_c, data = d, weights = "w",
+                         s.d.denom = "all")$Balance.Across.Times)
+
+    b_w <- bal.tab(fs_c, data = d, weights = "w", s.d.denom = "weighted")
+    expect_false(isTRUE(all.equal(b_w$Balance.Across.Times,
+                                  bal.tab(fs_c, data = d,
+                                          weights = "w")$Balance.Across.Times)))
+
+    #An unusable value is now rejected rather than ignored.
+    expect_err(bal.tab(fs, data = d, weights = "w", s.d.denom = "nope"),
+               "`s.d.denom` should be one of")
+})
+
 test_that("an unrecognized `estimand` warns instead of silently becoming ATE", {
     fx <- sdd_fixture()
 

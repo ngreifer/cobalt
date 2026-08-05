@@ -372,6 +372,20 @@ golden_grid <- function() {
             data = lalonde, s.d.denom = "pooled", weights = w, un = TRUE,
             method = "matching")
   }
+  #The cells above pass the value each time point would have defaulted to anyway.
+  #These pass a different one, which used to be discarded.
+  g$msm_sdd_treated <- function() {
+    bal.tab(list(treat ~ age + educ,
+                 nodegree ~ age + educ + treat),
+            data = lalonde, s.d.denom = "treated", weights = w, un = TRUE,
+            msm.summary = TRUE)
+  }
+  g$msm_cont_sdd <- function() {
+    bal.tab(list(re75 ~ age + educ,
+                 re78 ~ age + educ + re75),
+            data = lalonde, s.d.denom = "weighted", weights = w, un = TRUE,
+            msm.summary = TRUE)
+  }
 
   ## ---- nested shapes --------------------------------------------------------
 

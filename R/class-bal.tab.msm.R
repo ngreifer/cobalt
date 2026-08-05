@@ -82,7 +82,11 @@ base.bal.tab.msm <- function(X,
     
     X_ti <- .assign_X_class(X_ti)
     
-    X_ti[["s.d.denom"]] <- switch(.attr(X_ti, "X.class"), cont = "all", "pooled")
+    #A longitudinal treatment targets the ATE, so each time point's default
+    #denominator is the ATE's rather than one inferred from that time point's own
+    #weights. A value the user supplied still takes precedence.
+    X_ti[["s.d.denom"]] <- X_ti[["s.d.denom"]] %or%
+      switch(.attr(X_ti, "X.class"), cont = "all", "pooled")
     
     do.call("base.bal.tab", c(list(X_ti), A[setdiff(names(A), names(X_ti))]), quote = TRUE)
   })
