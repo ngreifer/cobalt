@@ -2833,52 +2833,58 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
   out
 }
 
-threshold_summary <- function(compute, thresholds, no.adj, balance.table, weight.names = NULL, agg.fun = NULL) {
+#The balance tally and greatest-imbalance tables for each statistic with a threshold.
+#
+#These used to be written out three times -- once for an unadjusted-only table, once
+#for a single weight set, once for several -- differing only in which sample's columns
+#to read and whether the result is one column or one per weight set. The sample list
+#says which, so the body is written once.
+threshold_summary <- function(compute, thresholds, no.adj, balance.table,
+                              weight.names = NULL, agg.fun = NULL) {
+  samples <- if (no.adj) "Un" else weight.names
+
+  #With a single weight set the threshold column carries no suffix, matching how
+  #`.bal_tab_col_spec()` named it.
+  bare.threshold <- !no.adj && length(samples) == 1L
+
   out <- do.call("c", lapply(compute, function(s) make_list(paste.(c("Balanced", "Max.Imbalance"), s))))
-  
+
+  no.distance <- balance.table[balance.table[["Type"]] != "Distance", , drop = FALSE]
+
   for (s in compute) {
     if (is_null(thresholds[[s]])) {
       out[[paste.("Balanced", s)]] <- NULL
       out[[paste.("Max.Imbalance", s)]] <- NULL
+      next
     }
-    else if (no.adj) {
-      out[[paste.("Balanced", s)]] <- .baltal(balance.table[[paste.(STATS[[s]]$Threshold, "Un")]])
-      out[[paste.("Max.Imbalance", s)]] <- .max_imbal(balance.table[balance.table[["Type"]] != "Distance", , drop = FALSE], 
-                                                      col.name = {
-                                                        if (is_null(agg.fun)) paste.(STATS[[s]]$bal.tab_column_prefix, "Un")
-                                                        else paste.(firstup(agg.fun), STATS[[s]]$bal.tab_column_prefix, "Un")
-                                                      }, 
-                                                      thresh.col.name = paste.(STATS[[s]]$Threshold, "Un"), 
-                                                      abs_stat = STATS[[s]]$abs)
+
+    prefix <- STATS[[s]][["bal.tab_column_prefix"]]
+    Threshold <- STATS[[s]][["Threshold"]]
+
+    thresh.col <- if (bare.threshold) rep_with(Threshold, samples) else paste.(Threshold, samples)
+    stat.col <- .paste_col(if (is_null(agg.fun)) NULL else firstup(agg.fun), prefix) |>
+      paste.(samples)
+
+    tallies <- lapply(thresh.col, function(tc) .baltal(balance.table[[tc]]))
+
+    imbalances <- lapply(seq_along(samples), function(i) {
+      .max_imbal(no.distance, stat.col[i], thresh.col[i], STATS[[s]][["abs"]])
+    })
+
+    out[[paste.("Balanced", s)]] <- {
+      if (length(samples) == 1L) tallies[[1L]]
+      else setNames(do.call("cbind", tallies), samples)
     }
-    else if (length(weight.names) == 1L) {
-      out[[paste.("Balanced", s)]] <- .baltal(balance.table[[STATS[[s]]$Threshold]])
-      out[[paste.("Max.Imbalance", s)]] <- .max_imbal(balance.table[balance.table[["Type"]] != "Distance", , drop = FALSE], 
-                                                      col.name = {
-                                                        if (is_null(agg.fun)) paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")
-                                                        else paste.(firstup(agg.fun), STATS[[s]]$bal.tab_column_prefix, "Adj")
-                                                      }, 
-                                                      thresh.col.name = STATS[[s]]$Threshold, 
-                                                      abs_stat = STATS[[s]]$abs)
-    }
-    else if (length(weight.names) > 1L) {
-      out[[paste.("Balanced", s)]] <- setNames(do.call("cbind", lapply(weight.names, function(x) .baltal(balance.table[[paste.(STATS[[s]]$Threshold, x)]]))),
-                                               weight.names)
-      out[[paste.("Max.Imbalance", s)]] <- cbind(Weights = weight.names,
-                                                 do.call("rbind", lapply(weight.names, function(x) setNames(.max_imbal(balance.table[balance.table[["Type"]] != "Distance", , drop = FALSE], 
-                                                                                                                       col.name = {
-                                                                                                                         if (is_null(agg.fun)) paste.(STATS[[s]]$bal.tab_column_prefix, x)
-                                                                                                                         else paste.(firstup(agg.fun), STATS[[s]]$bal.tab_column_prefix, x)
-                                                                                                                       },  
-                                                                                                                       thresh.col.name = paste.(STATS[[s]]$Threshold, x), 
-                                                                                                                       abs_stat = STATS[[s]]$abs),
-                                                                                                            c("Variable", 
-                                                                                                              STATS[[s]]$bal.tab_column_prefix, 
-                                                                                                              STATS[[s]]$Threshold)))),
-                                                 stringsAsFactors = FALSE)
+
+    out[[paste.("Max.Imbalance", s)]] <- {
+      if (length(samples) == 1L) imbalances[[1L]]
+      else cbind(Weights = samples,
+                 do.call("rbind", lapply(imbalances, setNames,
+                                         c("Variable", prefix, Threshold))),
+                 stringsAsFactors = FALSE)
     }
   }
-  
+
   out
 }
 
