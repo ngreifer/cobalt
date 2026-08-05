@@ -175,3 +175,31 @@ test_that("longitudinal treatments accept data frames and addl/distance lists", 
   expect_true("re75" %in% rownames(b2$Time.Balance[[2L]]$Balance))
   expect_identical(rownames(b2$Time.Balance[[1L]]$Balance)[1L], "distance")
 })
+
+test_that("cluster.summary is omitted rather than erroring with subclassification", {
+  # Regression test: a subclassified cluster carries no `nweights` in its print
+  # options, and `balance_summary()` derived `no.adj` as `nweights == 0`, giving
+  # `logical(0)` and failing with "missing value where TRUE/FALSE needed".
+  covs <- lalonde[c("age", "educ", "married")]
+  sub <- factor(rep(1:4, length.out = nrow(lalonde)))
+
+  for (q in c(TRUE, FALSE)) {
+    b <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", subclass = sub,
+                 cluster = cl_idx, cluster.summary = TRUE, cluster.fun = "mean",
+                 thresholds = c(m = .1), quick = q)
+
+    #Omitted, as it already is for multiply imputed data.
+    expect_false("Balance.Across.Clusters" %in% names(b))
+    expect_named(b$Cluster.Balance, levels(cl_idx))
+    expect_s3_class(b$Cluster.Balance[[1L]], "bal.tab.subclass")
+
+    #Printing does not error, and still shows the per-cluster subclass tables.
+    expect_no_error(out <- capture.output(print(b, cluster.summary = TRUE)))
+    expect_true(any(grepl("Cluster: a", out, fixed = TRUE)))
+  }
+
+  #Without subclassification the summary is still produced.
+  b2 <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
+                cluster = cl_idx, cluster.summary = TRUE, cluster.fun = "mean")
+  expect_s3_class(b2$Balance.Across.Clusters, "data.frame")
+})

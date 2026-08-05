@@ -3331,7 +3331,9 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   quick <- .attr(bal.tab.list[[1L]], "print.options")[["quick"]]
   weight.names <- .attr(bal.tab.list[[1L]], "print.options")[["weight.names"]] %or% "Adj"
   abs <- .attr(bal.tab.list[[1L]], "print.options")[["abs"]]
-  no.adj <- .attr(bal.tab.list[[1L]], "print.options")[["nweights"]] == 0
+  #Read from `disp.adj`, as `threshold_summary()`'s callers do: a subclassified child
+  #carries no `nweights`, and `NULL == 0` is `logical(0)`, not `TRUE`.
+  no.adj <- !isTRUE(.attr(bal.tab.list[[1L]], "print.options")[["disp.adj"]])
   
   balance.list <- clear_null(grab(bal.tab.list, "Balance"))
   

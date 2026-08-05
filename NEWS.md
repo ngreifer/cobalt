@@ -9,6 +9,8 @@
 
 * Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
 
+* Fixed a bug in which requesting `cluster.summary = TRUE` with clustered, subclassified data failed with `missing value where TRUE/FALSE needed`. A subclassified cluster has no single balance table to summarize across clusters, so the summary is now omitted, as it already is with multiply imputed data.
+
 * `set.cobalt.options()` now accepts any statistic for `stats`. Previously only `"mean.diffs"` was allowed, even though `getOption("cobalt_stats")` was honoured for all of them, so the option could not be set to anything else.
 
 * The per-statistic display options (`disp.diff`, `disp.v.ratio`, `disp.ks`, `disp.ovl`, `disp.corr`, `disp.spear`, and `disp.dcorr`) now take effect when set with `set.cobalt.options()`. `disp.v.ratio` and `disp.ks` were previously accepted but never read; the rest were rejected. The full set is now generated from the statistic registry, and the vestigial `target.summary` option, which was never read, has been removed.

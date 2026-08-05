@@ -111,8 +111,11 @@ base.bal.tab.cluster <- function(X,
   
   #Create summary of lists
   
+  #A subclassified child has no single `Balance` table to summarize, so it is
+  #excluded here as multiply imputed data already is.
   if ((cluster.summary || !A$quick) && is_null(X$covs.list) &&
-      get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
+      get.treat.type(X$treat) != "multinomial" && is_null(X$imp) &&
+      is_null(X$subclass)) {
     out[["Balance.Across.Clusters"]] <- balance_summary(out[["Cluster.Balance"]], 
                                                         agg.funs = agg.fun %or% c("min", "mean", "max"))
     
