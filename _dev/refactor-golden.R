@@ -645,5 +645,130 @@ check_col_spec <- function(dir = GOLDEN_DIR) {
     return(invisible(NULL))
   }
 
-  stop("check_col_spec() must be filled in when Stage 8 lands", call. = FALSE)
+  spec <- get(".bal_tab_col_spec", envir = asNamespace("cobalt"))
+
+  #The three table builders call the spec directly, so comparing their output to it
+  #would be tautological. What Stage 9c and `as.data.frame()` actually need is that
+  #the spec be recoverable from `print.options` alone, so that is what is checked:
+  #re-derive each table's columns from the object's own `p.ops` and compare.
+  all_stats <- get("all_STATS", envir = asNamespace("cobalt"))
+
+  .compute <- function(p, type, intersect_stats) {
+    stats <- if (intersect_stats) intersect(all_stats(type), p[["stats"]]) else all_stats(type)
+
+    if (isTRUE(p[["quick"]])) c(p[["disp"]], stats)
+    else c("means", "sds", stats)
+  }
+
+  #One entry per table shape: how to reach it, and what the spec arguments are.
+  .expected <- function(x, p) {
+    type <- p[["type"]]
+    no.adj <- !isTRUE(p[["disp.adj"]])
+    wn <- if (no.adj) "Adj" else p[["weight.names"]]
+    thr.s <- if (no.adj) "Un" else wn
+
+    out <- list()
+
+    if (is.data.frame(x[["Balance"]])) {
+      out[["Balance"]] <- spec(type, p[["compute"]], p[["thresholds"]],
+                               samples = c("Un", wn), threshold.samples = thr.s)
+    }
+
+    for (nm in names(x)[startsWith(names(x), "Balance.Across.")]) {
+      if (!is.data.frame(x[[nm]])) next
+
+      #Only `Balance.Across.Subclass` is an ordinary balance table; the rest are
+      #aggregated summaries carrying an aggregating function per statistic.
+      if (nm == "Balance.Across.Subclass") {
+        out[[nm]] <- spec(type, .compute(p, type, TRUE), p[["thresholds"]],
+                          samples = c("Un", "Adj"), threshold.samples = "Adj")
+        next
+      }
+
+      agg <- switch(nm,
+                    "Balance.Across.Clusters" = p[["cluster.fun"]],
+                    "Balance.Across.Imputations" = p[["imp.fun"]],
+                    "max")
+      agg.all <- if (isTRUE(p[["quick"]])) agg else c("min", "mean", "max")
+
+      out[[nm]] <- spec(type, p[["compute"]], p[["thresholds"]],
+                        samples = c("Un", wn), quantities = NULL,
+                        agg.funs = agg.all,
+                        threshold.samples = if (length(agg) != 1L) character(0L) else thr.s,
+                        threshold.agg.fun = agg,
+                        include.times = nm == "Balance.Across.Times")
+    }
+
+    if (is.list(x[["Subclass.Balance"]]) && !is.data.frame(x[["Subclass.Balance"]])) {
+      sb <- spec(type, p[["compute"]], p[["thresholds"]], samples = "Adj")
+
+      for (i in names(x[["Subclass.Balance"]])) {
+        out[[paste0("Subclass.Balance[[", i, "]]")]] <- sb
+      }
+    }
+
+    out
+  }
+
+  #`bal.tab` objects nest, so walk down to every level that has its own p.ops.
+  .walk <- function(x, path, acc = list()) {
+    p <- attr(x, "print.options")
+
+    if (is_not_null(p)) {
+      expected <- .expected(x, p)
+
+      for (nm in names(expected)) {
+        actual <- {
+          if (startsWith(nm, "Subclass.Balance"))
+            x[["Subclass.Balance"]][[sub("^.*\\[\\[(.*)\\]\\]$", "\\1", nm)]]
+          else x[[nm]]
+        }
+
+        acc[[paste0(path, "$", nm)]] <- list(expected = expected[[nm]][["name"]],
+                                             actual = names(actual))
+      }
+    }
+
+    for (nm in names(x)) {
+      if (!is.list(x[[nm]]) || is.data.frame(x[[nm]])) next
+
+      for (j in seq_along(x[[nm]])) {
+        if (!inherits(x[[nm]][[j]], "bal.tab")) next
+
+        acc <- .walk(x[[nm]][[j]], sprintf("%s$%s[[%s]]", path, nm,
+                                           names(x[[nm]])[j] %or% j), acc)
+      }
+    }
+
+    acc
+  }
+
+  files <- sort(list.files(dir, pattern = "\\.rds$", full.names = TRUE))
+  n_tab <- 0L
+  bad <- character(0L)
+
+  for (f in files) {
+    cell <- readRDS(f)
+
+    if (isTRUE(cell[["unavailable"]]) || is_null(cell[["obj"]])) next
+
+    tabs <- .walk(cell[["obj"]], basename(f))
+    n_tab <- n_tab + length(tabs)
+
+    for (nm in names(tabs)) {
+      if (identical(tabs[[nm]][["expected"]], tabs[[nm]][["actual"]])) next
+
+      bad <- c(bad, sprintf("%s\n  spec: %s\n  real: %s", nm,
+                            toString(tabs[[nm]][["expected"]]),
+                            toString(tabs[[nm]][["actual"]])))
+    }
+  }
+
+  cat(sprintf("%d tables checked | %d mismatched\n", n_tab, length(bad)))
+
+  if (is_not_null(bad)) {
+    cat(paste(utils::head(bad, 5L), collapse = "\n"), "\n")
+  }
+
+  invisible(bad)
 }

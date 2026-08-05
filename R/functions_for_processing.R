@@ -2977,29 +2977,11 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   compute <- if (quick) disp else c("means", "sds", all_STATS(type)[all_STATS(type) %in% stats])
   
   #B=Balance frame
-  Bnames <- c("Type", 
-              expand_grid_string(c(switch(type,
-                                          "bin" = expand_grid_string(c("M"["means" %in% compute],
-                                                                       "SD"["sds" %in% compute]),
-                                                                     c("0", "1"), collapse = "."),
-                                          "cont" = c("M"["means" %in% compute], "SD"["sds" %in% compute])), 
-                                   unlist(lapply(intersect(compute, all_STATS(type)[!get_from_STATS("adj_only")[get_from_STATS("type") == type]]), function(s) {
-                                     c(STATS[[s]]$bal.tab_column_prefix,
-                                       if (no.adj && is_not_null(thresholds[[s]])) STATS[[s]]$Threshold)
-                                   }))
-              ),
-              "Un", collapse = "."),
-              expand_grid_string(c(switch(type,
-                                          "bin" = expand_grid_string(c("M"["means" %in% compute], "SD"["sds" %in% compute]),
-                                                                     c("0", "1"), collapse = "."),
-                                          "cont" = c("M"["means" %in% compute], "SD"["sds" %in% compute])), 
-                                   unlist(lapply(intersect(compute, all_STATS(type)), function(s) {
-                                     c(STATS[[s]]$bal.tab_column_prefix,
-                                       if (!no.adj && is_not_null(thresholds[[s]])) STATS[[s]]$Threshold)
-                                   }))
-              ),
-              weight.names, collapse = "."))
-  B <- make_df(Bnames, NCOL(C))
+  spec <- .bal_tab_col_spec(type, compute, thresholds,
+                            samples = c("Un", weight.names),
+                            threshold.samples = if (no.adj) "Un" else weight.names)
+
+  B <- make_df(spec[["name"]], NCOL(C))
   rownames(B) <- colnames(C)
   
   #Set var type (binary/continuous)
@@ -3127,22 +3109,13 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
       }
       
       if (is_not_null(thresholds[[s]])) {
-        if (!get_from_STATS("adj_only")[s] && no.adj) {
-          B[[paste.(STATS[[s]]$Threshold, "Un")]] <-
-            .threshold_label(B[[paste.(STATS[[s]]$bal.tab_column_prefix, "Un")]],
+        thr <- .threshold_cols(spec, s)
+
+        for (k in seq_len(nrow(thr))) {
+          B[[thr[["name"]][k]]] <-
+            .threshold_label(B[[paste.(STATS[[s]]$bal.tab_column_prefix, thr[["sample"]][k])]],
                              B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
         }
-        else if (!no.adj) {
-          for (i in weight.names) {
-            B[[paste.(STATS[[s]]$Threshold, i)]] <-
-              .threshold_label(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]],
-                               B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
-          }
-        }
-      }
-      
-      if (no.adj || NCOL(weights) <= 1L) {
-        names(B)[names(B) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
       }
     }
   }
@@ -3371,25 +3344,26 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
     abs <- TRUE
   }
   
-  Bcolnames <- c("Times", "Type", 
-                 paste.(c(unlist(lapply(compute[compute %in% all_STATS(type)[!get_from_STATS("adj_only")[get_from_STATS("type") == type]]], function(s) {
-                   c(paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix),
-                     if (no.adj && is_not_null(thresholds[[s]]) && length(Agg.Funs.Given) == 1L) STATS[[s]]$Threshold)
-                 }))), "Un"),
-                 unlist(lapply(weight.names, function(wn) {
-                   paste.(c(unlist(lapply(compute[compute %in% all_STATS(type)], function(s) {
-                     c(paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix),
-                       if (!no.adj && is_not_null(thresholds[[s]]) && length(Agg.Funs.Given) == 1L) STATS[[s]]$Threshold)
-                   }))), wn)
-                 })))
-  
-  B <- make_df(Bcolnames, Brownames)
+  #A threshold labels one aggregate, so it is only meaningful when a single
+  #aggregating function was asked for.
+  spec <- .bal_tab_col_spec(type, compute, thresholds,
+                            samples = c("Un", weight.names),
+                            quantities = NULL,
+                            agg.funs = Agg.Funs,
+                            threshold.samples = {
+                              if (length(Agg.Funs.Given) != 1L) character(0L)
+                              else if (no.adj) "Un"
+                              else weight.names
+                            },
+                            threshold.agg.fun = Agg.Funs.Given,
+                            include.times = include.times)
+
+  B <- make_df(spec[["name"]], Brownames)
   
   B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(balance.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA_character_, character(1L))))), use.names = FALSE)
   
-  B[["Times"]] <- {
-    if (include.times) vapply(Brownames, function(x) toString(seq_along(balance.list)[vapply(balance.list, function(y) x %in% rownames(y), logical(1L))]), character(1L))[Brownames]
-    else NULL
+  if (include.times) {
+    B[["Times"]] <- vapply(Brownames, function(x) toString(seq_along(balance.list)[vapply(balance.list, function(y) x %in% rownames(y), logical(1L))]), character(1L))[Brownames]
   }
   
   for (Agg.Fun in Agg.Funs) {
@@ -3425,30 +3399,20 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
     }
   }
   
-  if (length(Agg.Funs.Given) == 1L) {
-    #Assign X.Threshold values
-    for (s in compute[compute %in% all_STATS(type)]) {
-      if (is_not_null(thresholds[[s]])) {
-        if (!get_from_STATS("adj_only")[s] && no.adj) {
-          B[[paste.(STATS[[s]]$Threshold, "Un")]] <-
-            .threshold_label(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]],
-                             B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
-        }
-        else {
-          for (i in weight.names) {
-            B[[paste.(STATS[[s]]$Threshold, i)]] <-
-              .threshold_label(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, i)]],
-                               B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
-          }
-        }
-      }
-      
-      if (no.adj || length(weight.names) <= 1L) {
-        names(B)[names(B) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
-      }
+  #Assign X.Threshold values
+  for (s in compute[compute %in% all_STATS(type)]) {
+    if (is_null(thresholds[[s]])) next
+
+    thr <- .threshold_cols(spec, s)
+
+    for (k in seq_len(nrow(thr))) {
+      B[[thr[["name"]][k]]] <-
+        .threshold_label(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix,
+                                   thr[["sample"]][k])]],
+                         B[["Type"]], thresholds[[s]], STATS[[s]]$abs)
     }
   }
-  
+
   B
 }
 
@@ -3501,19 +3465,9 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
   compute <- if (quick) disp else c("means", "sds", all_STATS(type))
   
   #B=Balance frame
-  Bnames <- c("Type", 
-              expand_grid_string(c(switch(type,
-                                          "bin" = expand_grid_string(c("M"["means" %in% compute],
-                                                                       "SD"["sds" %in% compute]),
-                                                                     c("0", "1"), collapse = "."),
-                                          "cont" = c("M"["means" %in% compute], "SD"["sds" %in% compute])), 
-                                   unlist(lapply(intersect(compute, all_STATS(type)), function(s) {
-                                     c(STATS[[s]]$bal.tab_column_prefix,
-                                       if (is_not_null(thresholds[[s]])) STATS[[s]]$Threshold)
-                                   }))
-              ),
-              c("Adj"), collapse = "."))
-  B <- make_df(Bnames, colnames(C))
+  spec <- .bal_tab_col_spec(type, compute, thresholds, samples = "Adj")
+
+  B <- make_df(spec[["name"]], colnames(C))
   
   #Set var type (binary/continuous)
   B[["Type"]] <- var_types %or% .get_types(C)
@@ -3585,11 +3539,10 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
         }
 
         if (is_not_null(thresholds[[s]])) {
-          SB[[i]][[paste.(STATS[[s]]$Threshold, "Adj")]] <-
+          SB[[i]][[.threshold_cols(spec, s)[["name"]]]] <-
             .threshold_label(SB[[i]][[stat.col]], SB[[i]][["Type"]],
                              thresholds[[s]], STATS[[s]]$abs)
         }
-        names(SB[[i]])[names(SB[[i]]) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
       }
       
     }

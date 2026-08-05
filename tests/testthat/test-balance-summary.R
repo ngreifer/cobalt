@@ -1,5 +1,6 @@
 #The exported `col_w_*()` functions, and the shared input processing behind them
-#(`process_mat1()`, `process_mat2()`, `.process_bin_vars()`).
+#(`process_mat1()`, `process_mat2()`, `.process_bin_vars()`); plus
+#`.bal_tab_col_spec()`, which lays out the columns of every balance table.
 
 m2 <- function() as.matrix(lalonde[c("age", "educ")])
 m3 <- function() as.matrix(lalonde[c("age", "educ", "re74")])
@@ -262,4 +263,194 @@ test_that("`na.rm` controls how missing values are treated", {
   #With `na.rm = FALSE` the affected column is NA.
   v <- col_w_mean(m, na.rm = FALSE)
   expect_true(anyNA(v))
+})
+
+# .bal_tab_col_spec() is the single source for balance-table columns. Three table
+# builders create their columns from it, and `print()` and `love.plot()` select
+# columns by name, so the layout it produces has to be recoverable from a
+# `bal.tab` object's own `print.options` -- not just from the builders' locals.
+
+spec_from_p.ops <- function(p, table = "Balance") {
+  no.adj <- !isTRUE(p[["disp.adj"]])
+  wn <- if (no.adj) "Adj" else p[["weight.names"]]
+  thr.s <- if (no.adj) "Un" else wn
+
+  if (table == "Balance") {
+    return(cobalt:::.bal_tab_col_spec(p[["type"]], p[["compute"]], p[["thresholds"]],
+                                      samples = c("Un", wn), threshold.samples = thr.s))
+  }
+
+  if (table == "Subclass.Balance") {
+    return(cobalt:::.bal_tab_col_spec(p[["type"]], p[["compute"]], p[["thresholds"]],
+                                      samples = "Adj"))
+  }
+
+  agg <- switch(table,
+                "Balance.Across.Clusters" = p[["cluster.fun"]],
+                "Balance.Across.Imputations" = p[["imp.fun"]],
+                "max")
+
+  cobalt:::.bal_tab_col_spec(p[["type"]], p[["compute"]], p[["thresholds"]],
+                            samples = c("Un", wn), quantities = NULL,
+                            agg.funs = if (isTRUE(p[["quick"]])) agg else c("min", "mean", "max"),
+                            threshold.samples = if (length(agg) != 1L) character(0L) else thr.s,
+                            threshold.agg.fun = agg,
+                            include.times = table == "Balance.Across.Times")
+}
+
+expect_spec_matches <- function(b, table = "Balance", element = NULL) {
+  p <- attr(b, "print.options")
+  tbl <- if (is_null(element)) b[[table]] else b[[table]][[element]]
+
+  expect_identical(names(tbl), spec_from_p.ops(p, table)[["name"]],
+                   info = paste(table, element))
+}
+
+test_that(".bal_tab_col_spec() reproduces the columns of a leaf balance table", {
+  covs <- lalonde[c("age", "educ", "married")]
+  t <- lalonde$treat
+
+  #No weights: the "Adj" block is still laid out, unfilled.
+  expect_spec_matches(bal.tab(covs, treat = t, s.d.denom = "pooled"))
+  expect_spec_matches(bal.tab(covs, treat = t, s.d.denom = "pooled",
+                              thresholds = c(m = .1, ks = .1)))
+
+  #One weight set: the threshold column loses its suffix.
+  b <- bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+               un = TRUE, thresholds = c(m = .1))
+  expect_spec_matches(b)
+  expect_true("M.Threshold" %in% names(b$Balance))
+
+  #Two weight sets: it keeps one suffix per set, interleaved in each block.
+  b2 <- bal.tab(covs, treat = t, s.d.denom = "pooled",
+                weights = data.frame(W1 = w_fixed, W2 = rev(w_fixed)),
+                un = TRUE, thresholds = c(m = .1))
+  expect_spec_matches(b2)
+  expect_identical(names(b2$Balance),
+                   c("Type", "Diff.Un", "Diff.W1", "M.Threshold.W1",
+                     "Diff.W2", "M.Threshold.W2"))
+
+  #Moments, every statistic, and `quick = FALSE`.
+  expect_spec_matches(bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+                              disp = c("means", "sds"), un = TRUE))
+  expect_spec_matches(bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+                              stats = cobalt:::all_STATS("bin"), un = TRUE))
+  expect_spec_matches(bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+                              quick = FALSE, thresholds = c(m = .1)))
+
+  #Continuous treatments have no group part, and the `.target` statistics are
+  #adjusted-only, so they appear in no "Un" block.
+  b_c <- bal.tab(covs, treat = lalonde$re75, weights = w_fixed, un = TRUE,
+                 stats = cobalt:::all_STATS("cont"), disp = c("means", "sds"))
+  expect_spec_matches(b_c)
+  expect_false(any(grepl("Target.Un", names(b_c$Balance), fixed = TRUE)))
+})
+
+test_that(".bal_tab_col_spec() reproduces the columns of every summary table", {
+  covs <- lalonde[c("age", "educ", "married")]
+  t <- lalonde$treat
+
+  #A threshold labels one aggregate, so it is dropped when several are displayed.
+  b <- bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+               cluster = cl_idx, un = TRUE, thresholds = c(m = .1),
+               cluster.summary = TRUE, cluster.fun = "mean")
+  expect_spec_matches(b, "Balance.Across.Clusters")
+  expect_true("M.Threshold" %in% names(b$Balance.Across.Clusters))
+
+  b3 <- bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+                cluster = cl_idx, un = TRUE, thresholds = c(m = .1),
+                cluster.summary = TRUE, cluster.fun = c("min", "mean", "max"))
+  expect_spec_matches(b3, "Balance.Across.Clusters")
+  expect_false(any(grepl("Threshold", names(b3$Balance.Across.Clusters), fixed = TRUE)))
+
+  #`quick = FALSE` widens the aggregates shown but not the ones asked for, so the
+  #threshold survives alongside all three.
+  bq <- bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+                cluster = cl_idx, thresholds = c(m = .1), cluster.summary = TRUE,
+                cluster.fun = "mean", quick = FALSE)
+  expect_spec_matches(bq, "Balance.Across.Clusters")
+  expect_true(all(c("Min.Diff.Adj", "Mean.Diff.Adj", "Max.Diff.Adj", "M.Threshold") %in%
+                    names(bq$Balance.Across.Clusters)))
+
+  expect_spec_matches(bal.tab(covs, treat = t, s.d.denom = "pooled", weights = w_fixed,
+                              imp = imp_idx, un = TRUE, thresholds = c(m = .1)),
+                      "Balance.Across.Imputations")
+
+  expect_spec_matches(bal.tab(covs, treat = lalonde$race, s.d.denom = "pooled",
+                              weights = w_fixed, thresholds = c(m = .1)),
+                      "Balance.Across.Pairs")
+
+  #The msm summary carries a leading `Times` column.
+  b_msm <- bal.tab(list(treat ~ age, treat ~ age + educ),
+                   data = cbind(lalonde, list(w = w_fixed)), weights = "w",
+                   s.d.denom = "pooled", un = TRUE, thresholds = c(m = .1))
+  expect_spec_matches(b_msm, "Balance.Across.Times")
+  expect_identical(names(b_msm$Balance.Across.Times)[1L], "Times")
+})
+
+test_that(".bal_tab_col_spec() reproduces the columns of subclass tables", {
+  covs <- lalonde[c("age", "educ", "married")]
+  sub <- factor(rep(1:4, length.out = nrow(lalonde)))
+
+  for (q in c(TRUE, FALSE)) {
+    b <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", subclass = sub,
+                 which.subclass = .all, subclass.summary = TRUE,
+                 thresholds = c(m = .1, ks = .1), quick = q)
+
+    for (i in names(b$Subclass.Balance)) {
+      expect_spec_matches(b, "Subclass.Balance", i)
+    }
+
+    #The across-subclass table is an ordinary balance table, so its `compute` is
+    #intersected with `stats` where the per-subclass blocks' is not (H3).
+    expect_identical(names(b$Balance.Across.Subclass),
+                     cobalt:::.bal_tab_col_spec(
+                       "bin",
+                       if (q) c(attr(b, "print.options")$disp, "mean.diffs", "ks.statistics")
+                       else c("means", "sds", "mean.diffs", "ks.statistics"),
+                       attr(b, "print.options")$thresholds,
+                       samples = c("Un", "Adj"), threshold.samples = "Adj")[["name"]])
+  }
+})
+
+test_that(".bal_tab_col_spec() labels each column it generates", {
+  spec <- cobalt:::.bal_tab_col_spec(
+    "bin", c("means", "sds", "mean.diffs", "variance.ratios"),
+    thresholds = list(mean.diffs = .1),
+    samples = c("Un", "W1", "W2"), threshold.samples = c("W1", "W2"))
+
+  expect_named(spec, c("name", "quantity", "stat", "sample", "agg.fun", "group"))
+  expect_false(anyDuplicated(spec$name) > 0L)
+
+  #Every row is one of the six kinds of column, and the metadata identifies it
+  #without anyone having to parse the name.
+  expect_setequal(spec$quantity, c("type", "means", "sds", "stat", "threshold"))
+  expect_identical(spec$name[spec$quantity == "means" & spec$sample == "W1"],
+                   c("M.0.W1", "M.1.W1"))
+  expect_identical(spec$group[spec$quantity == "means" & spec$sample == "W1"],
+                   c("0", "1"))
+  expect_identical(spec$name[spec$quantity == "threshold"],
+                   c("M.Threshold.W1", "M.Threshold.W2"))
+  expect_identical(unique(spec$stat[spec$quantity == "stat"]),
+                   c("mean.diffs", "variance.ratios"))
+
+  #The `.target` statistics are the adjusted-only ones, so they get no unadjusted
+  #column while their non-target counterparts do.
+  cont <- cobalt:::.bal_tab_col_spec(
+    "cont", c("correlations", "mean.diffs.target"), samples = c("Un", "Adj"))
+
+  expect_identical(cont$name,
+                   c("Type", "Corr.Un", "Corr.Adj", "Diff.Target.Adj"))
+
+  #Aggregated summaries prefix each statistic with each function, thresholds last.
+  agg <- cobalt:::.bal_tab_col_spec(
+    "bin", "mean.diffs", thresholds = list(mean.diffs = .1), samples = c("Un", "Adj"),
+    quantities = NULL, agg.funs = c("min", "mean", "max"),
+    threshold.samples = "Adj", threshold.agg.fun = "mean")
+
+  expect_identical(agg$name,
+                   c("Type", "Min.Diff.Un", "Mean.Diff.Un", "Max.Diff.Un",
+                     "Min.Diff.Adj", "Mean.Diff.Adj", "Max.Diff.Adj", "M.Threshold"))
+  expect_identical(agg$agg.fun[agg$name == "M.Threshold"], "mean")
+  expect_identical(agg$agg.fun[agg$name == "Min.Diff.Un"], "min")
 })
