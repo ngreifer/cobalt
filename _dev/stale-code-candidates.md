@@ -108,7 +108,8 @@ calls it, and whether something simpler would do. Six were replaced and one coll
 (see `git log`). These were examined and kept, with reasons, so the next pass does not
 have to re-derive them.
 
-**The three big ones, all worth doing and all needing their own commit:**
+**Two of the three big ones are done** (`.get_s.d.denom()` and `.get_C2()`; see
+`git log`). One remains:
 
 - **`get_covs_from_formula()` (385 lines)** — the formula parser. Handles `.`, `poly()`,
   transformations, factor splitting, `offset()`, and per-time-point naming. It is long
@@ -116,21 +117,6 @@ have to re-derive them.
   duplication to fold. Any rewrite should start by pinning its behaviour with a
   dedicated test file, since it currently has no direct tests — only what reaches it
   through `bal.tab()`.
-
-- **`.get_C2()` (248 lines)** — assembles the covariate matrix from `covs`, `addl`,
-  `distance`, interactions, and polynomials, then dedups. Two loops over
-  `C_list`/`co_list` maintain those two structures in parallel, which is where the
-  length comes from. The honest fix is one structure carrying its own names, which is a
-  real redesign rather than a tidy-up.
-
-- **`.get_s.d.denom()` (170 lines)** — the actual bloat here is control flow: three
-  boolean flags (`check.estimand`, `check.weights`, `check.focal`) thread between four
-  blocks, used as `goto`. The logic underneath is a plain fallback chain: an explicit
-  `s.d.denom`, else the estimand, else `focal`, else infer from the weights. Rewriting
-  it as that chain would roughly halve it. Left alone here because `test-s.d.denom.R`
-  pins the exact `arg::msg()` text of several paths and the branch that emits each is
-  not obvious from reading — it needs the tests extended first, not the code changed
-  first.
 
 **Kept as they are, for reasons that will not change:**
 
@@ -145,3 +131,28 @@ have to re-derive them.
   itself just produced is backwards, and every caller has the threshold to hand. Worth
   changing; not done here because it means touching `.baltal()`'s signature and its
   four call sites in the same commit as nothing else.
+
+## Still open after the 2026-08-05 rewrites
+
+- **`get_covs_from_formula()` (385 lines)** — the last of the three. Still has no direct
+  tests; everything reaching it goes through `bal.tab()`. Do the same thing that worked
+  for `.get_s.d.denom()`: write unit tests for each supported form first (`.`, `poly()`,
+  transformations, factor splitting, `offset()`, per-time-point naming), confirm they
+  pass, commit them, and only then touch it.
+
+- **`.baltal()`** still recovers the numeric threshold by regex from the label
+  `"Balanced, <0.1"` that `.threshold_label()` generated a moment earlier. Every caller
+  has the threshold. Changing it means touching the signature and its four call sites
+  together.
+
+- **Two lessons from the rewrites**, both of which cost a broken build and neither of
+  which the golden set would have caught alone:
+
+  - Splitting a function into helpers means re-threading its arguments. The
+    `.get_s.d.denom()` rewrite dropped `quietly` on the way into the estimand branch,
+    so a wrapper that asked for silence would have warned. Only the new unit tests
+    caught it — no golden cell combines `estimand = <invalid>` with `quietly`.
+  - `rep.int()` strips names; plain `[` indexing of a named vector does not. Passing
+    `seps["int"]` where the original passed `rep.int(seps["int"], 1L)` leaked an `"int"`
+    name into every interaction term's `component` vector, and so into the returned
+    object's attributes. Two golden cells caught it.
