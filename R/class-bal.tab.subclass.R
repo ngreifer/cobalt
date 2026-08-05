@@ -228,7 +228,10 @@ base.bal.tab.subclass.binary <- function(X, ...) {
   base.bal.tab.subclass(X, type = "bin", ...)
 }
 
+#Not implemented. `base.bal.tab.subclass()` takes a `type` argument and would accept
+#`"cont"`, but `samplesize()`'s continuous subclassification branch and
+#`balance_table_across_subclass_cont()` have never been exercised, so this errors rather
+#than producing numbers nobody has checked.
 base.bal.tab.subclass.cont <- function(X, ...) {
   arg::err("subclasses are not yet compatible with continuous treatments")
-  # base.bal.tab.subclass(X, type = "cont", ...)
 }
