@@ -2328,252 +2328,267 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   covs
 }
+#A covariate matrix carries the parsed form of its column names in a `co.names`
+#attribute. `[` drops attributes, which is why `.get_C2()` used to carry the matrices
+#and their names in two parallel lists and subset both at every step -- eight places
+#where the two could fall out of step. These keep them together instead.
+
+#The columns `keep` selects, with their names.
+.C_keep <- function(C, keep) {
+  co.names <- .attr(C, "co.names")[keep]
+  C <- C[, keep, drop = FALSE]
+
+  .C_rename(C, co.names)
+}
+
+#Attaches `co.names` and derives the column names from it.
+.C_rename <- function(C, co.names) {
+  if (is_not_null(co.names)) {
+    names(co.names) <- vapply(co.names, function(x) paste(x[["component"]], collapse = ""),
+                              character(1L))
+
+    if (NCOL(C) > 0L) {
+      colnames(C) <- names(co.names)
+    }
+  }
+
+  attr(C, "co.names") <- co.names
+
+  C
+}
+
+#Merges `addl` into `covs`, dropping anything already there under the same name or
+#perfectly collinear with a covariate.
+.C_add_addl <- function(C, addl, drop) {
+  same.name <- names(.attr(addl, "co.names")) %in% names(.attr(C, "co.names"))
+  addl <- .C_keep(addl, !same.name)
+
+  if (drop && getOption("cobalt_remove_perfect_col", max(ncol(addl), ncol(C)) <= 900)) {
+    redundant <- find_perfect_col(addl, C)
+
+    if (is_not_null(redundant)) {
+      addl <- .C_keep(addl, -redundant)
+    }
+  }
+
+  co.cbind(C, addl)
+}
+
+#For a 0/1 or FALSE/TRUE variable that was split into two dummies, keeps the `1` column
+#alone and renames it after the variable. Also drops both when they are perfectly
+#redundant with `cluster`.
+.C_drop_0_1 <- function(C, cluster) {
+  co.names <- .attr(C, "co.names")
+  drop_0_1 <- rep.int(NA, length(co.names))
+
+  base_of <- function(x) x[["component"]][x[["type"]] == "base"][1L]
+
+  for (i in seq_along(co.names)) {
+    if (!is.na(drop_0_1[i])) {
+      next
+    }
+
+    #Only the dummies of a split factor are candidates, and never an interaction.
+    if ("isep" %in% co.names[[i]][["type"]] || "fsep" %nin% co.names[[i]][["type"]]) {
+      drop_0_1[i] <- FALSE
+      next
+    }
+
+    #The other dummies split from the same variable.
+    buddy.i <- which(vapply(co.names, function(j) {
+      "isep" %nin% j[["type"]] && "fsep" %in% j[["type"]] &&
+        base_of(j) == base_of(co.names[[i]])
+    }, logical(1L)))
+
+    buddies <- co.names[buddy.i]
+
+    if (is_not_null(cluster)) {
+      unsplit_var <- unsplitfactor(as.data.frame(C[, buddy.i, drop = FALSE]),
+                                  base_of(buddies[[1L]]),
+                                  sep = .attr(co.names, "seps")["factor"])[[1L]]
+
+      tab <- table(cluster, unsplit_var)
+      tab <- tab[rowSums(tab == 0) < ncol(tab), , drop = FALSE]
+
+      #Each cluster takes a single level, so the variable adds nothing to it.
+      if (all(rowSums(tab > 0) == 1)) {
+        drop_0_1[buddy.i] <- TRUE
+        next
+      }
+    }
+
+    #More than two levels is not a 0/1 variable.
+    if (length(buddies) > 2L) {
+      drop_0_1[buddy.i] <- FALSE
+      next
+    }
+
+    is_0 <- vapply(buddies, function(x) {
+      x[["component"]][x[["type"]] == "level"] %in% c("0", "FALSE")
+    }, logical(1L))
+
+    is_1 <- vapply(buddies, function(x) {
+      x[["component"]][x[["type"]] == "level"] %in% c("1", "TRUE")
+    }, logical(1L))
+
+    #Two levels that are not 0/1: keep the first, drop the second.
+    if (!all(is_0 | is_1)) {
+      drop_0_1[buddy.i] <- c(TRUE, FALSE)
+      next
+    }
+
+    drop_0_1[buddy.i[is_0]] <- TRUE
+    drop_0_1[buddy.i[is_1]] <- FALSE
+
+    #The surviving dummy is named after the variable rather than the level.
+    kept <- buddy.i[is_1]
+    co.names[[kept]][["component"]] <- base_of(co.names[[kept]])
+    co.names[[kept]][["type"]] <- "base"
+  }
+
+  .C_rename(C, co.names) |>
+    .C_keep(!drop_0_1)
+}
+
 .get_C2 <- function(covs = NULL, int = FALSE, poly = 1, addl = NULL, distance = NULL,
                     treat = NULL, cluster = NULL, drop = TRUE, factor_sep = "_",
                     int_sep = " * ", ...) {
-  #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
+  #Gets the C matrix, holding every variable balance is assessed on. Used in
+  #`balance_table()`. Each piece carries its own `co.names`, so `.C_keep()` is the only
+  #thing that removes a column and its name cannot be left behind.
   if (inherits(covs, "processed_C")) {
     return(covs)
   }
-  
+
   if (is_null(covs)) {
     drop <- FALSE
   }
-  
+
   arg::arg_string(factor_sep)
   arg::arg_string(int_sep)
-  
+
   #Process int and poly
   arg::arg_whole_number(poly)
   arg::arg_gte(poly, 1)
   poly <- round(poly)
-  
+
   arg::arg_or(int,
               arg::arg_flag,
               arg::arg_and(
                 arg::arg_whole_number,
                 arg::arg_gt(1)
               ))
-  
+
   if (is.numeric(int)) {
     if (int > poly) {
       poly <- int
     }
-    
+
     int <- TRUE
   }
-  
+
   center <- ...get("center", getOption("cobalt_center", default = FALSE))
   arg::arg_flag(center)
   orth <- ...get("orth", getOption("cobalt_orth", default = FALSE))
   arg::arg_flag(orth)
-  
-  co.names <- .attr(covs, "co.names")
-  seps <- .attr(co.names, "seps")
-  
-  if (is_not_null(addl)) {
-    addl.co.names <- .attr(addl, "co.names")
-    
-    same.name <- names(addl.co.names) %in% names(co.names)
-    addl <- addl[, !same.name, drop = FALSE]
-    addl.co.names[same.name] <- NULL
-    
-    #Remove variables in addl that are redundant with covs
-    if (drop && getOption("cobalt_remove_perfect_col", max(ncol(addl), ncol(covs)) <= 900)) {
-      redundant.var.indices <- find_perfect_col(addl, covs)
-      if (is_not_null(redundant.var.indices)) {
-        addl <- addl[, -redundant.var.indices, drop = FALSE]
-        addl.co.names[redundant.var.indices] <- NULL
-      }
-    }
-    
-    covs <- cbind(covs, addl)
-    co.names <- c(co.names, addl.co.names)
-  } 
-  
-  #Drop colinear with treat
-  if (drop) {
-    test.treat <- is_not_null(treat) && get.treat.type(treat) != "continuous"
-    
-    # test.cluster <- is_not_null(cluster) && !all_the_same(cluster, na.rm = FALSE)
-    
-    drop_vars <- vapply(seq_col(covs), 
-                        function(i) {
-                          # if (all_the_same(covs[,i], na.rm = FALSE)) return(TRUE)
-                          test.treat && !anyNA(covs[, i]) && equivalent.factors2(covs[, i], treat)
-                        }, logical(1L))
-    
-    if (any(drop_vars)) {
-      covs <- covs[, !drop_vars, drop = FALSE]
-      co.names[drop_vars] <- NULL
-    }
-  }
-  
-  C_list <- list(C = covs)
-  co_list <- list(C = co.names)
-  rm(co.names)
-  
-  if (int || (poly > 1)) {
-    nsep <- 1L
-    
-    #Exclude NA and ints from interactions and poly
-    exclude <- vapply(co_list[["C"]],
-                      function(x) any(c("na", "isep") %in% x[["type"]]),
-                      logical(1L))
-    
-    new <- .int_poly_f2(C_list[["C"]], ex = exclude, int = int, poly = poly, center = center,
-                        orth = orth, sep = rep.int(seps["int"], nsep), co.names = co_list[["C"]])
 
-    #`new` is NULL when there are no interactions or polynomial terms to add
-    if (is_not_null(new)) {
-      C_list[["int.poly"]] <- new
-      co_list[["int.poly"]] <- .attr(new, "co.names")
-      names(co_list[["int.poly"]]) <- vapply(co_list[["int.poly"]],
-                                             function(x) paste(x[["component"]], collapse = ""),
-                                             character(1L))
+  seps <- .attr(.attr(covs, "co.names"), "seps")
+
+  C <- covs
+
+  if (is_not_null(addl)) {
+    C <- .C_add_addl(C, addl, drop)
+  }
+
+  #Drop anything that is just the treatment under another name.
+  if (drop && is_not_null(treat) && get.treat.type(treat) != "continuous") {
+    collinear <- vapply(seq_col(C), function(i) {
+      !anyNA(C[, i]) && equivalent.factors2(C[, i], treat)
+    }, logical(1L))
+
+    C <- .C_keep(C, !collinear)
+  }
+
+  int.poly <- NULL
+
+  if (int || poly > 1) {
+    #Interactions and polynomials are not built out of missingness indicators or out of
+    #existing interactions.
+    exclude <- vapply(.attr(C, "co.names"), function(x) {
+      any(c("na", "isep") %in% x[["type"]])
+    }, logical(1L))
+
+    #`sep` must be unnamed: it ends up inside each term's `component` vector, and a
+    #stray "int" name there shows up in the object `bal.tab()` returns.
+    int.poly <- .int_poly_f2(C, ex = exclude, int = int, poly = poly, center = center,
+                             orth = orth, sep = unname(seps["int"]),
+                             co.names = .attr(C, "co.names"))
+
+    #NULL when there is nothing to add.
+    if (is_not_null(int.poly)) {
+      int.poly <- .C_rename(int.poly, .attr(int.poly, "co.names"))
     }
   }
-  
-  #Drop 0 category of 0/1 variables and rename 1 category
+
   if (drop) {
-    drop_0_1 <- rep.int(NA, length(co_list[["C"]]))
-    
-    for (i in seq_along(co_list[["C"]])) {
-      if (!is.na(drop_0_1[i])) {
-        next
-      }
-      
-      if ("isep" %in% co_list[["C"]][[i]][["type"]] || "fsep" %nin% co_list[["C"]][[i]][["type"]]) {
-        drop_0_1[i] <- FALSE
-        next
-      }
-      
-      which_are_buddies <- which(vapply(co_list[["C"]], function(j) "isep" %nin% j[["type"]] && 
-                                          "fsep" %in% j[["type"]] &&
-                                          j[["component"]][j[["type"]] == "base"][1L] == co_list[["C"]][[i]][["component"]][co_list[["C"]][[i]][["type"]] == "base"][1L], 
-                                        logical(1L)))
-      
-      buddies <- co_list[["C"]][which_are_buddies]
-      
-      if (is_not_null(cluster)) {
-        #Remove variables perfectly redundant with cluster
-        unsplit_var <- unsplitfactor(as.data.frame(C_list[["C"]][, which_are_buddies, drop = FALSE]),
-                                     buddies[[1L]][["component"]][buddies[[1L]][["type"]] == "base"],
-                                     sep = .attr(co_list[["C"]], "seps")["factor"])[[1L]]
-        tab <- table(cluster, unsplit_var)
-        tab <- tab[rowSums(tab == 0) < ncol(tab), , drop = FALSE]
-        
-        if (all(rowSums(tab > 0) == 1)) {
-          drop_0_1[which_are_buddies] <- TRUE
-          next
-        }
-      }
-      
-      if (length(buddies) > 2L) {
-        drop_0_1[which_are_buddies] <- FALSE
-        next
-      }
-      
-      buddy_is_0 <- vapply(buddies,
-                           function(x) x[["component"]][x[["type"]] == "level"] %in% c("0", "FALSE"),
-                           logical(1L))
-      
-      buddy_is_1 <- vapply(buddies,
-                           function(x) x[["component"]][x[["type"]] == "level"] %in% c("1", "TRUE"),
-                           logical(1L))
-      
-      if (!all(buddy_is_0 | buddy_is_1)) {
-        drop_0_1[which_are_buddies] <- c(TRUE, FALSE)
-        next
-      }
-      
-      drop_0_1[which_are_buddies[buddy_is_0]] <- TRUE
-      drop_0_1[which_are_buddies[buddy_is_1]] <- FALSE
-      
-      buddy_1 <- which_are_buddies[buddy_is_1]
-      co_list[["C"]][[buddy_1]][["component"]] <- co_list[["C"]][[buddy_1]][["component"]][co_list[["C"]][[buddy_1]][["type"]] == "base"][1L]
-      co_list[["C"]][[buddy_1]][["type"]] <- "base"
-    }
-    
-    if (any(drop_0_1)) {
-      C_list[["C"]] <- C_list[["C"]][, !drop_0_1, drop = FALSE]
-      co_list[["C"]][drop_0_1] <- NULL
-    }
+    C <- .C_drop_0_1(C, cluster)
   }
-  
-  if (is_not_null(co_list[["C"]])) {
-    names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste(x[["component"]], collapse = ""), character(1L))
+  else {
+    C <- .C_rename(C, .attr(C, "co.names"))
   }
-  
+
   if (is_not_null(distance)) {
     if (anyNA(distance, recursive = TRUE)) {
       arg::err("missing values are not allowed in the distance measure")
     }
-    
+
+    taken <- c(names(.attr(C, "co.names")), names(.attr(int.poly, "co.names")))
     distance.co.names <- .attr(distance, "co.names")
-    
-    same.name <- names(distance.co.names) %in% unlist(lapply(co_list, names))
-    if (any(same.name)) {
-      distance <- distance[, !same.name, drop = FALSE]
-      distance.co.names[same.name] <- NULL
-    }
-    
-    unique.distance.names <- unique(names(distance.co.names))
-    distance <- distance[, unique.distance.names, drop = FALSE]
-    distance.co.names <- distance.co.names[unique.distance.names]
-    
-    C_list[["distance"]] <- distance
-    co_list[["distance"]] <- distance.co.names
+
+    distance <- .C_keep(distance, names(distance.co.names) %nin% taken)
+
+    #A distance may be supplied twice under the same name.
+    distance <- .C_keep(distance, unique(names(.attr(distance, "co.names"))))
   }
-  
-  #Remove duplicate & redundant variables
-  if (drop) {
-    for (x in setdiff(names(C_list), "distance")) {
-      if (x != "C") {
-        #Remove variables in C that have same name as other variables
-        dups <- names(co_list[["C"]]) %in% co_list[[x]]
-        if (any(dups)) {
-          C_list[["C"]] <- C_list[["C"]][, !dups, drop = FALSE]
-          co_list[["C"]][dups] <- NULL
-        }
-      }
-    }
+
+  #Drop covariates that an interaction or polynomial term already carries by name.
+  if (drop && is_not_null(int.poly)) {
+    C <- .C_keep(C, names(.attr(C, "co.names")) %nin% .attr(int.poly, "co.names"))
   }
-  
-  C <- do.call("cbind", clear_null(C_list[c("distance", "C", "int.poly")]))
-  
-  
+
+  C <- co.cbind(distance, C, int.poly)
+
   if (is_null(C)) {
-    C <- matrix(0, nrow = length(treat), ncol = 0L,
-                dimnames = list(rownames(covs), NULL))
+    return(matrix(0, nrow = length(treat), ncol = 0L,
+                  dimnames = list(rownames(covs), NULL)) |>
+             set_class("processed_C", .replace = FALSE))
   }
-  else {
-    co.names <- do.call("c", co_list[c("distance", "C", "int.poly")])
-    
-    for (i in seq_along(co.names)) {
-      co.names[[i]]$component[co.names[[i]]$type == "fsep"] <- factor_sep
-      co.names[[i]]$component[co.names[[i]]$type == "isep"] <- int_sep
-    }
-    
-    seps["factor"] <- factor_sep
-    seps["int"] <- int_sep
-    
-    colnames(C) <- names(co.names) <- vapply(co.names, function(x) paste(x[["component"]], collapse = ""), character(1L))
-    
-    
-    attr(co.names, "seps") <- seps
-    
-    attr(C, "co.names") <- co.names
-    
-    attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) "na" %in% x[["type"]], logical(1L))]
-    
-    if ("distance" %in% names(C_list)) {
-      attr(C, "distance.names") <- names(co_list[["distance"]])
-    }
-    
-    attr(C, "var_types") <- .get_types(C)
+
+  #The separators are only fixed now, so that everything above compares names built
+  #with the separators the pieces arrived with.
+  co.names <- .attr(C, "co.names")
+
+  for (i in seq_along(co.names)) {
+    co.names[[i]][["component"]][co.names[[i]][["type"]] == "fsep"] <- factor_sep
+    co.names[[i]][["component"]][co.names[[i]][["type"]] == "isep"] <- int_sep
   }
-  
+
+  seps["factor"] <- factor_sep
+  seps["int"] <- int_sep
+  attr(co.names, "seps") <- seps
+
+  C <- .C_rename(C, co.names)
+
+  attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) {
+    "na" %in% x[["type"]]
+  }, logical(1L))]
+
+  if (is_not_null(distance)) {
+    attr(C, "distance.names") <- names(.attr(distance, "co.names"))
+  }
+
+  attr(C, "var_types") <- .get_types(C)
+
   set_class(C, "processed_C", .replace = FALSE)
 }
 .int_poly_f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE,
