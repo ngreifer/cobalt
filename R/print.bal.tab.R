@@ -1149,183 +1149,13 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
        disp.call = p.ops$disp.call)
 }
 #' @exportS3Method NULL
-print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats,
-                                           disp.thresholds, disp, digits = max(3, getOption("digits") - 3),
-                                           which.subclass, subclass.summary, ...) {
-  s.balance <- x$Subclass.Balance
+print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, ...) {
+  #Every display argument other than the two subclass ones is validated the same way
+  #as for an unsubclassified object.
+  out <- print_process.bal.tab(x, ...)
+  
   p.ops <- .attr(x, "print.options")
-  
-  drop.thresholds <- c()
-  
-  #Adjustments to print options
-  if (!missing(un) && p.ops$disp.adj) {
-    arg::arg_flag(un)
-    if (p.ops$quick && !p.ops$un && un) {
-      arg::wrn("{.arg un} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
-    }
-    else {
-      p.ops$un <- un
-    }
-  }
-  
-  if (!missing(disp)) {
-    arg::arg_character(disp)
-    allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
-    
-    if (!all(disp %in% allowable.disp)) {
-      arg::err("{.val {setdiff(disp, allowable.disp)}} {?is/are} not allowed in {.arg disp}")
-    }
-    
-    if (all(disp %in% p.ops$compute)) {
-      p.ops$disp <- disp
-    }
-    else {
-      arg::wrn("{.arg disp} cannot include {.or {.val {setdiff(disp, p.ops$compute)}}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
-    }
-  }
-  
-  if (is_not_null(...get("disp.means"))) {
-    arg::arg_flag(...get("disp.means"), "disp.means")
-    
-    #`"means"[FALSE]` is character(0), so the old form left `disp` untouched when
-    #FALSE and could never turn the means off.
-    if (!isTRUE(...get("disp.means"))) {
-      p.ops$disp <- setdiff(p.ops$disp, "means")
-    }
-    else if ("means" %nin% p.ops$compute) {
-      arg::wrn("{.arg disp.means} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
-    }
-    else {
-      p.ops$disp <- unique(c(p.ops$disp, "means"))
-    }
-  }
-  
-  if (is_not_null(...get("disp.sds"))) {
-    arg::arg_flag(...get("disp.sds"), "disp.sds")
-    
-    if (!isTRUE(...get("disp.sds"))) {
-      p.ops$disp <- setdiff(p.ops$disp, "sds")
-    }
-    else if ("sds" %nin% p.ops$compute) {
-      arg::wrn("{.arg disp.sds} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
-    }
-    else {
-      p.ops$disp <- unique(c(p.ops$disp, "sds"))
-    }
-  }
-  
-  if (!missing(stats)) {
-    stats <- arg::match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
-    stats_in_p.ops <- stats %in% p.ops$compute
-    
-    if (!all(stats_in_p.ops)) {
-      arg::err("{.arg stats} cannot contain {.or {.val {stats[!stats_in_p.ops]}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
-    }
-    
-    p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
-  }
-  
-  for (s in all_STATS(p.ops$type)) {
-    if (is_not_null(...get(STATS[[s]]$disp_stat))) {
-      arg::arg_flag(...get(STATS[[s]]$disp_stat), STATS[[s]]$disp_stat)
-      #Branch on the flag first: `disp.<stat> = FALSE` must remove the statistic
-      #from `disp`, not add it. Previously the `else` ran whenever the flag was
-      #FALSE, so `disp.ks = FALSE` turned the KS column on.
-      if (!isTRUE(...get(STATS[[s]]$disp_stat))) {
-        p.ops$disp <- setdiff(p.ops$disp, s)
-      }
-      else if (s %nin% p.ops$compute) {
-        arg::wrn("{.arg {STATS[[s]]$disp_stat}} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
-      }
-      else {
-        p.ops$disp <- unique(c(p.ops$disp, s))
-      }
-    }
-  }
-  
-  for (s in p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)]) {
-    if (STATS[[s]]$threshold %in% ...names()) {
-      temp.thresh <- ...get(STATS[[s]]$threshold)
-      if (is_not_null(temp.thresh) &&
-          (!is.numeric(temp.thresh) || length(temp.thresh) != 1L ||
-           is_null(p.ops[["thresholds"]][[s]]) ||
-           p.ops[["thresholds"]][[s]] != temp.thresh)) {
-        arg::err("{.arg {STATS[[s]]$threshold}} must be {.val {list(NULL)}} or left unspecified")
-      }
-      
-      if (is_null(temp.thresh)) {
-        drop.thresholds <- c(drop.thresholds, s)
-      }
-    }
-    
-    if (s %nin% p.ops$disp) {
-      drop.thresholds <- c(drop.thresholds, s)
-    }
-  }
-  
-  if (!missing(disp.thresholds)) {
-    arg::arg_logical(disp.thresholds)
-    arg::arg_no_NA(disp.thresholds)
-    
-    if (is_null(names(disp.thresholds))) {
-      if (length(disp.thresholds) > length(p.ops[["thresholds"]])) {
-        arg::err("more entries were given to {.arg disp.thresholds} than there are thresholds in the {.cls bal.tab} object")
-      }
-      
-      if (length(disp.thresholds) == 1L) {
-        disp.thresholds <- rep_with(disp.thresholds, p.ops[["thresholds"]])
-      }
-      
-      names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
-    }
-    
-    if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
-      arg::wrn('{.val {names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]}} {?is/are} not available in thresholds and will be ignored')
-      disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
-    }
-
-    #Every supplied name may have been dropped by the check above; assigning names
-    #to a zero-length vector is an error, so only proceed if something is left.
-    if (is_not_null(disp.thresholds)) {
-      names(disp.thresholds) <- arg::match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
-
-      for (i in names(disp.thresholds)) {
-        if (!disp.thresholds[i]) {
-          drop.thresholds <- c(drop.thresholds, i)
-        }
-      }
-    }
-  }
-  
-  if (!missing(disp.bal.tab)) {
-    arg::arg_flag(disp.bal.tab)
-    p.ops$disp.bal.tab <- disp.bal.tab
-  }
-  
-  if (p.ops$disp.bal.tab) {
-    if (!missing(imbalanced.only)) {
-      arg::arg_flag(imbalanced.only)
-      p.ops$imbalanced.only <- imbalanced.only
-    }
-    
-    if (p.ops$imbalanced.only && is_null(p.ops$thresholds)) {
-      arg::wrn("a threshold must be specified if {.code imbalanced.only = TRUE}. Displaying all covariates")
-      p.ops$imbalanced.only <- FALSE
-    }
-  }
-  else {
-    p.ops$imbalanced.only <- FALSE
-  }
-  
-  if (!missing(disp.call)) {
-    arg::arg_flag(disp.call)
-    if (disp.call && is_null(x$call)) {
-      arg::wrn("{.arg disp.call} cannot be set to {.val {TRUE}} if the input object does not have a {.field call} component")
-    }
-    else {
-      p.ops$disp.call <- disp.call
-    }
-  }
+  s.balance <- x$Subclass.Balance
   
   if (!missing(subclass.summary)) {
     arg::arg_flag(subclass.summary)
@@ -1345,39 +1175,33 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
   }
   
   #Checks and Adjustments
-  if (is_null(p.ops$which.subclass)) {
-    which.subclass <- seq_along(s.balance)
-  }
-  else if (anyNA(p.ops$which.subclass)) {
-    which.subclass <- integer()
-  }
-  else if (is.numeric(p.ops$which.subclass)) {
-    which.subclass <- intersect(seq_along(s.balance), p.ops$which.subclass)
-    if (is_null(which.subclass)) {
-      arg::wrn("no values supplied {.arg which.subclass} are subclass indices. No subclasses will be displayed")
-      #`integer()` is the "display none" value, as used for the NA case above.
-      #`NA` was indexing `s.balance[[NA]]`, i.e. NULL, and crashing.
-      which.subclass <- integer()
+  which.subclass <- {
+    if (is_null(p.ops$which.subclass)) seq_along(s.balance)
+    else if (anyNA(p.ops$which.subclass)) integer()
+    else if (!is.numeric(p.ops$which.subclass)) {
+      arg::wrn("the argument to {.arg which.subclass} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of subclass indices. No subclasses will be displayed")
+      integer()
+    }
+    else {
+      w <- intersect(seq_along(s.balance), p.ops$which.subclass)
+      
+      if (is_not_null(w)) w
+      else {
+        arg::wrn("no values supplied {.arg which.subclass} are subclass indices. No subclasses will be displayed")
+        #`integer()` is the "display none" value, as used for the NA case above.
+        #`NA` was indexing `s.balance[[NA]]`, i.e. NULL, and crashing.
+        integer()
+      }
     }
   }
-  else {
-    arg::wrn("the argument to {.arg which.subclass} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of subclass indices. No subclasses will be displayed")
-    which.subclass <- integer()
-  }
   
-  list(un = p.ops$un,
-       disp = p.ops$disp,
-       compute = p.ops$compute,
-       drop.thresholds = drop.thresholds,
-       disp.bal.tab = p.ops$disp.bal.tab,
-       imbalanced.only = p.ops$imbalanced.only,
-       digits = digits,
-       disp.adj = p.ops$disp.adj,
-       thresholds = p.ops$thresholds,
-       type = p.ops$type,
-       subclass.summary = p.ops$subclass.summary,
-       which.subclass = which.subclass,
-       disp.call = p.ops$disp.call)
+  #Subclasses are the adjustment, so there are no weights. The key must be absent
+  #rather than NULL: for a nested object `p.ops` is `c(parent, child)` and `$` takes
+  #the first match, so a present-but-NULL entry here would mask the parent's count.
+  out[["nweights"]] <- NULL
+  
+  c(out, list(subclass.summary = p.ops$subclass.summary,
+              which.subclass = which.subclass))
 }
 
 #Prints one `Observations` table: drop the rows no unit reached, collapse an
