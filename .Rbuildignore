@@ -17,3 +17,4 @@
 ^\.positai$
 ^\.claude$
 ^Rplots\.pdf$
+^CLAUDE\.md$

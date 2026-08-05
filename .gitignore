@@ -9,3 +9,4 @@ docs
 Rplots.pdf
 tests/testthat/_snaps/*.new.md
 _dev/golden
+CLAUDE.md
