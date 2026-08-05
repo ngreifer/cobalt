@@ -936,11 +936,6 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     it.is <- FALSE
   }
   
-  # if (stop && !it.is) {
-  #   s0 <- if (arg.to) "the argument to " else ""
-  #   s2 <- if (any(types %in% c("factor", "character", "numeric", "logical"))) "vector" else ""
-  #   
-  
   it.is
 }
 is_mat_like <- function(x) {

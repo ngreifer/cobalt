@@ -47,9 +47,6 @@ set.cobalt.options <- function(..., default = FALSE) {
   if (...length() > 0L && (is_null(...names()) || "" %in% ...names())) {
     arg::err("all arguments must be named")
   }
-  # if ("continuous" %in% names(opts)) names(opts)[names(opts) == "continuous"] <- "cont"
-  # if ("binary" %in% names(opts)) names(opts)[names(opts) == "binary"] <- "bin"
-  
   multiple.allowed <- c("stats", "disp", "cluster.fun", "imp.fun")
   any.string.allowed <- c("int_sep", "factor_sep")
   
@@ -127,8 +124,6 @@ set.cobalt.options <- function(..., default = FALSE) {
     options(setNames(replicate(length(return.to.default), NULL),
                      paste0("cobalt_", return.to.default)))
   }
-  # if ("continuous" %in% names(opts)) names(acceptable.options)[names(acceptable.options) == "continuous"] <- "cont"
-  # if ("binary" %in% names(opts)) names(acceptable.options)[names(acceptable.options) == "binary"] <- "bin"
 }
 
 #' @rdname set.cobalt.options

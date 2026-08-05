@@ -133,11 +133,7 @@ x2base.matchit <- function(x, ...) {
     else {
       #Recreating covs from model object and x[["X"]]. Have to do this because when 
       #discard != NULL and reestimate = TRUE, cases are lost. This recovers them.
-      
-      # if (is_not_null(data)) {
-      #     covs <- get_covs_from_formula(x[["formula"]], data = x[["model"]][["model"]])
-      # }
-      # else {
+
       order <- setNames(.attr(x[["model"]][["terms"]], "order"),
                         .attr(x[["model"]][["terms"]], "term.labels"))
       assign <- setNames(.attr(x[["X"]], "assign"), colnames(x[["X"]]))
@@ -164,7 +160,6 @@ x2base.matchit <- function(x, ...) {
         }
       }
       covs <- get_covs_from_formula(x[["formula"]], data = covs)
-      # }
     }
   }
   else if (is_not_null(x[["formula"]]) && is_not_null(data)) {
@@ -1617,36 +1612,6 @@ x2base.iptw <- function(x, ...) {
                                  covs.list = covs.list)
   
   #Process distance
-  # ntimes <- iptw[["nFits"]]
-  # distance.list <- .process_list("distance.list", ...get("distance.list"), ntimes, 
-  #                               "the original call to iptw()",
-  #                               treat.list,
-  #                               covs.list,
-  #                               list(data, ps.data))
-  # if (is_not_null(distance.list)) {
-  #     for (ti in seq_along(distance.list)) {
-  #         if (length(s) == 1) {
-  #             distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw[["psList"]][[ti]][["ps"]][[s]])
-  #         }
-  #         else {
-  #             distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw[["psList"]][[ti]][["ps"]][s])
-  #         }
-  #     }
-  #     
-  # }
-  # else {
-  #     distance.list <- make_list(ntimes)
-  #     for (ti in seq_along(distance.list)) {
-  #         if (length(s) == 1) {
-  #             distance.list[[ti]] <- data.frame(prop.score = iptw[["psList"]][[ti]][["ps"]][[s]])
-  #         }
-  #         else {
-  #             distance.list[[ti]] <- data.frame(prop.score = iptw[["psList"]][[ti]][["ps"]][s])
-  #         }
-  #     }
-  # }
-  # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(z) get_covs_from_formula(~z))
-  # 
   distance.list <- process_distance.list(...get("distance.list", ...get("distance")),
                                          datalist = list(data, ps.data),
                                          covs.list = covs.list,
@@ -1951,17 +1916,6 @@ x2base.weightitMSM <- function(x, ...) {
                                  covs.list = covs.list)
   
   #Process distance
-  # ntimes <- length(covs.list)
-  # distance.list <- .process_list("distance.list", ...get("distance.list"), ntimes, 
-  #                               "the original call to weightitMSM()",
-  #                               treat.list,
-  #                               covs.list,
-  #                               list(data, weightitMSM.data,
-  #                                    weightitMSM.data2))
-  # if (is_not_null(distance.list)) distance.list <- lapply(seq_along(distance.list), function(z) data.frame(distance.list[[z]], prop.score = weightitMSM[["ps.list"]][[z]]))
-  # else if (is_not_null(weightitMSM[["ps.list"]])) distance.list <- lapply(seq_along(weightitMSM[["ps.list"]]), function(z) data.frame(prop.score = weightitMSM[["ps.list"]][[z]]))
-  # else distance.list <- NULL
-  # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(z) get_covs_from_formula(~z))
   distance.list <- process_distance.list(...get("distance.list", ...get("distance")),
                                          datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                          covs.list = covs.list, obj.distance = x[["ps.list"]],

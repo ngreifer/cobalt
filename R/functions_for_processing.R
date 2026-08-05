@@ -1862,23 +1862,6 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
 }
 
 #.get_C2
-get_ints_from_co.names <- function(co.names) {
-  if (is_null(co.names)) {
-    return(list())
-  }
-  
-  clear_null(lapply(co.names, function(co) {
-    if ("isep" %in% co[["type"]]) {
-      co[["type"]] <- c(co[["type"]], "isep")
-      which_isep <- which(co[["type"]] == "isep")
-      vapply(seq_along(which_isep), function(x) {
-        if (x == 1L) paste(co[["component"]][1:(which_isep[1L] - 1L)], collapse = "")
-        else paste(co[["component"]][(which_isep[x - 1L] + 1L):(which_isep[x] - 1L)], collapse = "")
-      }, character(1L))
-    }
-    else NULL
-  }))
-}
 get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
   if (is.character(f)) {
@@ -2538,37 +2521,16 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     co_list[["distance"]] <- distance.co.names
   }
   
-  # C_list <- clear_null(C_list)
-  # co_list <- clear_null(co_list)
-  
   #Remove duplicate & redundant variables
   if (drop) {
     for (x in setdiff(names(C_list), "distance")) {
-      
-      #Remove self-redundant variables
-      # if (getOption("cobalt_remove_perfect_col", ncol(C_list[[x]]) <= 900)) {
-      #     
-      #     redundant.var.indices <- find_perfect_col(C_list[[x]])
-      #     if (is_not_null(redundant.var.indices)) {
-      #         C_list[[x]] <- C_list[[x]][,-redundant.var.indices, drop = FALSE]
-      #         co_list[[x]][redundant.var.indices] <- NULL
-      #     }
-      # }
       if (x != "C") {
         #Remove variables in C that have same name as other variables
         dups <- names(co_list[["C"]]) %in% co_list[[x]]
         if (any(dups)) {
           C_list[["C"]] <- C_list[["C"]][, !dups, drop = FALSE]
-          co_list[["C"]][dups] <- NULL 
+          co_list[["C"]][dups] <- NULL
         }
-        #Remove variables in C that are redundant with current piece
-        # if (getOption("cobalt_remove_perfect_col", max(ncol(C_list[[x]]), ncol(C_list[["C"]])) <= 900)) {
-        #     redundant.var.indices <- find_perfect_col(C_list[["C"]], C_list[[x]])
-        #     if (is_not_null(redundant.var.indices)) {
-        #         C_list[["C"]] <- C_list[["C"]][,-redundant.var.indices, drop = FALSE]
-        #         co_list[["C"]][redundant.var.indices] <- NULL
-        #     }
-        # }
       }
     }
   }
@@ -2666,14 +2628,6 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   if (int && nd > 1) {
     int_terms <- int_co.names <- make_list(1L)
     ints_to_make <- utils::combn(colnames(d)[!ex], 2L, simplify = FALSE)
-    
-    #Don't make ints out of ints that already exist
-    # ints_that_already_exist <- get_ints_from_co.names(co.names[interaction.vars])
-    # ints_to_make[vapply(ints_to_make, function(x) {
-    #   any(vapply(ints_that_already_exist, function(y) {
-    #     identical(sort(x), sort(y))
-    #   }, logical(1L)))
-    # }, logical(1L))] <- NULL
     
     #Don't make ints out of multiple members of the same categorical variable
     ints_to_make[vapply(ints_to_make, function(x) {
