@@ -1,8 +1,11 @@
 # The `refactor-bal.tab` branch: what changed, and what to know before changing it again
 
-52 commits on top of `48a3094`. `R/` went **20,256 → 18,463 lines (−1,793)**, and that is
-*after* adding 350 lines of new feature and implementing continuous subclassification, so
-the refactor itself removed about 2,200.
+53 commits on top of `dafd24d`, the tip of `master` when this started. `R/` went
+**20,271 → 18,463 lines (−1,808)**, and that is *after* adding 350 lines of new feature and
+implementing continuous subclassification, so the refactor itself removed about 2,200.
+
+Line counts elsewhere in this file are measured against `48a3094` — two commits earlier,
+the tip of `tests-and-bug-fixes`, where the measuring started — which is 15 lines smaller.
 `x2base.R` 4,262 → 2,586 (−39%); `print.bal.tab.R` 1,487 → 1,146 (−23%).
 
 Every commit was verified against three gates. **Read the next section before touching
