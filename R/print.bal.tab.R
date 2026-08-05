@@ -94,9 +94,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
   
   nn <- x$Observations
   
-  if (is_not_null(call)) {
-    cat(.ul("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
-  }
+  .cat_call(call)
   
   if (p.ops[["disp.bal.tab"]]) {
     keep.row <- {
@@ -109,37 +107,16 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
     
     keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops), p.ops, thresholds)
     
-    cat(.ul("Balance Measures") %+% "\n")
+    .cat_heading("Balance Measures")
     
-    if (is_null(keep.row)) cat(.it("No covariates to display.") %+% "\n")
-    else if (!any(keep.row)) cat(.it("All covariates are balanced.") %+% "\n")
-    else .print_data_frame(round_df_char(balance[keep.row, keep.col, drop = FALSE],
-                                         p.ops[["digits"]], na_vals = "."))
-    cat("\n")
+    .cat_balance_table(balance[, keep.col, drop = FALSE], keep.row,
+                        p.ops[["digits"]])
+    cli::cat_line()
   }
   
-  for (s in p.ops[["compute"]]) {
-    if (is_not_null(baltal[[s]])) {
-      cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
-      .print_data_frame(baltal[[s]])
-      cat("\n")
-    }
-    if (is_not_null(maximbal[[s]])) {
-      cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-      
-      maximbal[[s]] |>
-        round_df_char(p.ops[["digits"]], na_vals = ".") |>
-        .print_data_frame(row.names = FALSE)
-      
-      cat("\n")
-    }
-  }
+  .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
   
-  if (is_not_null(nn)) {
-    if (.print_observations(nn, p.ops[["digits"]])) {
-      cat(.it("* indicates effective sample size"))
-    }
-  }
+  .cat_observations(nn, p.ops[["digits"]])
   
   invisible(x)
 }
@@ -157,18 +134,16 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
   nn <- x$Observations
   
   #Printing
-  if (is_not_null(call)) {
-    cat(.ul("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
-  }
+  .cat_call(call)
   
   if (is_not_null(p.ops[["which.cluster"]])) {
-    cat(.ul("Balance by cluster") %+% "\n")
+    .cat_heading("Balance by cluster")
     for (i in p.ops[["which.cluster"]]) {
-      cat("\n - - - " %+% .it("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
+      .cat_divider(paste0("Cluster: ", names(c.balance)[i]))
       print(c.balance[[i]])
       # bal.tab_print(c.balance[[i]], p.ops)
     }
-    cat(strrep(" -", round(nchar(sprintf("\n - - - Cluster: %s - - - ", names(c.balance)[i])) / 2)), "\n\n")
+    .cat_divider_end(paste0("Cluster: ", names(c.balance)[i]))
   }
   
   if (isTRUE(as.logical(p.ops[["cluster.summary"]])) && is_not_null(c.balance.summary)) {
@@ -177,33 +152,16 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
                                  p.ops, thresholds, p.ops[["cluster.fun"]])
     
     if (p.ops[["disp.bal.tab"]]) {
-      cat(.ul("Balance summary across all clusters") %+% "\n")
+      .cat_heading("Balance summary across all clusters")
       c.balance.summary[, s.keep.col, drop = FALSE] |>
         round_df_char(p.ops[["digits"]], na_vals = ".") |>
         .print_data_frame()
-      cat("\n")
+      cli::cat_line()
     }
     
-    for (s in p.ops[["compute"]]) {
-      if (is_not_null(baltal[[s]])) {
-        cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
-        .print_data_frame(baltal[[s]])
-        cat("\n")
-      }
-      if (is_not_null(maximbal[[s]])) {
-        cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        
-        maximbal[[s]] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame(row.names = FALSE)
-        
-        cat("\n")
-      }
-    }
+    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
     
-    if (is_not_null(nn) && .print_observations(nn, p.ops[["digits"]])) {
-      cat(.it("* indicates effective sample size"))
-    }
+    .cat_observations(nn, p.ops[["digits"]])
   }
   
   invisible(x)
@@ -222,18 +180,16 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
   nn <- x$Observations
   
   #Printing output
-  if (is_not_null(call)) {
-    cat(.ul("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
-  }
+  .cat_call(call)
   
   if (is_not_null(p.ops[["which.imp"]])) {
-    cat(.ul("Balance by imputation") %+% "\n")
+    .cat_heading("Balance by imputation")
     for (i in p.ops[["which.imp"]]) {
-      cat("\n - - - " %+% .it("Imputation " %+% names(i.balance)[i]) %+% " - - - \n")
+      .cat_divider(paste0("Imputation ", names(i.balance)[i]))
       print(i.balance[[i]])
       # bal.tab_print(i.balance[[i]], p.ops)
     }
-    cat(strrep(" -", round(nchar(sprintf("\n - - - Imputation: %s - - - ", names(i.balance)[i])) / 2)), "\n\n")
+    .cat_divider_end(paste0("Imputation: ", names(i.balance)[i]))
   }
   
   if (isTRUE(as.logical(p.ops[["imp.summary"]])) && is_not_null(i.balance.summary)) {
@@ -242,37 +198,18 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
                                  p.ops, thresholds, p.ops[["imp.fun"]])
     
     if (p.ops[["disp.bal.tab"]]) {
-      cat(.ul("Balance summary across all imputations") %+% "\n")
+      .cat_heading("Balance summary across all imputations")
       
       i.balance.summary[, s.keep.col, drop = FALSE] |>
         round_df_char(p.ops[["digits"]], na_vals = ".") |>
         .print_data_frame()
       
-      cat("\n")
+      cli::cat_line()
     }
     
-    for (s in p.ops[["compute"]]) {
-      if (is_not_null(baltal[[s]])) {
-        cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
-        
-        .print_data_frame(baltal[[s]])
-        
-        cat("\n")
-      }
-      if (is_not_null(maximbal[[s]])) {
-        cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        
-        maximbal[[s]] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame(row.names = FALSE)
-        
-        cat("\n")
-      }
-    }
+    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
     
-    if (is_not_null(nn) && .print_observations(nn, p.ops[["digits"]])) {
-      cat(.it("* indicates effective sample size"))
-    }
+    .cat_observations(nn, p.ops[["digits"]])
   }
   
   invisible(x)
@@ -291,14 +228,12 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
   nn <- x$Observations
   
   #Printing output
-  if (is_not_null(call)) {
-    cat(.ul("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
-  }
+  .cat_call(call)
   
   if (is_not_null(p.ops[["disp.treat.pairs"]])) {
     headings <- setNames(character(length(p.ops[["disp.treat.pairs"]])), p.ops[["disp.treat.pairs"]])
-    if (p.ops[["pairwise"]]) cat(.ul("Balance by treatment pair") %+% "\n")
-    else cat(.ul("Balance by treatment group") %+% "\n")
+    if (p.ops[["pairwise"]]) .cat_heading("Balance by treatment pair")
+    else .cat_heading("Balance by treatment group")
     
     for (i in p.ops[["disp.treat.pairs"]]) {
       headings[i] <- "\n - - - " %+% .it(.attr(m.balance[[i]], "print.options")$treat_names[1L] %+% " (0) vs. " %+%
@@ -322,45 +257,17 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max"), p.ops, thresholds, "max")
     
     if (p.ops[["disp.bal.tab"]]) {
-      cat(.ul("Balance summary across all treatment pairs") %+% "\n")
+      .cat_heading("Balance summary across all treatment pairs")
       
-      if (is_null(keep.row)) {
-        cat(.it("No covariates to display.") %+% "\n")
-      }
-      else if (!any(keep.row)) {
-        cat(.it("All covariates are balanced.") %+% "\n")
-      }
-      else {
-        m.balance.summary[keep.row, s.keep.col, drop = FALSE] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame()
-      }
+      .cat_balance_table(m.balance.summary[, s.keep.col, drop = FALSE], keep.row,
+                          p.ops[["digits"]])
       
-      cat("\n")
+      cli::cat_line()
     }
     
-    for (s in p.ops[["compute"]]) {
-      if (is_not_null(baltal[[s]])) {
-        cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
-        
-        .print_data_frame(baltal[[s]])
-        
-        cat("\n")
-      }
-      if (is_not_null(maximbal[[s]])) {
-        cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        
-        maximbal[[s]] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame(row.names = FALSE)
-        
-        cat("\n")
-      }
-    }
+    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
     
-    if (is_not_null(nn) && .print_observations(nn, p.ops[["digits"]])) {
-      cat(.it("* indicates effective sample size"))
-    }
+    .cat_observations(nn, p.ops[["digits"]])
   }
   
   invisible(x)
@@ -380,17 +287,15 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
   nn <- x$Observations
   
   #Printing output
-  if (is_not_null(call)) {
-    cat(.ul("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
-  }
+  .cat_call(call)
   
   if (is_not_null(p.ops[["which.time"]])) {
-    cat(.ul("Balance by Time Point") %+% "\n")
+    .cat_heading("Balance by Time Point")
     for (i in p.ops[["which.time"]]) {
-      cat("\n - - - " %+% .it("Time: " %+% as.character(i)) %+% " - - - \n")
+      .cat_divider(paste0("Time: ", i))
       print(msm.balance[[i]])
     }
-    cat(strrep(" -", round(nchar(sprintf("\n - - - Time: %s - - - ", i)) / 2)), "\n\n")
+    .cat_divider_end(paste0("Time: ", i))
   }
   
   if (isTRUE(as.logical(p.ops[["msm.summary"]])) && is_not_null(msm.balance.summary)) {
@@ -407,51 +312,24 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     
     
     if (p.ops[["disp.bal.tab"]]) {
-      cat(.ul("Balance summary across all time points") %+% "\n")
+      .cat_heading("Balance summary across all time points")
       
-      if (is_null(keep.row)) {
-        cat(.it("No covariates to display.") %+% "\n")
-      }
-      else if (!any(keep.row)) {
-        cat(.it("All covariates are balanced.") %+% "\n")
-      }
-      else {
-        msm.balance.summary[keep.row, s.keep.col, drop = FALSE] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame()
-      }
+      .cat_balance_table(msm.balance.summary[, s.keep.col, drop = FALSE], keep.row,
+                          p.ops[["digits"]])
       
-      cat("\n")
+      cli::cat_line()
     }
     
-    for (s in p.ops[["compute"]]) {
-      if (is_not_null(baltal[[s]])) {
-        cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
-        
-        .print_data_frame(baltal[[s]])
-        
-        cat("\n")
-      }
-      
-      if (is_not_null(maximbal[[s]])) {
-        cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        
-        maximbal[[s]] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame(row.names = FALSE)
-        
-        cat("\n")
-      }
-    }
+    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
     
     if (is_not_null(nn)) {
       print.warning <- FALSE
       
       #One table per time point, under a single heading.
-      cat(.ul(.attr(nn[[1L]], "tag")) %+% "\n")
+      cli::cat_line(.ul(.attr(nn[[1L]], "tag")))
       
       for (ti in seq_along(nn)) {
-        cat(" - " %+% .it("Time " %+% as.character(ti)) %+% "\n")
+        cli::cat_line(" - ", .it(paste0("Time ", ti)))
         print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE) || print.warning
       }
       
@@ -476,9 +354,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
   baltal <- setNames(x[paste.("Balanced", thresholds, "Subclass")], thresholds)
   maximbal <- setNames(x[paste.("Max.Imbalance", thresholds, "Subclass")], thresholds)
   
-  if (is_not_null(call)) {
-    cat(.ul("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
-  }
+  .cat_call(call)
   
   #Print subclass balance
   if (p.ops[["disp.bal.tab"]] && is_not_null(p.ops[["which.subclass"]])) {
@@ -496,22 +372,13 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
           rep.int(TRUE, nrow(s.balance[[i]]))
       }
       
-      cat("\n - - - " %+% .it("Subclass " %+% as.character(i)) %+% " - - - \n")
+      .cat_divider(paste0("Subclass ", i))
       
-      if (is_null(s.keep.row)) {
-        cat(.it("No covariates to display.") %+% "\n")
-      }
-      else if (!any(s.keep.row)) {
-        cat(.it("All covariates are balanced.") %+% "\n")
-      }
-      else {
-        s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame()
-      }
+      .cat_balance_table(s.balance[[i]][, s.keep.col, drop = FALSE], s.keep.row,
+                          p.ops[["digits"]])
     }
     
-    cat("\n")
+    cli::cat_line()
   }
   
   #Print balance across subclasses
@@ -535,44 +402,18 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                intersect(all_STATS(p.ops[["type"]]), p.ops[["stats"]]))),
         p.ops, thresholds)
       
-      cat(.ul("Balance measures across subclasses") %+% "\n")
+      .cat_heading("Balance measures across subclasses")
       
-      if (is_null(a.s.keep.row)) {
-        cat(.it("No covariates to display.") %+% "\n")
-      }
-      else if (!any(a.s.keep.row)) {
-        cat(.it("All covariates are balanced.") %+% "\n")
-      }
-      else {
-        b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame()
-      }
+      .cat_balance_table(b.a.subclass[, a.s.keep.col, drop = FALSE], a.s.keep.row,
+                          p.ops[["digits"]])
       
-      cat("\n")
+      cli::cat_line()
     }
     
-    for (s in p.ops[["compute"]]) {
-      if (is_not_null(baltal[[s]])) {
-        cat(.ul(sprintf("Balance tally for %s across subclasses", STATS[[s]]$balance_tally_for)) %+% "\n")
-        
-        .print_data_frame(baltal[[s]])
-        
-        cat("\n")
-      }
-      if (is_not_null(maximbal[[s]])) {
-        cat(.ul(sprintf("Variable with the greatest %s across subclasses", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        
-        maximbal[[s]] |>
-          round_df_char(p.ops[["digits"]], na_vals = ".") |>
-          .print_data_frame(row.names = FALSE)
-        
-        cat("\n")
-      }
-    }
+    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]], across = " across subclasses")
     
     if (is_not_null(s.nn)) {
-      cat(.ul(.attr(s.nn, "tag")) %+% "\n")
+      cli::cat_line(.ul(.attr(s.nn, "tag")))
       s.nn |>
         round_df_char(digits = min(2L, p.ops[["digits"]]), pad = " ") |>
         .print_data_frame()
@@ -1203,7 +1044,7 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   }
   
   if (tag) {
-    cat(.ul(heading) %+% "\n")
+    cli::cat_line(.ul(heading))
   }
   
   starred <- length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)
@@ -1220,6 +1061,78 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 }
 
 #Alternative to print.data.frame() that only prints non-length 0 data.frames
+#The blocks a printed `bal.tab` is made of. Each method assembles the same handful of
+#them, so they are written once here and the methods read as a list of blocks.
+
+#An underlined heading. Takes cli inline markup, interpolated in the caller's frame.
+.cat_heading <- function(..., .envir = parent.frame()) {
+  cli::cat_line(.ul(cli::format_inline(..., .envir = .envir)))
+}
+
+#The `Call` block.
+.cat_call <- function(call) {
+  if (is_null(call)) {
+    return(invisible())
+  }
+  
+  .cat_heading("Call")
+  cli::cat_line(" ", paste(deparse(call), collapse = "\n"))
+  cli::cat_line()
+}
+
+#A balance table, or the reason it is empty. `tab` should already have its columns
+#selected; `keep.row` says which rows survive `imbalanced.only`.
+.cat_balance_table <- function(tab, keep.row, digits) {
+  if (is_null(keep.row)) {
+    cli::cat_line(.it("No covariates to display."))
+  }
+  else if (!any(keep.row)) {
+    cli::cat_line(.it("All covariates are balanced."))
+  }
+  else {
+    tab[keep.row, , drop = FALSE] |>
+      round_df_char(digits, na_vals = ".") |>
+      .print_data_frame()
+  }
+}
+
+#The balance tally and greatest-imbalance blocks that follow a balance table.
+.cat_tallies <- function(baltal, maximbal, compute, digits, across = "") {
+  for (s in compute) {
+    if (is_not_null(baltal[[s]])) {
+      .cat_heading("Balance tally for {STATS[[s]][['balance_tally_for']]}{across}")
+      .print_data_frame(baltal[[s]])
+      cli::cat_line()
+    }
+    
+    if (is_not_null(maximbal[[s]])) {
+      .cat_heading("Variable with the greatest {STATS[[s]][['variable_with_the_greatest']]}{across}")
+      maximbal[[s]] |>
+        round_df_char(digits, na_vals = ".") |>
+        .print_data_frame(row.names = FALSE)
+      cli::cat_line()
+    }
+  }
+}
+
+#The ` - - - Label - - - ` divider each nested block sits under, and the rule that
+#closes a set of them. The rule's width is measured from the divider it follows.
+.cat_divider <- function(label) {
+  cli::cat_line("\n - - - ", .it(label), " - - - ")
+}
+
+.cat_divider_end <- function(label) {
+  cat(strrep(" -", round(nchar(sprintf("\n - - - %s - - - ", label)) / 2)), "\n\n")
+}
+
+#The `Observations` block, with its footnote when any size is effective. Deliberately
+#no trailing newline: it is the last thing `print()` emits.
+.cat_observations <- function(nn, digits) {
+  if (is_not_null(nn) && .print_observations(nn, digits)) {
+    cat(.it("* indicates effective sample size"))
+  }
+}
+
 .print_data_frame <- function(x, ...) {
   if (is_not_null(x) && NROW(x) > 0L && NCOL(x) > 0L) {
     print.data.frame(x, ...)
