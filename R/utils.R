@@ -226,20 +226,6 @@ wrap <- function(s, nchar, ...) {
     paste(x, collapse = "\n")
   }, character(1L))
 }
-strsplits <- function(x, splits, fixed = TRUE, ...) {
-  #Link strsplit but takes multiple split values.
-  #Only works for one string at a time (in x).
-  for (split in splits) {
-    x <- unlist(strsplit(x, split, fixed = TRUE, ...))
-  }
-  
-  x[nzchar(x)] # Remove empty values
-}
-#' @exportS3Method NULL
-c.factor <- function(..., recursive = TRUE) {
-  #c() for factors
-  unlist(list(...), recursive = recursive)
-}
 can_str2num <- function(x) {
   if (is.numeric(x) || is.logical(x)) {
     return(TRUE)
@@ -550,17 +536,6 @@ col.w.cov <- function(mat, y, w = NULL, na.rm = TRUE) {
   }
   
   cov
-}
-col.w.r <- function(mat, y, w = NULL, s.weights = NULL, bin.vars = NULL, na.rm = TRUE) {
-  if (is_null(w) && is_null(s.weights)) {
-    return(cor(mat, y, w, use = if (na.rm) "pair" else "everything"))
-  }
-  
-  cov <- col.w.cov(mat, y = y, w = w, na.rm = na.rm)
-  den <- sqrt(col.w.v(mat, w = s.weights, bin.vars = bin.vars, na.rm = na.rm)) *
-    sqrt(col.w.v(y, w = s.weights, na.rm = na.rm))
-  
-  cov / den
 }
 .mean_abs_dev <- function(x) {
   mean_fast(abs(x - mean_fast(x, TRUE)), TRUE)
@@ -1006,10 +981,6 @@ probably.a.bug <- function() {
   #Partial in. TRUE if x uniquely identifies values in table.
   !is.na(pmatch(x, table))
 }
-`%cin%` <- function(x, table) {
-  #Partial in w/ charmatch. TRUE if x at all in table.
-  !is.na(charmatch(x, table))
-}
 is_error <- function(x) {inherits(x, "try-error")}
 null_or_error <- function(x) {is_null(x) || is_error(x)}
 is_number <- function(x) {
@@ -1053,9 +1024,6 @@ grab <- function(x, what) {
 }
 last <- function(x) {
   x[[length(x)]]
-}
-`last<-` <- function(x, value) {
-  `[[<-`(x, length(x), value)
 }
 len <- function(x, recursive = TRUE) {
   if (is_null(x)) 0L
@@ -1194,4 +1162,3 @@ try_arg <- function(expr, warn = TRUE) {
 #cli utilities
 .it <- function(...) cli::style_italic(...)
 .ul <- function(...) cli::style_underline(...)
-.st <- function(...) cli::style_strikethrough(...)

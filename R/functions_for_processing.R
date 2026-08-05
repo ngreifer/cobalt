@@ -109,17 +109,6 @@ process_treat <- function(treat, ..., keep_values = FALSE) {
   
   set_class(treat, "processed.treat", .replace = FALSE)
 }
-unprocess_treat <- function(treat) {
-  if (!inherits(treat, "processed.treat")) {
-    return(treat)
-  }
-  
-  attrs <- attributes(treat)
-  treat <- treat_vals(treat)[as.character(treat)]
-  attributes(treat) <- attrs[setdiff(names(attrs), "class")]
-  
-  set_class(treat, c("unprocessed.treat", class(treat_vals(treat))))
-}
 process_treat.list <- function(treat.list, ...) {
   arg::arg_supplied(treat.list)
   
@@ -2772,31 +2761,6 @@ co.cbind <- function(..., deparse.level = 1) {
   
   attr(out, "co.names") <- do.call("c", co.names.list)
   attr(attr(out, "co.names"), "seps") <- seps
-  colnames(out) <- names(attr(out, "co.names")) <- vapply(.attr(out, "co.names"),
-                                                          function(x) paste(x[["component"]], collapse = ""),
-                                                          character(1L))
-  
-  out
-}
-co.rbind <- function(..., deparse.level = 1) {
-  if (...length() == 0L) {
-    return(NULL)
-  }
-  
-  if (...length() == 1L) {
-    return(...elt(1L))
-  }
-  
-  args <- clear_null(list(...))
-  if (length(args) <= 1L) {
-    return(args[[1L]])
-  }
-  
-  co.names <- .attr(args[[1L]], "co.names")
-  
-  out <- do.call("rbind", args)
-  
-  attr(out, "co.names") <- co.names
   colnames(out) <- names(attr(out, "co.names")) <- vapply(.attr(out, "co.names"),
                                                           function(x) paste(x[["component"]], collapse = ""),
                                                           character(1L))

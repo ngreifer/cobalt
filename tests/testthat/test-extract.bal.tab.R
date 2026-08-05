@@ -180,8 +180,7 @@ test_that("format() returns exactly the table print() displays", {
   # The promise of format() is that it is print()'s own table, so it is checked by
   # rendering it and looking for that block in print()'s output.
   #Wide enough that print() does not wrap the table into several blocks.
-  op <- options(width = 400)
-  on.exit(options(op), add = TRUE)
+  rlang::local_options(width = 400)
 
   covs <- covs3()
   t <- lalonde$treat
