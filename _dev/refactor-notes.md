@@ -234,11 +234,36 @@ left untouched, which also preserved their per-block `cat()` conventions.
 
 1. **Feature 1: censoring / target balance.** Designed in the plan file; the next piece of
    work. No new statistics are needed — the three `STATS[["*.target"]]` entries already do
-   the 2n-doubling internally. It needs a new `X.class = "target"` as a *leaf* peer to
+   the doubling internally. It needs a new `X.class = "target"` as a *leaf* peer to
    `binary`/`cont` at the bottom of `.assign_X_class()`, so `cluster` and `imp` compose for
-   free. Discard the 2020 `_dev/Under_construction/target.bal.tab.R` prototype — it uses an
-   n0+n stacking that disagrees for `ovl.*`/`energy.dist`. `.bal.tab_leaves()` and
-   `.bal_tab_col_spec()` are the seams it should build on.
+   free. `.bal.tab_leaves()` and `.bal_tab_col_spec()` are the seams it should build on.
+
+   **Correction to the plan file, verified 2026-08-05.** The plan says to discard
+   `_dev/Under_construction/target.bal.tab.R` because it "uses an n0+n stacking that
+   disagrees for `ovl.*`/`energy.dist`". **That is wrong on both counts.** Read the two
+   side by side:
+
+   - `STATS[["mean.diffs.target"]]$fun` does `C <- rbind(C, C)`,
+     `treat <- rep(c(0, 1), each = n)`, `weights <- c(weights, rep.int(1, n))`.
+   - The prototype (`target.bal.tab.R:114-121`) does `covs <- rbind(covs, covs)`,
+     `weights <- rbind(weights, <all 1s>)`, and stacks `s.weights`, `distance`, `addl`,
+     `discarded` to match.
+
+   Both are the **same 2n doubling**: the weighted sample against the same units
+   unweighted. There is no n0+n stacking anywhere and no demonstrated disagreement.
+
+   What they genuinely differ on is the *grouping*, and that is the real design question:
+
+   - The registry compares the **whole weighted sample** against the whole unweighted
+     sample — two groups.
+   - The prototype builds `k + 1` levels (each treatment group plus a `target` level) and
+     compares **each treatment group** against the unweighted sample pairwise, with
+     `s.d.denom` hardcoded to `"treated"`.
+
+   The prototype's framing is a superset and answers the more useful question for a
+   censoring model. So it is worth *reading* rather than discarding — the parts to leave
+   behind are its hardcoded `s.d.denom`, and its `stop()`s for `cluster` and `subclass`,
+   which the new `X.class = "target"` leaf makes unnecessary.
 2. **The four items in `_dev/stale-code-candidates.md`** — each a decision, not a refactor.
    The `s.d.denom`-ignored-on-cluster+longitudinal one is a genuine bug.
 3. **`get_covs_from_formula()` is still 345 lines** and has no duplication left that I could
@@ -256,6 +281,13 @@ left untouched, which also preserved their per-block `cat()` conventions.
    what it replaced.
 6. **`base.bal.tab()`'s hand-rolled `switch()` on `attr(X, "X.class")` stays.** 12 clear
    lines, and a string key is a better dispatch key than an S3 class here.
-7. **Tests still to write:** `bal.plot()` has the thinnest coverage of the exported
+7. **`_dev/Under_construction/_as.data.frame.bal.tab.R` is superseded** by
+   `R/extract.bal.tab.R`. It was a 21-line `reshape(direction = "long")` sketch; the
+   shipped version is long-by-default with segmentation as columns, and `format()` covers
+   the printed-table case. `bal.tab2tableone.R` was assessed and rejected in the plan: the
+   prototype *fabricates* `median`/`p25`/`p75`/`skew`/`kurt` that `bal.tab` never computed.
+   Neither is referenced by anything.
+
+8. **Tests still to write:** `bal.plot()` has the thinnest coverage of the exported
    surface. And `love.plot()`'s aggregation path is pinned by exactly one test — the golden
    set captures `love.plot()` data for 10 cells, **none of which aggregate**.
