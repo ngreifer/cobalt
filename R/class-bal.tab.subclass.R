@@ -179,7 +179,7 @@ base.bal.tab.subclass <- function(X,
   
   for (s in compute) {
     if (is_not_null(thresholds[[s]])) {
-      out[[paste.("Balanced", s, "Subclass")]] <- setNames(do.call("data.frame", lapply(out[["Subclass.Balance"]], function(x) .baltal(x[[STATS[[s]]$Threshold]]))),
+      out[[paste.("Balanced", s, "Subclass")]] <- setNames(do.call("data.frame", lapply(out[["Subclass.Balance"]], function(x) .baltal(x[[STATS[[s]]$Threshold]], thresholds[[s]]))),
                                                            paste("Subclass", levels(X[["subclass"]])))
       max.imbal.list <- lapply(out[["Subclass.Balance"]], function(x) {
         .max_imbal(x[x[["Type"]] != "Distance", , drop = FALSE], 

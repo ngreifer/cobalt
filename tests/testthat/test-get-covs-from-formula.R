@@ -150,9 +150,16 @@ test_that("get_covs_from_formula() rejects what it cannot process", {
   expect_err(gcf(treat ~ age, "nope"), "must be a data frame")
   expect_err(gcf(treat ~ ., NULL), "'.' is not allowed in formulas")
 
-  #Non-finite values would make every balance statistic meaningless.
+  #Non-finite values would make every balance statistic meaningless. The message
+  #agrees with itself about number: `contain{?s}` had the marker on the wrong word, so
+  #one variable used to "contain" and several "contains".
   d$z <- replace(d$age, 1L, Inf)
-  expect_err(gcf(treat ~ z, d), "non-finite values, which are not allowed")
+  d$z2 <- replace(d$educ, 1L, -Inf)
+
+  expect_err(gcf(treat ~ z, d),
+             "The variable `z` contains non-finite values, which are not allowed")
+  expect_err(gcf(treat ~ z + z2, d),
+             "The variables `z` and `z2` contain non-finite values, which are not allowed")
 
   #A function name used as a variable is caught rather than silently evaluated.
   expect_err(gcf(treat ~ mean, d), "invalid type (function) for variable")
@@ -172,4 +179,32 @@ test_that("co.names round-trips through the whole pipeline", {
   b2 <- bal.tab(treat ~ race + age, data = d, s.d.denom = "pooled")
   expect_true("race" %in% var.names(b2, type = "vec", minimal = TRUE))
   expect_false("race_black" %in% var.names(b2, type = "vec", minimal = TRUE))
+})
+
+test_that("the balance tally counts against the labels in the table", {
+  # `.baltal()` used to recover the numeric threshold by regex from the label
+  # `"Balanced, <0.1"` that `.threshold_label()` had just generated. Both now derive the
+  # labels from `.threshold_verdicts()`, so the tally's row names and the table's
+  # verdicts come from one place.
+  b <- bal.tab(lalonde[c("age", "educ", "married")], treat = lalonde$treat,
+               s.d.denom = "pooled", weights = w_fixed, thresholds = c(m = .1))
+
+  tally <- b$Balanced.mean.diffs
+
+  expect_identical(rownames(tally), c("Balanced, <0.1", "Not Balanced, >0.1"))
+
+  #The counts agree with the table they summarize.
+  verdicts <- b$Balance$M.Threshold
+  expect_identical(tally[["count"]],
+                   c(sum(verdicts == "Balanced, <0.1"),
+                     sum(verdicts == "Not Balanced, >0.1")))
+  expect_identical(sum(tally[["count"]]), sum(nzchar(verdicts)))
+
+  #A threshold needing rounding is rounded the same way in both.
+  b3 <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, s.d.denom = "pooled",
+                weights = w_fixed, thresholds = c(m = 0.123456))
+  expect_identical(rownames(b3$Balanced.mean.diffs),
+                   c("Balanced, <0.123", "Not Balanced, >0.123"))
+  expect_true(all(b3$Balance$M.Threshold %in%
+                    c("", "Balanced, <0.123", "Not Balanced, >0.123")))
 })

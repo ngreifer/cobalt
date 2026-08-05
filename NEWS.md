@@ -3,6 +3,8 @@
 
 # *cobalt* (development version)
 
+* Fixed a message that disagreed with itself about number: supplying one covariate with non-finite values reported that "the variable `x` contain non-finite values" and several reported that they "contains" them.
+
 * Added `as.data.frame()` and `format()` methods for `bal.tab` objects, to make it easier to report balance in a document. `as.data.frame()` returns the balance statistics as a tidy data frame, one row per covariate, sample, and statistic; segmented data (by cluster, imputation, treatment pair, time point, or subclass) put each level of segmentation in a column rather than a nested list, so the result is a single rectangle whatever the shape of the input. `format()` returns the balance table exactly as `print()` displays it, as a data frame of formatted strings, so `knitr::kable(format(b))` produces a publication-ready table with no further processing. Both accept every argument `print()` accepts and resolve them the same way. See `?extract.bal.tab` and the FAQ vignette.
 
 * `bal.tab()` now supports clustered longitudinal treatments. Previously, supplying `cluster` with a list of formulas or data frames failed with an uninformative error.

@@ -887,15 +887,21 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   .get_s.d.denom(X[["s.d.denom"]], estimand = X[["estimand"]], weights = X[["weights"]],
                  subclass = X[["subclass"]], treat = X[["treat"]], focal = X[["focal"]])
 }
-#The verdict string for one statistic column. The threshold value is baked into the
-#label, which is how `.baltal()` recovers it later, and is rounded to three places
-#independently of `print()`'s `digits`.
-#
-#Distance rows and non-finite values get an empty label rather than a verdict.
+#The two verdicts a threshold produces, rounded to three places independently of
+#`print()`'s `digits`. `.baltal()` counts against these same strings, so the tally's
+#row names cannot drift from the labels in the table.
+.threshold_verdicts <- function(threshold) {
+  c(paste0("Balanced, <", round(threshold, 3L)),
+    paste0("Not Balanced, >", round(threshold, 3L)))
+}
+
+#The verdict for one statistic column. Distance rows and non-finite values get an empty
+#label rather than a verdict.
 .threshold_label <- function(x, var_types, threshold, abs_stat) {
+  verdicts <- .threshold_verdicts(threshold)
+
   ifelse_(var_types == "Distance" | !is.finite(x), "",
-          abs_stat(x) < threshold, paste0("Balanced, <", round(threshold, 3L)),
-          paste0("Not Balanced, >", round(threshold, 3L)))
+          abs_stat(x) < threshold, verdicts[1L], verdicts[2L])
 }
 .compute_s.d.denom <- function(mat, treat = NULL, s.d.denom = "pooled", s.weights = NULL,
                                bin.vars = NULL, subset = NULL, weighted.weights = NULL,
@@ -1943,6 +1949,50 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
   treat
 }
+#Each row name of a terms object's `factors` matrix is a variable as it was written in
+#the formula. One that will not evaluate as written may still evaluate quoted in
+#backticks -- a column called `my var` does, `I(x^2)` does not -- so that is tried
+#before giving up. Returns the names, backtick-quoted where that was needed.
+#
+#`...` is passed to `eval()`, so the caller says where to look: the data and the
+#formula's environment on the first pass, the assembled model frame on the second.
+.backtick_unevaluable <- function(vars, ..., reject.functions = FALSE) {
+  for (i in seq_along(vars)) {
+    evaled <- try(eval(str2expression(vars[i]), ...), silent = TRUE)
+
+    if (null_or_error(evaled)) {
+      quoted <- add_quotes(vars[i], "`")
+      evaled <- try(eval(str2expression(quoted), ...), silent = TRUE)
+
+      if (null_or_error(evaled)) {
+        .err_unevaluable(evaled, name.missing = reject.functions)
+      }
+
+      vars[i] <- quoted
+    }
+
+    #A function used where a variable belongs would otherwise be evaluated silently.
+    if (reject.functions && is.function(evaled)) {
+      arg::err("invalid type (function) for variable {.var {vars[i]}}")
+    }
+  }
+
+  vars
+}
+
+#`name.missing` is set only on the first pass, where a variable genuinely may not
+#exist; by the second it is in the model frame and anything failing is a bug.
+.err_unevaluable <- function(evaled, name.missing) {
+  ee <- conditionMessage(.attr(evaled, "condition"))
+
+  if (name.missing && startsWith(ee, "object '") && endsWith(ee, "' not found")) {
+    v <- sub("object '([^']+)' not found", "\\1", ee)
+    arg::err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this variable to {.arg data}")
+  }
+
+  arg::err("{ee}")
+}
+
 get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " * ") {
   
   rebuild_f <- function(ttfactors, tics = FALSE) {
@@ -2114,40 +2164,12 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   
   #Check to make sure variables are valid
-  original_ttvars <- rownames(ttfactors)
-  for (i in seq_along(original_ttvars)) {
-    #Check if evaluable
-    #If not, check if evaluable after changing to literal using ``
-    #If not, stop()
-    #If eventually evaluable, check if function
-    
-    evaled.var <- try(eval(str2expression(rownames(ttfactors)[i]), data, env),
-                      silent = TRUE)
-    
-    if (null_or_error(evaled.var)) {
-      evaled.var <- try(eval(str2expression(add_quotes(rownames(ttfactors)[i], "`")), data, env),
-                        silent = TRUE)
-      
-      if (null_or_error(evaled.var)) {
-        ee <- conditionMessage(.attr(evaled.var, "condition"))
-        
-        if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
-          v <- sub("object '([^']+)' not found", "\\1", ee)
-          arg::err("the variable {.val {v}} cannot be found. Be sure it is entered correctly or supply a dataset that contains this variable to {.arg data}")
-        }
-        
-        arg::err("{ee}")
-      }
-      
-      rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
-    }
-    
-    if (is.function(evaled.var)) {
-      arg::err("invalid type (function) for variable {.var {rownames(ttfactors)[i]}}")
-    }
-  }
+  #Check to make sure variables are valid
+  vars <- .backtick_unevaluable(rownames(ttfactors), data, env, reject.functions = TRUE)
   
-  if (!identical(original_ttvars, rownames(ttfactors))) {
+  if (!identical(vars, rownames(ttfactors))) {
+    rownames(ttfactors) <- vars
+    
     tt.covs <- rebuild_f(ttfactors) |>
       terms(data = data)
     
@@ -2228,24 +2250,12 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     na_vars <- character()
   }
   
-  #Re-check ttfactors
-  original_ttvars <- rownames(ttfactors)
-  for (i in seq_along(rownames(ttfactors))) {
-    #Check if evaluable in tmpcovs
-    #If not, check if evaluable i tmpcovs after changing to literal using ``
-    #If not, stop() (shouldn't occur)
-    
-    evaled.var <- try(eval(str2expression(rownames(ttfactors)[i]), tmpcovs), silent = TRUE)
-    if (null_or_error(evaled.var)) {
-      evaled.var <- try(eval(str2expression(add_quotes(rownames(ttfactors)[i], "`")), tmpcovs), silent = TRUE)
-      if (null_or_error(evaled.var)) {
-        arg::err('{conditionMessage(.attr(evaled.var, "condition"))}')
-      }
-      rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
-    }
-  }
+  #The missingness indicators added above are new variables, so re-check.
+  vars <- .backtick_unevaluable(rownames(ttfactors), tmpcovs)
   
-  if (!identical(original_ttvars, rownames(ttfactors))) {
+  if (!identical(vars, rownames(ttfactors))) {
+    rownames(ttfactors) <- vars
+
     tt.covs <- rebuild_f(ttfactors) |>
       terms(data = data)
     
@@ -2259,7 +2269,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
   if (any(covs.with.inf)) {
     s <- if (sum(covs.with.inf) == 1L) c("", "s") else c("s", "")
-    arg::err("the variable{?s} {.var {names(tmpcovs)[covs.with.inf]}} contain{?s} non-finite values, which are not allowed")
+    arg::err("the variable{?s} {.var {names(tmpcovs)[covs.with.inf]}} contain{?s/} non-finite values, which are not allowed")
   }
   
   attr(tt.covs, "intercept") <- 1 #Add intercept to correctly process single-level factors
@@ -2817,19 +2827,13 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
     }
   }
 }
-.baltal <- function(threshold) {
-  #threshold: vector of threshold values (i.e., "Balanced"/"Not Balanced")
-  threshnames <- names(table(threshold))
-  balstring <- threshnames[nzchar(threshnames)][1L]
-  thresh.val <- substring(balstring, 1L + regexpr("[><]", balstring), nchar(balstring))
-  
-  b <- data.frame(count = c(sum(threshold == sprintf("Balanced, <%s", thresh.val)), 
-                            sum(threshold == sprintf("Not Balanced, >%s", thresh.val))))
-  
-  rownames(b) <- c(sprintf("Balanced, <%s", thresh.val),
-                   sprintf("Not Balanced, >%s", thresh.val))
-  
-  b
+#How many covariates met a threshold and how many did not. Takes the threshold rather
+#than recovering it by regex from the labels the package generated a moment earlier.
+.baltal <- function(labels, threshold) {
+  verdicts <- .threshold_verdicts(threshold)
+
+  data.frame(count = c(sum(labels == verdicts[1L]), sum(labels == verdicts[2L])),
+             row.names = verdicts)
 }
 .max_imbal <- function(balance.table, col.name, thresh.col.name, abs_stat) {
   clean <- balance.table[balance.table[["Type"]] != "Distance" &
@@ -2917,7 +2921,9 @@ threshold_summary <- function(compute, thresholds, no.adj, balance.table,
     stat.col <- .paste_col(if (is_null(agg.fun)) NULL else firstup(agg.fun), prefix) |>
       paste.(samples)
 
-    tallies <- lapply(thresh.col, function(tc) .baltal(balance.table[[tc]]))
+    tallies <- lapply(thresh.col, function(tc) {
+      .baltal(balance.table[[tc]], thresholds[[s]])
+    })
 
     imbalances <- lapply(seq_along(samples), function(i) {
       .max_imbal(no.distance, stat.col[i], thresh.col[i], STATS[[s]][["abs"]])
