@@ -133,6 +133,11 @@ For information on using \code{bal.tab()} with multi-category treatments, see \c
 For information on using \code{bal.tab()} with longitudinal treatments, see \code{\link{class-bal.tab.msm}} and \code{vignette("longitudinal-treat")}. Essentially, \code{bal.tab()} summarizes balance at each time point and summarizes across time points.
 }
 
+\subsection{With a Censoring Indicator}{
+
+A treatment supplied as \code{\link[=.cens]{.cens()}} is a censoring indicator rather than a treatment, and there is no second treatment group to compare against. \code{bal.tab()} instead compares the units still under observation, weighted, against the full at-risk sample. See \code{\link{class-bal.tab.cens}}.
+}
+
 \subsection{With Clustered or Multiply Imputed Data}{
 
 For information on using \code{bal.tab()} with clustered data, see \code{\link{class-bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link{class-bal.tab.imp}}.

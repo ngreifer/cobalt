@@ -147,6 +147,7 @@ golden_grid <- function() {
   cl <- .FX$cl_idx
   sub <- .FX$sub_idx
   imp <- .FX$imp_idx
+  cens <- .FX$cens_idx
 
   bin <- c("mean.diffs", "variance.ratios", "ks.statistics", "ovl.coefficients")
   cont <- c("correlations", "spearman.correlations", "mean.diffs.target",
@@ -362,6 +363,37 @@ golden_grid <- function() {
             stats = c("correlations", "spearman.correlations"),
             subclass.summary = TRUE, disp.subclass = TRUE)
   }
+
+  ## ---- censoring ------------------------------------------------------------
+
+  #The censoring weights, as a censoring model produces them: zero once censored.
+  cens_w <- local({
+    p <- fitted(glm(cens ~ age + educ + race, data = lalonde, family = binomial))
+    ifelse(cens == 0, 1 / (1 - p), 0)
+  })
+
+  g$cens_default <- function() {
+    bal.tab(covs, treat = .cens(cens), weights = cens_w, un = TRUE)
+  }
+  g$cens_all_stats <- function() {
+    bal.tab(covs, treat = .cens(cens), weights = cens_w, un = TRUE,
+            stats = bin, disp = c("means", "sds"),
+            thresholds = c(m = .1, v = 2, ks = .05, ovl = .1))
+  }
+  g$cens_s_weights <- function() {
+    bal.tab(covs, treat = .cens(cens), weights = cens_w, s.weights = sw, un = TRUE,
+            s.d.denom = "uncensored", quick = FALSE)
+  }
+  g$cens_cluster <- function() {
+    bal.tab(covs_nr, treat = .cens(cens), weights = cens_w, cluster = cl, un = TRUE,
+            cluster.summary = TRUE)
+  }
+  g$cens_imp <- function() {
+    bal.tab(covs_nr, treat = .cens(cens), weights = cens_w, imp = imp, un = TRUE,
+            imp.summary = TRUE)
+  }
+  #The `weightit_cens` fixture is picked up by the per-object loop below, which covers
+  #the object interface and its `quick = FALSE` view.
 
   ## ---- longitudinal ---------------------------------------------------------
 

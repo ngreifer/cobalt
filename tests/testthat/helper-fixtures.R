@@ -33,6 +33,11 @@ cl_idx    <- factor(rep(c("a", "b", "c"), length.out = n_lalonde))
 sub_idx   <- rep(1:4, length.out = n_lalonde)
 imp_idx   <- rep(1:2, length.out = n_lalonde)
 
+#A censoring indicator: 1 = censored. Interleaved for the same reason as the others,
+#and with a period coprime to theirs so that no cluster or imputation loses every
+#uncensored unit. Roughly a third of units are censored.
+cens_idx  <- rep(c(0L, 0L, 0L, 0L, 1L), length.out = n_lalonde)
+
 cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
 
 #`twang` fits are pinned to a small number of trees. The quality of the boosted
@@ -92,6 +97,13 @@ cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
     }),
     weightit_cont = list(pkg = "WeightIt", build = function() {
       WeightIt::weightit(re75 ~ age + educ + married + re74, data = lalonde,
+                         method = "glm")
+    }),
+    #A censoring model. `cens_idx` rather than a random draw, so the weights are the
+    #same in every run and the comparison against the manual stacking is exact.
+    weightit_cens = list(pkg = "WeightIt", build = function() {
+      WeightIt::weightit(WeightIt::.cens(cens_idx) ~ age + educ + race,
+                         data = transform(lalonde, cens_idx = cens_idx),
                          method = "glm")
     }),
     weightitmsm = list(pkg = "WeightIt", build = function() {

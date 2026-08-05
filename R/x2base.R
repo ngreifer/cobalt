@@ -56,6 +56,21 @@ x2base <- function(x, ...) {
   }
 }
 
+#`estimand` and `focal` name a treatment group to target. A censoring model's target is
+#the full at-risk sample, so neither has anything to say; they are ignored rather than
+#rejected, because a `weightit` object may carry an `estimand` slot it never used.
+.reject_cens_args <- function(...) {
+  supplied <- c("estimand", "focal")[c(is_not_null(...get("estimand")),
+                                       is_not_null(...get("focal")))]
+
+  if (is_not_null(supplied)) {
+    arg::wrn("{.arg {supplied}} {?does/do} not apply to a censoring indicator, whose target is the full at-risk sample; ignoring {?it/them}")
+  }
+
+  #Subclassification is not a way of estimating censoring weights.
+  .reject_args(c("subclass", "match.strata"), "a censoring indicator", ...)
+}
+
 #The tail every method shares: expand anything supplied for a single imputation,
 #assemble `X` from the locals the method has built, resolve the requested statistics,
 #warn about missing covariate values, and apply `subset`.
@@ -761,22 +776,29 @@ x2base.data.frame <- function(x, ...) {
   distance <- process_distance(...get("distance"), datalist = list(data, covs))
   
   #Process focal
-  focal <- process_focal(...get("focal"), treat)
-  
-  if (get.treat.type(treat) == "binary") {
-    if (is_null(focal) && is_not_null(estimand)) {
-      focal <- switch(toupper(estimand), 
-                      "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
-                      "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
-                      NULL)
-    }
-    
-    #Process pairwise
-    if (is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
-      attr(treat, "treat.type") <- "multinomial"
+  #A censoring indicator has no treatment group to be focal, and no estimand.
+  if (get.treat.type(treat) == "censoring") {
+    .reject_cens_args(...)
+    estimand <- focal <- NULL
+  }
+  else {
+    focal <- process_focal(...get("focal"), treat)
+
+    if (get.treat.type(treat) == "binary") {
+      if (is_null(focal) && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand),
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]],
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]],
+                        NULL)
+      }
+
+      #Process pairwise
+      if (is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
+        attr(treat, "treat.type") <- "multinomial"
+      }
     }
   }
-  
+
   #Process subclass
   if ("subclass" %in% .using) {
     subclass <- .process_vector(...get("subclass"), 
@@ -1159,20 +1181,28 @@ x2base.weightit <- function(x, ...) {
   addl <- process_addl(...get("addl"), datalist = list(data, weightit.data))
   
   #Process distance
+  #A censoring model's propensity score is P(C = 1 | X); balance on it is as
+  #informative here as it is for a binary treatment.
   distance <- process_distance(...get("distance"), datalist = list(data, weightit.data),
-                               obj.distance = if (get.treat.type(treat) == "binary") x[["ps"]], 
+                               obj.distance = if (get.treat.type(treat) %in% c("binary", "censoring")) x[["ps"]],
                                obj.distance.name = "prop.score")
-  
+
   #Process focal
   focal <- x[["focal"]]
-  
+
   #Process pairwise
   if (get.treat.type(treat) == "binary" && is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
     attr(treat, "treat.type") <- "multinomial"
   }
-  
+
   #Reject arguments that do not apply
   .reject_args(c("subclass", "match.strata"), "{.cls weightit} objects", ...)
+
+  if (get.treat.type(treat) == "censoring") {
+    .reject_cens_args(...)
+    focal <- NULL
+    estimand <- NULL
+  }
   
   #Process weights
   weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, weightit.data))

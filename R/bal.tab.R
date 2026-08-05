@@ -106,10 +106,14 @@
 #'     
 #' For information on using `bal.tab()` with longitudinal treatments, see [`class-bal.tab.msm`] and `vignette("longitudinal-treat")`. Essentially, `bal.tab()` summarizes balance at each time point and summarizes across time points.
 #' 
+#' ### With a Censoring Indicator
+#'
+#' A treatment supplied as [.cens()] is a censoring indicator rather than a treatment, and there is no second treatment group to compare against. `bal.tab()` instead compares the units still under observation, weighted, against the full at-risk sample. See [`class-bal.tab.cens`].
+#'
 #' ### With Clustered or Multiply Imputed Data
-#'     
-#' For information on using `bal.tab()` with clustered data, see [`class-bal.tab.cluster`]. For information on using `bal.tab()` with multiply imputed data, see [`class-bal.tab.imp`]. 
-#' 
+#'
+#' For information on using `bal.tab()` with clustered data, see [`class-bal.tab.cluster`]. For information on using `bal.tab()` with multiply imputed data, see [`class-bal.tab.imp`].
+#'
 #' ### `quick`
 #'     
 #' Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with `print()` or is to be used in some other way after the original call to `bal.tab()`, it may be useful to compute them even if they are not to be printed initially. To do so, users can set `quick = FALSE`, which will cause `bal.tab()` to calculate all values and components it can. Note that `love.plot()` is fully functional even when `quick = TRUE` and values are requested that are otherwise not computed in `bal.tab()` with `quick = TRUE`.

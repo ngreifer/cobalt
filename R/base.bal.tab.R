@@ -2,6 +2,7 @@ base.bal.tab <- function(X, ...) {
   fun <- switch(.attr(X, "X.class"),
                 "binary" = base.bal.tab.binary,
                 "cont" = base.bal.tab.cont,
+                "cens" = base.bal.tab.cens,
                 "subclass.binary" = base.bal.tab.subclass.binary,
                 "subclass.cont" = base.bal.tab.subclass.cont,
                 "cluster" = base.bal.tab.cluster,
@@ -32,6 +33,7 @@ base.bal.tab.base <- function(X,
                               disp.call = getOption("cobalt_disp.call", FALSE),
                               abs = FALSE,
                               quick = TRUE,
+                              .obs = NULL,
                               ...) {
   #Preparations
   A <- clear_null(list(...))
@@ -101,9 +103,13 @@ base.bal.tab.base <- function(X,
                              balance.table = out[["Balance"]],
                              weight.names = names(X[["weights"]])))
   
-  out[["Observations"]] <- samplesize(treat = X[["treat"]], type = type, weights = X[["weights"]],
-                                      s.weights = X[["s.weights"]], method = X[["method"]],
-                                      discarded = X[["discarded"]])
+  #`.obs` is for a caller whose `X` has been reshaped before it got here and so cannot
+  #be counted from: the censoring leaf stacks two samples into one `X`, and the sample
+  #sizes that describe are of the units, not of the stack.
+  out[["Observations"]] <- .obs %or%
+    samplesize(treat = X[["treat"]], type = type, weights = X[["weights"]],
+               s.weights = X[["s.weights"]], method = X[["method"]],
+               discarded = X[["discarded"]])
   
   out[["call"]] <- X[["call"]]
   attr(out, "print.options") <- list(thresholds = thresholds,

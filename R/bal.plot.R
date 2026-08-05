@@ -100,7 +100,14 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   
   X <- process_obj(x) |>
     x2base(..., cluster = cluster, imp = imp)
-  
+
+  #The two samples `bal.tab()` compares for a censoring indicator share units -- the
+  #uncensored ones appear in both -- which nothing in the faceting below is built for.
+  if (.is_cens(X[["treat"]]) ||
+      any(vapply(X[["treat.list"]], .is_cens, logical(1L)))) {
+    arg::err("{.fun bal.plot} does not yet support censoring indicators; use {.fun bal.tab} to assess their balance")
+  }
+
   if (is_null(X[["covs.list"]])) {
     #Point treatment
     X[["covs"]] <- .get_C2(X[["covs"]], addl = X[["addl"]], distance = X[["distance"]], cluster = X[["cluster"]], treat = X[["treat"]],

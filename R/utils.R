@@ -604,10 +604,25 @@ subbars <- function(term) {
 }
 
 #treat/covs
-assign.treat.type <- function(treat, use.multi = FALSE) {
+assign.treat.type <- function(treat, use.multi = FALSE, censoring = NULL) {
   #Returns treat with treat.type attribute
+  if (is_null(censoring)) {
+    censoring <- .is_cens(treat)
+  }
+
+  #A censoring indicator is validated rather than classified, and keeps its tag. Unlike
+  #a treatment it may take a single value -- a time point at which no unit (or every
+  #unit) is censored is degenerate but not malformed -- and it may be missing.
+  if (censoring) {
+    .make_cens_treat(treat)
+
+    attr(treat, "treat.type") <- "censoring"
+
+    return(treat)
+  }
+
   nunique.treat <- nunique(treat)
-  
+
   if (nunique.treat < 2L) {
     arg::err("the treatment must have at least two unique values")
   }

@@ -63,10 +63,25 @@ process_treat <- function(treat, ..., keep_values = FALSE) {
     attrs <- attributes(treat)
     renamed_original <- setNames(names(treat_vals(treat)), treat_vals(treat))
     treat <- factor(renamed_original[as.character(treat)], levels = renamed_original)
-    
+
     for (at in c("treat_names", "treat_vals", "keep_values", "treat.type", "names")) {
       attr(treat, at) <- attrs[[at]]
     }
+  }
+  #A censoring indicator keeps its own two values and gets no `treat_names`: the two
+  #samples balance is assessed between are the uncensored units and the full at-risk
+  #sample, and those are built at the leaf. It may be missing, unlike a treatment,
+  #because a unit censored earlier has no later indicator.
+  else if (.is_cens(treat)) {
+    treat.name <- .attr(treat, "treat.name")
+
+    treat <- .process_vector(treat, name = "treat",
+                             which = "censoring statuses",
+                             datalist = list(...), missing.okay = TRUE) |>
+      .make_cens_treat()
+
+    attr(treat, "treat.type") <- "censoring"
+    attr(treat, "treat.name") <- treat.name
   }
   else {
     # keep_values <- isTRUE(attr(treat, "keep_values")) || 
@@ -141,9 +156,19 @@ treat_vals <- function(treat) {
 }
 subset_processed.treat <- function(x, index) {
   y <- x[index]
+
+  #A censoring indicator has no levels to narrow, and reclassifying it would turn it
+  #back into a binary treatment. Its tag is the whole of what has to survive.
+  if (.is_cens(x)) {
+    attr(y, "treat.type") <- "censoring"
+    attr(y, "treat.name") <- .attr(x, "treat.name")
+
+    return(set_class(y, class(x)))
+  }
+
   treat_names(y) <- treat_names(x)[treat_vals(x) %in% unique(y)]
   treat_vals(y) <- treat_vals(x)[treat_vals(x) %in% unique(y)]
-  
+
   assign.treat.type(y) |>
     set_class(class(x))
 }
@@ -195,7 +220,7 @@ initialize_X_msm <- function() {
     treat <- list(treat)
   }
   
-  stop_warn <- c(cw = FALSE, bw = FALSE, bs = FALSE)
+  stop_warn <- c(cw = FALSE, bw = FALSE, bs = FALSE, censw = FALSE, censs = FALSE)
   for (t in treat) {
     if (!has.treat.type(t)) t <- assign.treat.type(t)
     treat.type <- get.treat.type(t)
@@ -203,6 +228,14 @@ initialize_X_msm <- function() {
     if (treat.type == "continuous" && !stop_warn["cw"]) {
       tabu <- tabulate(cluster, nbins = nlevels(cluster))
       if (any(tabu == 1)) stop_warn["cw"] <- TRUE
+    }
+    #A cluster in which nobody is censored is not a problem -- there is still a sample
+    #to compare against the full one. A cluster in which everybody is is.
+    else if (treat.type == "censoring" && !all(stop_warn[c("censw", "censs")])) {
+      uncensored <- tabulate(cluster[!is.na(t) & t == 0], nbins = nlevels(cluster))
+
+      if (any(uncensored == 0L)) stop_warn["censs"] <- TRUE
+      else if (any(uncensored == 1L)) stop_warn["censw"] <- TRUE
     }
     else if (treat.type != "continuous" && !all(stop_warn[c("bw", "bs")])) {
       tab <- table(cluster, t)
@@ -222,7 +255,14 @@ initialize_X_msm <- function() {
   if (stop_warn["bs"]) {
     arg::err("not all treatment levels are present in all clusters")
   }
-  
+
+  if (stop_warn["censw"]) {
+    arg::wrn("some clusters have only one uncensored unit in them, which may yield unexpected results")
+  }
+
+  if (stop_warn["censs"]) {
+    arg::err("every unit is censored in at least one cluster")
+  }
 }
 strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   #Process strata into weights (similar to weight.subclass from MatchIt)
@@ -884,6 +924,13 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     return(.get_s.d.denom.cont(X[["s.d.denom"]], weights = X[["weights"]], subclass = X[["subclass"]]))
   }
 
+  #A censoring model's target is the full at-risk sample, so its denominator is settled
+  #by the design and not inferred from the weights. `base.bal.tab.cens()` translates
+  #this into the stacked treatment's vocabulary once the two samples exist.
+  if (get.treat.type(X[["treat"]]) == "censoring") {
+    return(.cens_s.d.denom(X[["s.d.denom"]]))
+  }
+
   .get_s.d.denom(X[["s.d.denom"]], estimand = X[["estimand"]], weights = X[["weights"]],
                  subclass = X[["subclass"]], treat = X[["treat"]], focal = X[["focal"]])
 }
@@ -1058,6 +1105,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     X.class <- switch(get.treat.type(X[["treat"]]),
                       binary = "subclass.binary",
                       continuous = "subclass.cont",
+                      censoring = arg::err("censoring indicators are not compatible with subclasses"),
                       arg::err("multi-category treatments are not currently compatible with subclasses"))
   }
   else if (is_not_null(X[["covs.list"]])) X.class <- "msm"
@@ -1065,6 +1113,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   else if (is_not_null(X[["imp"]]) && nlevels(X[["imp"]]) > 1L) X.class <- "imp"
   else if (get.treat.type(X[["treat"]]) == "binary") X.class <- "binary"
   else if (get.treat.type(X[["treat"]]) == "continuous") X.class <- "cont"
+  #A leaf, ranked below `cluster` and `imp` so that both compose with it for free.
+  else if (get.treat.type(X[["treat"]]) == "censoring") X.class <- "cens"
   else probably.a.bug()
   
   attr(X, "X.class") <- X.class
@@ -1331,11 +1381,14 @@ process_stats <- function(stats = NULL, treat) {
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
   
-  if (treat.type %in% c("binary", "multinomial")) {
+  #Censoring is grouped with the binary types: the two samples it compares are stacked
+  #into a binary pseudo-treatment at the leaf, so the statistics, and the column layout
+  #they imply, are the binary ones.
+  if (treat.type %in% c("binary", "multinomial", "censoring")) {
     if (is_null(stats)) {
       stats <- getOption("cobalt_stats", "mean.diffs")
     }
-    
+
     stats <- unique(arg::match_arg(stats, all_STATS("bin"), several.ok = TRUE))
     attr(stats, "type") <- "bin"
   }
@@ -1877,15 +1930,20 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
 
 #.get_C2
 get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
-  
+
   if (is.character(f)) {
     f <- try(as.formula(f), silent = TRUE)
   }
-  
+
   arg::arg_formula(f)
-  
+
+  #`.cens(C) ~ x` is rewritten to `C ~ x` before `terms()` sees it, so that the marker
+  #is never evaluated as a variable and the treatment keeps the indicator's own name.
+  cens <- .strip_cens(f)
+  f <- cens[["f"]]
+
   env <- rlang::f_env(f)
-  
+
   f <- update(f, ~ 0)
   
   #Check if data exists
@@ -1947,9 +2005,13 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     treat.name <- resp.vars.mentioned[!resp.vars.failed][1L]
     treat <- eval(str2expression(treat.name), data, env)
   }
-  
+
   attr(treat, "treat.name") <- treat.name
-  
+
+  if (cens[["censoring"]]) {
+    attr(treat, "treat.type") <- "censoring"
+  }
+
   treat
 }
 #Each row name of a terms object's `factors` matrix is a variable as it was written in
@@ -2056,13 +2118,17 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       f <- try(as.formula(f), silent = TRUE)
     }
     arg::arg_formula(f)
+
+    #Only the covariates are wanted here, but the censoring marker is stripped anyway so
+    #that nothing downstream has to know a formula may carry one.
+    f <- .strip_cens(f)[["f"]]
   }
-  
+
   env <- rlang::f_env(f)
   if (!data.specified) data <- env
-  
+
   # rlang::f_lhs(f) <- NULL
-  
+
   tt <- tryCatch(terms(f, data = data),
                  error = function(e) {
                    if (conditionMessage(e) == "'.' in formula and no 'data' argument") {
