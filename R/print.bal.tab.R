@@ -64,36 +64,14 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
                           digits = max(3L, getOption("digits") - 3), ...) {
   
   #Replace .all and .none with NULL and NA respectively
-  .call <- match.call(expand.dots = TRUE)
-  .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
-  .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-  if (any(c(.alls, .nones))) {
-    .call[.alls] <- expression(NULL)
-    .call[.nones] <- expression(NA)
+  .call <- .rewrite_all_none(match.call(expand.dots = TRUE))
+
+  if (is_not_null(.call)) {
     return(eval.parent(.call))
   }
-  
-  A <- try_arg(c(as.list(environment()), list(...))[-1L])
-  
-  A[vapply(A, rlang::is_missing, logical(1L))] <- NULL
-  
-  unpack_p.ops <- function(b) {
-    out <- do.call("print_process", c(list(b), A), quote = TRUE)
-    
-    if (inherits(b, c("bal.tab.bin", "bal.tab.cont"))) {
-      return(out)
-    }
-    
-    b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1L]]
-    if (!inherits(b_, "bal.tab")) {
-      return(out)
-    }
-    
-    c(out, unpack_p.ops(b_))
-  }
-  
-  p.ops <- unpack_p.ops(x)
-  
+
+  p.ops <- .resolve_p.ops(x, .display_args(environment(), list(...)))
+
   #Prevent exponential notation printing
   rlang::with_options({
     bal.tab_print(x, p.ops)
@@ -1093,6 +1071,52 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   
   c(out, list(subclass.summary = p.ops$subclass.summary,
               which.subclass = which.subclass))
+}
+
+#`.all` and `.none` are symbols the user writes in place of `NULL` and `NA`. Returns
+#the rewritten call for the caller to re-evaluate, or NULL if neither appeared.
+.rewrite_all_none <- function(.call) {
+  alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+  nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
+
+  if (!any(c(alls, nones))) {
+    return(NULL)
+  }
+
+  .call[alls] <- expression(NULL)
+  .call[nones] <- expression(NA)
+
+  .call
+}
+
+#The display arguments the caller actually supplied, with `x` and the missing ones
+#dropped, ready to hand to `print_process()`.
+.display_args <- function(.env, .dots) {
+  A <- try_arg(c(as.list(.env), .dots)[-1L])
+
+  A[vapply(A, rlang::is_missing, logical(1L))] <- NULL
+
+  A
+}
+
+#Resolves display arguments against what the object actually carries, giving the
+#`p.ops` list that decides which columns and rows are shown. `print()`, `format()`,
+#and `as.data.frame()` all go through here, so all three honour the same arguments
+#and raise the same warnings when `quick = TRUE` withheld a value.
+.resolve_p.ops <- function(x, A) {
+  out <- do.call("print_process", c(list(x), A), quote = TRUE)
+
+  if (inherits(x, c("bal.tab.bin", "bal.tab.cont"))) {
+    return(out)
+  }
+
+  x_ <- x[[which(endsWith(names(x), ".Balance"))]][[1L]]
+
+  if (!inherits(x_, "bal.tab")) {
+    return(out)
+  }
+
+  c(out, .resolve_p.ops(x_, A))
 }
 
 #Prints one `Observations` table: drop the rows no unit reached, collapse an

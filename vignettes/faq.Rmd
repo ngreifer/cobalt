@@ -208,37 +208,67 @@ problems [here](https://stats.stackexchange.com/a/565705/116195).
 
 ### How do I extract the balance tables from the `bal.tab()` object?
 
-The output of a call to `bal.tab()` is a `bal.tab` object, which has
-several components depending on the features of the dataset (e.g.,
-whether the data are multiply imputed or clustered or whether the
-treatment is binary or multi-category, etc.). In the most basic case, a
-binary or continuous treatment with no clustering, no multiple
-imputations, a single time point, and subclassification is not used, the
-balance table is stored in the `Balance` component of the output object.
-Let's take a look:
+Use `as.data.frame()` to get the balance statistics as data, or
+`format()` to get the table exactly as `print()` displays it.
 
 ```{r}
 data("lalonde")
 
 b <- bal.tab(treat ~ age + educ + race + married + re74,
              data = lalonde, s.d.denom = "treated",
-             disp = "means", stats = c("m", "v"))
+             disp = "means", stats = c("m", "v"),
+             thresholds = c(m = .1))
 
-# View the structure of the object
-str(b, give.attr = FALSE)
-
-b$Balance
+head(as.data.frame(b))
 ```
 
-It's not a very pretty object, which is why the `print()` method makes
-it look nicer. If you are willing to process this table yourself, you
-can easily extract it from the `bal.tab()` output and do what you want
-with it, e.g., saving it to a CSV file or making a pretty table using
-another package. Although I have been working on a way to do this more
-easily (i.e., to create a publication-ready table from a `bal.tab`
-object), it might be a while because the main purpose of this package is
-balance assessment, not formatting for publication (although I did put a
-lot of work into `love.plot()` to make it customizable for publication).
+The result is tidy: one row per covariate, sample, and statistic, with
+the balance verdict and the threshold alongside. That shape is the same
+whatever the input, which makes it convenient for plotting or for your
+own aggregation. When the data are segmented---by cluster, imputation,
+treatment pair, time point, or subclass---each level of segmentation
+becomes a column rather than a nested list, so the result is always a
+single rectangle.
+
+Set `wide = TRUE` to get the layout `print()` uses instead, with one
+column per sample and statistic:
+
+```{r}
+as.data.frame(b, wide = TRUE)
+```
+
+`format()` returns the printed table as a data frame of formatted
+strings---rounded, decimal-aligned, with missing values shown as
+`.`---which is what you want when the destination is a document rather
+than more code:
+
+```{r}
+format(b)
+```
+
+Because it is an ordinary data frame, it goes straight into any table
+renderer, so a balance table in a Quarto or R Markdown document is one
+line:
+
+```{r, eval = FALSE}
+knitr::kable(format(b))
+```
+
+Use `component = "observations"` for the sample size table.
+
+Both functions accept every argument `print()` accepts---`stats`,
+`disp`, `un`, `imbalanced.only`, `disp.thresholds`, the `which.*`
+arguments---and resolve them the same way, so you can select what to
+report without recomputing anything:
+
+```{r}
+as.data.frame(b, stats = "v", un = FALSE)
+```
+
+The underlying components are still there if you want them: the balance
+table lives in `b$Balance` for an unsegmented object, and in a
+differently named component otherwise (`b$Cluster.Balance` and so on).
+`str(b, give.attr = FALSE)` shows the structure.
 
 ### How are balance statistics computed when using subclassification?
 
