@@ -56,6 +56,55 @@ x2base <- function(x, ...) {
   }
 }
 
+#The tail every method shares: expand anything supplied for a single imputation,
+#assemble `X` from the locals the method has built, resolve the requested statistics,
+#warn about missing covariate values, and apply `subset`.
+#
+#`.length` holds `length_imp_process()`'s arguments; `imp` and the environment come
+#from the caller. All formals are dot-prefixed because `...` carries the user's own
+#arguments, and a named element of `...` matches a formal of the same name even when
+#the caller supplied that formal positionally. `...` must reach
+#`process_stats_and_thresholds()` unforced: `bal.plot()` passes its own lazy dots
+#through, and materializing them changes when an erroring unused argument fails.
+.finish_X <- function(.length, ..., .call = NULL, .msm = FALSE,
+                      .env = parent.frame()) {
+  .get <- function(nm) get0(nm, envir = .env, inherits = FALSE)
+
+  do.call("length_imp_process",
+          c(.length, list(imp = .get("imp"), env = .env)))
+
+  X <- if (.msm) initialize_X_msm() else initialize_X()
+
+  #`X`'s slots are named after the locals that fill them. A slot the method never
+  #assigned stays NULL, which is what every consumer expects of an absent one.
+  for (i in names(X)) {
+    X[[i]] <- .get(i)
+  }
+
+  .stats <- process_stats_and_thresholds(X[[if (.msm) "treat.list" else "treat"]], ...)
+
+  X[["stats"]] <- .stats[["stats"]]
+  X[["thresholds"]] <- .stats[["thresholds"]]
+  X[["s.d.denom"]] <- .stats[["s.d.denom"]]
+  X[["call"]] <- .call
+
+  #A longitudinal method holds lists of data frames, which `anyNA()` only descends
+  #into when asked.
+  missings <- {
+    if (.msm) anyNA(X[["covs.list"]], recursive = TRUE) ||
+      anyNA(X[["addl.list"]], recursive = TRUE)
+    else anyNA(X[["covs"]]) || anyNA(X[["addl"]])
+  }
+
+  if (missings) {
+    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
+  }
+
+  X <- subset_X(X, .get("subset"))
+
+  setNames(X[names(X)], names(X))
+}
+
 #' @exportS3Method NULL
 x2base.matchit <- function(x, ...) {
   #Process matchit
@@ -186,37 +235,12 @@ x2base.matchit <- function(x, ...) {
   #Process discarded
   discarded <- x[["discarded"]]
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun matchit}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- x[["call"]]
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun matchit}"),
+            ...,
+            .call = x[["call"]])
 }
 
 #' @exportS3Method NULL
@@ -328,38 +352,11 @@ x2base.ps <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun ps}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  # call <- ps[["parameters"]]
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun ps}"),
+            ...)
 }
 
 #' @exportS3Method NULL
@@ -429,38 +426,12 @@ x2base.mnps <- function(x, ...) {
   
   #Process discarded
   
-  #Process length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun mnps}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("multi")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun mnps}"),
+            ...,
+            .call = NULL)
 }
 
 #' @exportS3Method NULL
@@ -508,38 +479,11 @@ x2base.ps.cont <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun ps.cont}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  # call <- ps.cont[["parameters"]]
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("cont")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun ps.cont}"),
+            ...)
 }
 
 #' @exportS3Method NULL
@@ -613,38 +557,12 @@ x2base.Match <- function(x, ...) {
     discarded[x[["index.dropped"]]] <- TRUE
   }
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun Match}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun Match}"),
+            ...,
+            .call = NULL)
 }
 
 #' @exportS3Method NULL
@@ -903,35 +821,10 @@ x2base.data.frame <- function(x, ...) {
   #Process discarded
   discarded <- ...get("discarded")
   
-  #Process length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp)
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl")),
+            ...)
 }
 
 #' @exportS3Method NULL
@@ -1006,37 +899,12 @@ x2base.CBPS <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun CBPS}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- x[["call"]]
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun CBPS}"),
+            ...,
+            .call = x[["call"]])
 }
 
 #' @exportS3Method NULL
@@ -1094,37 +962,11 @@ x2base.ebalance <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun ebalance}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun ebalance}"),
+            ...)
 }
 
 #' @exportS3Method NULL
@@ -1195,38 +1037,12 @@ x2base.optmatch <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = sprintf("{.fun %s}", deparse1(.attr(x, "call")[[1L]])))
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- .attr(x, "call")
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = sprintf("{.fun %s}", deparse1(.attr(x, "call")[[1L]]))),
+            ...,
+            .call = .attr(x, "call"))
 }
 
 #' @exportS3Method NULL
@@ -1306,37 +1122,11 @@ x2base.cem.match <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun cem}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun cem}"),
+            ...)
 }
 
 #' @exportS3Method NULL
@@ -1402,37 +1192,12 @@ x2base.weightit <- function(x, ...) {
   #Process discarded
   discarded <- x[["discarded"]]
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun weightit}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- x[["call"]]
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun weightit}"),
+            ...,
+            .call = x[["call"]])
 }
 
 #' @exportS3Method NULL
@@ -1505,38 +1270,12 @@ x2base.designmatch <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "the matching function in {.pkg designmatch}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "the matching function in {.pkg designmatch}"),
+            ...,
+            .call = NULL)
 }
 
 #' @exportS3Method NULL
@@ -1619,38 +1358,12 @@ x2base.mimids <- function(x, ...) {
   #Process discarded
   discarded <- unlist(grab(models, "discarded"))
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun matchthem}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("imp")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun matchthem}"),
+            ...,
+            .call = NULL)
 }
 
 #' @exportS3Method NULL
@@ -1722,38 +1435,12 @@ x2base.wimids <- function(x, ...) {
   #Process discarded
   discarded <- unlist(grab(models, "discarded"))
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun weightthem}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("imp")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun weightthem}"),
+            ...,
+            .call = NULL)
 }
 
 #' @exportS3Method NULL
@@ -1821,37 +1508,11 @@ x2base.sbwcau <- function(x, ...) {
   
   #Process discarded
   
-  #Process imp and length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp,
-                     original.call.to = "{.fun sbw}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("binary")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl"),
+                 original.call.to = "{.fun sbw}"),
+            ...)
 }
 
 #MSMs wth multiple time points
@@ -2013,38 +1674,14 @@ x2base.iptw <- function(x, ...) {
   
   #Process discarded
   
-  #Process length
-  length_imp_process(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("weights"),
-                     lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
-                     imp = imp,
-                     original.call.to = "{.fun iptw}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat.list, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X_msm()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("weights"),
+                 lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
+                 original.call.to = "{.fun iptw}"),
+            ...,
+            .call = NULL,
+            .msm = TRUE)
 }
 
 #' @exportS3Method NULL
@@ -2161,38 +1798,13 @@ x2base.data.frame.list <- function(x, ...) {
   
   #Process discarded
   
-  #Process length
-  length_imp_process(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("weights"),
-                     lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
-                     imp = imp)
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat.list, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
   #Process output
-  X <- initialize_X_msm()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("msm")
+  .finish_X(list(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("weights"),
+                 lists = c("covs.list", "treat.list", "addl.list", "distance.list")),
+            ...,
+            .call = NULL,
+            .msm = TRUE)
 }
 
 #' @exportS3Method NULL
@@ -2289,38 +1901,14 @@ x2base.CBMSM <- function(x, ...) {
   
   #Process discarded
   
-  #Process length
-  length_imp_process(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("weights"),
-                     lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
-                     imp = imp,
-                     original.call.to = "{.fun CBMSM}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat.list, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- x[["call"]]
-  
   #Process output
-  X <- initialize_X_msm()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("weights"),
+                 lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
+                 original.call.to = "{.fun CBMSM}"),
+            ...,
+            .call = x[["call"]],
+            .msm = TRUE)
 }
 
 #' @exportS3Method NULL
@@ -2396,38 +1984,14 @@ x2base.weightitMSM <- function(x, ...) {
   
   #Process discarded
   
-  #Process length
-  length_imp_process(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("weights"),
-                     lists = c("treat.list", "covs.list", "addl.list", "distance.list"),
-                     imp = imp,
-                     original.call.to = "{.fun weightitMSM}")
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat.list, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- x[["call"]]
-  
   #Process output
-  X <- initialize_X_msm()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
+  .finish_X(list(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("weights"),
+                 lists = c("treat.list", "covs.list", "addl.list", "distance.list"),
+                 original.call.to = "{.fun weightitMSM}"),
+            ...,
+            .call = x[["call"]],
+            .msm = TRUE)
 }
 
 #' @exportS3Method NULL
@@ -2597,6 +2161,181 @@ x2base.default <- function(x, ...) {
   else {
     .x2base_default_point(P, ...)
   }
+}
+
+.x2base_default_msm <- function(obj, ...) {
+  #Process data and get imp
+  o.data <- obj[["data"]]
+  if (is_null(o.data) && is_not_null(obj[["model"]]) && utils::hasName(obj[["model"]], "data")) {
+    o.data <- obj[["model"]][["data"]]
+  }
+  if (inherits(o.data, "mids")) {
+    o.data <- .mids_complete(o.data)
+  }
+
+  .d <- .x2base_data(..., .datalist = list(o.data))
+  data <- .d[["data"]]
+  imp <- .d[["imp"]]
+  
+  #Process treat.list
+  treat.list <- process_treat.list(...get("treat.list"), data)
+  
+  treat.list <- ...get("treat.list")
+  if (is_null(treat.list)) {
+    formula.list <- ...get("formula.list")
+    if (is_not_null(formula.list) && all_apply(formula.list, rlang::is_formula, lhs = TRUE)) {
+      treat.list <- make_list(length(formula.list))
+      
+      for (i in seq_along(formula.list)) {
+        treat.list[[i]] <- get_treat_from_formula(formula.list[[i]], data = data %or% o.data)
+        names(treat.list)[i] <- .attr(treat.list[[i]], "treat.name")
+      }
+    }
+    else if (is_not_null(obj[["treat.list"]])) {
+      treat.list <- obj[["treat.list"]]
+    }
+    else {
+      formula.list.obj <- obj[["formula.list.obj"]]
+      
+      if (is_not_null(formula.list.obj) && all_apply(formula.list.obj, rlang::is_formula, lhs = TRUE)) {
+        treat.list <- make_list(length(formula.list.obj))
+        
+        for (i in seq_along(formula.list.obj)) {
+          treat.list[[i]] <- get_treat_from_formula(formula.list.obj[[i]], data = data %or% o.data)
+          names(treat.list)[i] <- .attr(treat.list[[i]], "treat.name")
+        }
+      }
+    }
+  }
+  treat.list <- process_treat.list(treat.list, data, o.data)
+  
+  #Process covs.list
+  covs.list <- ...get("covs.list")
+  if (is_null(covs.list)) {
+    formula.list <- ...get("formula.list")
+    if (is_not_null(formula.list) && all_apply(formula.list, rlang::is_formula)) {
+      covs.list <- make_list(length(formula.list))
+      
+      for (i in seq_along(formula.list)) {
+        covs.list[[i]] <- get_covs_from_formula(formula.list[[i]], data = data %or% o.data)
+      }
+    }
+    else if (is_not_null(obj[["covs.list"]])) {
+      covs.list <- obj[["covs.list"]]
+    }
+    else {
+      formula.list.obj <- obj[["formula.list.obj"]]
+      
+      if (is_not_null(formula.list.obj) && all_apply(formula.list.obj, rlang::is_formula)) {
+        covs.list <- make_list(length(formula.list.obj))
+        
+        for (i in seq_along(formula.list.obj)) {
+          covs.list[[i]] <- get_covs_from_formula(formula.list.obj[[i]], data = data %or% o.data)
+        }
+      }
+    }
+  }
+  
+  if (is_null(covs.list)) {
+    arg::err("{.arg covs.list} must be specified")
+  }
+  
+  if (!is.list(covs.list) || is.data.frame(covs.list)) {
+    arg::err("{.arg covs.list} must be a list of covariates for which balance is to be assessed at each time point")
+  }
+  
+  if (!all_apply(covs.list, is_mat_like)) {
+    arg::err("each item in {.arg covs.list} must be a data frame")
+  }
+  
+  if (any_apply(covs.list, function(z) is_null(.attr(z, "co.names")))) {
+    covs.list <- lapply(covs.list, function(z) get_covs_from_formula(data = z))
+  }
+  
+  if (length(treat.list) != length(covs.list)) {
+    arg::err("{.arg treat.list} must be a list of treatment statuses at each time point")
+  }
+  
+  #Get estimand
+  estimand <- "ATE"
+  
+  #Get method
+  specified <- setNames(rep.int(FALSE, 1L), "weights")
+  
+  for (i in names(specified)) {
+    specified[i] <- is_not_null(...get(i, obj[[i]]))
+  }
+  
+  .using <- character()
+  
+  method <- ...get("method")
+  if (is_null(method)) {
+    method <- if (specified["weights"]) "weighting" else "matching"
+    if (any(specified)) {
+      .using <- names(specified)[specified][1L]
+    }
+  }
+  else {
+    specified.method <- arg::match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+    
+    method <- if (specified["weights"]) "weighting" else "matching"
+    
+    if (any(specified)) {
+      .using <- names(specified)[specified][1L]
+    }
+    
+    if (any(specified.method == "subclassification")) {
+      if (specified["weights"]) {
+        arg::wrn("only weighting is allowed with multiple treatment time points. Assuming weighting instead")
+      }
+      else {
+        arg::wrn("only weighting is allowed with multiple treatment time points. Providing unadjusted data only")
+      }
+    }
+  }
+  
+  #Process addl.list 
+  addl.list <- process_addl.list(...get("addl.list", ...get("addl")),
+                                 datalist = list(data, o.data),
+                                 covs.list = covs.list)
+  
+  #Process distance
+  #A distance supplied in the input object is stored in `obj[["distance"]]`,
+  #whatever name it was given (`distance.list` is among the accepted aliases), so
+  #that is the component to fall back on.
+  distance.list <- process_distance.list(...get("distance.list", ...get("distance", obj[["distance"]])),
+                                         datalist = list(data, o.data),
+                                         covs.list = covs.list)
+  
+  #Reject arguments that do not apply
+  .reject_args(c("focal", "subclass", "match.strata"), "longitudinal treatments", ...)
+  
+  #Process weights
+  if ("weights" %in% .using) {
+    weights <- process_weights(obj, list(...), treat.list[[1L]], covs.list[[1L]],
+                               method, addl.data = list(data, o.data))
+    method <- .attr(weights, "method")
+  }
+  
+  #Process s.weights
+  s.weights <- process_s.weights(...get("s.weights", obj[["s.weights"]]),
+                                 data, o.data)
+  
+  #Process cluster
+  cluster <- process_cluster(...get("cluster"), data, o.data)
+  .cluster_check(cluster, treat.list)
+  
+  #Process subset
+  subset <- process_subset(...get("subset"), min(lengths(treat.list)))
+  
+  #Process discarded
+  
+  #Process output
+  .finish_X(list(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("weights"),
+                 lists = c("covs.list", "treat.list", "addl.list", "distance.list")),
+            ...,
+            .msm = TRUE)
 }
 
 .x2base_default_point <- function(obj, ...) {
@@ -2879,234 +2618,8 @@ x2base.default <- function(x, ...) {
   #Process discarded
   discarded <- ...get("discarded", obj[["discarded"]])
   
-  #Process length
-  length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("covs", "weights", "distance", "addl"),
-                     imp = imp)
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs) || anyNA(addl)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  
   #Process output
-  X <- initialize_X()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names)
-}
-
-.x2base_default_msm <- function(obj, ...) {
-  #Process data and get imp
-  o.data <- obj[["data"]]
-  if (is_null(o.data) && is_not_null(obj[["model"]]) && utils::hasName(obj[["model"]], "data")) {
-    o.data <- obj[["model"]][["data"]]
-  }
-  if (inherits(o.data, "mids")) {
-    o.data <- .mids_complete(o.data)
-  }
-
-  .d <- .x2base_data(..., .datalist = list(o.data))
-  data <- .d[["data"]]
-  imp <- .d[["imp"]]
-  
-  #Process treat.list
-  treat.list <- process_treat.list(...get("treat.list"), data)
-  
-  treat.list <- ...get("treat.list")
-  if (is_null(treat.list)) {
-    formula.list <- ...get("formula.list")
-    if (is_not_null(formula.list) && all_apply(formula.list, rlang::is_formula, lhs = TRUE)) {
-      treat.list <- make_list(length(formula.list))
-      
-      for (i in seq_along(formula.list)) {
-        treat.list[[i]] <- get_treat_from_formula(formula.list[[i]], data = data %or% o.data)
-        names(treat.list)[i] <- .attr(treat.list[[i]], "treat.name")
-      }
-    }
-    else if (is_not_null(obj[["treat.list"]])) {
-      treat.list <- obj[["treat.list"]]
-    }
-    else {
-      formula.list.obj <- obj[["formula.list.obj"]]
-      
-      if (is_not_null(formula.list.obj) && all_apply(formula.list.obj, rlang::is_formula, lhs = TRUE)) {
-        treat.list <- make_list(length(formula.list.obj))
-        
-        for (i in seq_along(formula.list.obj)) {
-          treat.list[[i]] <- get_treat_from_formula(formula.list.obj[[i]], data = data %or% o.data)
-          names(treat.list)[i] <- .attr(treat.list[[i]], "treat.name")
-        }
-      }
-    }
-  }
-  treat.list <- process_treat.list(treat.list, data, o.data)
-  
-  #Process covs.list
-  covs.list <- ...get("covs.list")
-  if (is_null(covs.list)) {
-    formula.list <- ...get("formula.list")
-    if (is_not_null(formula.list) && all_apply(formula.list, rlang::is_formula)) {
-      covs.list <- make_list(length(formula.list))
-      
-      for (i in seq_along(formula.list)) {
-        covs.list[[i]] <- get_covs_from_formula(formula.list[[i]], data = data %or% o.data)
-      }
-    }
-    else if (is_not_null(obj[["covs.list"]])) {
-      covs.list <- obj[["covs.list"]]
-    }
-    else {
-      formula.list.obj <- obj[["formula.list.obj"]]
-      
-      if (is_not_null(formula.list.obj) && all_apply(formula.list.obj, rlang::is_formula)) {
-        covs.list <- make_list(length(formula.list.obj))
-        
-        for (i in seq_along(formula.list.obj)) {
-          covs.list[[i]] <- get_covs_from_formula(formula.list.obj[[i]], data = data %or% o.data)
-        }
-      }
-    }
-  }
-  
-  if (is_null(covs.list)) {
-    arg::err("{.arg covs.list} must be specified")
-  }
-  
-  if (!is.list(covs.list) || is.data.frame(covs.list)) {
-    arg::err("{.arg covs.list} must be a list of covariates for which balance is to be assessed at each time point")
-  }
-  
-  if (!all_apply(covs.list, is_mat_like)) {
-    arg::err("each item in {.arg covs.list} must be a data frame")
-  }
-  
-  if (any_apply(covs.list, function(z) is_null(.attr(z, "co.names")))) {
-    covs.list <- lapply(covs.list, function(z) get_covs_from_formula(data = z))
-  }
-  
-  if (length(treat.list) != length(covs.list)) {
-    arg::err("{.arg treat.list} must be a list of treatment statuses at each time point")
-  }
-  
-  #Get estimand
-  estimand <- "ATE"
-  
-  #Get method
-  specified <- setNames(rep.int(FALSE, 1L), "weights")
-  
-  for (i in names(specified)) {
-    specified[i] <- is_not_null(...get(i, obj[[i]]))
-  }
-  
-  .using <- character()
-  
-  method <- ...get("method")
-  if (is_null(method)) {
-    method <- if (specified["weights"]) "weighting" else "matching"
-    if (any(specified)) {
-      .using <- names(specified)[specified][1L]
-    }
-  }
-  else {
-    specified.method <- arg::match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
-    
-    method <- if (specified["weights"]) "weighting" else "matching"
-    
-    if (any(specified)) {
-      .using <- names(specified)[specified][1L]
-    }
-    
-    if (any(specified.method == "subclassification")) {
-      if (specified["weights"]) {
-        arg::wrn("only weighting is allowed with multiple treatment time points. Assuming weighting instead")
-      }
-      else {
-        arg::wrn("only weighting is allowed with multiple treatment time points. Providing unadjusted data only")
-      }
-    }
-  }
-  
-  #Process addl.list 
-  addl.list <- process_addl.list(...get("addl.list", ...get("addl")),
-                                 datalist = list(data, o.data),
-                                 covs.list = covs.list)
-  
-  #Process distance
-  #A distance supplied in the input object is stored in `obj[["distance"]]`,
-  #whatever name it was given (`distance.list` is among the accepted aliases), so
-  #that is the component to fall back on.
-  distance.list <- process_distance.list(...get("distance.list", ...get("distance", obj[["distance"]])),
-                                         datalist = list(data, o.data),
-                                         covs.list = covs.list)
-  
-  #Reject arguments that do not apply
-  .reject_args(c("focal", "subclass", "match.strata"), "longitudinal treatments", ...)
-  
-  #Process weights
-  if ("weights" %in% .using) {
-    weights <- process_weights(obj, list(...), treat.list[[1L]], covs.list[[1L]],
-                               method, addl.data = list(data, o.data))
-    method <- .attr(weights, "method")
-  }
-  
-  #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", obj[["s.weights"]]),
-                                 data, o.data)
-  
-  #Process cluster
-  cluster <- process_cluster(...get("cluster"), data, o.data)
-  .cluster_check(cluster, treat.list)
-  
-  #Process subset
-  subset <- process_subset(...get("subset"), min(lengths(treat.list)))
-  
-  #Process discarded
-  
-  #Process length
-  length_imp_process(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
-                     data.frames = c("weights"),
-                     lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
-                     imp = imp)
-  
-  #Process stats and thresholds
-  .stats <- process_stats_and_thresholds(treat.list, ...)
-  stats <- .stats[["stats"]]
-  thresholds <- .stats[["thresholds"]]
-  s.d.denom <- .stats[["s.d.denom"]]
-  
-  #Missing values warning
-  if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-    arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
-  }
-  
-  #Get call
-  call <- NULL
-  
-  #Process output
-  X <- initialize_X_msm()
-  X.names <- names(X)
-  
-  for (i in X.names) {
-    X[[i]] <- get0(i, inherits = FALSE)
-  }
-  
-  X <- subset_X(X, subset)
-  
-  setNames(X[X.names], X.names) |>
-    set_class("msm")
+  .finish_X(list(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                 data.frames = c("covs", "weights", "distance", "addl")),
+            ...)
 }
