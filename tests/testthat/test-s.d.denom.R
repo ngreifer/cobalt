@@ -314,3 +314,179 @@ test_that("an unrecognized `estimand` warns instead of silently becoming ATE", {
     expect_no_warning(col_w_smd(fx$covs[c("age", "educ")], treat = fx$treat,
                                 s.d.denom = "pooled", std = TRUE))
 })
+
+# The tests above exercise `s.d.denom` through `bal.tab()`. These call
+# `.get_s.d.denom()` directly, one test per branch, because it is the function that
+# decides the standardization factor and the branch that produced a given answer is
+# not otherwise observable. Written before the function was restructured, so they pin
+# the behaviour rather than describe the implementation.
+
+sdd <- function(...) cobalt:::.get_s.d.denom(...)
+
+t_bin <- function() cobalt:::process_treat(lalonde$treat)
+t_multi <- function() cobalt:::process_treat(lalonde$race)
+
+#Weights whose constant group identifies the estimand: an ATT design leaves the
+#treated at 1, an ATC design leaves the control at 1, an ATE design varies both.
+w_att <- function() ifelse(lalonde$treat == 1, 1, seq_len(nrow(lalonde)) / nrow(lalonde))
+w_atc <- function() ifelse(lalonde$treat == 0, 1, seq_len(nrow(lalonde)) / nrow(lalonde))
+w_ate <- function() seq_len(nrow(lalonde)) / nrow(lalonde)
+
+test_that(".get_s.d.denom() honours an explicit `s.d.denom`", {
+  tb <- t_bin()
+
+  #The four denominators that need no treatment information.
+  for (d in c("pooled", "all", "weighted", "hedges")) {
+    expect_identical(as.vector(sdd(d, treat = tb, quietly = TRUE)), d, info = d)
+  }
+
+  #`treated`/`control` are resolved to the treatment's own values.
+  expect_identical(as.vector(sdd("treated", treat = tb, quietly = TRUE)), "1")
+  expect_identical(as.vector(sdd("control", treat = tb, quietly = TRUE)), "0")
+
+  #A treatment value may be named directly.
+  expect_identical(as.vector(sdd("1", treat = tb, quietly = TRUE)), "1")
+
+  #`focal` is only allowable when a focal group was supplied, and resolves to it.
+  expect_identical(as.vector(sdd("focal", treat = tb, focal = "1", quietly = TRUE)), "1")
+  expect_err(sdd("focal", treat = tb, quietly = TRUE), "`s.d.denom` should be one of")
+
+  expect_err(sdd("bogus", treat = tb, quietly = TRUE), "`s.d.denom` should be one of")
+
+  #The result is marked as checked, and a checked value is returned untouched. This is
+  #what stops a wrapper's denominator from being re-derived by each of its children.
+  out <- sdd("hedges", treat = tb, quietly = TRUE)
+  expect_true(isTRUE(attr(out, "checked")))
+  expect_identical(sdd(out, treat = t_multi(), quietly = TRUE), out)
+})
+
+test_that(".get_s.d.denom() maps `estimand` to a denominator", {
+  tb <- t_bin()
+
+  expect_identical(as.vector(sdd(estimand = "ATT", treat = tb, quietly = TRUE)), "1")
+  expect_identical(as.vector(sdd(estimand = "ATC", treat = tb, quietly = TRUE)), "0")
+  expect_identical(as.vector(sdd(estimand = "ATE", treat = tb, quietly = TRUE)), "pooled")
+  expect_identical(as.vector(sdd(estimand = "ATO", treat = tb, quietly = TRUE)), "weighted")
+  expect_identical(as.vector(sdd(estimand = "ATM", treat = tb, quietly = TRUE)), "weighted")
+
+  #An ATT with a multi-category treatment has no "treated" group, so the focal group
+  #decides instead -- and without one it falls through to the weights.
+  expect_identical(as.vector(sdd(estimand = "ATT", treat = t_multi(), focal = "black",
+                                 quietly = TRUE)),
+                   "black")
+  expect_identical(as.vector(sdd(estimand = "ATT", treat = t_multi(), quietly = TRUE)),
+                   "pooled")
+
+  #An unrecognized estimand warns and is ignored rather than silently reading as ATE.
+  expect_wrn(sdd(estimand = "ATTT", treat = tb),
+             '`estimand` should be "ATT", "ATC", "ATE", "ATO", or "ATM"; ignoring it')
+  expect_identical(as.vector(sdd(estimand = "ATTT", treat = tb, quietly = TRUE)), "pooled")
+
+  #`s.d.denom` wins over `estimand`.
+  expect_identical(as.vector(sdd("hedges", estimand = "ATT", treat = tb, quietly = TRUE)),
+                   "hedges")
+})
+
+test_that(".get_s.d.denom() infers a denominator when nothing is specified", {
+  tb <- t_bin()
+
+  #No weights and no subclasses: nothing to infer from.
+  expect_identical(as.vector(sdd(treat = tb, quietly = TRUE)), "pooled")
+
+  #A focal group is used when there is at most one set of weights.
+  expect_identical(as.vector(sdd(treat = tb, focal = "1", quietly = TRUE)), "1")
+
+  #Otherwise the weights are read: the group left unweighted is the denominator.
+  expect_identical(as.vector(sdd(treat = tb, weights = data.frame(Adj = w_att()),
+                                 quietly = TRUE)),
+                   "1")
+  expect_identical(as.vector(sdd(treat = tb, weights = data.frame(Adj = w_atc()),
+                                 quietly = TRUE)),
+                   "0")
+  expect_identical(as.vector(sdd(treat = tb, weights = data.frame(Adj = w_ate()),
+                                 quietly = TRUE)),
+                   "pooled")
+
+  #Each set of weights is read separately.
+  expect_identical(as.vector(sdd(treat = tb,
+                                 weights = data.frame(A = w_att(), B = w_atc()),
+                                 quietly = TRUE)),
+                   c("1", "0"))
+
+  #With several sets of weights a focal group is not enough; the weights decide.
+  expect_identical(as.vector(sdd(treat = tb, focal = "1",
+                                 weights = data.frame(A = w_ate(), B = w_ate()),
+                                 quietly = TRUE)),
+                   c("pooled", "pooled"))
+
+  #Subclasses of equal size favour no group.
+  expect_identical(as.vector(sdd(treat = tb,
+                                 subclass = factor(rep(1:4, length.out = nrow(lalonde))),
+                                 quietly = TRUE)),
+                   "pooled")
+})
+
+test_that(".get_s.d.denom() recycles and names per set of weights", {
+  tb <- t_bin()
+  w2 <- data.frame(W1 = w_ate(), W2 = w_ate())
+
+  #One value is used for every set of weights, and the result takes their names.
+  out <- sdd("pooled", treat = tb, weights = w2, quietly = TRUE)
+  expect_identical(as.vector(out), c("pooled", "pooled"))
+  expect_named(out, c("W1", "W2"))
+
+  #One value per set of weights is kept as given.
+  expect_identical(as.vector(sdd(c("pooled", "all"), treat = tb, weights = w2,
+                                 quietly = TRUE)),
+                   c("pooled", "all"))
+  expect_identical(as.vector(sdd(estimand = c("ATT", "ATE"), treat = tb, weights = w2,
+                                 quietly = TRUE)),
+                   c("1", "pooled"))
+
+  #Any other length is an error, and `s.d.denom` and `estimand` say so separately.
+  expect_err(sdd(c("pooled", "all"), treat = tb, weights = data.frame(Adj = w_ate()),
+                 quietly = TRUE),
+             "`s.d.denom` must have length 1 or equal to the number of valid sets of weights, which is 1")
+  expect_err(sdd(estimand = c("ATT", "ATE"), treat = tb,
+                 weights = data.frame(Adj = w_ate()), quietly = TRUE),
+             "`estimand` must have length 1 or equal to the number of valid sets of weights, which is 1")
+})
+
+test_that(".get_s.d.denom() reports what it assumed", {
+  tb <- t_bin()
+
+  #An inferred denominator is announced, but only when it is not a treatment group:
+  #reading "treated" off ATT weights is unambiguous, guessing "pooled" is not.
+  expect_msg(sdd(treat = tb), 'Note: `s.d.denom` not specified; assuming "pooled".')
+  expect_no_message(sdd(treat = tb, weights = data.frame(Adj = w_att())))
+
+  #With several sets of weights the note names each one.
+  expect_msg(sdd(treat = tb, weights = data.frame(ATT = w_att(), ATE = w_ate())),
+             'Note: `s.d.denom` not specified; assuming "treated" for `ATT` and "pooled" for `ATE`.')
+
+  #An explicitly given denominator is never announced.
+  expect_no_message(sdd("pooled", treat = tb))
+  expect_no_message(sdd(estimand = "ATE", treat = tb))
+
+  #`weighted` needs weights to mean anything; without them it is the same as `all`,
+  #and the note says so.
+  expect_msg(sdd("weighted", treat = tb),
+             'Note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all".')
+  expect_no_message(sdd("weighted", treat = tb, weights = data.frame(Adj = w_ate())))
+
+  #`quietly` suppresses all of it.
+  expect_no_message(sdd(treat = tb, quietly = TRUE))
+  expect_no_warning(sdd(estimand = "ATTT", treat = tb, quietly = TRUE))
+})
+
+test_that('"weighted" without weights computes the same factor as "all"', {
+  # This is why the note above can claim it is "setting to \"all\"" without the
+  # returned value changing: `.compute_s.d.denom()` reaches the same number either way.
+  m <- as.matrix(lalonde[c("age", "educ")])
+  tb <- t_bin()
+
+  expect_equal(cobalt:::.compute_s.d.denom(m, tb, s.d.denom = "weighted",
+                                           bin.vars = c(FALSE, FALSE)),
+               cobalt:::.compute_s.d.denom(m, tb, s.d.denom = "all",
+                                           bin.vars = c(FALSE, FALSE)))
+})
