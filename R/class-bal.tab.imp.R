@@ -52,7 +52,7 @@ base.bal.tab.imp <- function(X,
   
   if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
   
-  imp <- factor(X$imp)
+  imp <- factor(X[["imp"]])
   
   if (missing(which.imp)) {
     which.imp <- NA
@@ -69,13 +69,13 @@ base.bal.tab.imp <- function(X,
   agg.fun <- arg::match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
   prep <- .bal.tab_prepare(X, A)
-  X <- prep$X
-  A <- prep$A
+  X <- prep[["X"]]
+  A <- prep[["A"]]
 
   #A wrapper keeps the user's `s.d.denom` when nothing is standardized, so
   #that each per-stratum child does not re-resolve it independently.
-  X$s.d.denom <- .resolve_s.d.denom(X, prep$var_types, A$continuous, A$binary) %or%
-    X$s.d.denom
+  X[["s.d.denom"]] <- .resolve_s.d.denom(X, prep[["var_types"]], A[["continuous"]], A[["binary"]]) %or%
+    X[["s.d.denom"]]
   
   #Setup output object
   out.names <- c("Imputation.Balance", 
@@ -93,7 +93,7 @@ base.bal.tab.imp <- function(X,
       X_i <- subset_X(X, imp == i) |>
         .assign_X_class()
 
-      X_i$call <- NULL
+      X_i[["call"]] <- NULL
 
       do.call("base.bal.tab", c(list(X_i), A[setdiff(names(A), names(X))]), quote = TRUE)
     },
@@ -106,7 +106,7 @@ base.bal.tab.imp <- function(X,
   
   #Create summary of lists
   
-  if (imp.summary || !A$quick) {
+  if (imp.summary || !A[["quick"]]) {
     summ <- .bal.tab_summarize(out[["Imputation.Balance"]], "Balance.Across.Imputations",
                                agg.funs = agg.fun,
                                obs.fun = function(cl) {
@@ -119,7 +119,7 @@ base.bal.tab.imp <- function(X,
     out[names(summ)] <- summ
   }
   
-  out[["call"]] <- X$call
+  out[["call"]] <- X[["call"]]
   attr(out, "print.options") <- c(.attr(out[["Imputation.Balance"]][[1L]], "print.options"),
                                   list(which.imp = which.imp,
                                        imp.summary = imp.summary,

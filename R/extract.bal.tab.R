@@ -118,7 +118,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
   A[c("row.names", "optional", "wide")] <- NULL
 
   p.ops <- .resolve_p.ops(x, A)
-  thresholds <- setdiff(names(p.ops$thresholds), p.ops$drop.thresholds)
+  thresholds <- setdiff(names(p.ops[["thresholds"]]), p.ops[["drop.thresholds"]])
 
   leaves <- .bal.tab_leaves(x)
 
@@ -151,7 +151,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
 
 #The rows `print()` would show, given `imbalanced.only`.
 .keep_bal_rows <- function(tab, p.ops) {
-  if (!isTRUE(p.ops$imbalanced.only)) {
+  if (!isTRUE(p.ops[["imbalanced.only"]])) {
     return(rep.int(TRUE, NROW(tab)))
   }
 
@@ -200,7 +200,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
                },
                threshold.value = {
                  if (is.na(s)) NA_real_
-                 else as.numeric(p.ops$thresholds[[s]] %or% NA_real_)
+                 else as.numeric(p.ops[["thresholds"]][[s]] %or% NA_real_)
                },
                stringsAsFactors = FALSE)
   })
@@ -261,10 +261,10 @@ format.bal.tab <- function(x, ..., digits = max(3L, getOption("digits") - 3L),
 
     #A longitudinal object holds one table per time point.
     if (!is.data.frame(nn)) {
-      return(lapply(nn, .format_observations, digits = p.ops$digits %or% digits))
+      return(lapply(nn, .format_observations, digits = p.ops[["digits"]] %or% digits))
     }
 
-    return(.format_observations(nn, p.ops$digits %or% digits))
+    return(.format_observations(nn, p.ops[["digits"]] %or% digits))
   }
 
   #The balance table `print()` shows at the top level: the summary across segments
@@ -284,42 +284,42 @@ format.bal.tab <- function(x, ..., digits = max(3L, getOption("digits") - 3L),
 
     num <- vapply(d, is.numeric, logical(1L))
 
-    return(cbind(d[!num], round_df_char(d[num], p.ops$digits %or% digits,
+    return(cbind(d[!num], round_df_char(d[num], p.ops[["digits"]] %or% digits,
                                         na_vals = ".")))
   }
 
   keep.col <- .format_keep_col(x, tab, p.ops)
   keep.row <- .keep_bal_rows(tab, p.ops)
 
-  round_df_char(tab[keep.row, keep.col, drop = FALSE], p.ops$digits %or% digits,
+  round_df_char(tab[keep.row, keep.col, drop = FALSE], p.ops[["digits"]] %or% digits,
                 na_vals = ".")
 }
 
 #`print()` chooses the summary table's columns using the aggregating functions the
 #object carries, which differ by shape.
 .format_keep_col <- function(x, tab, p.ops) {
-  thresholds <- setdiff(names(p.ops$thresholds), p.ops$drop.thresholds)
+  thresholds <- setdiff(names(p.ops[["thresholds"]]), p.ops[["drop.thresholds"]])
 
   spec <- {
     if (inherits(x, "bal.tab.cluster"))
-      .p.ops_col_spec(p.ops, p.ops$computed.cluster.funs, p.ops$requested.cluster.funs)
+      .p.ops_col_spec(p.ops, p.ops[["computed.cluster.funs"]], p.ops[["requested.cluster.funs"]])
     else if (inherits(x, "bal.tab.imp"))
-      .p.ops_col_spec(p.ops, p.ops$computed.imp.funs, p.ops$requested.imp.funs)
+      .p.ops_col_spec(p.ops, p.ops[["computed.imp.funs"]], p.ops[["requested.imp.funs"]])
     else if (inherits(x, "bal.tab.multi"))
       .p.ops_col_spec(p.ops, "max")
     else if (inherits(x, "bal.tab.msm"))
       .p.ops_col_spec(p.ops, "max", include.times = TRUE)
     else if (inherits(x, "bal.tab.subclass"))
       .p.ops_col_spec(p.ops, samples = c("Un", "Adj"),
-                      compute = if (isTRUE(p.ops$quick)) NULL
+                      compute = if (isTRUE(p.ops[["quick"]])) NULL
                                 else c("means", "sds",
-                                       intersect(all_STATS(p.ops$type), p.ops$stats)))
+                                       intersect(all_STATS(p.ops[["type"]]), p.ops[["stats"]])))
     else .p.ops_col_spec(p.ops)
   }
 
   agg.funs <- {
-    if (inherits(x, "bal.tab.cluster")) p.ops$cluster.fun
-    else if (inherits(x, "bal.tab.imp")) p.ops$imp.fun
+    if (inherits(x, "bal.tab.cluster")) p.ops[["cluster.fun"]]
+    else if (inherits(x, "bal.tab.imp")) p.ops[["imp.fun"]]
     else if (inherits(x, c("bal.tab.multi", "bal.tab.msm"))) "max"
     else NULL
   }

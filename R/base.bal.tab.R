@@ -35,31 +35,31 @@ base.bal.tab.base <- function(X,
                               ...) {
   #Preparations
   A <- clear_null(list(...))
-  A$subset <- NULL
+  A[["subset"]] <- NULL
   
-  if (type == "bin" && get.treat.type(X$treat) != "binary") {
+  if (type == "bin" && get.treat.type(X[["treat"]]) != "binary") {
     arg::err("the treatment must be a binary variable")
   }
   
-  std.defaults <- .get_std_defaults(X$treat, continuous, binary)
+  std.defaults <- .get_std_defaults(X[["treat"]], continuous, binary)
   continuous <- std.defaults$continuous
   binary <- std.defaults$binary
   
-  if (is_null(X$weights)) {
+  if (is_null(X[["weights"]])) {
     un <- TRUE
     no.adj <- TRUE
   }
   else {
     no.adj <- FALSE
     
-    if (type == "bin") check_if_zero_weights(X$weights, X$treat)
-    else if (type == "cont") check_if_zero_weights(X$weights)
+    if (type == "bin") check_if_zero_weights(X[["weights"]], X[["treat"]])
+    else if (type == "cont") check_if_zero_weights(X[["weights"]])
     
-    if (ncol(X$weights) == 1L) names(X$weights) <- "Adj"
+    if (ncol(X[["weights"]]) == 1L) names(X[["weights"]]) <- "Adj"
   }
   
-  if (is_null(X$s.weights)) {
-    X$s.weights <- rep_with(1, X$treat)
+  if (is_null(X[["s.weights"]])) {
+    X[["s.weights"]] <- rep_with(1, X[["treat"]])
   }
   
   disp <- process_disp(disp, ...)
@@ -74,18 +74,18 @@ base.bal.tab.base <- function(X,
   var_types <- .attr(C, "var_types")
   
   #The leaf clears `s.d.denom` when nothing is standardized; a wrapper keeps it.
-  X$s.d.denom <- .resolve_s.d.denom(X, var_types, continuous, binary)
+  X[["s.d.denom"]] <- .resolve_s.d.denom(X, var_types, continuous, binary)
   
   out[["Balance"]] <- do.call("balance_table",
-                              c(list(C, type = type, weights = X$weights, treat = X$treat, 
-                                     s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
+                              c(list(C, type = type, weights = X[["weights"]], treat = X[["treat"]], 
+                                     s.d.denom = X[["s.d.denom"]], s.weights = X[["s.weights"]], 
                                      continuous = continuous, binary = binary, 
-                                     thresholds = X$thresholds,
+                                     thresholds = X[["thresholds"]],
                                      un = un, disp = disp, 
-                                     stats = X$stats, abs = abs, 
+                                     stats = X[["stats"]], abs = abs, 
                                      no.adj = no.adj, quick = quick, 
                                      var_types = var_types,
-                                     s.d.denom.list = X$s.d.denom.list),
+                                     s.d.denom.list = X[["s.d.denom.list"]]),
                                 A),
                               quote = TRUE)
   
@@ -99,17 +99,17 @@ base.bal.tab.base <- function(X,
                              thresholds = thresholds,
                              no.adj = no.adj,
                              balance.table = out[["Balance"]],
-                             weight.names = names(X$weights)))
+                             weight.names = names(X[["weights"]])))
   
-  out[["Observations"]] <- samplesize(treat = X$treat, type = type, weights = X$weights,
-                                      s.weights = X$s.weights, method = X$method,
-                                      discarded = X$discarded)
+  out[["Observations"]] <- samplesize(treat = X[["treat"]], type = type, weights = X[["weights"]],
+                                      s.weights = X[["s.weights"]], method = X[["method"]],
+                                      discarded = X[["discarded"]])
   
-  out[["call"]] <- X$call
+  out[["call"]] <- X[["call"]]
   attr(out, "print.options") <- list(thresholds = thresholds,
                                      imbalanced.only = imbalanced.only,
                                      un = un,
-                                     stats = X$stats,
+                                     stats = X[["stats"]],
                                      compute = compute,
                                      disp = disp,
                                      disp.adj = !no.adj,
@@ -119,9 +119,9 @@ base.bal.tab.base <- function(X,
                                      continuous = continuous,
                                      binary = binary,
                                      quick = quick,
-                                     nweights = if (no.adj) 0L else ncol(X$weights),
-                                     weight.names = names(X$weights),
-                                     treat_names = treat_names(X$treat),
+                                     nweights = if (no.adj) 0L else ncol(X[["weights"]]),
+                                     weight.names = names(X[["weights"]]),
+                                     treat_names = treat_names(X[["treat"]]),
                                      type = type,
                                      co.names = co.names)
   

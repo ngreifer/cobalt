@@ -83,13 +83,13 @@
 #decided whether that table has threshold columns at all.
 .p.ops_col_spec <- function(p.ops, agg.funs = NULL, requested.agg.funs = agg.funs,
                             samples = NULL, include.times = FALSE, compute = NULL) {
-  no.adj <- !isTRUE(p.ops$disp.adj)
+  no.adj <- !isTRUE(p.ops[["disp.adj"]])
   
   #Subclassification is the adjustment, so a subclassified object records no weight
   #names but does have an adjusted sample.
-  wn <- if (no.adj) "Adj" else p.ops$weight.names %or% "Adj"
+  wn <- if (no.adj) "Adj" else p.ops[["weight.names"]] %or% "Adj"
   
-  .bal_tab_col_spec(p.ops$type, compute %or% p.ops$compute, p.ops$thresholds,
+  .bal_tab_col_spec(p.ops[["type"]], compute %or% p.ops[["compute"]], p.ops[["thresholds"]],
                     samples = samples %or% c("Un", wn),
                     quantities = if (is_null(agg.funs)) c("means", "sds") else NULL,
                     agg.funs = agg.funs,
@@ -138,7 +138,7 @@
     
     #Each column belongs to the unadjusted or the adjusted sample, and is displayed
     #only if that sample is.
-    if (!isTRUE(if (spec[["sample"]][i] == "Un") p.ops$un else p.ops$disp.adj)) {
+    if (!isTRUE(if (spec[["sample"]][i] == "Un") p.ops[["un"]] else p.ops[["disp.adj"]])) {
       return(FALSE)
     }
     
@@ -148,11 +148,11 @@
     }
     
     if (quantity == "stat") {
-      return(spec[["stat"]][i] %in% p.ops$disp &&
+      return(spec[["stat"]][i] %in% p.ops[["disp"]] &&
                (is_null(agg.funs) || spec[["agg.fun"]][i] %in% agg.funs))
     }
     
-    quantity %in% p.ops$disp
+    quantity %in% p.ops[["disp"]]
   }, logical(1L), USE.NAMES = FALSE) |>
     setNames(spec[["name"]])
 }

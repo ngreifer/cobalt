@@ -52,9 +52,12 @@ base.bal.tab.cluster <- function(X,
   if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
   if (is_null(A[["abs"]])) A[["abs"]] <- FALSE
   
-  X$cluster <- factor(X$cluster)
+  X[["cluster"]] <- factor(X[["cluster"]])
   
-  .cluster_check(X$cluster, X$treat)
+  #A longitudinal `X` carries `treat.list` rather than `treat`, and `.cluster_check()`
+  #accepts either one treatment or a list of them. This used to read `X$treat`, which
+  #reached the list only by partial matching.
+  .cluster_check(X[["cluster"]], X[["treat"]] %or% X[["treat.list"]])
   
   #Process cluster.summary
   if (missing(which.cluster)) {
@@ -72,29 +75,29 @@ base.bal.tab.cluster <- function(X,
   #With longitudinal treatments, `X` has `covs.list`/`treat.list` rather than
   #`covs`/`treat`, and `base.bal.tab.msm()` derives the covariates, treatment, and
   #`s.d.denom` for each time point itself, so this preparation is skipped.
-  if (is_null(X$covs.list)) {
+  if (is_null(X[["covs.list"]])) {
     prep <- .bal.tab_prepare(X, A)
-    X <- prep$X
-    A <- prep$A
+    X <- prep[["X"]]
+    A <- prep[["A"]]
 
     #A wrapper keeps the user's `s.d.denom` when nothing is standardized, so
     #that each per-stratum child does not re-resolve it independently.
-    X$s.d.denom <- .resolve_s.d.denom(X, prep$var_types, A$continuous, A$binary) %or%
-      X$s.d.denom
+    X[["s.d.denom"]] <- .resolve_s.d.denom(X, prep[["var_types"]], A[["continuous"]], A[["binary"]]) %or%
+      X[["s.d.denom"]]
   }
 
   #Setup output object
   out <- list()
 
   #Get list of bal.tabs for each cluster
-  out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
+  out[["Cluster.Balance"]] <- lapply(levels(X[["cluster"]]), function(cl) {
     #Subsetting is inside `tryCatch()` so that errors it raises (e.g., a cluster
     #in which the treatment takes only one value) are labelled with the cluster.
     tryCatch({
-      X_cl <- subset_X(X, X$cluster == cl) |>
+      X_cl <- subset_X(X, X[["cluster"]] == cl) |>
         .assign_X_class()
 
-      X_cl$call <- NULL
+      X_cl[["call"]] <- NULL
 
       do.call("base.bal.tab", c(list(X_cl), A[setdiff(names(A), names(X_cl))]), quote = TRUE)
     },
@@ -103,15 +106,15 @@ base.bal.tab.cluster <- function(X,
     })
   })
   
-  names(out[["Cluster.Balance"]]) <- levels(X$cluster)
+  names(out[["Cluster.Balance"]]) <- levels(X[["cluster"]])
   
   #Create summary of lists
   
   #A subclassified child has no single `Balance` table to summarize, so it is
   #excluded here as multiply imputed data already is.
-  if ((cluster.summary || !A$quick) && is_null(X$covs.list) &&
-      get.treat.type(X$treat) != "multinomial" && is_null(X$imp) &&
-      is_null(X$subclass)) {
+  if ((cluster.summary || !A[["quick"]]) && is_null(X[["covs.list"]]) &&
+      get.treat.type(X[["treat"]]) != "multinomial" && is_null(X[["imp"]]) &&
+      is_null(X[["subclass"]])) {
     summ <- .bal.tab_summarize(out[["Cluster.Balance"]], "Balance.Across.Clusters",
                                agg.funs = agg.fun,
                                obs.fun = function(cl) {
@@ -123,7 +126,7 @@ base.bal.tab.cluster <- function(X,
   }
   
   
-  out[["call"]] <- X$call
+  out[["call"]] <- X[["call"]]
   
   attr(out, "print.options") <- c(.attr(out[["Cluster.Balance"]][[1L]], "print.options"),
                                   list(which.cluster = which.cluster,

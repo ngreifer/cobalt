@@ -49,11 +49,11 @@ base.bal.tab.msm <- function(X,
   
   if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
   
-  treat.types <- vapply(X$treat.list, get.treat.type, character(1L))
+  treat.types <- vapply(X[["treat.list"]], get.treat.type, character(1L))
   
   if (missing(which.time)) {
     which.time <- {
-      if (all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) NA
+      if (all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X[["imp"]])) NA
       else NULL
     }
   }
@@ -62,37 +62,37 @@ base.bal.tab.msm <- function(X,
     msm.summary <- is_not_null(which.time) &&
       (anyNA(which.time) ||
          !(is.character(which.time) || is.numeric(which.time)) ||
-         (is.numeric(which.time) && !any(which.time %in% seq_along(X$treat.list))) ||
-         (is.character(which.time) && !any(which.time %in% names(X$treat.list))))
+         (is.numeric(which.time) && !any(which.time %in% seq_along(X[["treat.list"]]))) ||
+         (is.character(which.time) && !any(which.time %in% names(X[["treat.list"]]))))
   }
   
   #Setup output object
   out <- list()
   
   #Get list of bal.tabs for each time period
-  out[["Time.Balance"]] <- lapply(seq_along(X$covs.list), function(ti) {
+  out[["Time.Balance"]] <- lapply(seq_along(X[["covs.list"]]), function(ti) {
     X_ti <- X
     
-    X_ti$covs <- X_ti$covs.list[[ti]]
-    X_ti$treat <- X_ti$treat.list[[ti]]
-    X_ti$addl <- X_ti$addl.list[[ti]]
-    X_ti$distance <- X_ti$distance.list[[ti]]
+    X_ti[["covs"]] <- X_ti[["covs.list"]][[ti]]
+    X_ti[["treat"]] <- X_ti[["treat.list"]][[ti]]
+    X_ti[["addl"]] <- X_ti[["addl.list"]][[ti]]
+    X_ti[["distance"]] <- X_ti[["distance.list"]][[ti]]
     
     X_ti[c("covs.list", "treat.list", "addl.list", "distance.list", "call")] <- NULL
     
     X_ti <- .assign_X_class(X_ti)
     
-    X_ti$s.d.denom <- switch(.attr(X_ti, "X.class"), cont = "all", "pooled")
+    X_ti[["s.d.denom"]] <- switch(.attr(X_ti, "X.class"), cont = "all", "pooled")
     
     do.call("base.bal.tab", c(list(X_ti), A[setdiff(names(A), names(X_ti))]), quote = TRUE)
   })
   
   names(out[["Time.Balance"]]) <- {
-    if (length(names(X$treat.list)) == length(X$treat.list)) names(X$treat.list)
-    else seq_along(X$treat.list)
+    if (length(names(X[["treat.list"]])) == length(X[["treat.list"]])) names(X[["treat.list"]])
+    else seq_along(X[["treat.list"]])
   }
   
-  if ((!A$quick || msm.summary) && is_null(X$imp) && all_the_same(treat.types) &&
+  if ((!A[["quick"]] || msm.summary) && is_null(X[["imp"]]) && all_the_same(treat.types) &&
       !any(treat.types == "multinomial")) {
     summ <- .bal.tab_summarize(out[["Time.Balance"]], "Balance.Across.Times",
                                agg.funs = "max",
@@ -102,7 +102,7 @@ base.bal.tab.msm <- function(X,
     out[names(summ)] <- summ
   }
   
-  out[["call"]] <- X$call
+  out[["call"]] <- X[["call"]]
   
   attr(out, "print.options") <- c(.attr(out[["Time.Balance"]][[1L]], "print.options"),
                                   list(which.time = which.time,

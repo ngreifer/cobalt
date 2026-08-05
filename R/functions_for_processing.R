@@ -850,7 +850,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
 .resolve_s.d.denom <- function(X, var_types, continuous, binary) {
   #A multi-category treatment precomputes one denominator per weight set across the
   #whole sample and passes it down as `s.d.denom.list`; that supersedes this.
-  if (is_not_null(X$s.d.denom.list)) {
+  if (is_not_null(X[["s.d.denom.list"]])) {
     return(NULL)
   }
 
@@ -861,16 +861,16 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     return(NULL)
   }
 
-  if (!any(vapply(X$stats, function(s) STATS[[s]]$needs_s.d.denom, logical(1L)))) {
+  if (!any(vapply(X[["stats"]], function(s) STATS[[s]]$needs_s.d.denom, logical(1L)))) {
     return(NULL)
   }
 
-  if (get.treat.type(X$treat) == "continuous") {
-    return(.get_s.d.denom.cont(X$s.d.denom, weights = X$weights, subclass = X$subclass))
+  if (get.treat.type(X[["treat"]]) == "continuous") {
+    return(.get_s.d.denom.cont(X[["s.d.denom"]], weights = X[["weights"]], subclass = X[["subclass"]]))
   }
 
-  .get_s.d.denom(X$s.d.denom, estimand = X$estimand, weights = X$weights,
-                 subclass = X$subclass, treat = X$treat, focal = X$focal)
+  .get_s.d.denom(X[["s.d.denom"]], estimand = X[["estimand"]], weights = X[["weights"]],
+                 subclass = X[["subclass"]], treat = X[["treat"]], focal = X[["focal"]])
 }
 #The verdict string for one statistic column. The threshold value is baked into the
 #label, which is how `.baltal()` recovers it later, and is rounded to three places
@@ -2822,13 +2822,13 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
 #caller: a leaf clears it when nothing is standardized, a wrapper keeps the user's
 #value, and the multi-category wrapper precomputes one denominator per weight set.
 .bal.tab_prepare <- function(X, A) {
-  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
+  X[["covs"]] <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
 
-  std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
-  A$continuous <- std.defaults$continuous
-  A$binary <- std.defaults$binary
+  std.defaults <- .get_std_defaults(X[["treat"]], A[["continuous"]], A[["binary"]])
+  A[["continuous"]] <- std.defaults$continuous
+  A[["binary"]] <- std.defaults$binary
 
-  list(X = X, A = A, var_types = .attr(X$covs, "var_types"))
+  list(X = X, A = A, var_types = .attr(X[["covs"]], "var_types"))
 }
 
 #The tail the four recursing wrappers share: summarize the children's balance tables,
@@ -2851,9 +2851,9 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
     out <- c(out,
              threshold_summary(compute = .attr(balance, "compute"),
                                thresholds = .attr(balance, "thresholds"),
-                               no.adj = !p.ops$disp.adj,
+                               no.adj = !p.ops[["disp.adj"]],
                                balance.table = out[[summary.name]],
-                               weight.names = p.ops$weight.names,
+                               weight.names = p.ops[["weight.names"]],
                                agg.fun = agg.funs))
   }
 
