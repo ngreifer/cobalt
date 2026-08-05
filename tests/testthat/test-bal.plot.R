@@ -121,12 +121,23 @@ test_that("`which` selects the samples shown", {
 test_that("`var.name` resolves split factors and is auto-selected when missing", {
   covs <- covs4()
 
-  #Factors are named by the original variable, not by their dummy columns.
+  #Factors are named by the original variable, not by their dummy columns. Splitting
+  #a factor into dummies is `bal.tab()`'s way of summarizing it one level at a time;
+  #a dummy is not a variable to plot, so its name is rejected and the error says what
+  #to supply instead.
   p <- bal.plot(covs, treat = lalonde$treat, var.name = "race", weights = w_fixed)
   built(p)
   expect_err(bal.plot(covs, treat = lalonde$treat, var.name = "race_black",
                       weights = w_fixed),
+             'it is one level of "race", which is what to supply to `var.name`')
+  expect_err(bal.plot(covs, treat = lalonde$treat, var.name = "nonesuch",
+                      weights = w_fixed),
              "is not the name of an available covariate")
+
+  #The same for a longitudinal treatment, where each time point has its own names.
+  expect_err(bal.plot(list(treat ~ age + race, nodegree ~ age + race + treat),
+                      data = lalonde, var.name = "race_black"),
+             'it is one level of "race", which is what to supply to `var.name`')
 
   #Omitting `var.name` picks the first available covariate, with a message.
   expect_msg(p <- bal.plot(covs, treat = lalonde$treat, weights = w_fixed))

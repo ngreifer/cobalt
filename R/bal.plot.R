@@ -141,9 +141,9 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       X[["var"]] <- X[["covs"]][, var.name]
     }
     else {
-      arg::err("{.val {var.name}} is not the name of an available covariate")
+      .err_no_var.name(var.name, co.names)
     }
-    
+
     if (get.treat.type(X[["treat"]]) != "continuous") {
       X[["treat"]] <- treat_vals(X[["treat"]])[X[["treat"]]]
     }
@@ -211,7 +211,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     
     if (all(lengths(var.list) == 0L)) {
-      arg::err("{.val {var.name}} is not the name of an available covariate")
+      .err_no_var.name(var.name, unlist(co.names.list, recursive = FALSE))
     }
     
     X[["var"]] <- unlist(var.list[appears.in.time])
@@ -1013,6 +1013,29 @@ StatDensity2 <- ggplot2::ggproto("StatDensity2", ggplot2::StatDensity,
                                  }
                                  
 )
+
+#`var.name` names a variable, never a column of a balance table. A factor's dummies
+#exist only so that `bal.tab()` can summarize the factor one level at a time;
+#`bal.plot()` plots the factor itself, so naming a dummy is an error. It is a common
+#enough mistake -- the dummy is right there in the balance table -- to be worth
+#pointing at the variable to supply instead.
+.err_no_var.name <- function(var.name, co.names) {
+  parent <- NULL
+
+  for (x in co.names) {
+    if (identical(paste0(x[["component"]], collapse = ""), var.name) &&
+        "fsep" %in% x[["type"]]) {
+      parent <- x[["component"]][x[["type"]] == "base"][1L]
+      break
+    }
+  }
+
+  if (is_null(parent)) {
+    arg::err("{.val {var.name}} is not the name of an available covariate")
+  }
+
+  arg::err("{.val {var.name}} is not the name of an available covariate; it is one level of {.val {parent}}, which is what to supply to {.arg var.name}")
+}
 
 compute_density2 <- function(x, w, from, to, bw = "nrd0", adjust = 1,
                              kernel = "gaussian", n = 512) {
