@@ -179,7 +179,9 @@ test_that("as.data.frame(wide = TRUE) gives print()'s layout", {
 test_that("format() returns exactly the table print() displays", {
   # The promise of format() is that it is print()'s own table, so it is checked by
   # rendering it and looking for that block in print()'s output.
-  withr::local_options(width = 400)
+  #Wide enough that print() does not wrap the table into several blocks.
+  op <- options(width = 400)
+  on.exit(options(op), add = TRUE)
 
   covs <- covs3()
   t <- lalonde$treat
