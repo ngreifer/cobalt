@@ -96,15 +96,26 @@ gfx <- function(name) {
 
 # ---- the print-argument variants --------------------------------------------
 
-#Six argument sets covering the display logic print() resolves: the `un`/`disp`
-#toggles, row filtering, the call block, and a non-default `digits`.
+#Argument sets covering the display logic print() resolves: the `un`/`disp` toggles,
+#row filtering, the call block, and a non-default `digits`.
+#
+#The last four exist to pin column *selection* specifically, which is otherwise only
+#lightly exercised: turning a statistic off must drop its column and its threshold
+#column, moments must appear in both the unadjusted and adjusted blocks, and naming a
+#single aggregating function must drop the other two from a summary table. An argument
+#that does not apply to a given shape is ignored by `print()`, and one that is invalid
+#for a cell raises a condition that `.capture_all()` records like any other.
 .golden_print_variants <- function() {
   list(default = list(),
        un = list(un = TRUE),
        means_sds = list(disp = c("means", "sds")),
        imbalanced = list(imbalanced.only = TRUE),
        call = list(disp.call = TRUE),
-       digits5 = list(digits = 5L))
+       digits5 = list(digits = 5L),
+       diff_off = list(disp.diff = FALSE),
+       corr_off = list(disp.corr = FALSE),
+       un_means = list(un = TRUE, disp = "means"),
+       one_agg_fun = list(cluster.fun = "max", imp.fun = "max"))
 }
 
 # ---- the grid ---------------------------------------------------------------

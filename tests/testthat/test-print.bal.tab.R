@@ -474,3 +474,46 @@ test_that("print() rewrites the .all and .none shorthands", {
   expect_match(printed(b, which.treat = NULL), "vs.")
   expect_false(grepl("vs.", printed(b, which.treat = NA), fixed = TRUE))
 })
+
+test_that("print() selects columns by name, not by position", {
+  # Both of these failed because the displayed-column index was built positionally
+  # while the table's columns were built somewhere else, so the two could disagree
+  # in length and `[` either errored or silently took the wrong columns.
+  covs <- lalonde[c("age", "educ", "married")]
+
+  # A multi-category treatment with `quick = FALSE`: the pair summary carries fewer
+  # statistic columns than `compute` lists, so the index came out too long.
+  b_m <- bal.tab(covs, treat = lalonde$race, s.d.denom = "pooled",
+                 weights = w_fixed, quick = FALSE)
+  expect_no_error(out <- capture.output(print(b_m)))
+  expect_true(any(grepl("Balance summary across all treatment pairs", out, fixed = TRUE)))
+
+  # Narrowing the aggregating function in print() when bal.tab() computed several:
+  # the threshold column exists only when one was requested, so the index gained a
+  # phantom entry.
+  b_c <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
+                 cluster = cl_idx, cluster.summary = TRUE, un = TRUE,
+                 cluster.fun = c("min", "mean", "max"), thresholds = c(m = .1))
+
+  expect_false(any(grepl("Threshold", names(b_c$Balance.Across.Clusters), fixed = TRUE)))
+
+  expect_no_error(out <- capture.output(print(b_c, cluster.fun = "max")))
+  hdr <- grep("Max.Diff", out, value = TRUE)[1L]
+  expect_match(hdr, "Max.Diff.Un")
+  expect_false(grepl("Min.Diff", hdr, fixed = TRUE))
+  expect_false(grepl("Mean.Diff", hdr, fixed = TRUE))
+
+  # The same for imputations.
+  b_i <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
+                 imp = imp_idx, un = TRUE, imp.fun = c("min", "mean", "max"))
+  expect_no_error(out <- capture.output(print(b_i, imp.fun = "mean")))
+  hdr <- grep("Mean.Diff", out, value = TRUE)[1L]
+  expect_false(grepl("Max.Diff", hdr, fixed = TRUE))
+
+  # Selecting a single function still works when only that one was computed.
+  b_1 <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
+                 cluster = cl_idx, cluster.summary = TRUE, un = TRUE,
+                 cluster.fun = "mean", thresholds = c(m = .1))
+  expect_true("M.Threshold" %in% names(b_1$Balance.Across.Clusters))
+  expect_no_error(capture.output(print(b_1, cluster.fun = "mean")))
+})

@@ -9,6 +9,10 @@
 
 * Fixed a bug in the sample size table for subclassification in which the `Total` entry of the `Discarded` column reported the total number of units rather than the number discarded.
 
+* Fixed a bug in which printing a `bal.tab` object for a multi-category treatment computed with `quick = FALSE` failed with `'names' attribute [7] must be the same length as the vector [3]`.
+
+* Fixed a bug in which narrowing `cluster.fun` or `imp.fun` in `print()` failed with `undefined columns selected` when the original call to `bal.tab()` had requested more than one of them. For example, `bal.tab(..., cluster.fun = c("min", "mean", "max"))` followed by `print(., cluster.fun = "max")` now displays the maximum alone, as documented.
+
 * Fixed a bug in which requesting `cluster.summary = TRUE` with clustered, subclassified data failed with `missing value where TRUE/FALSE needed`. A subclassified cluster has no single balance table to summarize across clusters, so the summary is now omitted, as it already is with multiply imputed data.
 
 * `set.cobalt.options()` now accepts any statistic for `stats`. Previously only `"mean.diffs"` was allowed, even though `getOption("cobalt_stats")` was honoured for all of them, so the option could not be set to anything else.

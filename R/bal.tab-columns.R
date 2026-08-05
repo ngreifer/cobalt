@@ -73,3 +73,60 @@
 .threshold_cols <- function(spec, s) {
   spec[spec[["quantity"]] == "threshold" & spec[["stat"]] == s, , drop = FALSE]
 }
+
+#The columns of a table belonging to a `bal.tab` being printed, derived from its
+#print options. `agg.funs` names the aggregating functions a summary table carries;
+#`requested.agg.funs` is what the original `bal.tab()` call asked for, which is what
+#decided whether that table has threshold columns at all.
+.p.ops_col_spec <- function(p.ops, agg.funs = NULL, requested.agg.funs = agg.funs,
+                            samples = NULL, include.times = FALSE, compute = NULL) {
+  no.adj <- !isTRUE(p.ops$disp.adj)
+
+  #Subclassification is the adjustment, so a subclassified object records no weight
+  #names but does have an adjusted sample.
+  wn <- if (no.adj) "Adj" else p.ops$weight.names %or% "Adj"
+
+  .bal_tab_col_spec(p.ops$type, compute %or% p.ops$compute, p.ops$thresholds,
+                    samples = samples %or% c("Un", wn),
+                    quantities = if (is_null(agg.funs)) c("means", "sds") else NULL,
+                    agg.funs = agg.funs,
+                    threshold.samples = {
+                      if (length(requested.agg.funs) > 1L) character(0L)
+                      else if (no.adj) "Un"
+                      else wn
+                    },
+                    threshold.agg.fun = requested.agg.funs,
+                    include.times = include.times)
+}
+
+#Which of a table's columns to display. Selecting by name rather than by position is
+#what keeps this honest: the display rules and the column layout are decided in
+#different places, and a positional vector silently misaligns when they disagree.
+.keep_bal_cols <- function(spec, p.ops, thresholds, agg.funs = NULL) {
+  vapply(seq_len(nrow(spec)), function(i) {
+    quantity <- spec[["quantity"]][i]
+
+    if (quantity %in% c("times", "type")) {
+      return(TRUE)
+    }
+
+    #Each column belongs to the unadjusted or the adjusted sample, and is displayed
+    #only if that sample is.
+    if (!isTRUE(if (spec[["sample"]][i] == "Un") p.ops$un else p.ops$disp.adj)) {
+      return(FALSE)
+    }
+
+    if (quantity == "threshold") {
+      return(spec[["stat"]][i] %in% thresholds &&
+               (is_null(agg.funs) || length(agg.funs) == 1L))
+    }
+
+    if (quantity == "stat") {
+      return(spec[["stat"]][i] %in% p.ops$disp &&
+               (is_null(agg.funs) || spec[["agg.fun"]][i] %in% agg.funs))
+    }
+
+    quantity %in% p.ops$disp
+  }, logical(1L), USE.NAMES = FALSE) |>
+    setNames(spec[["name"]])
+}
