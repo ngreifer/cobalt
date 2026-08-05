@@ -589,175 +589,212 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   vec
 } 
+#The standardization factor for a binary or multi-category treatment.
+#
+#Four sources are consulted in order -- an explicit `s.d.denom`, the `estimand`, the
+#focal group, and the weights themselves -- each falling through to the next when it
+#has nothing to say. This used to be expressed with three boolean flags threaded
+#between blocks; it is now the chain it always was, so each step can be read on its
+#own and the note at the end knows whether anything was inferred.
 .get_s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL,
-                           subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
-  check.estimand <- check.weights <- check.focal <- FALSE
-  s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
-  estimand.specified <- is_not_null(estimand)
-  
-  if (s.d.denom.specified) {
-    if (isTRUE(.attr(s.d.denom, "checked"))) {
-      return(s.d.denom)
-    }
-    
-    if (length(s.d.denom) > 1L && length(s.d.denom) != NCOL(weights)) {
-      arg::err("{.arg s.d.denom} must have length 1 or equal to the number of valid sets of weights, which is {NCOL(weights)}")
-    }
-    
-    allowable.s.d.denoms <- c("pooled", "all", "weighted", "hedges")
-    
-    if (!all(s.d.denom %in% allowable.s.d.denoms)) {
-      
-      if (!inherits(treat, "processed.treat")) {
-        treat <- process_treat(treat)
-      }
-      
-      unique.treats <- as.character(treat_vals(treat))
-      
-      if (length(treat_names(treat)) == 2L && all(c("treated", "control") %in% names(treat_names(treat)))) {
-        allowable.s.d.denoms <- c(allowable.s.d.denoms, "treated", "control")
-      }
-      
-      if (is_not_null(focal)) {
-        allowable.s.d.denoms <- c(allowable.s.d.denoms, "focal")
-      }
-      
-      s.d.denom <- arg::match_arg(s.d.denom, unique(c(unique.treats, allowable.s.d.denoms)), 
-                             several.ok = length(weights) > 1L)
-      s.d.t.c <- s.d.denom %in% c("treated", "control")
-      
-      if (any(s.d.t.c) && length(treat_names(treat)) == 2L) {
-        s.d.denom[s.d.t.c] <- treat_vals(treat)[treat_names(treat)[s.d.denom[s.d.t.c]]]
-      }
-      else if (any(s.d.denom == "focal")) {
-        check.focal <- TRUE
-      }
-    }
+                           subclass = NULL, treat = NULL, focal = NULL,
+                           quietly = FALSE) {
+  #A denominator already resolved by a wrapper is not re-derived by its children.
+  if (isTRUE(.attr(s.d.denom, "checked"))) {
+    return(s.d.denom)
   }
-  else {
-    check.estimand <- TRUE
-  }
-  
-  if (check.estimand) {
-    if (estimand.specified) {
-      if (!inherits(treat, "processed.treat")) {
-        treat <- process_treat(treat)
-      }
-      
-      allowable.estimands <- c("ATT", "ATC", "ATE", "ATO", "ATM")
 
-      try.estimand <- tryCatch(arg::match_arg(estimand, allowable.estimands, several.ok = TRUE),
-                               error = function(cond) NA_character_)
+  n.weights <- NCOL(weights)
+  specified <- is_not_null(s.d.denom)
 
-      if (anyNA(try.estimand)) {
-        #An unrecognized `estimand` is ignored rather than fatal, but ignoring it
-        #silently would substitute a different standardization factor without
-        #saying so -- a typo such as {.str ATTT} would read as {.str ATE}.
-        if (!quietly) {
-          arg::wrn("{.arg estimand} should be {.or {.str {allowable.estimands}}}; ignoring it")
-        }
+  .treat <- function() {
+    if (inherits(treat, "processed.treat")) treat
+    else process_treat(treat)
+  }
 
-        check.focal <- TRUE
-      }
-      #An ATT or ATC with a non-binary treatment is legitimate; the focal group
-      #determines the denominator instead.
-      else if (any(try.estimand %in% c("ATC", "ATT")) && get.treat.type(treat) != "binary") {
-        check.focal <- TRUE
-      }
-      else {
-        if (length(try.estimand) > 1L && length(try.estimand) != NCOL(weights)) {
-          arg::err("{.arg estimand} must have length 1 or equal to the number of valid sets of weights, which is {NCOL(weights)}")
-        }
-        
-        s.d.denom <- vapply(try.estimand, switch, character(1L),
-                            ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
-                            ATC = treat_vals(treat)[treat_names(treat)["control"]], 
-                            ATO = "weighted",
-                            ATM = "weighted",
-                            "pooled")
-      }
+  out <- {
+    if (specified) .s.d.denom_from_arg(s.d.denom, n.weights, .treat(), focal)
+    else if (is_not_null(estimand)) {
+      .s.d.denom_from_estimand(estimand, n.weights, .treat(), quietly)
     }
-    else {
-      check.focal <- TRUE
+    else NULL
+  }
+
+  #An explicit `s.d.denom` or `estimand` naming the focal group defers to it, as does
+  #having neither.
+  inferred <- is_null(out)
+
+  if (inferred) {
+    treat <- .treat()
+
+    out <- {
+      if (is_not_null(focal) && n.weights <= 1L) focal
+      else .s.d.denom_from_weights(weights, subclass, treat)
     }
   }
-  
-  if (check.focal) {
-    if (is_not_null(focal) && NCOL(weights) <= 1L) {
-      s.d.denom <- focal
-    }
-    else {
-      check.weights <- TRUE
-    }
-  }
-  
-  if (check.weights) {
-    if (!inherits(treat, "processed.treat")) {
-      treat <- process_treat(treat)
-    }
-    
-    if (is_null(weights) && is_null(subclass)) {
-      s.d.denom <- "pooled"
-    }
-    else if (is_not_null(subclass)) {
-      sub.tab <- table(treat, subclass)[treat_vals(treat), ]
-      sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
-      dimnames(sub.tab) <- list(c(treat_vals(treat), "pooled"), colnames(sub.tab))
-      
-      ranges <- apply(sub.tab, 1L, function(x) .mean_abs_dev(x) / sum(x))
-      s.d.denom <- rownames(sub.tab)[which.min(ranges)]
-    }
-    else {
-      s.d.denom <- vapply(weights, function(w) {
-        for (tv in treat_vals(treat)) {
-          if (all_the_same(w[treat == tv]) &&
-              !all_the_same(w[treat != tv])) {
-            return(tv)
-          }
-        }
-        "pooled"
-      }, character(1L))
-    }
-  }
-  
+
   if (is_not_null(weights)) {
-    if (length(s.d.denom) == 1L && NCOL(weights) > 1L) {
-      s.d.denom <- rep.int(s.d.denom, NCOL(weights))
+    if (length(out) == 1L) {
+      out <- rep.int(out, n.weights)
     }
-    
-    if (length(s.d.denom) != NCOL(weights)) {
-      arg::err("valid inputs to {.arg s.d.denom} or {.arg estimand} must have length 1 or equal to the number of valid sets of weights, which is {NCOL(weights)}")
+
+    if (length(out) != n.weights) {
+      arg::err("valid inputs to {.arg s.d.denom} or {.arg estimand} must have length 1 or equal to the number of valid sets of weights, which is {n.weights}")
     }
-    
-    names(s.d.denom) <- names(weights)
+
+    names(out) <- names(weights)
   }
-  
+
   if (!quietly) {
-    if (s.d.denom.specified && is_null(weights) && any(s.d.denom == "weighted")) {
-      arg::msg("note: {.arg s.d.denom} specified as {.str weighted}, but no weights supplied; setting to {.str all}")
-    }
-    else if ((check.focal || check.weights) && !all(s.d.denom %in% treat_vals(treat))) {
-      if (all_the_same(s.d.denom)) {
-        arg::msg("note: {.arg s.d.denom} not specified; assuming {.str {s.d.denom[1L]}}")
-      }
-      else {
-        wt_strs <- sprintf("{.str %s} for {.var %s}",
-                           vapply(s.d.denom, function(s) {
-                             if (s %in% treat_vals(treat) && all(treat_vals(treat) %in% c("0", "1"))) {
-                               names(treat_names(treat))[treat_names(treat) == names(treat_vals(treat))[treat_vals(treat) == s]]
-                             }
-                             else s
-                           }, character(1L)),
-                           names(weights)) |>
-          vapply(cli::format_inline, character(1L))
-        arg::msg("note: {.arg s.d.denom} not specified; assuming {wt_strs}")
-      }
-    }
+    .s.d.denom_note(out, specified, inferred, weights, .treat())
   }
-  
-  attr(s.d.denom, "checked") <- TRUE
-  
+
+  attr(out, "checked") <- TRUE
+
+  out
+}
+
+#An explicit `s.d.denom`. Returns NULL when it names the focal group, which the caller
+#resolves.
+.s.d.denom_from_arg <- function(s.d.denom, n.weights, treat, focal) {
+  if (length(s.d.denom) > 1L && length(s.d.denom) != n.weights) {
+    arg::err("{.arg s.d.denom} must have length 1 or equal to the number of valid sets of weights, which is {n.weights}")
+  }
+
+  #These four need nothing from the treatment, so a value made only of them is taken
+  #as given.
+  allowable <- c("pooled", "all", "weighted", "hedges")
+
+  if (all(s.d.denom %in% allowable)) {
+    return(s.d.denom)
+  }
+
+  binary <- length(treat_names(treat)) == 2L &&
+    all(c("treated", "control") %in% names(treat_names(treat)))
+
+  allowable <- c(allowable, c("treated", "control")[binary], "focal"[is_not_null(focal)])
+
+  s.d.denom <- arg::match_arg(s.d.denom,
+                              unique(c(as.character(treat_vals(treat)), allowable)),
+                              several.ok = n.weights > 1L)
+
+  t.c <- s.d.denom %in% c("treated", "control")
+
+  if (any(t.c)) {
+    s.d.denom[t.c] <- treat_vals(treat)[treat_names(treat)[s.d.denom[t.c]]]
+    return(s.d.denom)
+  }
+
+  if (any(s.d.denom == "focal")) {
+    return(NULL)
+  }
+
   s.d.denom
+}
+
+#The `estimand`. Returns NULL when the estimand names no group of its own -- an
+#unrecognized value, or an ATT or ATC on a treatment with no "treated" or "control".
+.s.d.denom_from_estimand <- function(estimand, n.weights, treat, quietly = FALSE) {
+  allowable <- c("ATT", "ATC", "ATE", "ATO", "ATM")
+
+  estimand <- tryCatch(arg::match_arg(estimand, allowable, several.ok = TRUE),
+                       error = function(cond) NA_character_)
+
+  if (anyNA(estimand)) {
+    #Ignoring an unrecognized estimand silently would substitute a different
+    #standardization factor without saying so: a typo such as "ATTT" would read as ATE.
+    if (!quietly) {
+      arg::wrn("{.arg estimand} should be {.or {.str {allowable}}}; ignoring it")
+    }
+
+    return(NULL)
+  }
+
+  #An ATT or ATC with a multi-category treatment is legitimate; the focal group
+  #determines the denominator instead.
+  if (any(estimand %in% c("ATT", "ATC")) && get.treat.type(treat) != "binary") {
+    return(NULL)
+  }
+
+  if (length(estimand) > 1L && length(estimand) != n.weights) {
+    arg::err("{.arg estimand} must have length 1 or equal to the number of valid sets of weights, which is {n.weights}")
+  }
+
+  vapply(estimand, switch, character(1L),
+         ATT = treat_vals(treat)[treat_names(treat)["treated"]],
+         ATC = treat_vals(treat)[treat_names(treat)["control"]],
+         ATO = "weighted",
+         ATM = "weighted",
+         "pooled")
+}
+
+#What the weights or subclasses imply, when nothing was specified: the group left
+#unweighted is the one the others were weighted toward.
+.s.d.denom_from_weights <- function(weights, subclass, treat) {
+  if (is_not_null(subclass)) {
+    #The group whose share is most even across subclasses is the one subclassification
+    #held fixed.
+    sub.tab <- table(treat, subclass)[treat_vals(treat), ]
+    sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
+    dimnames(sub.tab) <- list(c(treat_vals(treat), "pooled"), colnames(sub.tab))
+
+    evenness <- apply(sub.tab, 1L, function(x) .mean_abs_dev(x) / sum(x))
+
+    return(rownames(sub.tab)[which.min(evenness)])
+  }
+
+  if (is_null(weights)) {
+    return("pooled")
+  }
+
+  vapply(weights, function(w) {
+    for (tv in treat_vals(treat)) {
+      if (all_the_same(w[treat == tv]) && !all_the_same(w[treat != tv])) {
+        return(tv)
+      }
+    }
+
+    "pooled"
+  }, character(1L))
+}
+
+#Says what was assumed, when anything was.
+.s.d.denom_note <- function(s.d.denom, specified, inferred, weights, treat) {
+  #`weighted` needs weights to mean anything. Without them `.compute_s.d.denom()`
+  #reaches the same factor as `all`, which is what this reports.
+  if (specified && is_null(weights) && any(s.d.denom == "weighted")) {
+    arg::msg("note: {.arg s.d.denom} specified as {.str weighted}, but no weights supplied; setting to {.str all}")
+    return(invisible())
+  }
+
+  #Reading a treatment group off the weights is unambiguous, so it goes unremarked;
+  #falling back to `pooled` or similar is a guess and is announced.
+  if (!inferred || all(s.d.denom %in% treat_vals(treat))) {
+    return(invisible())
+  }
+
+  if (all_the_same(s.d.denom)) {
+    arg::msg("note: {.arg s.d.denom} not specified; assuming {.str {s.d.denom[1L]}}")
+    return(invisible())
+  }
+
+  #With several sets of weights, name each one -- reporting a treatment value by the
+  #role it plays where the treatment is 0/1.
+  as.role <- function(s) {
+    if (s %nin% treat_vals(treat) || !all(treat_vals(treat) %in% c("0", "1"))) {
+      return(s)
+    }
+
+    names(treat_names(treat))[treat_names(treat) ==
+                                names(treat_vals(treat))[treat_vals(treat) == s]]
+  }
+
+  wt_strs <- sprintf("{.str %s} for {.var %s}",
+                     vapply(s.d.denom, as.role, character(1L)),
+                     names(weights)) |>
+    vapply(cli::format_inline, character(1L))
+
+  arg::msg("note: {.arg s.d.denom} not specified; assuming {wt_strs}")
 }
 .get_s.d.denom.cont <- function(s.d.denom, weights = NULL, subclass = NULL, quietly = FALSE) {
   s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
