@@ -132,27 +132,41 @@ have to re-derive them.
   changing; not done here because it means touching `.baltal()`'s signature and its
   four call sites in the same commit as nothing else.
 
-## Still open after the 2026-08-05 rewrites
+## Still open
 
-- **`get_covs_from_formula()` (385 lines)** — the last of the three. Still has no direct
-  tests; everything reaching it goes through `bal.tab()`. Do the same thing that worked
-  for `.get_s.d.denom()`: write unit tests for each supported form first (`.`, `poly()`,
-  transformations, factor splitting, `offset()`, per-time-point naming), confirm they
-  pass, commit them, and only then touch it.
+All three functions flagged for rewrite are done: `.get_s.d.denom()`, `.get_C2()`, and
+`get_covs_from_formula()`. Each has direct unit tests written *before* the rewrite; that
+sequence is what made all three safe and is worth repeating.
 
-- **`.baltal()`** still recovers the numeric threshold by regex from the label
-  `"Balanced, <0.1"` that `.threshold_label()` generated a moment earlier. Every caller
-  has the threshold. Changing it means touching the signature and its four call sites
-  together.
+**`get_covs_and_treat_from_formula2()` in WeightIt cannot replace
+`get_covs_from_formula()`**, checked 2026-08-05 against WeightIt 2.0.0. Three
+independent reasons, so do not revisit this without new information:
 
-- **Two lessons from the rewrites**, both of which cost a broken build and neither of
-  which the golden set would have caught alone:
+1. WeightIt Imports cobalt, so cobalt depending on WeightIt would be circular.
+2. Different contract. WeightIt's returns a four-element list -- `reported.covs`,
+   `model.covs`, `simple.covs`, `treat` -- for a model-fitting pipeline; cobalt's returns
+   one matrix and takes `factor_sep`/`int_sep` separately rather than a single `sep`.
+3. The decisive one: WeightIt's attaches **no `co.names`**. Its `model.covs` produces the
+   same *column names* as cobalt's, but not the decomposition of each name into
+   components and types (`base`/`fsep`/`level`/`isep`/`na`) that `.get_C2()`,
+   `love.plot()`, `var.names()`, and `.baltal()` all read. Building that structure is
+   most of what makes cobalt's version longer, so the extra length is earning its keep.
 
-  - Splitting a function into helpers means re-threading its arguments. The
-    `.get_s.d.denom()` rewrite dropped `quietly` on the way into the estimand branch,
-    so a wrapper that asked for silence would have warned. Only the new unit tests
-    caught it — no golden cell combines `estimand = <invalid>` with `quietly`.
-  - `rep.int()` strips names; plain `[` indexing of a named vector does not. Passing
-    `seps["int"]` where the original passed `rep.int(seps["int"], 1L)` leaked an `"int"`
-    name into every interaction term's `component` vector, and so into the returned
-    object's attributes. Two golden cells caught it.
+**What is left in `get_covs_from_formula()` (345 lines).** No duplication remains that I
+can see. The length is the surface: `.` expansion, data frames and matrices nested in
+`data`, backtick-quoting of names that need it, missingness indicators inserted after
+the variable they belong to, single-level factors, and the `co.names` construction
+itself. It is now covered by `test-get-covs-from-formula.R`, so a future attempt has a
+gate.
+
+**Three lessons from the rewrites**, none of which the golden set would have caught alone:
+
+- Splitting a function into helpers means re-threading its arguments. The
+  `.get_s.d.denom()` rewrite dropped `quietly` going into the estimand branch, so a
+  wrapper asking for silence would have warned. Only the new unit tests caught it.
+- `rep.int()` strips names; plain `[` indexing of a named vector does not. Passing
+  `seps["int"]` where the original passed `rep.int(seps["int"], 1L)` leaked an `"int"`
+  name into every interaction term's `component` vector. Two golden cells caught it.
+- cli's `{?s}` appends "s" in the *plural*. `contain{?s}` therefore read "contain" for
+  one variable and "contains" for several -- backwards. Worth grepping for other
+  `{?s}` markers attached to a verb rather than a noun.
