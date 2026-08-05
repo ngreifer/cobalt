@@ -100,3 +100,48 @@ covered.
   though `race_black` is a row name in the balance table. Only the parent factor
   (`"race"`) works. Worth confirming whether the documented `unsplitfactor()`
   round-trip is meant to make the dummy names resolvable.
+
+## Assessed for replacement, deliberately left (2026-08-05)
+
+A pass over every function in `R/functions_for_processing.R`, asking what it does, who
+calls it, and whether something simpler would do. Six were replaced and one collapsed
+(see `git log`). These were examined and kept, with reasons, so the next pass does not
+have to re-derive them.
+
+**The three big ones, all worth doing and all needing their own commit:**
+
+- **`get_covs_from_formula()` (385 lines)** — the formula parser. Handles `.`, `poly()`,
+  transformations, factor splitting, `offset()`, and per-time-point naming. It is long
+  because the surface is large, not because it repeats itself; there is no obvious
+  duplication to fold. Any rewrite should start by pinning its behaviour with a
+  dedicated test file, since it currently has no direct tests — only what reaches it
+  through `bal.tab()`.
+
+- **`.get_C2()` (248 lines)** — assembles the covariate matrix from `covs`, `addl`,
+  `distance`, interactions, and polynomials, then dedups. Two loops over
+  `C_list`/`co_list` maintain those two structures in parallel, which is where the
+  length comes from. The honest fix is one structure carrying its own names, which is a
+  real redesign rather than a tidy-up.
+
+- **`.get_s.d.denom()` (170 lines)** — the actual bloat here is control flow: three
+  boolean flags (`check.estimand`, `check.weights`, `check.focal`) thread between four
+  blocks, used as `goto`. The logic underneath is a plain fallback chain: an explicit
+  `s.d.denom`, else the estimand, else `focal`, else infer from the weights. Rewriting
+  it as that chain would roughly halve it. Left alone here because `test-s.d.denom.R`
+  pins the exact `arg::msg()` text of several paths and the branch that emits each is
+  not obvious from reading — it needs the tests extended first, not the code changed
+  first.
+
+**Kept as they are, for reasons that will not change:**
+
+- `model.frame2()` — is a `stats::model.frame()` wrapper whose whole point is turning
+  "object 'x' not found" into a message naming the variable and suggesting `data`.
+- `find_perfect_col()`, `co.cbind()`, `.mids_complete()`, `strata2weights()`,
+  `intapprox()` — each does one thing at about the length that thing takes.
+- `.use_tc_fd()` (93 lines) — resolves the treat/covs versus formula/data calling
+  conventions. Long, but it is a decision table over genuinely different inputs.
+- `.baltal()` recovers the numeric threshold by regex from the label
+  `"Balanced, <0.1"` that `.threshold_label()` generated. Parsing a string the package
+  itself just produced is backwards, and every caller has the threshold to hand. Worth
+  changing; not done here because it means touching `.baltal()`'s signature and its
+  four call sites in the same commit as nothing else.
