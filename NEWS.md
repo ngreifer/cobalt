@@ -25,6 +25,8 @@
 
 * `bal.tab()` now warns when `estimand` is not one of `"ATT"`, `"ATC"`, `"ATE"`, `"ATO"`, or `"ATM"`. Previously an unrecognized value was silently ignored, so a typo such as `estimand = "ATTT"` quietly produced the pooled standardization factor used for the ATE. The value is still ignored rather than treated as an error, and supplying `"ATT"` or `"ATC"` with a multi-category treatment remains silent, since the focal group determines the denominator in that case.
 
+* `bal.init()` now treats `estimand = "ATC"` with a multi-category treatment identically to `estimand = "ATT"`, as documented: `focal` names the group every other group is compared against, and is required. The two were previously handled by separate branches that could disagree about what to do when `focal` was omitted.
+
 * Fixed a bug in which supplying `imp` as the name of a variable in `data` failed for `ps` objects, though it worked for every other supported input.
 
 * Fixed a bug in which `treatATT`, a documented alias for `focal` in `bal.tab()`'s default method, was silently ignored.

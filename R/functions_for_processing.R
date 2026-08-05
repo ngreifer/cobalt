@@ -1773,16 +1773,19 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
       reported.estimand <- estimand <- "ATT"
     }
     
-    if (estimand == "ATT") {
+    #With more than two groups there is no single control group for an ATC to name, so
+    #an ATC is an ATT against whichever group `focal` identifies. Either way that group
+    #has to be named.
+    if (estimand %in% c("ATT", "ATC")) {
       if (is_null(focal)) {
         if (is_null(treated) || treated %nin% unique.treat) {
-          arg::err('when {.code estimand = "ATT"} for multinomial treatments, an argument must be supplied to {.arg focal}')
+          arg::err('when {.code estimand = "{reported.estimand}"} for multinomial treatments, an argument must be supplied to {.arg focal}')
         }
+
         focal <- treated
       }
-    }
-    else if (estimand == "ATC" && is_null(focal)) {
-      arg::err('when {.code estimand = "ATC"} for multinomial treatments, an argument must be supplied to {.arg focal}')
+
+      estimand <- "ATT"
     }
   }
   else if (treat.type == "binary") {

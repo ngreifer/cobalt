@@ -318,6 +318,24 @@ test_that("focal applies to binary treatments and estimand to energy.dist", {
   }
 })
 
+test_that("a multi-category ATC is an ATT and requires focal", {
+  x <- covs_num()
+
+  #With more than two groups there is no single control group, so an ATC names its
+  #reference group through `focal` exactly as an ATT does, and both insist on one.
+  for (e in c("ATT", "ATC")) {
+    expect_err(bal.init(x, treat = t_multi(), stat = "smd.mean", estimand = e),
+               sprintf('estimand = "%s"', e))
+  }
+
+  att <- bal.init(x, treat = t_multi(), stat = "smd.mean",
+                  estimand = "ATT", focal = "white")
+  atc <- bal.init(x, treat = t_multi(), stat = "smd.mean",
+                  estimand = "ATC", focal = "white")
+
+  expect_identical(atc, att)
+})
+
 test_that("distance.cov honours std and matches distance.cor", {
   x <- covs_num()
 
