@@ -157,10 +157,15 @@ bal.tab <- function(x, ...) {
     
     .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
     .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-    if (any(c(.alls, .nones))) {
+    
+    if (any(.alls)) {
       .call[.alls] <- expression(NULL)
+    }
+    
+    if (any(.nones)) {
       .call[.nones] <- expression(NA)
     }
+    
     .call[["x"]] <- process_obj(x)
     
     return(eval.parent(.call))

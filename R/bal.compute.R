@@ -148,13 +148,12 @@ bal.init <- function(x,
                      ...) {
   arg::arg_supplied(x)
   arg::arg_supplied(stat)
+  arg::when_not_null(treat, arg::arg_vector)
  
   if (is_null(treat)) {
     treat.type <- "target"
   }
   else {
-    arg:: arg_vector(treat)
-    
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
   }
@@ -285,7 +284,7 @@ bal_stat.to.phrase <- function(stat) {
   )
   
   if (anyNA(phrase)) {
-    arg::err('"{stat}" is not an allowed statistic')
+    arg::err("{.val {stat}} is not an allowed statistic")
   }
   
   phrase

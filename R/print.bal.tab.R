@@ -65,13 +65,13 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
   
   #Replace .all and .none with NULL and NA respectively
   .call <- .rewrite_all_none(match.call(expand.dots = TRUE))
-
+  
   if (is_not_null(.call)) {
     return(eval.parent(.call))
   }
-
+  
   p.ops <- .resolve_p.ops(x, .display_args(environment(), list(...)))
-
+  
   #Prevent exponential notation printing
   rlang::with_options({
     bal.tab_print(x, p.ops)
@@ -126,7 +126,11 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
     }
     if (is_not_null(maximbal[[s]])) {
       cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-      .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+      
+      maximbal[[s]] |>
+        round_df_char(p.ops$digits, na_vals = ".") |>
+        .print_data_frame(row.names = FALSE)
+      
       cat("\n")
     }
   }
@@ -188,17 +192,17 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
       }
       if (is_not_null(maximbal[[s]])) {
         cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+        
         maximbal[[s]] |>
           round_df_char(p.ops$digits, na_vals = ".") |>
           .print_data_frame(row.names = FALSE)
+        
         cat("\n")
       }
     }
     
-    if (is_not_null(nn)) {
-      if (.print_observations(nn, p.ops$digits)) {
-        cat(.it("* indicates effective sample size"))
-      }
+    if (is_not_null(nn) && .print_observations(nn, p.ops$digits)) {
+      cat(.it("* indicates effective sample size"))
     }
   }
   
@@ -239,31 +243,35 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
     
     if (p.ops$disp.bal.tab) {
       cat(.ul("Balance summary across all imputations") %+% "\n")
+      
       i.balance.summary[, s.keep.col, drop = FALSE] |>
         round_df_char(p.ops$digits, na_vals = ".") |>
         .print_data_frame()
+      
       cat("\n")
     }
     
     for (s in p.ops$compute) {
       if (is_not_null(baltal[[s]])) {
         cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
+        
         .print_data_frame(baltal[[s]])
+        
         cat("\n")
       }
       if (is_not_null(maximbal[[s]])) {
         cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+        
         maximbal[[s]] |>
           round_df_char(p.ops$digits, na_vals = ".") |>
           .print_data_frame(row.names = FALSE)
+        
         cat("\n")
       }
     }
     
-    if (is_not_null(nn)) {
-      if (.print_observations(nn, p.ops$digits)) {
-        cat(.it("* indicates effective sample size"))
-      }
+    if (is_not_null(nn) && .print_observations(nn, p.ops$digits)) {
+      cat(.it("* indicates effective sample size"))
     }
   }
   
@@ -316,30 +324,42 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     if (p.ops$disp.bal.tab) {
       cat(.ul("Balance summary across all treatment pairs") %+% "\n")
       
-      if (is_null(keep.row)) cat(.it("No covariates to display.") %+% "\n")
-      else if (!any(keep.row)) cat(.it("All covariates are balanced.") %+% "\n")
-      else .print_data_frame(round_df_char(m.balance.summary[keep.row, s.keep.col, drop = FALSE],
-                                           p.ops$digits, na_vals = "."))
+      if (is_null(keep.row)) {
+        cat(.it("No covariates to display.") %+% "\n")
+      }
+      else if (!any(keep.row)) {
+        cat(.it("All covariates are balanced.") %+% "\n")
+      }
+      else {
+        m.balance.summary[keep.row, s.keep.col, drop = FALSE] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame()
+      }
+      
       cat("\n")
     }
     
     for (s in p.ops$compute) {
       if (is_not_null(baltal[[s]])) {
         cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
+        
         .print_data_frame(baltal[[s]])
+        
         cat("\n")
       }
       if (is_not_null(maximbal[[s]])) {
         cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+        
+        maximbal[[s]] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame(row.names = FALSE)
+        
         cat("\n")
       }
     }
     
-    if (is_not_null(nn)) {
-      if (.print_observations(nn, p.ops$digits)) {
-        cat(.it("* indicates effective sample size"))
-      }
+    if (is_not_null(nn) && .print_observations(nn, p.ops$digits)) {
+      cat(.it("* indicates effective sample size"))
     }
   }
   
@@ -389,38 +409,52 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     if (p.ops$disp.bal.tab) {
       cat(.ul("Balance summary across all time points") %+% "\n")
       
-      if (is_null(keep.row)) cat(.it("No covariates to display.") %+% "\n")
-      else if (!any(keep.row)) cat(.it("All covariates are balanced.") %+% "\n")
-      else .print_data_frame(round_df_char(msm.balance.summary[keep.row, s.keep.col, drop = FALSE],
-                                           p.ops$digits, na_vals = "."))
+      if (is_null(keep.row)) {
+        cat(.it("No covariates to display.") %+% "\n")
+      }
+      else if (!any(keep.row)) {
+        cat(.it("All covariates are balanced.") %+% "\n")
+      }
+      else {
+        msm.balance.summary[keep.row, s.keep.col, drop = FALSE] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame()
+      }
+      
       cat("\n")
     }
     
     for (s in p.ops$compute) {
       if (is_not_null(baltal[[s]])) {
         cat(.ul(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
+        
         .print_data_frame(baltal[[s]])
+        
         cat("\n")
       }
+      
       if (is_not_null(maximbal[[s]])) {
         cat(.ul(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+        
+        maximbal[[s]] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame(row.names = FALSE)
+        
         cat("\n")
       }
     }
     
     if (is_not_null(nn)) {
       print.warning <- FALSE
-
+      
       #One table per time point, under a single heading.
       cat(.ul(.attr(nn[[1L]], "tag")) %+% "\n")
-
+      
       for (ti in seq_along(nn)) {
         cat(" - " %+% .it("Time " %+% as.character(ti)) %+% "\n")
-        print.warning <- .print_observations(nn[[ti]], p.ops$digits, tag = FALSE) ||
-          print.warning
+        print.warning <- .print_observations(nn[[ti]], p.ops$digits, tag = FALSE) || print.warning
       }
-
+      
       if (print.warning) {
         cat(.it("* indicates effective sample size"))
       }
@@ -464,10 +498,19 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
       
       cat("\n - - - " %+% .it("Subclass " %+% as.character(i)) %+% " - - - \n")
       
-      if (is_null(s.keep.row)) cat(.it("No covariates to display.") %+% "\n")
-      else if (!any(s.keep.row)) cat(.it("All covariates are balanced.") %+% "\n")
-      else .print_data_frame(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+      if (is_null(s.keep.row)) {
+        cat(.it("No covariates to display.") %+% "\n")
+      }
+      else if (!any(s.keep.row)) {
+        cat(.it("All covariates are balanced.") %+% "\n")
+      }
+      else {
+        s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame()
+      }
     }
+    
     cat("\n")
   }
   
@@ -488,16 +531,23 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
       a.s.keep.col <- .keep_bal_cols(
         .p.ops_col_spec(p.ops, samples = c("Un", "Adj"),
                         compute = if (isTRUE(p.ops$quick)) NULL
-                                  else c("means", "sds",
-                                         intersect(all_STATS(p.ops$type), p.ops$stats))),
+                        else c("means", "sds",
+                               intersect(all_STATS(p.ops$type), p.ops$stats))),
         p.ops, thresholds)
       
       cat(.ul("Balance measures across subclasses") %+% "\n")
       
-      if (is_null(a.s.keep.row)) cat(.it("No covariates to display.") %+% "\n")
-      else if (!any(a.s.keep.row)) cat(.it("All covariates are balanced.") %+% "\n")
-      else .print_data_frame(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE],
-                                           p.ops$digits, na_vals = "."))
+      if (is_null(a.s.keep.row)) {
+        cat(.it("No covariates to display.") %+% "\n")
+      }
+      else if (!any(a.s.keep.row)) {
+        cat(.it("All covariates are balanced.") %+% "\n")
+      }
+      else {
+        b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame()
+      }
       
       cat("\n")
     }
@@ -505,19 +555,27 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
     for (s in p.ops$compute) {
       if (is_not_null(baltal[[s]])) {
         cat(.ul(sprintf("Balance tally for %s across subclasses", STATS[[s]]$balance_tally_for)) %+% "\n")
+        
         .print_data_frame(baltal[[s]])
+        
         cat("\n")
       }
       if (is_not_null(maximbal[[s]])) {
         cat(.ul(sprintf("Variable with the greatest %s across subclasses", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-        .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+        
+        maximbal[[s]] |>
+          round_df_char(p.ops$digits, na_vals = ".") |>
+          .print_data_frame(row.names = FALSE)
+        
         cat("\n")
       }
     }
     
     if (is_not_null(s.nn)) {
       cat(.ul(.attr(s.nn, "tag")) %+% "\n")
-      .print_data_frame(round_df_char(s.nn, digits = min(2L, p.ops$digits), pad = " "))
+      s.nn |>
+        round_df_char(digits = min(2L, p.ops$digits), pad = " ") |>
+        .print_data_frame()
     }
   }
   
@@ -535,6 +593,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
   
   if (!missing(cluster.summary)) {
     arg::arg_flag(cluster.summary)
+    
     if (p.ops$quick && !p.ops$cluster.summary && cluster.summary) {
       arg::wrn("{.arg cluster.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
@@ -563,10 +622,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
       else c("min", "mean", "max")
     }
   }
-  else if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) {
-    arg::err("{.arg cluster.fun} must be {.or {.val {computed.cluster.funs}}}")
-  }
-  
+
   cluster.fun <- arg::match_arg(cluster.fun, computed.cluster.funs,
                                 several.ok = TRUE)
   
@@ -612,6 +668,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
   
   if (!missing(imp.summary)) {
     arg::arg_flag(imp.summary)
+    
     if (p.ops$quick && !p.ops$imp.summary && imp.summary) {
       arg::wrn("{.arg imp.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
@@ -640,11 +697,9 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
       else c("min", "mean", "max")
     }
   }
-  else if (!is.character(imp.fun) || !all(imp.fun %pin% computed.imp.funs)) {
-    arg::err("{.arg imp.fun} must be {.or {.val {computed.imp.funs}}}")
-  }
-  
-  imp.fun <- arg::match_arg(imp.fun, computed.imp.funs, several.ok = TRUE)
+
+  imp.fun <- arg::match_arg(imp.fun, computed.imp.funs,
+                            several.ok = TRUE)
   
   #Checks and Adjustments
   if (is_null(p.ops$which.imp)) {
@@ -681,6 +736,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
   
   if (!missing(multi.summary)) {
     arg::arg_flag(multi.summary)
+    
     if (p.ops$quick && !p.ops$multi.summary && multi.summary) {
       arg::wrn("{.arg multi.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
@@ -775,6 +831,7 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
   
   if (!missing(msm.summary)) {
     arg::arg_flag(msm.summary)
+    
     if (p.ops$quick && !p.ops$msm.summary && msm.summary) {
       arg::wrn("{.arg msm.summary} cannot be set to {.val {TRUE}} if {.code quick = TRUE} in the original call to {.fun bal.tab}")
     }
@@ -959,8 +1016,9 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
     #Every supplied name may have been dropped by the check above; assigning names
     #to a zero-length vector is an error, so only proceed if something is left.
     if (is_not_null(disp.thresholds)) {
-      names(disp.thresholds) <- arg::match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
-
+      names(disp.thresholds) <- arg::match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]),
+                                               several.ok = TRUE)
+      
       for (i in names(disp.thresholds)) {
         if (!disp.thresholds[i]) {
           drop.thresholds <- c(drop.thresholds, i)
@@ -1044,23 +1102,25 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   }
   
   #Checks and Adjustments
-  which.subclass <- {
-    if (is_null(p.ops$which.subclass)) seq_along(s.balance)
-    else if (anyNA(p.ops$which.subclass)) integer()
-    else if (!is.numeric(p.ops$which.subclass)) {
-      arg::wrn("the argument to {.arg which.subclass} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of subclass indices. No subclasses will be displayed")
-      integer()
+  if (is_null(p.ops$which.subclass)) {
+    which.subclass <- seq_along(s.balance)
+  }
+  else if (anyNA(p.ops$which.subclass)) {
+    which.subclass <- integer()
+  }
+  else if (!is.numeric(p.ops$which.subclass)) {
+    arg::wrn("the argument to {.arg which.subclass} must be {.val {quote(.all)}}, {.val {quote(.none)}}, or a vector of subclass indices. No subclasses will be displayed")
+    which.subclass <- integer()
+  }
+  else {
+    w <- intersect(seq_along(s.balance), p.ops$which.subclass)
+    
+    if (is_not_null(w)) {
+      which.subclass <- w
     }
     else {
-      w <- intersect(seq_along(s.balance), p.ops$which.subclass)
-      
-      if (is_not_null(w)) w
-      else {
-        arg::wrn("no values supplied {.arg which.subclass} are subclass indices. No subclasses will be displayed")
-        #`integer()` is the "display none" value, as used for the NA case above.
-        #`NA` was indexing `s.balance[[NA]]`, i.e. NULL, and crashing.
-        integer()
-      }
+      arg::wrn("no values supplied {.arg which.subclass} are subclass indices. No subclasses will be displayed")
+      which.subclass <- integer()
     }
   }
   
@@ -1078,14 +1138,14 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 .rewrite_all_none <- function(.call) {
   alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
   nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-
+  
   if (!any(c(alls, nones))) {
     return(NULL)
   }
-
+  
   .call[alls] <- expression(NULL)
   .call[nones] <- expression(NA)
-
+  
   .call
 }
 
@@ -1093,9 +1153,9 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 #dropped, ready to hand to `print_process()`.
 .display_args <- function(.env, .dots) {
   A <- try_arg(c(as.list(.env), .dots)[-1L])
-
+  
   A[vapply(A, rlang::is_missing, logical(1L))] <- NULL
-
+  
   A
 }
 
@@ -1105,17 +1165,17 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 #and raise the same warnings when `quick = TRUE` withheld a value.
 .resolve_p.ops <- function(x, A) {
   out <- do.call("print_process", c(list(x), A), quote = TRUE)
-
+  
   if (inherits(x, c("bal.tab.bin", "bal.tab.cont"))) {
     return(out)
   }
-
+  
   x_ <- x[[which(endsWith(names(x), ".Balance"))]][[1L]]
-
+  
   if (!inherits(x_, "bal.tab")) {
     return(out)
   }
-
+  
   c(out, .resolve_p.ops(x_, A))
 }
 
@@ -1127,33 +1187,35 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   drop.nn <- rowSums(nn) == 0
   ss.type <- .attr(nn, "ss.type")[!drop.nn]
   heading <- .attr(nn, "tag")
-
+  
   nn <- nn[!drop.nn, , drop = FALSE]
-
+  
   for (r in c("All", "Matched")) {
     rows <- paste0(r, c(" (ESS)", " (Unweighted)"))
-
+    
     if (!all(rows %in% rownames(nn)) ||
         !all(check_if_zero(nn[rows[1L], ] - nn[rows[2L], ]))) {
       next
     }
-
+    
     nn <- nn[rownames(nn) != rows[2L], , drop = FALSE]
     rownames(nn)[rownames(nn) == rows[1L]] <- r
   }
-
+  
   if (tag) {
     cat(.ul(heading) %+% "\n")
   }
-
+  
   starred <- length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)
-
+  
   if (starred) {
     nn <- setNames(cbind(nn, ifelse(ss.type == "ess", "*", "")), c(names(nn), ""))
   }
-
-  .print_data_frame(round_df_char(nn, digits = min(2L, digits), pad = " "))
-
+  
+  nn |>
+    round_df_char(digits = min(2L, digits), pad = " ") |>
+    .print_data_frame()
+  
   starred
 }
 

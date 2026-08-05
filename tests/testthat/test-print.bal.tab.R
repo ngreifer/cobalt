@@ -166,7 +166,7 @@ test_that("imputations print per-imputation and across-imputation tables", {
 
   #`imp.fun` picks a single summary function.
   expect_match(printed(b, imp.fun = "mean"), "Mean")
-  expect_err(print(b, imp.fun = "bogus"), "`imp.fun` must be")
+  expect_err(print(b, imp.fun = "bogus"), "`imp.fun` should be")
 })
 
 test_that("clusters print per-cluster and across-cluster tables", {
@@ -183,7 +183,7 @@ test_that("clusters print per-cluster and across-cluster tables", {
   expect_match(out, "Cluster")
 
   expect_match(printed(b, cluster.fun = "mean"), "Mean")
-  expect_err(print(b, cluster.fun = "bogus"), "`cluster.fun` must be")
+  expect_err(print(b, cluster.fun = "bogus"), "`cluster.fun` should be")
 })
 
 test_that("subclasses print per-subclass and across-subclass tables", {

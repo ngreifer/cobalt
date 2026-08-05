@@ -69,12 +69,14 @@ NULL
 #`bal.tab` objects, so it is reached explicitly.
 .bal.tab_leaves <- function(x, keys = list()) {
   if (inherits(x, c("bal.tab.bin", "bal.tab.cont"))) {
-    return(list(list(keys = keys, table = x[["Balance"]])))
+    return(list(list(keys = keys,
+                     table = x[["Balance"]])))
   }
 
   if (inherits(x, "bal.tab.subclass")) {
     return(lapply(names(x[["Subclass.Balance"]]), function(i) {
-      list(keys = c(keys, list(subclass = i)), table = x[["Subclass.Balance"]][[i]])
+      list(keys = c(keys, list(subclass = i)),
+           table = x[["Subclass.Balance"]][[i]])
     }))
   }
 
@@ -171,7 +173,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
     return(.empty_bal.tab_long())
   }
 
-  lapply(seq_len(nrow(vals)), function(k) {
+  d <- lapply(seq_len(nrow(vals)), function(k) {
     s <- vals[["stat"]][k]
     samp <- vals[["sample"]][k]
 
@@ -201,16 +203,26 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
                  else as.numeric(p.ops$thresholds[[s]] %or% NA_real_)
                },
                stringsAsFactors = FALSE)
-  }) |>
-    do.call(what = "rbind", args = _) |>
-    (\(d) d[order(match(d[["variable"]], rownames(tab))), , drop = FALSE])() |>
-    (\(d) `rownames<-`(d, NULL))()
+  })
+
+  d <- do.call("rbind", d)
+
+  d <- d[order(match(d[["variable"]], rownames(tab))), , drop = FALSE]
+  
+  rownames(d) <- NULL
+  
+  d
 }
 
 .empty_bal.tab_long <- function() {
-  data.frame(variable = character(0L), type = character(0L), sample = character(0L),
-             stat = character(0L), group = character(0L), estimate = numeric(0L),
-             threshold = character(0L), threshold.value = numeric(0L),
+  data.frame(variable = character(0L),
+             type = character(0L),
+             sample = character(0L),
+             stat = character(0L),
+             group = character(0L),
+             estimate = numeric(0L),
+             threshold = character(0L),
+             threshold.value = numeric(0L),
              stringsAsFactors = FALSE)
 }
 
@@ -257,9 +269,9 @@ format.bal.tab <- function(x, ..., digits = max(3L, getOption("digits") - 3L),
 
   #The balance table `print()` shows at the top level: the summary across segments
   #when there is one, otherwise the object's own table.
+  across <- names(x)[startsWith(names(x), "Balance.Across.")]
+  
   tab <- {
-    across <- names(x)[startsWith(names(x), "Balance.Across.")]
-
     if (is_not_null(across) && is.data.frame(x[[across[1L]]])) x[[across[1L]]]
     else x[["Balance"]]
   }

@@ -20,23 +20,23 @@
                               threshold.agg.fun = NULL, include.times = FALSE) {
   moments <- c(M = "means", SD = "sds")
   moments <- moments[moments %in% intersect(quantities, compute)]
-
+  
   stats <- intersect(compute, all_STATS(type))
   adj_only <- get_from_STATS("adj_only")
-
+  
   #A continuous treatment has no groups, so its moment columns carry no group part.
   groups <- switch(type, "bin" = as.list(c("0", "1")), list(NULL))
   aggs <- {
     if (is_null(agg.funs)) list(NULL)
     else as.list(firstup(agg.funs))
   }
-
+  
   #With at most one weight set the threshold column carries no sample suffix.
   bare.threshold <- length(setdiff(samples, "Un")) <= 1L
-
+  
   rows <- c(list(c("Times", "times", NA, NA, NA, NA))[include.times],
             list(c("Type", "type", NA, NA, NA, NA)))
-
+  
   for (sample in samples) {
     for (g in groups) {
       for (m in names(moments)) {
@@ -44,29 +44,32 @@
                                NA, g %or% NA_character_)))
       }
     }
-
+    
     for (s in stats) {
       #The unadjusted sample has no value for a statistic defined only after adjustment.
-      if (sample == "Un" && adj_only[s]) next
-
+      if (sample == "Un" && adj_only[s]) {
+        next
+      }
+      
       for (a in aggs) {
         rows <- c(rows, list(c(.paste_col(a, STATS[[s]]$bal.tab_column_prefix, sample),
                                "stat", s, sample, tolower(a) %or% NA_character_, NA)))
       }
-
-      if (is_null(thresholds[[s]]) || sample %nin% threshold.samples) next
-
+      
+      if (is_null(thresholds[[s]]) || sample %nin% threshold.samples) {
+        next
+      }
+      
       rows <- c(rows, list(c(if (bare.threshold && sample != "Un") STATS[[s]]$Threshold
                              else paste.(STATS[[s]]$Threshold, sample),
                              "threshold", s, sample,
                              threshold.agg.fun %or% NA_character_, NA)))
     }
   }
-
-  spec <- as.data.frame(do.call("rbind", rows), stringsAsFactors = FALSE)
-  names(spec) <- c("name", "quantity", "stat", "sample", "agg.fun", "group")
-
-  spec
+  
+  do.call("rbind", rows) |>
+    as.data.frame(stringsAsFactors = FALSE) |>
+    setNames(c("name", "quantity", "stat", "sample", "agg.fun", "group"))
 }
 
 #The threshold columns for one statistic, as rows of a spec.
@@ -81,11 +84,11 @@
 .p.ops_col_spec <- function(p.ops, agg.funs = NULL, requested.agg.funs = agg.funs,
                             samples = NULL, include.times = FALSE, compute = NULL) {
   no.adj <- !isTRUE(p.ops$disp.adj)
-
+  
   #Subclassification is the adjustment, so a subclassified object records no weight
   #names but does have an adjusted sample.
   wn <- if (no.adj) "Adj" else p.ops$weight.names %or% "Adj"
-
+  
   .bal_tab_col_spec(p.ops$type, compute %or% p.ops$compute, p.ops$thresholds,
                     samples = samples %or% c("Un", wn),
                     quantities = if (is_null(agg.funs)) c("means", "sds") else NULL,
@@ -104,12 +107,12 @@
 #`love.plot()` works on the unaggregated tables, so this asks for no aggregation.
 .stat_cols <- function(p.ops, stats, nms) {
   samples <- c("Un", p.ops[["weight.names"]])
-
+  
   spec <- .p.ops_col_spec(p.ops, samples = samples)
   spec <- spec[spec[["quantity"]] == "stat" & spec[["stat"]] %in% stats, , drop = FALSE]
   spec <- spec[order(match(spec[["sample"]], samples),
                      match(spec[["stat"]], stats)), , drop = FALSE]
-
+  
   intersect(spec[["name"]], nms)
 }
 
@@ -118,7 +121,7 @@
 .stat_of_col <- function(p.ops, stats, nms) {
   spec <- .p.ops_col_spec(p.ops, samples = c("Un", p.ops[["weight.names"]]))
   spec <- spec[spec[["quantity"]] == "stat" & spec[["stat"]] %in% stats, , drop = FALSE]
-
+  
   setNames(spec[["stat"]], spec[["name"]])[nms]
 }
 
@@ -128,27 +131,27 @@
 .keep_bal_cols <- function(spec, p.ops, thresholds, agg.funs = NULL) {
   vapply(seq_len(nrow(spec)), function(i) {
     quantity <- spec[["quantity"]][i]
-
+    
     if (quantity %in% c("times", "type")) {
       return(TRUE)
     }
-
+    
     #Each column belongs to the unadjusted or the adjusted sample, and is displayed
     #only if that sample is.
     if (!isTRUE(if (spec[["sample"]][i] == "Un") p.ops$un else p.ops$disp.adj)) {
       return(FALSE)
     }
-
+    
     if (quantity == "threshold") {
       return(spec[["stat"]][i] %in% thresholds &&
                (is_null(agg.funs) || length(agg.funs) == 1L))
     }
-
+    
     if (quantity == "stat") {
       return(spec[["stat"]][i] %in% p.ops$disp &&
                (is_null(agg.funs) || spec[["agg.fun"]][i] %in% agg.funs))
     }
-
+    
     quantity %in% p.ops$disp
   }, logical(1L), USE.NAMES = FALSE) |>
     setNames(spec[["name"]])

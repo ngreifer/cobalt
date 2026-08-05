@@ -128,7 +128,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     return(eval.parent(.call))
   }
   
-  if (missing(stats)) stats <- NULL
+  if (missing(stats)) {
+    stats <- NULL
+  }
   
   #Re-call bal.tab with disp.v.ratio or disp.ks if stats = "v" or "k".
   if (typeof(.call[["x"]]) == "language") { #if x is not an object (i.e., is a function call)
@@ -588,7 +590,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       ua <- ua[names(ua) != "unadjusted"]
     }
     
-    var.order <- ua[arg::match_arg(var.order, tolower(ua))]
+    #`ua` maps a lowercase key to the display-cased sample name, so the match has to
+    #return a key. Matching on `names(ua)` rather than `tolower(ua)` also keeps a
+    #weight name that contains capitals usable, which lowercasing the values broke.
+    var.order <- ua[arg::match_arg(var.order, names(ua))]
   }
   
   #Process sample names

@@ -1212,7 +1212,7 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
 
       #Repeats one imputation's worth of values across all of them, keeping each
       #imputation's block in the order `imp` gives.
-      stack <- function(x, i_) {
+      .stack <- function(x, i_) {
         new_x <- x[rep(i_, length(imp.lengths))]
 
         if (unsorted.imp) {
@@ -1224,7 +1224,7 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
         new_x
       }
 
-      stack_rows <- function(x) {
+      .stack_rows <- function(x) {
         new_x <- x[rep(seq_row(x), length(imp.lengths)), , drop = FALSE]
 
         if (unsorted.imp) {
@@ -1243,15 +1243,15 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
         }
 
         objects[[i]] <- {
-          if (i %in% vectors) stack(objects[[i]], seq_along(objects[[i]]))
-          else if (i %in% data.frames) stack_rows(objects[[i]])
+          if (i %in% vectors) .stack(objects[[i]], seq_along(objects[[i]]))
+          else if (i %in% data.frames) .stack_rows(objects[[i]])
           else lapply(objects[[i]], function(j) {
             if (!is.factor(j) && !is_mat_like(j)) {
               arg::err("{.arg {i}} can only contain vectors or data frames")
             }
 
-            if (is.factor(j)) stack(j, seq_along(j))
-            else stack_rows(j)
+            if (is.factor(j)) .stack(j, seq_along(j))
+            else .stack_rows(j)
           })
         }
       }
