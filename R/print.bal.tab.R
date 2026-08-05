@@ -171,36 +171,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
   }
   
   if (is_not_null(nn)) {
-    
-    drop.nn <- rowSums(nn) == 0
-    ss.type <- .attr(nn, "ss.type")[!drop.nn]
-    nn <- nn[!drop.nn, , drop = FALSE]
-    
-    if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-        all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
-      nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
-      rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
-    }
-    
-    if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-        all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
-      nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
-      rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
-    }
-    
-    cat(.ul(.attr(nn, "tag")) %+% "\n")
-    
-    print.warning <- FALSE
-    
-    if (length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)) {
-      ess <- ifelse(ss.type == "ess", "*", "")
-      nn <- setNames(cbind(nn, ess), c(names(nn), ""))
-      print.warning <- TRUE
-    }
-    
-    .print_data_frame(round_df_char(nn, digits = min(2L, p.ops$digits), pad = " "))
-    
-    if (print.warning) {
+    if (.print_observations(nn, p.ops$digits)) {
       cat(.it("* indicates effective sample size"))
     }
   }
@@ -281,34 +252,7 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
     }
     
     if (is_not_null(nn)) {
-      drop.nn <- rowSums(nn) == 0
-      ss.type <- .attr(nn, "ss.type")[!drop.nn]
-      nn <- nn[!drop.nn, , drop = FALSE]
-      if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
-        nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
-        rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
-      }
-      
-      if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
-        nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
-        rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
-      }
-      
-      cat(.ul(.attr(nn, "tag")) %+% "\n")
-      
-      print.warning <- FALSE
-      
-      if (length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)) {
-        ess <- ifelse(ss.type == "ess", "*", "")
-        nn <- setNames(cbind(nn, ess), c(names(nn), ""))
-        print.warning <- TRUE
-      }
-      
-      .print_data_frame(round_df_char(nn, digits = min(2L, p.ops$digits), pad = " "))
-      
-      if (print.warning) {
+      if (.print_observations(nn, p.ops$digits)) {
         cat(.it("* indicates effective sample size"))
       }
     }
@@ -386,34 +330,7 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
     }
     
     if (is_not_null(nn)) {
-      drop.nn <- rowSums(nn) == 0
-      ss.type <- .attr(nn, "ss.type")[!drop.nn]
-      nn <- nn[!drop.nn, , drop = FALSE]
-      if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
-        nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
-        rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
-      }
-      
-      if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
-        nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
-        rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
-      }
-      
-      cat(.ul(.attr(nn, "tag")) %+% "\n")
-      
-      print.warning <- FALSE
-      
-      if (length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)) {
-        ess <- ifelse(ss.type == "ess", "*", "")
-        nn <- setNames(cbind(nn, ess), c(names(nn), ""))
-        print.warning <- TRUE
-      }
-      
-      .print_data_frame(round_df_char(nn, digits = min(2L, p.ops$digits), pad = " "))
-      
-      if (print.warning) {
+      if (.print_observations(nn, p.ops$digits)) {
         cat(.it("* indicates effective sample size"))
       }
     }
@@ -506,34 +423,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     }
     
     if (is_not_null(nn)) {
-      tag <- .attr(nn, "tag")
-      drop.nn <- rowSums(nn) == 0
-      ss.type <- .attr(nn, "ss.type")[!drop.nn]
-      nn <- nn[!drop.nn, , drop = FALSE]
-      if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["All (ESS)", ] - nn["All (Unweighted)", ]))) {
-        nn <- nn[rownames(nn) != "All (Unweighted)", , drop = FALSE]
-        rownames(nn)[rownames(nn) == "All (ESS)"] <- "All"
-      }
-      if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
-          all(check_if_zero(nn["Matched (ESS)", ] - nn["Matched (Unweighted)", ]))) {
-        nn <- nn[rownames(nn) != "Matched (Unweighted)", , drop = FALSE]
-        rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
-      }
-      
-      cat(.ul(tag) %+% "\n")
-      
-      print.warning <- FALSE
-      
-      if (length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)) {
-        ess <- ifelse(ss.type == "ess", "*", "")
-        nn <- setNames(cbind(nn, ess), c(names(nn), ""))
-        print.warning <- TRUE
-      }
-      
-      .print_data_frame(round_df_char(nn, digits = min(2L, p.ops$digits), pad = " "))
-      
-      if (print.warning) {
+      if (.print_observations(nn, p.ops$digits)) {
         cat(.it("* indicates effective sample size"))
       }
     }
@@ -623,38 +513,16 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     
     if (is_not_null(nn)) {
       print.warning <- FALSE
+
+      #One table per time point, under a single heading.
       cat(.ul(.attr(nn[[1L]], "tag")) %+% "\n")
-      
+
       for (ti in seq_along(nn)) {
         cat(" - " %+% .it("Time " %+% as.character(ti)) %+% "\n")
-        drop.nn <- rowSums(nn[[ti]]) == 0
-        ss.type <- .attr(nn[[ti]], "ss.type")[!drop.nn]
-        nn[[ti]] <- nn[[ti]][!drop.nn, , drop = FALSE]
-        #`nn` is a list of one table per time point, so this must index `nn[[ti]]`
-        #as the `Matched` block below does. Operating on `nn` itself made
-        #`rownames()` NULL, so the guard never fired and the two `All` rows were
-        #always printed even when the effective and unweighted sizes agreed.
-        if (all(c("All (ESS)", "All (Unweighted)") %in% rownames(nn[[ti]])) &&
-            all(check_if_zero(nn[[ti]]["All (ESS)", ] - nn[[ti]]["All (Unweighted)", ]))) {
-          nn[[ti]] <- nn[[ti]][rownames(nn[[ti]]) != "All (Unweighted)", , drop = FALSE]
-          rownames(nn[[ti]])[rownames(nn[[ti]]) == "All (ESS)"] <- "All"
-        }
-        
-        if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn[[ti]])) && 
-            all(check_if_zero(nn[[ti]]["Matched (ESS)", ] - nn[[ti]]["Matched (Unweighted)", ]))) {
-          nn[[ti]] <- nn[[ti]][rownames(nn[[ti]]) != "Matched (Unweighted)", , drop = FALSE]
-          rownames(nn[[ti]])[rownames(nn[[ti]]) == "Matched (ESS)"] <- "Matched"
-        }
-        
-        if (length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)) {
-          ess <- ifelse(ss.type == "ess", "*", "")
-          nn[[ti]] <- setNames(cbind(nn[[ti]], ess), c(names(nn[[ti]]), ""))
-          print.warning <- TRUE
-        }
-        
-        .print_data_frame(round_df_char(nn[[ti]], digits = min(2L, p.ops$digits), pad = " "))
+        print.warning <- .print_observations(nn[[ti]], p.ops$digits, tag = FALSE) ||
+          print.warning
       }
-      
+
       if (print.warning) {
         cat(.it("* indicates effective sample size"))
       }
@@ -1510,6 +1378,44 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
        subclass.summary = p.ops$subclass.summary,
        which.subclass = which.subclass,
        disp.call = p.ops$disp.call)
+}
+
+#Prints one `Observations` table: drop the rows no unit reached, collapse an
+#`(ESS)`/`(Unweighted)` pair when the two agree, and mark the effective sample sizes
+#with a star. Returns whether a star was printed, so the caller can add the footnote
+#once even when it prints several tables.
+.print_observations <- function(nn, digits, tag = TRUE) {
+  drop.nn <- rowSums(nn) == 0
+  ss.type <- .attr(nn, "ss.type")[!drop.nn]
+  heading <- .attr(nn, "tag")
+
+  nn <- nn[!drop.nn, , drop = FALSE]
+
+  for (r in c("All", "Matched")) {
+    rows <- paste0(r, c(" (ESS)", " (Unweighted)"))
+
+    if (!all(rows %in% rownames(nn)) ||
+        !all(check_if_zero(nn[rows[1L], ] - nn[rows[2L], ]))) {
+      next
+    }
+
+    nn <- nn[rownames(nn) != rows[2L], , drop = FALSE]
+    rownames(nn)[rownames(nn) == rows[1L]] <- r
+  }
+
+  if (tag) {
+    cat(.ul(heading) %+% "\n")
+  }
+
+  starred <- length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)
+
+  if (starred) {
+    nn <- setNames(cbind(nn, ifelse(ss.type == "ess", "*", "")), c(names(nn), ""))
+  }
+
+  .print_data_frame(round_df_char(nn, digits = min(2L, digits), pad = " "))
+
+  starred
 }
 
 #Alternative to print.data.frame() that only prints non-length 0 data.frames
