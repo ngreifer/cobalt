@@ -94,19 +94,12 @@ base.bal.tab.msm <- function(X,
   
   if ((!A$quick || msm.summary) && is_null(X$imp) && all_the_same(treat.types) &&
       !any(treat.types == "multinomial")) {
-    out[["Balance.Across.Times"]] <- balance_summary(out[["Time.Balance"]],
-                                                     agg.funs = "max",
-                                                     include.times = TRUE)
-    
-    out <- c(out,
-             threshold_summary(compute = .attr(out[["Time.Balance"]][[1L]][["Balance"]], "compute"),
-                               thresholds = .attr(out[["Time.Balance"]][[1L]][["Balance"]], "thresholds"),
-                               no.adj = !.attr(out[["Time.Balance"]][[1L]], "print.options")$disp.adj,
-                               balance.table = out[["Balance.Across.Times"]],
-                               weight.names = .attr(out[["Time.Balance"]][[1L]], "print.options")$weight.names,
-                               agg.fun = "max"))
-    
-    out[["Observations"]] <- grab(out[["Time.Balance"]], "Observations")
+    summ <- .bal.tab_summarize(out[["Time.Balance"]], "Balance.Across.Times",
+                               agg.funs = "max",
+                               obs.fun = function(cl) grab(cl, "Observations"),
+                               include.times = TRUE)
+
+    out[names(summ)] <- summ
   }
   
   out[["call"]] <- X$call

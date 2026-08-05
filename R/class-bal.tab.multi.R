@@ -98,25 +98,20 @@ base.bal.tab.multi <- function(X,
     }
   }
   
-  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
-  
-  var_types <- .attr(X$covs, "var_types")
-  
-  std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
-  A$continuous <- std.defaults$continuous
-  A$binary <- std.defaults$binary
-  
-  
+  prep <- .bal.tab_prepare(X, A)
+  X <- prep$X
+  A <- prep$A
+
   #A multi-category treatment is never continuous, so this is always the binary
   #branch of the resolver. When it returns a denominator, one is precomputed per
   #weight set across the whole sample and handed to every pairwise child, so that
   #the pairs share a denominator rather than each deriving its own.
-  s.d.denom <- .resolve_s.d.denom(X, var_types, A$continuous, A$binary)
+  s.d.denom <- .resolve_s.d.denom(X, prep$var_types, A$continuous, A$binary)
 
   if (is_not_null(s.d.denom)) {
     X$s.d.denom <- s.d.denom
 
-    bin.vars <- var_types == "Binary"
+    bin.vars <- prep$var_types == "Binary"
     
     if (is_null(X$weights)) {
       X$s.d.denom.list <- list(.compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom,
@@ -173,18 +168,13 @@ base.bal.tab.multi <- function(X,
   out[["Pair.Balance"]] <- balance.tables
   
   if ((multi.summary || !A$quick) && is_null(X$imp)) {
-    out[["Balance.Across.Pairs"]] <- balance_summary(balance.tables, 
-                                                     agg.funs = "max")
-    
-    out <- c(out,
-             threshold_summary(compute = .attr(out[["Pair.Balance"]][[1L]][["Balance"]], "compute"),
-                               thresholds = .attr(out[["Pair.Balance"]][[1L]][["Balance"]], "thresholds"),
-                               no.adj = !.attr(out[["Pair.Balance"]][[1L]], "print.options")$disp.adj,
-                               balance.table = out[["Balance.Across.Pairs"]],
-                               weight.names = .attr(out[["Pair.Balance"]][[1L]], "print.options")$weight.names,
-                               agg.fun = "max"))
-    
-    out[["Observations"]] <- samplesize_multi(balance.tables, treat_names(X$treat), X$focal)
+    summ <- .bal.tab_summarize(out[["Pair.Balance"]], "Balance.Across.Pairs",
+                               agg.funs = "max",
+                               obs.fun = function(cl) {
+                                 samplesize_multi(cl, treat_names(X$treat), X$focal)
+                               })
+
+    out[names(summ)] <- summ
   }
   
   out[["call"]] <- X$call

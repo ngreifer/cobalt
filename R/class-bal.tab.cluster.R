@@ -73,17 +73,13 @@ base.bal.tab.cluster <- function(X,
   #`covs`/`treat`, and `base.bal.tab.msm()` derives the covariates, treatment, and
   #`s.d.denom` for each time point itself, so this preparation is skipped.
   if (is_null(X$covs.list)) {
-    X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
-
-    var_types <- .attr(X$covs, "var_types")
-
-    std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
-    A$continuous <- std.defaults$continuous
-    A$binary <- std.defaults$binary
+    prep <- .bal.tab_prepare(X, A)
+    X <- prep$X
+    A <- prep$A
 
     #A wrapper keeps the user's `s.d.denom` when nothing is standardized, so
     #that each per-stratum child does not re-resolve it independently.
-    X$s.d.denom <- .resolve_s.d.denom(X, var_types, A$continuous, A$binary) %or%
+    X$s.d.denom <- .resolve_s.d.denom(X, prep$var_types, A$continuous, A$binary) %or%
       X$s.d.denom
   }
 
@@ -116,21 +112,14 @@ base.bal.tab.cluster <- function(X,
   if ((cluster.summary || !A$quick) && is_null(X$covs.list) &&
       get.treat.type(X$treat) != "multinomial" && is_null(X$imp) &&
       is_null(X$subclass)) {
-    out[["Balance.Across.Clusters"]] <- balance_summary(out[["Cluster.Balance"]], 
-                                                        agg.funs = agg.fun %or% c("min", "mean", "max"))
-    
-    if (length(agg.fun) == 1L) {
-      out <- c(out,
-               threshold_summary(compute = .attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "compute"),
-                                 thresholds = .attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                 no.adj = !.attr(out[["Cluster.Balance"]][[1L]], "print.options")$disp.adj,
-                                 balance.table = out[["Balance.Across.Clusters"]],
-                                 weight.names = .attr(out[["Cluster.Balance"]][[1L]], "print.options")$weight.names,
-                                 agg.fun = agg.fun))
-    }
-    
-    out[["Observations"]] <- grab(out[["Cluster.Balance"]], "Observations") |>
-      samplesize_across_clusters()
+    summ <- .bal.tab_summarize(out[["Cluster.Balance"]], "Balance.Across.Clusters",
+                               agg.funs = agg.fun,
+                               obs.fun = function(cl) {
+                                 grab(cl, "Observations") |>
+                                   samplesize_across_clusters()
+                               })
+
+    out[names(summ)] <- summ
   }
   
   

@@ -2878,6 +2878,51 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
   
   cbind(Variable = rownames(maxed), as.data.frame(maxed))
 }
+#Resolve the covariates and the standardization defaults once in the wrapper, so that
+#every child inherits them instead of deriving its own. `s.d.denom` is left to the
+#caller: a leaf clears it when nothing is standardized, a wrapper keeps the user's
+#value, and the multi-category wrapper precomputes one denominator per weight set.
+.bal.tab_prepare <- function(X, A) {
+  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
+
+  std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
+  A$continuous <- std.defaults$continuous
+  A$binary <- std.defaults$binary
+
+  list(X = X, A = A, var_types = .attr(X$covs, "var_types"))
+}
+
+#The tail the four recursing wrappers share: summarize the children's balance tables,
+#tally thresholds against that summary, and combine the children's sample sizes. They
+#differ only in what the summary is called, which aggregating functions apply, how
+#sample sizes combine, and whether time points are listed -- so those are arguments,
+#and the four heads stay as four honest functions.
+.bal.tab_summarize <- function(child.list, summary.name, agg.funs, obs.fun,
+                               include.times = FALSE) {
+  p.ops <- .attr(child.list[[1L]], "print.options")
+  balance <- child.list[[1L]][["Balance"]]
+
+  out <- setNames(list(balance_summary(child.list, agg.funs = agg.funs,
+                                      include.times = include.times)),
+                  summary.name)
+
+  #A threshold labels one aggregate, so the tally is only meaningful when a single
+  #aggregating function was asked for.
+  if (length(agg.funs) == 1L) {
+    out <- c(out,
+             threshold_summary(compute = .attr(balance, "compute"),
+                               thresholds = .attr(balance, "thresholds"),
+                               no.adj = !p.ops$disp.adj,
+                               balance.table = out[[summary.name]],
+                               weight.names = p.ops$weight.names,
+                               agg.fun = agg.funs))
+  }
+
+  out[["Observations"]] <- obs.fun(child.list)
+
+  out
+}
+
 threshold_summary <- function(compute, thresholds, no.adj, balance.table, weight.names = NULL, agg.fun = NULL) {
   out <- do.call("c", lapply(compute, function(s) make_list(paste.(c("Balanced", "Max.Imbalance"), s))))
   

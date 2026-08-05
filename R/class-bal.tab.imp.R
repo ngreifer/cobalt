@@ -68,17 +68,13 @@ base.bal.tab.imp <- function(X,
   agg.fun <- as.character(imp.fun %or% A[["agg.fun"]] %or% all.agg.funs)
   agg.fun <- arg::match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
   
-  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
-  
-  var_types <- .attr(X$covs, "var_types")
-  
-  std.defaults <- .get_std_defaults(X$treat, A$continuous, A$binary)
-  A$continuous <- std.defaults$continuous
-  A$binary <- std.defaults$binary
-  
+  prep <- .bal.tab_prepare(X, A)
+  X <- prep$X
+  A <- prep$A
+
   #A wrapper keeps the user's `s.d.denom` when nothing is standardized, so
   #that each per-stratum child does not re-resolve it independently.
-  X$s.d.denom <- .resolve_s.d.denom(X, var_types, A$continuous, A$binary) %or%
+  X$s.d.denom <- .resolve_s.d.denom(X, prep$var_types, A$continuous, A$binary) %or%
     X$s.d.denom
   
   #Setup output object
@@ -111,22 +107,16 @@ base.bal.tab.imp <- function(X,
   #Create summary of lists
   
   if (imp.summary || !A$quick) {
-    out[["Balance.Across.Imputations"]] <- balance_summary(out[["Imputation.Balance"]], 
-                                                           agg.funs = agg.fun)
-    
-    if (length(agg.fun) == 1L) {
-      out <- c(out,
-               threshold_summary(compute = .attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "compute"),
-                                 thresholds = .attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                 no.adj = !.attr(out[["Imputation.Balance"]][[1L]], "print.options")$disp.adj,
-                                 balance.table = out[["Balance.Across.Imputations"]],
-                                 weight.names = .attr(out[["Imputation.Balance"]][[1L]], "print.options")$weight.names,
-                                 agg.fun = agg.fun))
-    }
-    
-    observations <- grab(out[["Imputation.Balance"]], "Observations")
-    
-    out[["Observations"]] <- samplesize_across_imps(observations)
+    summ <- .bal.tab_summarize(out[["Imputation.Balance"]], "Balance.Across.Imputations",
+                               agg.funs = agg.fun,
+                               obs.fun = function(cl) {
+                                 grab(cl, "Observations") |>
+                                   samplesize_across_imps()
+                               })
+
+    #This wrapper declares its slots up front, so fill them rather than appending
+    #duplicates that `$` would then look past.
+    out[names(summ)] <- summ
   }
   
   out[["call"]] <- X$call
