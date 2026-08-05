@@ -347,10 +347,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       B_list <- B_list[rownames(facet_mat)]
       B_names <- names(B_list[[1L]])
       
-      stat.cols <- expand_grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
-                                      c("Un", .attr(x, "print.options")[["weight.names"]]),
-                                      collapse = ".") |>
-        intersect(B_names)
+      stat.cols <- .stat_cols(.attr(x, "print.options"), stats, B_names)
       
       cols.to.keep <- c("variable.names", "Type", facet, stat.cols)
       
@@ -376,8 +373,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         if (abs) {
+          #Each statistic supplies its own absolute value; a variance ratio folds
+          #around 1 rather than 0.
+          col.stat <- .stat_of_col(.attr(x, "print.options"), stats, stat.cols)
+
           B_stack[stat.cols] <- lapply(stat.cols, function(sc) {
-            abs_(B_stack[[sc]], ratio = startsWith(sc, "V.Ratio"))
+            STATS[[col.stat[[sc]]]]$abs(B_stack[[sc]])
           })
         }
         
@@ -446,10 +447,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       
       B_names <- names(B)
       
-      stat.cols <- expand_grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
-                                      c("Un", .attr(x, "print.options")[["weight.names"]]),
-                                      collapse = ".") |>
-        intersect(B_names)
+      stat.cols <- .stat_cols(.attr(x, "print.options"), stats, B_names)
       
       cols.to.keep <- c("variable.names", "Type", stat.cols)
       

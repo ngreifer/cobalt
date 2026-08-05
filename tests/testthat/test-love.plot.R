@@ -492,3 +492,50 @@ test_that("love.plot() falls back to a computed statistic when the default was n
   expect_match(ggplot2::ggplot_build(love.plot(b_ks))$plot$labels$x,
                "Kolmogorov-Smirnov")
 })
+
+test_that("aggregated statistics fold using each statistic's own absolute value", {
+  # love.plot() decided this with `startsWith(name, "V.Ratio")`, a hardcoded column
+  # prefix; it now reads `STATS[[s]]$abs`, so a statistic that folds around something
+  # other than 0 keeps working when a new one is added.
+  covs <- lalonde[c("age", "educ", "re74", "married")]
+
+  b <- bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
+               cluster = cl_idx, un = TRUE, stats = c("m", "v"))
+
+  #`agg.fun = "max"` implies `abs = TRUE`. A variance ratio folds around 1, so every
+  #aggregated value must be at least 1; a mean difference folds around 0.
+  p_v <- love.plot(b, stats = "variance.ratios", agg.fun = "max",
+                   which.cluster = .none)
+  v <- ggplot2::ggplot_build(p_v)$plot$data$stat
+  v <- v[is.finite(v)]
+
+  expect_gt(length(v), 0L)
+  expect_true(all(v >= 1))
+
+  p_m <- suppressWarnings(love.plot(b, stats = "mean.diffs", agg.fun = "max",
+                                    which.cluster = .none))
+  m <- ggplot2::ggplot_build(p_m)$plot$data$stat
+  m <- m[is.finite(m)]
+
+  expect_true(all(m >= 0))
+  expect_true(any(m < 1))
+
+  #Without folding, a variance ratio below 1 survives.
+  p_r <- love.plot(b, stats = "variance.ratios", agg.fun = "range",
+                   which.cluster = .none)
+  r <- ggplot2::ggplot_build(p_r)$plot$data$min.stat
+  expect_true(any(r[is.finite(r)] < 1))
+
+  #The plotted values are exactly the registry's fold, aggregated across clusters --
+  #computed here for the adjusted sample, which is half of what the plot shows.
+  per <- do.call(rbind, lapply(b$Cluster.Balance, function(z) z$Balance$V.Ratio.Adj))
+  folded <- apply(cobalt:::STATS[["variance.ratios"]]$abs(per), 2L, max)
+  folded <- folded[is.finite(folded)]
+
+  expect_length(folded, 3L)
+  expect_true(all(round(folded, 6L) %in% round(v, 6L)))
+
+  #A plain `abs()` would leave the ratios below 1 alone, giving different numbers.
+  expect_false(all(round(apply(abs(per), 2L, max)[is.finite(folded)], 6L) %in%
+                     round(v, 6L)))
+})

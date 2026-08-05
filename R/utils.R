@@ -77,9 +77,6 @@ add_quotes <- function(x, quotes = 2L) {
   
   x
 }
-expand_grid_string <- function(..., collapse = "") {
-  do.call("paste", c(expand.grid(...), sep = collapse))
-}
 num_to_superscript <- function(x) {
   nums <- setNames(c("\u2070",
                      "\u00B9",

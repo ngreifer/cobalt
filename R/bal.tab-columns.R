@@ -99,6 +99,29 @@
                     include.times = include.times)
 }
 
+#The columns of the innermost balance tables that hold the requested statistics, in
+#the order `stats` names them, restricted to those a given table actually has.
+#`love.plot()` works on the unaggregated tables, so this asks for no aggregation.
+.stat_cols <- function(p.ops, stats, nms) {
+  samples <- c("Un", p.ops[["weight.names"]])
+
+  spec <- .p.ops_col_spec(p.ops, samples = samples)
+  spec <- spec[spec[["quantity"]] == "stat" & spec[["stat"]] %in% stats, , drop = FALSE]
+  spec <- spec[order(match(spec[["sample"]], samples),
+                     match(spec[["stat"]], stats)), , drop = FALSE]
+
+  intersect(spec[["name"]], nms)
+}
+
+#The statistic a column belongs to, so that its own absolute-value function can be
+#applied: a variance ratio folds around 1, not 0.
+.stat_of_col <- function(p.ops, stats, nms) {
+  spec <- .p.ops_col_spec(p.ops, samples = c("Un", p.ops[["weight.names"]]))
+  spec <- spec[spec[["quantity"]] == "stat" & spec[["stat"]] %in% stats, , drop = FALSE]
+
+  setNames(spec[["stat"]], spec[["name"]])[nms]
+}
+
 #Which of a table's columns to display. Selecting by name rather than by position is
 #what keeps this honest: the display rules and the column layout are decided in
 #different places, and a positional vector silently misaligns when they disagree.
