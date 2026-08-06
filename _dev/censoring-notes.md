@@ -221,8 +221,14 @@ full sample it compares against — so `at.risk[[i]]` is the set *entering* `i`.
 same columns nor the same meaning, so a list mixing them gets no `Balance.Across.Times`,
 exactly as a list mixing continuous and binary treatments does not. The existing
 `all_the_same(treat.types)` gate already produced that and was left alone; an all-censoring
-list is not a mixture and is still summarized. What did have to move is `Observations`,
-which lived *inside* that gate — so a mixed model reported no sample sizes at all.
+list is not a mixture and is still summarized.
+
+`Observations` is now always *computed*, where it used to come only with the summary, but it
+is still only *printed* with it. The collected table says what each time point's own table
+already says, gathered in one place, so it belongs with the one other thing that gathers the
+time points together; a mixed model has the numbers in its per-time-point tables and does
+not need them twice. (An earlier pass here printed it unconditionally, which is what showing
+it to Noah corrected.)
 
 Things worth remembering:
 

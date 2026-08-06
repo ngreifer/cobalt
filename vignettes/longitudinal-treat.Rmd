@@ -23,7 +23,7 @@ knitr::opts_chunk$set(message = FALSE,
                       eval = rlang::is_installed("WeightIt"))
 ```
 
-This is an introduction to the use of *cobalt* with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependent confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see @thoemmesPrimerInverseProbability2016, @vanderweeleCausalInferenceLongitudinal2016, @coleConstructingInverseProbability2008, or @robinsMarginalStructuralModels2000. The key issue addressed by this guide and *cobalt* in general is assessing balance before each treatment period to ensure the removal of confounding.
+This is an introduction to the use of *cobalt* with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependent confounding and censoring to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSMs), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see @thoemmesPrimerInverseProbability2016, @vanderweeleCausalInferenceLongitudinal2016, @coleConstructingInverseProbability2008, or @robinsMarginalStructuralModels2000. The key issue addressed by this guide and *cobalt* in general is assessing balance before each treatment period to ensure the removal of confounding and bias due to censoring.
 
 In preprocessing for MSMs, three types of variables are relevant: baseline covariates, treatments, and intermediate outcomes/time-varying covariates. The goal of balance assessment is to assess whether after preprocessing, the resulting sample is one in which each treatment is independent of baseline covariates, treatment history, and time-varying covariates. The tools in *cobalt* have been developed to satisfy these goals.
 
@@ -45,14 +45,14 @@ We have the variables `Y_B`, the outcome; `X1_0` and `X2_0`, the baseline covari
 The goal of balance assessment in this scenario is to ensure the following:
 
 1)  `A_1` is independent from `X1_0` and `X2_0`
-2)  `A_2` is independent from `X1_0`, `X2_0`, `A_1,`X1_1`, and`X2_1\`
-3)  `tx3` is independent from `X1_0`, `X2_0`, `A_1,`X1_1`,`X2_1`,`A_2, `X1_2`, and `X2_2`
+2)  `A_2` is independent from `X1_0`, `X2_0`, `A_1`, `X1_1`, and `X2_1`
+3)  `A_3` is independent from `X1_0`, `X2_0`, `A_1`, `X1_1`, `X2_1`, `A_2`, `X1_2`, and `X2_2`
 
-Note these conditions are different from and weaker than those described by @jacksonDiagnosticsConfoundingTimevarying2016. See his `confoundr` package for implementing the diagnostics he describes.
+Note these conditions are different from and weaker than those described by @jacksonDiagnosticsConfoundingTimevarying2016. See his *confoundr* package for implementing the diagnostics he describes.
 
 ## `bal.tab()`
 
-To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the *WeightIt* input seen above. The data frame interface requires a list of treatment values for each time point and a data frame or list of covariates for each time point. We'll use the formula interface here.
+To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the *WeightIt* input seen below. The data frame interface requires a list of treatment values for each time point and a data frame or list of covariates for each time point. We'll use the formula interface here.
 
 ```{r}
 bal.tab(list(A_1 ~ X1_0 + X2_0,
@@ -167,7 +167,7 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
 
 There is one table per entry, of whichever kind that entry's model is. The first, second, and fourth are ordinary treatment balance tables; the third compares the units still under observation to the full sample at risk at that point, as described in the "Using *cobalt* with censoring" section of `vignette("cobalt")`. Its sample size table has a single column and reports how many units were at risk, how many remained, and how many were censored.
 
-Two things about the third and fourth tables are worth pointing out. First, the fourth table is computed among the 6158 units still under observation, not all 7500: a unit censored at period 2 has no treatment at period 3 and nothing left to balance. Which units those are is worked out from the censoring indicators themselves, so it makes no difference whether the data leaves `A_3` missing for them, as here, or records a value anyway. Second, no balance summary across time points is displayed. A censoring table and a treatment table describe different comparisons, so there is nothing meaningful to aggregate, just as there is nothing to aggregate across a mix of continuous and binary treatments. Sample sizes are still reported for every time point. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.
+Two things about the third and fourth tables are worth pointing out. First, the fourth table is computed among the 6158 units still under observation, not all 7500: a unit censored at period 2 has no treatment at period 3 and nothing left to balance. Which units those are is worked out from the censoring indicators themselves, so it makes no difference whether the data leaves `A_3` missing for them, as here, or records a value anyway. Second, no balance summary across time points is displayed, and neither is the collected table of sample sizes that normally accompanies it; each time point's own table reports its sample sizes anyway. A censoring table and a treatment table describe different comparisons, so there is nothing meaningful to aggregate across them, just as there is nothing to aggregate across a mix of continuous and binary treatments. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.
 
 `weightitMSM()` takes the same list and fits the censoring model along with the treatment models, returning a single set of weights that is their product.
 

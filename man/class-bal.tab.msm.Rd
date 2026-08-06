@@ -20,7 +20,7 @@ One entry of the list may be a censoring indicator marked with \code{\link[=.cen
 
 Each entry is assessed among the units still under observation entering it. A unit is under observation until a censoring indicator earlier in the list marks it censored; the risk set is accumulated from the indicators themselves rather than read off the treatments, so it makes no difference whether the data records a treatment for a unit that has already dropped out or leaves it missing. A missing treatment for a unit that is still under observation is an error naming the time point it appeared in. A censoring entry's own comparison uses the risk set as it stands entering it, so it includes the units it is about to remove; those are the full sample it compares against.
 
-A censoring balance table and a treatment balance table say different things about different samples, so a list that mixes them gets no balance summary across time points, exactly as a list mixing continuous and binary treatments does not. The sample sizes are still reported for every time point. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.
+A censoring balance table and a treatment balance table say different things about different samples, so a list that mixes them gets no balance summary across time points, exactly as a list mixing continuous and binary treatments does not. Each time point's own table still reports its sample sizes. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.
 
 Each time point's default \code{s.d.denom} is the one its own kind of model implies -- \code{"pooled"} for a binary or multi-category treatment, \code{"all"} for a continuous one, and \code{"full"} for a censoring indicator -- so that a model gives the same numbers in a list as it would on its own. A value supplied to \code{s.d.denom} is shared by every time point, which is one reason it is recommended not to set it for longitudinal treatments.
 
@@ -44,7 +44,7 @@ The output is a \code{bal.tab.msm} object, which inherits from \code{bal.tab}. I
 \itemize{
 \item \code{Time.Balance}: For each time point, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.
 \item \code{Balance.Across.Times}: The balance summary across time points. This will include the maximum balance statistic(s) for each covariate across all time points. Absent when the time points are not all of the same kind.
-\item \code{Observations}: A list with a table of sample sizes or effective sample sizes for each time point, before and after adjustment. Always present, even when there is no balance summary.
+\item \code{Observations}: A list with a table of sample sizes or effective sample sizes for each time point, before and after adjustment. Always present, but displayed only alongside the balance summary across time points: it gathers in one place what each time point's own table has already reported, so without the summary there is nothing it adds.
 }
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.

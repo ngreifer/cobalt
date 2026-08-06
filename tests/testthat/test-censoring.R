@@ -513,8 +513,21 @@ test_that("a longitudinal list gives a table per model, of that model's kind", {
   expect_equal(unname(unlist(b$Observations[[2L]]["Full", ])), sum(!is.na(d$C)))
   expect_equal(sum(unlist(b$Observations[[3L]]["Unadjusted", ])), length(risk3))
 
+  #They are not printed as a table of their own, though: that table belongs to the
+  #summary, and each time point's own table has already reported them. So the counts
+  #appear exactly once each rather than twice.
   out <- capture.output(print(b))
-  expect_true(any(grepl("Uncensored", out, fixed = TRUE)))
+
+  expect_identical(sum(grepl("Uncensored", out, fixed = TRUE)), 1L)
+  expect_false(any(grepl("Time 2", out, fixed = TRUE)))
+
+  #Asking for the summary of a list that has one does print the collected table. (No
+  #censoring indicator here, so `nodegree` is the recorded one rather than the blanked
+  #one `msm_lalonde()` carries.)
+  b_sum <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ), data = lalonde,
+                   weights = w, s.d.denom = "pooled", msm.summary = TRUE)
+
+  expect_true(any(grepl("Time 2", capture.output(print(b_sum)), fixed = TRUE)))
 
   #Every entry a censoring model is not a mixture, so that list is summarized.
   C2 <- rep(c(0L, 0L, 0L, 1L, 0L), length.out = n_lalonde)
