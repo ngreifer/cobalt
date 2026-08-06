@@ -437,6 +437,44 @@ golden_grid <- function() {
             msm.summary = TRUE)
   }
 
+  ## ---- longitudinal with censoring ------------------------------------------
+
+  #A list mixing kinds of model: a table of each kind, sample sizes for both, and no
+  #summary across them.
+  g$msm_cens_mixed <- function() {
+    bal.tab(list(treat ~ age + educ,
+                 .cens(cens) ~ age + educ + treat,
+                 nodegree ~ age + educ + treat),
+            data = transform(lalonde, cens = cens), weights = w, un = TRUE)
+  }
+  g$msm_cens_mixed_disp <- function() {
+    bal.tab(list(treat ~ age + educ,
+                 .cens(cens) ~ age + educ + treat,
+                 nodegree ~ age + educ + treat),
+            data = transform(lalonde, cens = cens), weights = w, un = TRUE,
+            disp = c("means", "sds"), stats = bin, thresholds = c(m = .1))
+  }
+  #Every entry a censoring model, which does get a summary across time points. The
+  #second indicator is blank for the units the first one censored.
+  g$msm_cens_only <- function() {
+    cens2 <- rep(c(0L, 0L, 0L, 1L, 0L), length.out = length(cens))
+    is.na(cens2[cens == 1L]) <- TRUE
+
+    bal.tab(list(.cens(cens) ~ age + educ,
+                 .cens(cens2) ~ age + educ),
+            data = transform(lalonde, cens = cens, cens2 = cens2),
+            weights = w, un = TRUE, msm.summary = TRUE)
+  }
+  g$msm_cens_cluster <- function() {
+    bal.tab(list(treat ~ age + educ,
+                 .cens(cens) ~ age + educ + treat,
+                 nodegree ~ age + educ + treat),
+            data = transform(lalonde, cens = cens), weights = w, cluster = cl,
+            un = TRUE)
+  }
+  #The `weightitmsm_cens` fixture is picked up by the per-object loop below, which covers
+  #the object interface and its `quick = FALSE` view.
+
   ## ---- nested shapes --------------------------------------------------------
 
   g$nest_cluster_imp <- function() {

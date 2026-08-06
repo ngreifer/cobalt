@@ -1064,7 +1064,10 @@ subset_X <- function(X, subset = NULL) {
     }
     
     if (inherits(x, "treat")) {
-      return(process_treat(out, keep_values = TRUE))
+      #Subsetting never introduces a missing value, so a subset may have one exactly when
+      #the treatment it came from did -- a longitudinal treatment undefined for the units
+      #a censoring indicator removed earlier.
+      return(process_treat(out, keep_values = TRUE, .missing.okay = anyNA(x)))
     }
     
     if (is_null(attrs_to_subset)) {
@@ -1189,12 +1192,11 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
           if (i %in% vectors) .stack(objects[[i]], seq_along(objects[[i]]))
           else if (i %in% data.frames) .stack_rows(objects[[i]])
           else lapply(objects[[i]], function(j) {
-            if (!is.factor(j) && !is_mat_like(j)) {
-              arg::err("{.arg {i}} can only contain vectors or data frames")
-            }
-
-            if (is.factor(j)) .stack(j, seq_along(j))
-            else .stack_rows(j)
+            #Any vector stacks the same way, and a longitudinal treatment is one whenever
+            #it is not a factor: continuous at that time point, or a censoring indicator.
+            if (is_mat_like(j)) .stack_rows(j)
+            else if (is.atomic(j)) .stack(j, seq_along(j))
+            else arg::err("{.arg {i}} can only contain vectors or data frames")
           })
         }
       }

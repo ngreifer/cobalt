@@ -1931,12 +1931,14 @@ x2base.weightitMSM <- function(x, ...) {
   data <- .d[["data"]]
   imp <- .d[["imp"]]
   
+  models <- .weightitMSM_models(x)
+
   #Process treat.list
-  treat.list <- process_treat.list(x[["treat.list"]],
+  treat.list <- process_treat.list(models[["treat.list"]],
                                    data, weightitMSM.data, weightitMSM.data2)
   #Process covs.list
-  covs.list <- lapply(x[["covs.list"]], function(z) get_covs_from_formula(data = z))
-  
+  covs.list <- lapply(models[["covs.list"]], function(z) get_covs_from_formula(data = z))
+
   #Get estimand
   estimand <- x[["estimand"]]
   
@@ -1984,6 +1986,39 @@ x2base.weightitMSM <- function(x, ...) {
             ...,
             .call = x[["call"]],
             .msm = TRUE)
+}
+
+#The treatment and censoring models of a `weightitMSM` object, in the order they were
+#fitted. `weightitMSM()` segregates them -- `treat.list`/`covs.list` hold only the
+#treatment models and `cens.list`/`cens.covs.list` only the censoring ones -- and records
+#where each censoring model sat in the formula list in `cens.time`. Putting them back in
+#that order is what makes each balance table correspond to a model, and what lets the
+#risk set accumulate down the list.
+.weightitMSM_models <- function(x) {
+  if (is_null(x[["cens.list"]])) {
+    return(list(treat.list = x[["treat.list"]], covs.list = x[["covs.list"]]))
+  }
+
+  n.models <- length(x[["treat.list"]]) + length(x[["cens.list"]])
+  cens.pos <- as.integer(x[["cens.time"]])
+  treat.pos <- setdiff(seq_len(n.models), cens.pos)
+
+  treat.list <- make_list(n.models)
+  treat.list[treat.pos] <- x[["treat.list"]]
+  treat.list[cens.pos] <- x[["cens.list"]]
+
+  names(treat.list) <- character(n.models)
+  names(treat.list)[treat.pos] <- names(x[["treat.list"]]) %or% as.character(treat.pos)
+  #The censoring models' names live on `cens.time` rather than on `cens.list`.
+  names(treat.list)[cens.pos] <- .uncens_name(names(x[["cens.time"]])) %or%
+    as.character(cens.pos)
+
+  #Neither covariate list is named.
+  covs.list <- make_list(n.models)
+  covs.list[treat.pos] <- x[["covs.list"]]
+  covs.list[cens.pos] <- x[["cens.covs.list"]]
+
+  list(treat.list = treat.list, covs.list = covs.list)
 }
 
 #' @exportS3Method NULL

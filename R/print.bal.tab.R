@@ -324,24 +324,35 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     }
     
     .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
-    
-    if (is_not_null(nn)) {
-      print.warning <- FALSE
-      
-      #One table per time point, under a single heading.
-      cli::cat_line(.ul(.attr(nn[[1L]], "tag")))
-      
-      for (ti in seq_along(nn)) {
-        cli::cat_line(" - ", .it(paste0("Time ", ti)))
-        print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE) || print.warning
-      }
-      
-      if (print.warning) {
-        cat(.it("* indicates effective sample size"))
-      }
+  }
+
+  #Sample sizes are printed whether or not there was a summary to print above them: a
+  #list mixing kinds of model has no summary but still describes a sample at each time
+  #point.
+  if (is_not_null(nn)) {
+    print.warning <- FALSE
+
+    #One table per time point. The tables share a heading when they are the same kind of
+    #table; when they are not -- a treatment time point counts groups, a censoring one
+    #counts the units still under observation -- each prints its own.
+    tags <- unlist(lapply(nn, attr, "tag"))
+    shared.tag <- length(tags) == length(nn) && all_the_same(tags)
+
+    if (shared.tag) {
+      cli::cat_line(.ul(tags[1L]))
+    }
+
+    for (ti in seq_along(nn)) {
+      cli::cat_line(" - ", .it(paste0("Time ", ti)))
+      print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]],
+                                           tag = !shared.tag) || print.warning
+    }
+
+    if (print.warning) {
+      cat(.it("* indicates effective sample size"))
     }
   }
-  
+
   invisible(x)
 }
 

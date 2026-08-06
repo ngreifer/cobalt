@@ -132,6 +132,22 @@
   list(f = .uncens_formula(f), censoring = TRUE)
 }
 
+#The name a censoring model goes by. `WeightIt::weightitMSM()` records the deparsed left
+#side of each censoring formula, marker and all (`WeightIt::.cens(C)`); everywhere else in
+#cobalt a censoring indicator goes by its own name, which is also what a user would hand
+#to `which.time`. Anything that is not a marked left side comes back untouched.
+.uncens_name <- function(x) {
+  vapply(x, function(nm) {
+    f <- tryCatch(rlang::new_formula(str2lang(nm), 1), error = function(e) NULL)
+
+    if (is_null(f) || !.is_cens_formula(f)) {
+      return(nm)
+    }
+
+    deparse1(rlang::f_lhs(.uncens_formula(f)))
+  }, character(1L), USE.NAMES = FALSE)
+}
+
 #Is this treatment a censoring indicator? Reads the tag `.cens()` leaves, from either
 #package, without requiring the vector to have been processed.
 .is_cens <- function(treat) {

@@ -348,12 +348,6 @@ test_that("what does not apply to a censoring indicator says so", {
   #With everyone censored there is no sample left.
   expect_err(bal.tab(covs, treat = .cens(rep(1L, n_lalonde))),
              "every unit is censored")
-
-  #A censoring indicator among longitudinal treatments is not supported yet, and says so
-  #rather than failing somewhere further in.
-  expect_err(bal.plot(list(.cens(cens_idx) ~ age, treat ~ age + educ),
-                      data = transform(lalonde, cens_idx = cens_idx), var.name = "age"),
-             "does not yet support a censoring indicator among longitudinal treatments")
 })
 
 test_that("subclassification is itself a censoring solution", {
@@ -464,6 +458,231 @@ test_that("bal.plot() shows the weighted sample against the full one", {
   skip_if_not_installed("WeightIt")
   expect_no_error(ggplot2::ggplot_build(bal.plot(fx("weightit_cens"),
                                                 var.name = "age", which = "both")))
+})
+
+#A longitudinal data set of the shape `weightitMSM()` takes: a treatment, then a
+#censoring indicator, then a treatment only the units still under observation have. The
+#risk set entering the third model is the units `C` did not censor.
+msm_lalonde <- function() {
+  d <- transform(lalonde, C = cens_idx)
+  is.na(d$nodegree[cens_idx == 1L]) <- TRUE
+  d
+}
+
+msm_forms <- function() {
+  list(treat ~ age + educ,
+       .cens(C) ~ age + educ,
+       nodegree ~ age + educ)
+}
+
+test_that("a longitudinal list gives a table per model, of that model's kind", {
+  d <- msm_lalonde()
+  covs <- d[c("age", "educ")]
+  w <- w_fixed
+  risk3 <- which(cens_idx == 0L)
+
+  b <- bal.tab(msm_forms(), data = d, weights = w, un = TRUE)
+
+  expect_length(b$Time.Balance, 3L)
+  expect_s3_class(b$Time.Balance[[1L]], "bal.tab.bin")
+  expect_s3_class(b$Time.Balance[[2L]], "bal.tab.cens")
+  expect_s3_class(b$Time.Balance[[3L]], "bal.tab.bin")
+
+  #Each table is the table that model would have produced on its own, computed on the
+  #units still under observation entering it. The censoring one is the manual stacking
+  #that every other number in this file is pinned to.
+  expect_equal(b$Time.Balance[[1L]]$Balance,
+               bal.tab(covs, treat = d$treat, weights = w, s.d.denom = "pooled",
+                       un = TRUE)$Balance)
+
+  expect_equal(b$Time.Balance[[2L]]$Balance,
+               cens_manual(covs, C = d$C, weights = w, un = TRUE)$Balance)
+
+  expect_equal(b$Time.Balance[[3L]]$Balance,
+               bal.tab(covs[risk3, ], treat = d$nodegree[risk3], weights = w[risk3],
+                       s.d.denom = "pooled", un = TRUE)$Balance)
+
+  #A list mixing kinds of model has nothing to aggregate across, exactly as a list
+  #mixing continuous and binary treatments does not.
+  expect_null(b$Balance.Across.Times)
+
+  #Sample sizes are produced anyway, one table per time point, each of its own shape.
+  expect_length(b$Observations, 3L)
+  expect_identical(names(b$Observations[[2L]]), "Total")
+  expect_true(all(c("Full", "Uncensored", "Censored") %in% rownames(b$Observations[[2L]])))
+  expect_equal(unname(unlist(b$Observations[[2L]]["Full", ])), sum(!is.na(d$C)))
+  expect_equal(sum(unlist(b$Observations[[3L]]["Unadjusted", ])), length(risk3))
+
+  out <- capture.output(print(b))
+  expect_true(any(grepl("Uncensored", out, fixed = TRUE)))
+
+  #Every entry a censoring model is not a mixture, so that list is summarized.
+  C2 <- rep(c(0L, 0L, 0L, 1L, 0L), length.out = n_lalonde)
+  is.na(C2[cens_idx == 1L]) <- TRUE
+
+  b_all <- bal.tab(list(.cens(C) ~ age + educ, .cens(C2) ~ age + educ),
+                   data = transform(d, C2 = C2), weights = w, un = TRUE,
+                   msm.summary = TRUE)
+
+  expect_s3_class(b_all$Balance.Across.Times, "data.frame")
+  expect_true("Max.Diff.Adj" %in% names(b_all$Balance.Across.Times))
+
+  #The second indicator's full sample is the risk set entering it, not the cohort.
+  expect_equal(unname(unlist(b_all$Observations[[2L]]["Full", ])), sum(cens_idx == 0L))
+})
+
+test_that("the risk set is accumulated from the censoring indicators", {
+  skip_if_not_installed("WeightIt")
+
+  W <- fx("weightitmsm_cens")
+  X <- x2base(process_obj(W))
+
+  #Two independent derivations of the same thing: WeightIt builds `at.risk` while
+  #fitting the models, and this rebuilds it from the indicators alone.
+  at.risk <- .msm_at_risk(X$treat.list)
+
+  expect_length(at.risk, ncol(W$at.risk))
+  for (ti in seq_along(at.risk)) {
+    expect_identical(unname(at.risk[[ti]]), unname(W$at.risk[, ti]))
+  }
+
+  #A censoring model's own risk set still holds the units it is about to remove -- they
+  #are half of what it compares -- and the model after it does not.
+  expect_true(all(at.risk[[2L]]))
+  expect_identical(base::which(at.risk[[3L]]), base::which(cens_idx == 0L))
+
+  b <- bal.tab(W, un = TRUE)
+
+  expect_length(b$Time.Balance, 3L)
+  expect_s3_class(b$Time.Balance[[2L]], "bal.tab.cens")
+  expect_identical(names(b$Time.Balance), c("treat", "cens_idx", "nodegree"))
+})
+
+test_that("which units are at risk does not depend on how the data records the rest", {
+  #A unit censored at time 2 has no treatment at time 3. Reading the risk set from the
+  #indicators rather than from where treatments happen to be missing means it makes no
+  #difference whether the data blanks those treatments or records them.
+  d_na <- msm_lalonde()
+  d_recorded <- transform(lalonde, C = cens_idx)
+
+  b_na <- bal.tab(msm_forms(), data = d_na, weights = w_fixed, un = TRUE)
+  b_recorded <- bal.tab(msm_forms(), data = d_recorded, weights = w_fixed, un = TRUE)
+
+  expect_equal(grab(b_na$Time.Balance, "Balance"),
+               grab(b_recorded$Time.Balance, "Balance"))
+  expect_equal(b_na$Observations, b_recorded$Observations)
+
+  #A unit still under observation whose treatment is unknown is a different thing, and
+  #the error says which model it turned up in.
+  d_bad <- d_na
+  is.na(d_bad$nodegree[base::which(cens_idx == 0L)[1L]]) <- TRUE
+
+  expect_err(bal.tab(msm_forms(), data = d_bad, weights = w_fixed),
+             'in time point "nodegree": missing values must not exist in `treat`')
+
+  #Without a censoring indicator in the list a missing treatment stays an error, as it
+  #is for a point treatment.
+  expect_err(bal.tab(list(treat ~ age + educ, nodegree ~ age + educ),
+                     data = d_na, weights = w_fixed),
+             "missing values must not exist in `treat`")
+})
+
+test_that("a longitudinal censoring model composes with imputations", {
+  d <- msm_lalonde()
+  risk3 <- which(cens_idx == 0L)
+
+  b <- bal.tab(msm_forms(), data = d, weights = w_fixed, imp = imp_idx, un = TRUE)
+
+  #`msm` ranks above `imp`, so each time point holds the imputations and the censoring
+  #model is a leaf inside them.
+  expect_s3_class(b$Time.Balance[[2L]], "bal.tab.imp")
+  expect_s3_class(b$Time.Balance[[2L]]$Imputation.Balance[[1L]], "bal.tab.cens")
+
+  in.imp <- imp_idx == 1L
+
+  expect_equal(b$Time.Balance[[2L]]$Imputation.Balance[[1L]]$Balance,
+               cens_manual(d[in.imp, c("age", "educ")], C = d$C[in.imp],
+                           weights = w_fixed[in.imp], un = TRUE)$Balance)
+
+  #Each imputation's last time point sees only the units still under observation in it.
+  expect_equal(sum(unlist(b$Time.Balance[[3L]]$Imputation.Balance[[1L]]$Observations["Unadjusted", ])),
+               sum(in.imp[risk3]))
+
+  #A mixture still has no summary across time points, and still has sample sizes.
+  expect_null(b$Balance.Across.Times)
+  expect_length(b$Observations, 3L)
+})
+
+test_that("a longitudinal censoring model composes with clusters", {
+  d <- msm_lalonde()
+  risk3 <- which(cens_idx == 0L)
+
+  b <- bal.tab(msm_forms(), data = d, weights = w_fixed, cluster = cl_idx, un = TRUE)
+
+  #`cluster` ranks above `msm`, so each cluster gets its own longitudinal balance table
+  #and the censoring model is a leaf inside it.
+  expect_s3_class(b, "bal.tab.cluster")
+
+  in.cluster <- cl_idx == levels(cl_idx)[1L]
+  b_cl <- b$Cluster.Balance[[1L]]
+
+  expect_s3_class(b_cl, "bal.tab.msm")
+  expect_s3_class(b_cl$Time.Balance[[2L]], "bal.tab.cens")
+
+  #Each cluster's censoring table is that cluster's two samples, and the last time point
+  #sees only the units still under observation in it.
+  expect_equal(b_cl$Time.Balance[[2L]]$Balance,
+               cens_manual(d[in.cluster, c("age", "educ")], C = d$C[in.cluster],
+                           weights = w_fixed[in.cluster], un = TRUE)$Balance)
+
+  expect_equal(sum(unlist(b_cl$Observations[[3L]]["Unadjusted", ])),
+               sum(in.cluster[risk3]))
+})
+
+test_that("bal.plot() draws a longitudinal censoring model at each kind of time point", {
+  d <- msm_lalonde()
+  w <- cens_w()
+  risk3 <- which(cens_idx == 0L)
+
+  local_null_device()
+
+  plot_data <- function(p) do.call("rbind", lapply(p$layers, function(l) l$data))
+
+  #A treatment time point shows only the units still under observation entering it; a
+  #censoring one shows the two samples it compares, stacked.
+  p1 <- bal.plot(msm_forms(), data = d, weights = w, var.name = "age", which.time = 1,
+                 which = "unadjusted")
+  expect_identical(nrow(plot_data(p1)), n_lalonde)
+
+  p2 <- bal.plot(msm_forms(), data = d, weights = w, var.name = "age", which.time = 2,
+                 which = "both")
+  d2 <- plot_data(p2)
+
+  expect_setequal(as.character(unique(d2$treat)), c("Uncensored", "Full"))
+  expect_identical(nrow(d2), 2L * (n_lalonde + length(risk3)))
+
+  #The full sample is the target, so it is never reweighted; the uncensored sample
+  #carries the weights in the adjusted panel. (`bal.plot()` rescales weights within a
+  #panel, so what is checked is that they vary, not their values.)
+  is.adj <- d2$which == "Adjusted Sample"
+
+  expect_length(unique(d2$weights[is.adj & d2$treat == "Full"]), 1L)
+  expect_gt(length(unique(d2$weights[is.adj & d2$treat == "Uncensored"])), 1L)
+
+  p3 <- bal.plot(msm_forms(), data = d, weights = w, var.name = "age", which.time = 3,
+                 which = "unadjusted")
+  expect_identical(nrow(plot_data(p3)), length(risk3))
+
+  #Every time point at once, and time points picked out by the name of their model.
+  all.times <- plot_data(bal.plot(msm_forms(), data = d, weights = w, var.name = "age",
+                                  which = "adjusted"))
+  expect_identical(nrow(all.times),
+                   as.integer(n_lalonde + (n_lalonde + length(risk3)) + length(risk3)))
+
+  by.name <- plot_data(bal.plot(msm_forms(), data = d, weights = w, var.name = "age",
+                                which.time = "C", which = "unadjusted"))
+  expect_identical(nrow(by.name), n_lalonde + length(risk3))
+  expect_setequal(as.character(unique(by.name$treat)), c("Uncensored", "Full"))
 })
 
 test_that("a treat carries its type and group names through subsetting", {

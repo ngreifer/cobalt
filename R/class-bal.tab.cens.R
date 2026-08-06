@@ -28,6 +28,9 @@
 #'
 #' `cluster` and `imp` apply as usual, and produce a `bal.tab.cluster` or `bal.tab.imp` object whose per-cluster or per-imputation components are the censoring balance tables described here.
 #'
+#' @section Among longitudinal treatments:
+#' A censoring indicator can appear among a list of longitudinal treatments, as in `list(A1 ~ x, .cens(C1) ~ x, A2 ~ x)`, which is how a joint treatment-and-censoring model is written for `WeightIt::weightitMSM()`; `bal.tab()` also accepts such a `weightitMSM` object directly. Each entry of the list gets a table of its own kind, and each is assessed among the units still under observation entering it, so the full sample a censoring indicator is compared against is the risk set at that time point rather than the original cohort, and a treatment after it is assessed only among the units it did not censor. A list that mixes censoring with treatment gets no balance summary across time points. See [`class-bal.tab.msm`].
+#'
 #' @section With subclasses:
 #' Subclassification is an alternative to weighting for solving a censoring problem: within each subclass, the units still under observation should resemble every at-risk unit in that subclass. Supplying `subclass` therefore produces a `bal.tab.cens` object that also inherits from `bal.tab.subclass`, with a balance table for each subclass and a summary across them, as described at [`class-bal.tab.subclass`].
 #'
@@ -48,7 +51,7 @@
 #' @seealso
 #' * [bal.tab()]
 #' * [.cens()] for marking an indicator as censoring
-#' * [`class-bal.tab.cluster`], [`class-bal.tab.imp`], and [`class-bal.tab.subclass`] for the segmented cases
+#' * [`class-bal.tab.cluster`], [`class-bal.tab.imp`], [`class-bal.tab.subclass`], and [`class-bal.tab.msm`] for the segmented and longitudinal cases
 #' * [`treat-class`] for the attributes that decide how a treatment is compared and what its groups are called
 #'
 NULL
@@ -85,16 +88,7 @@ base.bal.tab.subclass.cens <- function(X, ...) {
 .stack_cens_X <- function(X, .count = TRUE) {
   C <- X[["treat"]]
 
-  #A unit with a missing indicator is not at risk -- in a longitudinal model it was
-  #censored at an earlier time point -- so it is in neither sample.
-  at.risk <- which(!is.na(C))
-  uncensored <- which(!is.na(C) & C == 0)
-
-  if (is_null(uncensored)) {
-    arg::err("every unit is censored, so there is no sample left to compare against the full one")
-  }
-
-  n.uncensored <- length(uncensored)
+  s <- .cens_stack_index(C)
 
   #`bal.plot()` wants the stacking but not the counting, which would also warn about
   #subclasses too small to compute a balance statistic in -- irrelevant to a plot.
@@ -104,17 +98,16 @@ base.bal.tab.subclass.cens <- function(X, ...) {
     else NULL
   }
 
-  #The two samples become one stacked data set: the uncensored units, then every
-  #at-risk unit. `subset_X()` does the stacking, since it takes indices and nothing
-  #stops an index from repeating; that way every per-unit slot is stacked the same way,
-  #including ones added later.
-  X <- subset_X(X, c(uncensored, at.risk))
+  #`subset_X()` does the stacking, since it takes indices and nothing stops an index
+  #from repeating; that way every per-unit slot is stacked the same way, including ones
+  #added later.
+  X <- subset_X(X, s[["index"]])
 
-  X[["treat"]] <- .cens_pseudo_treat(n.uncensored, length(at.risk))
+  X[["treat"]] <- .cens_pseudo_treat(s[["n.uncensored"]], s[["n.at.risk"]])
 
   #The full sample is the target, so it is never reweighted.
   if (is_not_null(X[["weights"]])) {
-    X[["weights"]][-seq_len(n.uncensored), ] <- 1
+    X[["weights"]][-seq_len(s[["n.uncensored"]]), ] <- 1
   }
 
   #The target of a censoring model is fixed by its design, so the denominator is settled
@@ -131,6 +124,28 @@ base.bal.tab.subclass.cens <- function(X, ...) {
   X[c("estimand", "focal")] <- NULL
 
   list(X = X, obs = obs)
+}
+
+#The row indices that stack a censoring model's two samples: the units still under
+#observation, then every at-risk unit. An uncensored unit appearing in both is the point,
+#and how many rows each sample contributes comes back with them.
+#
+#A unit with a missing indicator is not at risk -- in a longitudinal model it was censored
+#at an earlier time point -- so it is in neither sample. `.at.risk` says the same thing
+#from the other direction: a longitudinal caller has already worked out who was still
+#under observation entering this time point, and passes it rather than relying on the
+#indicator being blank for everyone else.
+.cens_stack_index <- function(C, .at.risk = TRUE) {
+  at.risk <- which(.at.risk & !is.na(C))
+  uncensored <- which(.at.risk & !is.na(C) & C == 0)
+
+  if (is_null(uncensored)) {
+    arg::err("every unit is censored, so there is no sample left to compare against the full one")
+  }
+
+  list(index = c(uncensored, at.risk),
+       n.uncensored = length(uncensored),
+       n.at.risk = length(at.risk))
 }
 
 #The stacked pseudo-treatment. Built as a processed binary treatment so that every

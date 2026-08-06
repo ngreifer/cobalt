@@ -33,6 +33,11 @@ Every argument to \code{bal.tab()} applies as it does with a binary treatment, w
 \code{cluster} and \code{imp} apply as usual, and produce a \code{bal.tab.cluster} or \code{bal.tab.imp} object whose per-cluster or per-imputation components are the censoring balance tables described here.
 }
 
+\section{Among longitudinal treatments}{
+
+A censoring indicator can appear among a list of longitudinal treatments, as in \code{list(A1 ~ x, .cens(C1) ~ x, A2 ~ x)}, which is how a joint treatment-and-censoring model is written for \code{WeightIt::weightitMSM()}; \code{bal.tab()} also accepts such a \code{weightitMSM} object directly. Each entry of the list gets a table of its own kind, and each is assessed among the units still under observation entering it, so the full sample a censoring indicator is compared against is the risk set at that time point rather than the original cohort, and a treatment after it is assessed only among the units it did not censor. A list that mixes censoring with treatment gets no balance summary across time points. See \code{\link{class-bal.tab.msm}}.
+}
+
 \section{With subclasses}{
 
 Subclassification is an alternative to weighting for solving a censoring problem: within each subclass, the units still under observation should resemble every at-risk unit in that subclass. Supplying \code{subclass} therefore produces a \code{bal.tab.cens} object that also inherits from \code{bal.tab.subclass}, with a balance table for each subclass and a summary across them, as described at \code{\link{class-bal.tab.subclass}}.
@@ -59,7 +64,7 @@ The output is a \code{bal.tab.cens} object, which inherits from \code{bal.tab.bi
 \itemize{
 \item \code{\link[=bal.tab]{bal.tab()}}
 \item \code{\link[=.cens]{.cens()}} for marking an indicator as censoring
-\item \code{\link{class-bal.tab.cluster}}, \code{\link{class-bal.tab.imp}}, and \code{\link{class-bal.tab.subclass}} for the segmented cases
+\item \code{\link{class-bal.tab.cluster}}, \code{\link{class-bal.tab.imp}}, \code{\link{class-bal.tab.subclass}}, and \code{\link{class-bal.tab.msm}} for the segmented and longitudinal cases
 \item \code{\link[=treat-class]{treat}} for the attributes that decide how a treatment is compared and what its groups are called
 }
 }

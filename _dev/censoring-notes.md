@@ -1,8 +1,8 @@
 # Censoring balance: the design, and why
 
-Branch `censoring-balance`, off `master` at `ea39e53`. Phase 1: a censoring model on its
-own, with or without subclassification, in `bal.tab()` and `bal.plot()`. Combining
-censoring with treatment balance across time points is not done.
+Branch `censoring-balance`, off `master` at `ea39e53`. A censoring model on its own, with
+or without subclassification, and interleaved with treatments across time points, in
+`bal.tab()` and `bal.plot()`.
 
 ## What is being assessed
 
@@ -195,28 +195,106 @@ with `Full`, `Uncensored`, and `Censored` rows.
     helper `plot_data()` unions them; anything asserting on what a plot shows has to go
     through something like it.
 
+## Across time points
+
+A joint treatment-and-censoring model interleaves the two — `A1 ~ x`, `.cens(C1) ~ x`,
+`A2 ~ x` — and the rule is **one table per entry, of whichever kind that entry is**. Most
+of that already worked: `.assign_X_class()` is called per time point, so a censoring entry
+already reached the censoring leaf, and `print.bal.tab.msm` calls a bare `print()` on each
+child, so heterogeneous children already rendered. What was missing was the plumbing.
+
+**The risk set is accumulated from the censoring indicators, not read off the treatments.**
+Everyone starts at risk; each censoring entry removes the units censored there from every
+entry after it. That is `weightitMSM()`'s own rule, it needs nothing but `treat.list`, and
+— the reason it is worth stating — it does not depend on a data convention. `weightitMSM()`
+leaves a censored unit's later treatments `NA`, so an `NA`-based rule would look right on
+its output and silently include censored units for a user who records those treatments
+instead. `NA`s are therefore a *check*: after the restriction, a remaining `NA` in an
+ordinary treatment is a unit at risk whose treatment is unknown, and that is an error. A
+`test-censoring.R` case asserts that blanking post-censoring treatments and recording them
+give the same tables, which is exactly what the discarded rule would have got wrong.
+
+A censoring entry's own risk set still holds the units it is about to remove — they are the
+full sample it compares against — so `at.risk[[i]]` is the set *entering* `i`.
+
+**No summary across a mixture.** A censoring table and a treatment table have neither the
+same columns nor the same meaning, so a list mixing them gets no `Balance.Across.Times`,
+exactly as a list mixing continuous and binary treatments does not. The existing
+`all_the_same(treat.types)` gate already produced that and was left alone; an all-censoring
+list is not a mixture and is still summarized. What did have to move is `Observations`,
+which lived *inside* that gate — so a mixed model reported no sample sizes at all.
+
+Things worth remembering:
+
+12. **`subset_X()` is what restricts a time point**, with the same argument the censoring
+    leaf stacks with. When nothing is censored the risk set is all `TRUE` and `subset_X()`
+    returns `X` untouched, so a longitudinal model without censoring is bit-identical —
+    which is what keeps the existing golden cells from moving.
+13. **`process_treat()` gained `.missing.okay`**, and `process_treat.list()` passes `TRUE`
+    when any entry is a censoring indicator. Without an indicator in the list a missing
+    treatment stays an error. `subset_X()` passes `anyNA(x)`: subsetting never introduces
+    a missing value, so a subset may have one exactly when its source did, which is what
+    lets `cluster` and `imp` wrap a censored longitudinal model.
+14. **The per-time-point `s.d.denom` default reads the treatment type, not `X.class`.** A
+    time point wrapped in clusters or imputations has the class of the wrapper, and the
+    vocabulary `s.d.denom` is written in belongs to the treatment. The old `X.class`
+    switch gave `"pooled"` to a clustered *continuous* longitudinal treatment, which
+    `.get_s.d.denom.cont()` rejects outright — that combination simply errored.
+15. **`weightitMSM` segregates its models.** `treat.list`/`covs.list` hold only the
+    treatment models, `cens.list`/`cens.covs.list` only the censoring ones, and
+    `cens.time` gives the censoring models' positions in `formula.list`.
+    `.weightitMSM_models()` interleaves them back. Two traps: the covariate lists are
+    unnamed, and the censoring models' names live on `cens.time` — as the deparsed left
+    side of the formula, marker and all (`WeightIt::.cens(C)`), which `.uncens_name()`
+    strips so the time point goes by the indicator's own name.
+16. **`bal.plot()`'s longitudinal branch is index-driven now.** It used to replicate every
+    per-unit vector `sum(appears.in.time)` times, which assumes each time point
+    contributes exactly `n` rows; a censoring time point contributes
+    `n_uncensored + n_atrisk` and a restricted treatment time point fewer than `n`. It
+    now builds one row-index block per displayed time point and indexes everything by the
+    concatenation. `.cens_stack_index()` is that block for a censoring time point, and is
+    also what `.stack_cens_X()` stacks with, so there is one definition.
+17. **`treat.names` in `bal.plot()` is now one name per time point, not per *displayed*
+    time point.** Three lines downstream (`which.time %in% treat.names[appears.in.time]`,
+    `treat.names[X[["time"]]]`) index it as if it were full-length, so a variable missing
+    from some time point made `which.time` by name select the wrong one.
+
 ## Gates
 
-The suite is **2,560 passed / 0 failed / 12 skipped** (2,429 before this work; 131 new
-assertions in `test-censoring.R`). The golden set is **131 identical / 0 differing** and
-`check_col_spec()` **343 tables / 0 mismatched**, with nine new cells: `cens_default`,
+The suite is **2,619 passed / 0 failed / 12 skipped** (2,429 before this work; 190 new
+assertions in `test-censoring.R`). The golden set is **137 identical / 0 differing** and
+`check_col_spec()` **367 tables / 0 mismatched**, with fifteen new cells: `cens_default`,
 `cens_all_stats`, `cens_s_weights`, `cens_cluster`, `cens_imp`, `cens_subclass`,
-`cens_subclass_cluster`, and the two `obj_weightit_cens*` cells the per-fixture loop
-generates from the new `weightit_cens` fixture.
+`cens_subclass_cluster`, `msm_cens_mixed`, `msm_cens_mixed_disp`, `msm_cens_only`,
+`msm_cens_cluster`, and the two `obj_weightit_cens*` and two `obj_weightitmsm_cens*` cells
+the per-fixture loop generates from the new `weightit_cens` and `weightitmsm_cens`
+fixtures. **No existing cell moved**, at any stage of this work.
 
-`R CMD check --as-cran` is clean. Note from the previous branch: **`cem` must not be
-installed** or it hangs the build; see `_dev/refactor-notes.md` § "`R CMD check`".
+`R CMD check --as-cran` reports what the branch point reports. Two caveats about this
+machine: **`cem` must not be installed** or it hangs the build (see
+`_dev/refactor-notes.md` § "`R CMD check`"), and under the agent sandbox the Intel OpenMP
+runtime writes `OMP: Warning #179 ... /tmp` to stderr, which `R CMD check` reports as a
+`checking Rd files ... WARNING` with that line as its whole content. A check of the
+unmodified branch point in the same sandbox produces it identically, so it is the
+environment, not the package. Build with vignettes: `--no-build-vignettes` adds two
+unrelated `inst/doc` warnings of its own.
 
-## Not in this phase
+## Not done
 
-- **Censoring combined with treatment across time points**, via the MSM architecture.
-  The shape is different from what is here: a joint treatment-and-censoring
-  `weightitMSM` wants ordinary treatment balance at each time point restricted to that
-  time's `at.risk` column — which is what removes the missing treatments that currently
-  error — *plus* a censoring table at each censoring time point. `.assign_X_class()`
-  ranks `msm` above the leaves, so the per-time-point `X` is where `cens` would appear;
-  `base.bal.tab.msm()` already rebuilds one `X` per time point and would need to choose
-  the leaf per time point rather than assuming one type throughout. `bal.plot()` rejects
-  a censoring indicator among longitudinal treatments for the same reason.
 - **`match.strata`**, rejected: it turns strata into weights before the two samples exist,
   and the same strata say the same thing given to `subclass`.
+- **Per-time-point weight sets.** `weightitMSM` returns one weight vector, the product
+  across all its models, so balance at an early time point is assessed with weights that
+  include later censoring. That is existing cobalt behaviour for MSMs and matches
+  WeightIt's own documented recipe; it is now said out loud in `?class-bal.tab.msm`.
+- **Per-time-point headings.** They stay `Time: <index>`. In a mixed model the index is
+  not the study time point, but each child's own sample-size table identifies its kind and
+  the summaries' `Times` columns give the indices — not worth churning every existing msm
+  golden cell over.
+- **Multiply imputed data in *stacked* form** (an `imp` longer than the data) with a
+  formula or data frame produces an empty balance table. This is unrelated to censoring —
+  it does the same for an ordinary binary treatment — and predates this work; it is
+  mentioned here only because the check that used to reject continuous and censoring
+  longitudinal treatments outright (`length_imp_process()`, "can only contain vectors or
+  data frames") was widened, so those two now reach the same place the binary case
+  already did rather than erroring for a different reason.

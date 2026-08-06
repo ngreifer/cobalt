@@ -108,9 +108,6 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   if (.is_cens(X[["treat"]])) {
     X <- .stack_cens_X(X, .count = FALSE)[["X"]]
   }
-  else if (any(vapply(X[["treat.list"]], .is_cens, logical(1L)))) {
-    arg::err("{.fun bal.plot} does not yet support a censoring indicator among longitudinal treatments")
-  }
 
   if (is_null(X[["covs.list"]])) {
     #Point treatment
@@ -225,37 +222,85 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       .err_no_var.name(var.name, unlist(co.names.list, recursive = FALSE))
     }
     
-    X[["var"]] <- unlist(var.list[appears.in.time])
-    
     #`base::which()` is qualified throughout this branch because the `which`
     #argument of bal.plot() has no default; an unqualified call to `which()`
     #before `which` is resolved forces the missing argument and errors.
-    X[["time"]] <- rep(base::which(appears.in.time), times = lengths(var.list[appears.in.time]))
-    
-    X[["treat.list"]][appears.in.time] <- lapply(X[["treat.list"]][appears.in.time], function(t) {
-      switch(get.treat.type(t), continuous = t, treat_vals(t)[t])
-    })
-    X[["treat"]] <- unlist(X[["treat.list"]][appears.in.time])
-    
-    treat.names <- {
-      if (is_null(names(X[["treat.list"]])[appears.in.time])) base::which(appears.in.time)
-      else names(X[["treat.list"]])[appears.in.time]
+    times <- base::which(appears.in.time)
+
+    #Which units are still under observation entering each time point. All of them
+    #unless the list contains a censoring indicator.
+    at.risk <- .msm_at_risk(X[["treat.list"]])
+
+    #Each displayed time point contributes a block of rows, and how many depends on what
+    #the time point is: a treatment time point contributes the units still under
+    #observation at it, and a censoring one contributes those units *and* the whole risk
+    #set, stacked, so that both of the samples it compares can be drawn. Everything
+    #per-unit is then indexed by the concatenation of those blocks -- rather than
+    #replicated once per time point, which assumed every time point contributes all `n`
+    #rows.
+    index.list <- make_list(length(times))
+    treat.list <- make_list(length(times))
+    is.full.sample <- make_list(length(times))
+
+    for (j in seq_along(times)) {
+      i <- times[j]
+      treat_i <- X[["treat.list"]][[i]]
+
+      if (.is_cens(treat_i)) {
+        s <- .cens_stack_index(as.numeric(treat_i), .at.risk = at.risk[[i]])
+
+        index.list[[j]] <- s[["index"]]
+
+        pseudo <- .cens_pseudo_treat(s[["n.uncensored"]], s[["n.at.risk"]])
+        treat.list[[j]] <- unname(treat_labels(pseudo)[pseudo])
+
+        is.full.sample[[j]] <- rep(c(FALSE, TRUE),
+                                   times = c(s[["n.uncensored"]], s[["n.at.risk"]]))
+      }
+      else {
+        index.list[[j]] <- base::which(at.risk[[i]])
+
+        treat.list[[j]] <- {
+          if (get.treat.type(treat_i) == "continuous") treat_i[index.list[[j]]]
+          else unname(treat_labels(treat_i)[treat_i])[index.list[[j]]]
+        }
+
+        is.full.sample[[j]] <- rep_with(FALSE, index.list[[j]])
+      }
     }
-    
+
+    index <- unlist(index.list)
+
+    X[["var"]] <- unlist(lapply(seq_along(times), function(j) {
+      var.list[[times[j]]][index.list[[j]]]
+    }))
+
+    X[["time"]] <- rep(times, times = lengths(index.list))
+
+    X[["treat"]] <- unlist(treat.list)
+
+    #One name per time point, not per displayed time point: `which.time` is resolved
+    #against this by name, and `X[["time"]]` indexes into it.
+    treat.names <- names(X[["treat.list"]]) %or% seq_along(X[["treat.list"]])
+
     if (is_not_null(X[["weights"]])) {
-      X[["weights"]] <- do.call("rbind", rep(list(X[["weights"]]), sum(appears.in.time)))
+      X[["weights"]] <- X[["weights"]][index, , drop = FALSE]
+
+      #The full sample a censoring time point compares against is its target, so it is
+      #never reweighted.
+      X[["weights"]][unlist(is.full.sample), ] <- 1
     }
-    
+
     if (is_not_null(X[["s.weights"]])) {
-      X[["s.weights"]] <- rep(X[["sweights"]], sum(appears.in.time))
+      X[["s.weights"]] <- X[["s.weights"]][index]
     }
-    
+
     if (is_not_null(X[["cluster"]])) {
-      X[["cluster"]] <- rep(X[["cluster"]], sum(appears.in.time))
+      X[["cluster"]] <- X[["cluster"]][index]
     }
-    
+
     if (is_not_null(X[["imp"]])) {
-      X[["imp"]] <- rep(X[["imp"]], sum(appears.in.time))
+      X[["imp"]] <- X[["imp"]][index]
     }
   }
   

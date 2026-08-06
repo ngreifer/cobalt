@@ -112,6 +112,20 @@ cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", "re75")
              nodegree ~ age + educ + treat),
         data = lalonde, method = "glm")
     }),
+    #A longitudinal model interleaving a censoring model with the treatment models, which
+    #is how `weightitMSM()` takes them and how the balance tables are reported. The
+    #treatment after the censoring model is blank for the units censored there, so the
+    #last time point's risk set is a strict subset of the first's.
+    weightitmsm_cens = list(pkg = "WeightIt", build = function() {
+      d <- transform(lalonde, cens_idx = cens_idx)
+      is.na(d$nodegree[cens_idx == 1L]) <- TRUE
+
+      WeightIt::weightitMSM(
+        list(treat ~ age + educ,
+             WeightIt::.cens(cens_idx) ~ age + educ,
+             nodegree ~ age + educ),
+        data = d, method = "glm")
+    }),
 
     ## ---- twang --------------------------------------------------------------
     ps = list(pkg = "twang", build = function() {

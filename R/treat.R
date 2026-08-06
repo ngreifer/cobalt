@@ -140,7 +140,7 @@ assign.treat.type <- function(treat, use.multi = FALSE, censoring = NULL) {
   treat
 }
 
-process_treat <- function(treat, ..., keep_values = FALSE) {
+process_treat <- function(treat, ..., keep_values = FALSE, .missing.okay = FALSE) {
 
   arg::arg_supplied(treat)
 
@@ -162,7 +162,7 @@ process_treat <- function(treat, ..., keep_values = FALSE) {
 
     treat <- .process_vector(treat, name = "treat",
                              which = "treatment statuses",
-                             datalist = list(...), missing.okay = FALSE) |>
+                             datalist = list(...), missing.okay = .missing.okay) |>
       assign.treat.type()
 
     treat.type <- get.treat.type(treat)
@@ -218,7 +218,15 @@ process_treat.list <- function(treat.list, ...) {
     else as.character(ti)
   }, character(1L))
 
-  lapply(treat.list, process_treat, ...) |>
+  #A treatment is undefined for a unit no longer under observation, so once a censoring
+  #indicator is anywhere in the list the treatments are allowed to be missing. Which
+  #units that covers is not settled here: `base.bal.tab.msm()` accumulates the risk set
+  #from the indicators themselves and errors on a unit still at risk whose treatment is
+  #unknown. With no indicator in the list a missing treatment stays an error, as for a
+  #point treatment.
+  .missing.okay <- any(vapply(treat.list, .is_cens, logical(1L)))
+
+  lapply(treat.list, process_treat, ..., .missing.okay = .missing.okay) |>
     setNames(treat.list.names)
 }
 
