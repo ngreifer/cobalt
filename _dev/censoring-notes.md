@@ -291,10 +291,13 @@ unrelated `inst/doc` warnings of its own.
   not the study time point, but each child's own sample-size table identifies its kind and
   the summaries' `Times` columns give the indices — not worth churning every existing msm
   golden cell over.
-- **Multiply imputed data in *stacked* form** (an `imp` longer than the data) with a
-  formula or data frame produces an empty balance table. This is unrelated to censoring —
-  it does the same for an ordinary binary treatment — and predates this work; it is
-  mentioned here only because the check that used to reject continuous and censoring
-  longitudinal treatments outright (`length_imp_process()`, "can only contain vectors or
-  data frames") was widened, so those two now reach the same place the binary case
-  already did rather than erroring for a different reason.
+- ~~**Multiply imputed data in *stacked* form** (an `imp` longer than the data) produces
+  an empty balance table.~~ Fixed in a follow-up commit, and it was never about censoring:
+  `length_imp_process()` replicates with `[`, which drops a matrix's `co.names`, so a
+  covariate matrix supplied for one imputation arrived at `.get_C2()` unable to say what
+  any of its columns were and came back with none. `.copy_attrs()` puts back what `[`
+  dropped, in both `length_imp_process()` and `subset_X()`; only the attributes the result
+  does not already have are copied, which is what keeps the row-shaped ones (`dim`,
+  `dimnames`, `names`, `row.names`) from being carried over stale. The same commit stopped
+  `subset_X()` reading a zero-*column* matrix as absent — `is_null()` is a length test, and
+  `.get_C2()` returns an n × 0 matrix by design when nothing is left to assess.

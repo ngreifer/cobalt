@@ -1049,8 +1049,14 @@ subset_X <- function(X, subset = NULL) {
     attrs <- attributes(x)
     attrs_to_subset <- names(attrs)[vapply(attrs, function(a) all(len(a) == n), logical(1L))]
     
+    #`is_null()` is a length test, and a matrix or data frame with no columns has length
+    #zero while still having a row for every unit -- which `.get_C2()` returns by design
+    #when nothing is left to assess balance on. It has to be subset like anything else, or
+    #it alone keeps the length the others no longer have.
+    nothing <- is_null(x) && is_null(dim(x))
+
     out <- {
-      if (is_null(x)) x
+      if (nothing) x
       else if (inherits(x, "treat")) subset_treat(x, subset)
       else if ((is.matrix(x) || is.data.frame(x))) x[subset, , drop = FALSE]
       else if (is.factor(x)) factor(x[subset], nmax = nlevels(x))
@@ -1058,7 +1064,7 @@ subset_X <- function(X, subset = NULL) {
       else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
       else x
     }
-    
+
     if (is_null(attrs)) {
       return(out)
     }
@@ -1071,13 +1077,9 @@ subset_X <- function(X, subset = NULL) {
     }
     
     if (is_null(attrs_to_subset)) {
-      for (i in setdiff(names(attrs), names(attributes(out)))) {
-        attr(out, i) <- attrs[[i]]
-      }
-      
-      return(out)
+      return(.copy_attrs(out, x))
     }
-    
+
     subsetted_attrs <- lapply(attrs[attrs_to_subset],
                               subset_X_internal, subset = subset)
     for (i in setdiff(names(attrs), names(attributes(out)))) {
@@ -1157,7 +1159,9 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
       unsorted.imp <- is.unsorted(imp)
 
       #Repeats one imputation's worth of values across all of them, keeping each
-      #imputation's block in the order `imp` gives.
+      #imputation's block in the order `imp` gives. What comes back has to be the same
+      #kind of thing that went in, so both restore the attributes `[` dropped: a
+      #covariate matrix that loses its `co.names` reads as having no covariates.
       .stack <- function(x, i_) {
         new_x <- x[rep(i_, length(imp.lengths))]
 
@@ -1167,7 +1171,7 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
           }
         }
 
-        new_x
+        .copy_attrs(new_x, x)
       }
 
       .stack_rows <- function(x) {
@@ -1179,7 +1183,7 @@ length_imp_process <- function(objects, vectors = NULL, data.frames = NULL,
           }
         }
 
-        new_x
+        .copy_attrs(new_x, x)
       }
 
       for (i in all.objects[lengths > 0 & lengths != length(imp)]) {

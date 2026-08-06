@@ -15,6 +15,10 @@
 
 * Fixed a bug in which `which.time` given as a treatment name selected the wrong time point in `bal.plot()` when the plotted variable did not appear at every time point.
 
+* Fixed a bug in which supplying the covariates once alongside an `imp` covering several imputations produced a balance table with no rows in it. Anything given for a single imputation is replicated up to the full data, and the replication dropped the record of what each column of the covariate matrix was, leaving a matrix that read as having no covariates at all. Sample sizes were reported correctly throughout, so the loss was easy to miss.
+
+* Fixed a bug in which a covariate set left with no columns -- which happens when the only covariates supplied say nothing about the treatment, such as a factor that takes a single value within every cluster -- was not cut down along with everything else when the data was split by cluster or imputation, producing a stream of `longer object length is not a multiple of shorter object length` warnings.
+
 * `bal.tab()` now supports multiply imputed data supplied in stacked form (an `imp` longer than the data) with continuous longitudinal treatments, which previously failed with "`treat.list` can only contain vectors or data frames".
 
 * Errors raised for one time point of a longitudinal treatment now say which time point they came from, as they already did for clusters and imputations.

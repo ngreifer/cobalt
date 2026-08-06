@@ -1068,6 +1068,25 @@ set_class <- function(x, .class, .replace = TRUE, .last = TRUE) {
   attr(x, which, exact = exact)
 }
 
+#Put back the attributes `[` threw away. Subsetting or replicating the rows of a matrix
+#keeps `dim` and `dimnames` and drops everything else -- including the `co.names` that
+#says what each column of a covariate matrix is, without which the matrix reads as having
+#no covariates at all.
+#
+#Only the attributes `new` does not already have are copied, which is what makes this safe
+#for an operation that changes the number of rows: the row-shaped attributes (`dim`,
+#`dimnames`, `names`, `row.names`) are exactly the ones `[` rebuilds, so they are never
+#the ones carried over. What is left over describes the columns, and survives.
+.copy_attrs <- function(new, old) {
+  attrs <- attributes(old)
+
+  for (i in setdiff(names(attrs), names(attributes(new)))) {
+    attr(new, i) <- attrs[[i]]
+  }
+
+  new
+}
+
 #Efficient versions of any(vapply(...)) and all(vapply(...))
 any_apply <- function(X, FUN, ...) {
   FUN <- match.fun(FUN)

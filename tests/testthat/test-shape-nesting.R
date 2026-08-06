@@ -112,3 +112,60 @@ test_that("arguments supplied once are expanded across imputations", {
   expect_err(bal.tab(d2[1:50, ], treat = t1, imp = rep(1:2, each = n)),
              "must have the same number of observations as")
 })
+
+test_that("covariates expanded across imputations keep their names", {
+  # The expansion is done with `[`, which keeps a matrix's `dim` and `dimnames` and
+  # drops everything else -- including the `co.names` that records what each column is.
+  # A covariate matrix without them reads as having no covariates at all, so supplying
+  # the covariates once and `imp` for several imputations produced a balance table with
+  # no rows in it.
+  set.seed(9)
+  n <- 100L
+  covs <- data.frame(age = rnorm(n),
+                     race = factor(sample(c("a", "b", "c"), n, replace = TRUE)))
+
+  for (sorted in c(TRUE, FALSE)) {
+    imp <- if (sorted) rep(1:2, each = n) else rep(1:2, times = n)
+    treat <- rbinom(2L * n, 1L, .5)
+
+    b <- bal.tab(covs, treat = treat, imp = imp, s.d.denom = "pooled")
+
+    expect_length(b$Imputation.Balance, 2L)
+
+    # Each imputation is the same covariates against that imputation's treatment, which
+    # holds only if they were replicated into the right positions and kept their names
+    # on the way.
+    for (i in c("1", "2")) {
+      ref <- bal.tab(covs, treat = treat[imp == as.integer(i)], s.d.denom = "pooled")
+
+      expect_equal(b$Imputation.Balance[[i]]$Balance, ref$Balance, info = i)
+    }
+
+    # A split factor's dummies are named from `co.names`, so they are the rows that go
+    # missing first.
+    expect_identical(rownames(b$Balance.Across.Imputations),
+                     c("age", "race_a", "race_b", "race_c"))
+  }
+})
+
+test_that("a covariate set left with no columns is subset with everything else", {
+  # `.get_C2()` returns a matrix with a row per unit and no columns when nothing is left
+  # to assess balance on -- here a factor that takes a single value within every cluster,
+  # whose dummies say nothing about any of them. That matrix has length zero, which used
+  # to read as "not supplied" and leave it at full length while every other slot was cut
+  # down to the cluster.
+  b <- expect_no_warning(
+    bal.tab(data.frame(g = cl_idx), treat = lalonde$treat, cluster = cl_idx,
+            s.d.denom = "pooled")
+  )
+
+  expect_identical(nrow(b$Cluster.Balance[[1L]]$Balance), 0L)
+
+  # A covariate that survives alongside it is unaffected.
+  b2 <- expect_no_warning(
+    bal.tab(data.frame(g = cl_idx, age = lalonde$age), treat = lalonde$treat,
+            cluster = cl_idx, s.d.denom = "pooled")
+  )
+
+  expect_identical(rownames(b2$Cluster.Balance[[1L]]$Balance), "age")
+})
