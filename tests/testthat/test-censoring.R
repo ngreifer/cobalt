@@ -523,21 +523,22 @@ test_that("a longitudinal list gives a table per model, of that model's kind", {
   expect_equal(sum(unlist(b$Observations[[3L]]["Unadjusted", ])), length(risk3))
 
   #They are not printed as a table of their own, though: that table belongs to the
-  #summary, and each time point's own table has already reported them. So the counts
-  #appear exactly once each rather than twice.
+  #summary, and each time point's own table has already reported them. So each time point
+  #is named once, over its own block, rather than twice.
   out <- capture.output(print(b))
 
   expect_identical(sum(grepl("Uncensored", out, fixed = TRUE)), 1L)
-  expect_false(any(grepl(" - 2. Censoring: C", out, fixed = TRUE)))
+  expect_identical(sum(grepl("2. Censoring: C", out, fixed = TRUE)), 1L)
 
-  #Asking for the summary of a list that has one does print the collected table. (No
-  #censoring indicator here, so `nodegree` is the recorded one rather than the blanked
-  #one `msm_lalonde()` carries.)
+  #Asking for the summary of a list that has one does print the collected table, so there
+  #each time point is named twice. (No censoring indicator here, so `nodegree` is the
+  #recorded one rather than the blanked one `msm_lalonde()` carries.)
   b_sum <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ), data = lalonde,
-                   weights = w, s.d.denom = "pooled", msm.summary = TRUE)
+                   weights = w, s.d.denom = "pooled", which.time = .all,
+                   msm.summary = TRUE)
 
-  expect_true(any(grepl(" - 2. Treatment: nodegree",
-                        capture.output(print(b_sum)), fixed = TRUE)))
+  expect_identical(sum(grepl("2. Treatment: nodegree",
+                             capture.output(print(b_sum)), fixed = TRUE)), 2L)
 
   #Every entry a censoring model is not a mixture, so that list is summarized.
   C2 <- rep(c(0L, 0L, 0L, 1L, 0L), length.out = n_lalonde)
@@ -754,7 +755,7 @@ test_that("a time point is named for its position, its kind, and its variable", 
   b_sum <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ), data = lalonde,
                    weights = w_fixed, s.d.denom = "pooled", msm.summary = TRUE)
 
-  expect_true(any(grepl(" - 2. Treatment: nodegree",
+  expect_true(any(grepl("2. Treatment: nodegree",
                         capture.output(print(b_sum)), fixed = TRUE)))
 
   #And so are the facets of a plot. `which.time` still selects on the bare variable name.
