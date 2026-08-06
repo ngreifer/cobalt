@@ -23,6 +23,8 @@
 
 * Errors raised for one time point of a longitudinal treatment now say which time point they came from, as they already did for clusters and imputations.
 
+* The footnote marking which sample sizes are effective ones now ends its line. When one `bal.tab` is printed inside another, as it is for each cluster, imputation, or time point, the rule drawn under the last of them used to be appended to the end of the footnote.
+
 * A processed treatment is now an object of class `treat`, documented at `?treat-class`, carrying its treatment type, its name, the names and values of its groups, and how those groups label the columns of a balance table. `[` preserves all of it, so a subset of a treatment is still one. This is the same class `WeightIt::.cens()` returns, so an indicator tagged by either package is accepted by both.
 
 * Fixed a message that disagreed with itself about number: supplying one covariate with non-finite values reported that "the variable `x` contain non-finite values" and several reported that they "contains" them.

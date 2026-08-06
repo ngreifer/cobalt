@@ -723,15 +723,19 @@ compare_golden <- function(dir = GOLDEN_DIR, filter = NULL, max_report = 3L) {
   out <- character()
 
   if (!identical(o$output, n$output)) {
-    i <- which(o$output != n$output |
-                 seq_along(o$output) > length(n$output))[1L]
+    #Padded to a common length first: comparing the two directly recycles the shorter
+    #one, which warns and reports the wrong line whenever the outputs differ in length.
+    #A line only one side has is a difference like any other.
+    len <- max(length(o$output), length(n$output))
+    ol <- `length<-`(o$output, len)
+    nl <- `length<-`(n$output, len)
 
-    if (is.na(i)) i <- length(n$output)
+    i <- which(is.na(ol) | is.na(nl) | ol != nl)[1L]
 
     out <- c(out, sprintf("%s line %d:\n       was: %s\n       now: %s",
                           label, i,
-                          encodeString(o$output[i] %||% "<absent>"),
-                          encodeString(n$output[i] %||% "<absent>")))
+                          if (is.na(ol[i])) "<absent>" else encodeString(ol[i]),
+                          if (is.na(nl[i])) "<absent>" else encodeString(nl[i])))
   }
 
   for (k in c("messages", "warnings", "error")) {

@@ -89,7 +89,7 @@ The main conditioning packages produce plots that can be useful in assessing bal
 
 #### Unique features
 
-There are unique features in *cobalt* that do not exist in any other package. These include the handling of clustered and grouped data and the handling of data generated with multiple imputation. These more advanced uses of *cobalt* are described in detail in `vignette("segmented-data")`. In addition, *cobalt* includes tools for handling data sets with continuous and multi-category treatments. Data sets with longitudinal treatments, where time-varying confounding may be an issue, can be handled as well; these uses are described in `vignette("longitudinal-treat")`.
+There are unique features in *cobalt* that do not exist in any other package. These include the handling of clustered and grouped data and the handling of data generated with multiple imputation. These more advanced uses of *cobalt* are described in detail in `vignette("segmented-data")`. In addition, *cobalt* includes tools for handling data sets with continuous and multi-category treatments, and for assessing the balance of a censoring model, in which the units still under observation are compared to the sample they were drawn from rather than to a second treatment group. Data sets with longitudinal treatments, where time-varying confounding may be an issue, can be handled as well, including those in which units are censored between treatment periods; these uses are described in `vignette("longitudinal-treat")`.
 
 ## How To Use cobalt
 
@@ -476,6 +476,64 @@ Finally, we can use `love.plot()` to display balance across treatments. By defau
 love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
           which.treat = .all, abs = FALSE)
 ```
+
+### Using *cobalt* with censoring
+
+Not every weighting problem is a treatment problem. When some units drop out of a study before the outcome is measured, the sample that remains may differ systematically from the sample that started, and an analysis restricted to it can be biased even if treatment was randomly assigned. Inverse probability of censoring weights (IPCW) address this by weighting the units still under observation so that they resemble the sample as a whole [@robinsAnalysisSemiparametricRegression1995; @seamanReviewInverseProbability2013]. Assessing whether the weights have succeeded is a balance problem, but not quite the same balance problem as with a treatment.
+
+The difference is that there is no second group to compare against. A treatment model asks whether the treated and control groups resemble each other; a censoring model asks whether the units still under observation resemble the full sample they were drawn from. That full sample is the target, so it is never reweighted, and the comparison is between two overlapping samples rather than two disjoint ones.
+
+In *cobalt*, a censoring indicator is marked with `.cens()`, which distinguishes it from a treatment wherever a treatment would ordinarily go: on the left side of a formula, or as the argument to `treat`. The indicator follows the survival convention, in which `1` means the unit was censored and `0` means it is still under observation. `bal.tab()` then compares two samples: the units with `C == 0`, carrying the censoring weights, against every unit at risk, carrying a weight of 1. Setting `un = TRUE` adds the same comparison before weighting, which is the imbalance the weights were estimated to remove. All the balance statistics available for binary treatments are available here, and the columns are named for the two samples rather than for treatment groups, so `M.Uncensored` and `M.Full` are their means and `Diff` is the difference between the full sample and the uncensored one.
+
+To demonstrate, we add an indicator of loss to follow-up to the `lalonde` data, so that `re78` is observed only for the units with `C == 0`. Older units and those with lower 1974 earnings are more likely to drop out. As with the continuous treatment example above, this is constructed rather than real, but the workflow is the one that would be used with a genuine dropout indicator.
+
+```{r}
+data("lalonde", package = "cobalt")
+
+set.seed(100)
+lalonde$C <- rbinom(nrow(lalonde), 1,
+                    prob = plogis(-4 + .1 * lalonde$age -
+                                      .00003 * lalonde$re74))
+
+#Estimating inverse probability of censoring weights
+W.out.cens <- WeightIt::weightit(.cens(C) ~ age + educ + race + married +
+                                     nodegree + re74 + re75,
+                                 data = lalonde,
+                                 method = "glm")
+```
+
+`bal.tab()` accepts the `weightit` object directly. Note that the sample size table has a single column, because the target sample is the same in every row, and that `Uncensored` and `Censored` sum to `Full`.
+
+```{r}
+#Assessing balance numerically
+bal.tab(W.out.cens, un = TRUE, stats = c("m", "ks"),
+        thresholds = c(m = .05))
+```
+
+The units still under observation were older than the sample as a whole before weighting (a standardized mean difference of about .18 on `age`), and the weights remove that difference. Because a censoring model's target is fixed by its design rather than inferred from the weights, no note is printed about the standardization factor used; by default it is the standard deviation in the full at-risk sample, which can be changed by setting `s.d.denom` to `"uncensored"` or to any of the values available for binary treatments.
+
+`bal.plot()` and `love.plot()` work as they do elsewhere. `bal.plot()` displays the weighted uncensored sample against the unweighted full sample, with the two labelled as such.
+
+```{r, fig.width = 6}
+#Assessing balance graphically
+bal.plot(W.out.cens, "age", which = "both")
+```
+
+```{r, fig.width = 6}
+#Summarizing balance in a Love plot
+love.plot(W.out.cens, stats = c("m", "ks"),
+          thresholds = c(m = .05), binary = "std",
+          var.order = "unadjusted", line = TRUE)
+```
+
+Weights estimated outside *WeightIt* can be supplied to the formula or data frame interfaces, exactly as with a treatment:
+
+```{r, eval = FALSE}
+bal.tab(.cens(C) ~ age + educ + race + married + nodegree + re74 + re75,
+        data = lalonde, weights = W.out.cens$weights, un = TRUE)
+```
+
+`cluster`, `imp`, and `subclass` all apply. Subclassification deserves a note of its own: it is not just compatible with censoring but is itself a way of solving a censoring problem, in that within each subclass the units still under observation should resemble every at-risk unit in it. Supplying `subclass` produces a balance table for each subclass and a summary across them, in which a unit still under observation in subclass $k$ is weighted by $n_k / n_{k1}$, the number of at-risk units in the subclass over the number of them still under observation. See `?class-bal.tab.cens` for the full set of arguments and the shape of the output, and the longitudinal treatments vignette for censoring that occurs between treatment periods.
 
 ### Comparing balancing methods
 

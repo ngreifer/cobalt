@@ -348,9 +348,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
                                            tag = !shared.tag) || print.warning
     }
 
-    if (print.warning) {
-      cat(.it("* indicates effective sample size"))
-    }
+    .cat_ess_footnote(print.warning)
   }
 
   invisible(x)
@@ -1142,12 +1140,21 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   cat(strrep(" -", round(nchar(sprintf("\n - - - %s - - - ", label)) / 2)), "\n\n")
 }
 
-#The `Observations` block, with its footnote when any size is effective. Deliberately
-#no trailing newline: it is the last thing `print()` emits.
+#The `Observations` block, with its footnote when any size is effective.
 .cat_observations <- function(nn, digits) {
-  if (is_not_null(nn) && .print_observations(nn, digits)) {
-    cat(.it("* indicates effective sample size"))
+  .cat_ess_footnote(is_not_null(nn) && .print_observations(nn, digits))
+}
+
+#The footnote marking which sample sizes are effective ones, when any are. It ends its
+#line: this is the last thing a `bal.tab` prints, but a `bal.tab` is not always the last
+#thing printed -- a wrapper prints one per cluster, imputation, or time point and then
+#draws a rule under them, which would otherwise land on the end of the footnote.
+.cat_ess_footnote <- function(starred) {
+  if (starred) {
+    cli::cat_line(.it("* indicates effective sample size"))
   }
+
+  invisible(starred)
 }
 
 .print_data_frame <- function(x, ...) {

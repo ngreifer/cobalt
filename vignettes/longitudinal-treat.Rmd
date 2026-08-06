@@ -27,7 +27,7 @@ This is an introduction to the use of *cobalt* with longitudinal treatments. The
 
 In preprocessing for MSMs, three types of variables are relevant: baseline covariates, treatments, and intermediate outcomes/time-varying covariates. The goal of balance assessment is to assess whether after preprocessing, the resulting sample is one in which each treatment is independent of baseline covariates, treatment history, and time-varying covariates. The tools in *cobalt* have been developed to satisfy these goals.
 
-The next section describe how to use *cobalt*'s tools to assess balance with longitudinal treatments. First, we'll examine an example data set and identify some tools that can be used to generate weights for MSMs. Next we'll use `bal.tab()`, `bal.plot()`, and `love.plot()` to assess and present balance.
+The next section describe how to use *cobalt*'s tools to assess balance with longitudinal treatments. First, we'll examine an example data set and identify some tools that can be used to generate weights for MSMs. Next we'll use `bal.tab()`, `bal.plot()`, and `love.plot()` to assess and present balance. Finally, we'll look at what changes when units are censored between treatment periods.
 
 ## Setup
 
@@ -132,6 +132,71 @@ love.plot(Wmsm, binary = "std")
 
 ```{r}
 love.plot(Wmsm, binary = "std", which.time = .all)
+```
+
+## Censoring
+
+Units often stop being observed partway through a study, which leaves later treatments and the outcome unrecorded for them. If dropout depends on treatment or covariate history, the units who remain are not representative of the sample that started, and weighting them to resemble it is the standard remedy [@robinsAnalysisSemiparametricRegression1995; @hernanMarginalStructuralModels2000]. The censoring model that produces those weights sits in the sequence alongside the treatment models, and its balance is assessed at the point where the censoring occurs.
+
+A censoring indicator is marked with `.cens()` and follows the survival convention, in which `1` means the unit was censored and `0` means it is still under observation. It goes in the list of models at the position where it happens. Below we add an indicator of dropout after treatment period 2, so that `A_3` is unobserved for the units it censors. Units with higher `X1_2` and those treated at period 2 are more likely to drop out.
+
+```{r}
+set.seed(100)
+msmdata$C_2 <- rbinom(nrow(msmdata), 1,
+                      prob = plogis(-4 + .35 * msmdata$X1_2 +
+                                        .8 * msmdata$A_2))
+
+#A_3 is not observed for the units censored after period 2
+is.na(msmdata$A_3[msmdata$C_2 == 1]) <- TRUE
+```
+
+The list of formulas now has four entries for three treatment periods. The censoring model gets the same history as the treatment model that follows it.
+
+```{r}
+bal.tab(list(A_1 ~ X1_0 + X2_0,
+             A_2 ~ X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0,
+             .cens(C_2) ~ X1_2 + X2_2 +
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0,
+             A_3 ~ X1_2 + X2_2 +
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0),
+        data = msmdata)
+```
+
+There is one table per entry, of whichever kind that entry's model is. The first, second, and fourth are ordinary treatment balance tables; the third compares the units still under observation to the full sample at risk at that point, as described in the "Using *cobalt* with censoring" section of `vignette("cobalt")`. Its sample size table has a single column and reports how many units were at risk, how many remained, and how many were censored.
+
+Two things about the third and fourth tables are worth pointing out. First, the fourth table is computed among the 6158 units still under observation, not all 7500: a unit censored at period 2 has no treatment at period 3 and nothing left to balance. Which units those are is worked out from the censoring indicators themselves, so it makes no difference whether the data leaves `A_3` missing for them, as here, or records a value anyway. Second, no balance summary across time points is displayed. A censoring table and a treatment table describe different comparisons, so there is nothing meaningful to aggregate, just as there is nothing to aggregate across a mix of continuous and binary treatments. Sample sizes are still reported for every time point. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.
+
+`weightitMSM()` takes the same list and fits the censoring model along with the treatment models, returning a single set of weights that is their product.
+
+```{r}
+Wmsm.cens <- weightitMSM(list(A_1 ~ X1_0 + X2_0,
+                              A_2 ~ X1_1 + X2_1 +
+                                A_1 + X1_0 + X2_0,
+                              .cens(C_2) ~ X1_2 + X2_2 +
+                                A_2 + X1_1 + X2_1 +
+                                A_1 + X1_0 + X2_0,
+                              A_3 ~ X1_2 + X2_2 +
+                                A_2 + X1_1 + X2_1 +
+                                A_1 + X1_0 + X2_0),
+                         data = msmdata)
+
+bal.tab(Wmsm.cens, un = TRUE, which.time = 3)
+```
+
+Because the weights are the product across all four models, balance at any one time point is assessed with weights that include the others, censoring among them.
+
+`bal.plot()` and `love.plot()` work here too. At a censoring time point, `bal.plot()` shows the weighted uncensored sample against the unweighted full sample rather than two treatment groups.
+
+```{r, fig.height=4}
+bal.plot(Wmsm.cens, var.name = "X1_2", which.time = 3,
+         which = "both")
+```
+
+```{r}
+love.plot(Wmsm.cens, binary = "std", which.time = .all)
 ```
 
 ## Other Packages
