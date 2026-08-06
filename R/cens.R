@@ -121,21 +121,12 @@
   rlang::new_formula(lhs[[2L]], rlang::f_rhs(f), env = rlang::f_env(f))
 }
 
-#The censoring marker, removed from a formula if it is there. Returns the formula to
-#work with and whether the treatment it names is a censoring indicator. Every entry
-#point that reads a treatment out of a formula calls this first.
-.strip_cens <- function(f) {
-  if (!.is_cens_formula(f)) {
-    return(list(f = f, censoring = FALSE))
-  }
-
-  list(f = .uncens_formula(f), censoring = TRUE)
-}
-
-#The name a censoring model goes by. `WeightIt::weightitMSM()` records the deparsed left
-#side of each censoring formula, marker and all (`WeightIt::.cens(C)`); everywhere else in
-#cobalt a censoring indicator goes by its own name, which is also what a user would hand
-#to `which.time`. Anything that is not a marked left side comes back untouched.
+#The name a censoring model goes by. Development versions of \pkg{WeightIt} between
+#2.0.0 and 2.1.0 recorded the deparsed left side of each censoring formula, marker and
+#all (`WeightIt::.cens(C)`); everywhere else in cobalt a censoring indicator goes by its
+#own name, which is also what a user would hand to `which.time`. Anything that is not a
+#marked left side comes back untouched. Used only by `.weightitMSM_models()`, and can go
+#when that does.
 .uncens_name <- function(x) {
   vapply(x, function(nm) {
     f <- tryCatch(rlang::new_formula(str2lang(nm), 1), error = function(e) NULL)
@@ -146,6 +137,17 @@
 
     deparse1(rlang::f_lhs(.uncens_formula(f)))
   }, character(1L), USE.NAMES = FALSE)
+}
+
+#The censoring marker, removed from a formula if it is there. Returns the formula to
+#work with and whether the treatment it names is a censoring indicator. Every entry
+#point that reads a treatment out of a formula calls this first.
+.strip_cens <- function(f) {
+  if (!.is_cens_formula(f)) {
+    return(list(f = f, censoring = FALSE))
+  }
+
+  list(f = .uncens_formula(f), censoring = TRUE)
 }
 
 #Is this treatment a censoring indicator? Reads the tag `.cens()` leaves, from either

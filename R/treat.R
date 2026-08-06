@@ -18,6 +18,8 @@
 #'
 #' [.cens()] is the only way to build one directly; it returns a censoring indicator. `WeightIt::.cens()` returns an object with the same class and a compatible `treat.type`, so an indicator tagged by either package is accepted here.
 #'
+#' The class is shared, so carrying it means only "this is a treatment", not "this carries the attributes above": \pkg{WeightIt} tags its own treatments with it and supplies `treat.type` alone, and even \pkg{cobalt}'s [.cens()] has no group names until the treatment is processed. Anything that reads `treat_names` or `treat_vals` therefore has to check for them rather than for the class, and process the treatment when they are absent.
+#'
 #' @seealso
 #' * [.cens()]
 #' * [`class-bal.tab.cens`]
@@ -70,6 +72,17 @@ treat_names <- function(treat) {
 }
 treat_vals <- function(treat) {
   .attr(treat, "treat_vals")
+}
+#Whether `treat` already carries the group bookkeeping that `process_treat()` adds.
+#The `treat` class on its own does not answer this: it is shared with \pkg{WeightIt}
+#(see `?treat-class`), whose treatments carry `treat.type` but none of the group
+#attributes, and cobalt's own [.cens()] does not add them either until the treatment is
+#processed. Anything about to read `treat_names()` or `treat_vals()` must ask this
+#rather than `inherits(treat, "treat")`, and process the treatment when it is `FALSE`.
+#Continuous treatments have no groups, so they are never "processed" in this sense;
+#every caller here is on a branch that has already excluded them.
+is_processed_treat <- function(treat) {
+  inherits(treat, "treat") && is_not_null(treat_vals(treat))
 }
 `group_labels<-` <- function(treat, value) {
   `attr<-`(treat, "group_labels", value)
@@ -127,7 +140,10 @@ assign.treat.type <- function(treat, use.multi = FALSE, censoring = NULL) {
   }
   else if (use.multi || is.character(treat) || is.factor(treat)) {
     treat.type <- "multinomial"
-    if (!inherits(treat, "treat")) {
+
+    #Whether it needs coercing, not who owns the class: a processed treatment is
+    #already a factor, and re-factoring one would drop the attributes it carries.
+    if (!is.factor(treat)) {
       treat <- factor(treat)
     }
   }

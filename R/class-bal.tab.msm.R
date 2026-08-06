@@ -19,8 +19,11 @@
 #'
 #' Note that `weightitMSM()` returns a single set of weights, the product across all the models, so balance at an early time point is assessed with weights that include later censoring.
 #'
+#' @section Naming the time points:
+#' Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in `1. Treatment: A_1` or `2. Censoring: C_1`. This is the form `WeightIt::summary.weightitMSM()` uses, so the same model goes by the same name in both packages. The number is the position in the list rather than the treatment period, so that it is the number `which.time` takes and a censoring model has one too; `which.time` also accepts the variable name on its own (`"C_1"`).
+#'
 #' @section Allowable arguments:
-#' 
+#'
 #' There are two additional arguments for each `bal.tab()` method that can handle longitudinal treatments: `which.time` and `msm.summary`.
 #' 
 #' \describe{
@@ -159,9 +162,25 @@ base.bal.tab.msm <- function(X,
   
   attr(out, "print.options") <- c(.attr(out[["Time.Balance"]][[1L]], "print.options"),
                                   list(which.time = which.time,
-                                       msm.summary = msm.summary))
+                                       msm.summary = msm.summary,
+                                       time.labels = .msm_time_labels(X[["treat.list"]],
+                                                                      time.names)))
   
   set_class(out, c("bal.tab.msm", "bal.tab"))
+}
+
+#What each entry of a longitudinal treatment list is called: its position in the list,
+#whether the model there is a treatment or a censoring model, and the variable it is
+#about, as in `1. Treatment: A_1` or `2. Censoring: C_1`.
+#
+#This is the form `WeightIt::summary.weightitMSM()` uses, so the same model goes by the
+#same name in both packages. It is numbered by position rather than by treatment period,
+#so that the number is the one `which.time` takes and a censoring model has one too.
+.msm_time_labels <- function(treat.list, .names = names(treat.list)) {
+  sprintf("%s. %s: %s",
+          seq_along(treat.list),
+          ifelse(vapply(treat.list, .is_cens, logical(1L)), "Censoring", "Treatment"),
+          .names %or% seq_along(treat.list))
 }
 
 #Which units are still under observation entering each entry of a longitudinal treatment

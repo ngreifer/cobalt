@@ -283,6 +283,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     #against this by name, and `X[["time"]]` indexes into it.
     treat.names <- names(X[["treat.list"]]) %or% seq_along(X[["treat.list"]])
 
+    #What each time point is called in a facet strip, the same way `bal.tab()` names it.
+    #`which.time` is still matched against `treat.names`, so relabelling here changes only
+    #what is displayed.
+    time.labels <- .msm_time_labels(X[["treat.list"]], treat.names)
+
     if (is_not_null(X[["weights"]])) {
       X[["weights"]] <- X[["weights"]][index, , drop = FALSE]
 
@@ -527,7 +532,13 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       #Add columns for additional facets
       if ("imp" %in% facet) D[[i]]$imp <- factor(paste("Imputation", X[["imp"]][in.imp & in.cluster & in.time]))
       if ("cluster" %in% facet) D[[i]]$cluster <- factor(X[["cluster"]][in.imp & in.cluster & in.time])
-      if ("time" %in% facet) D[[i]]$time <- factor(paste("Time", X[["time"]][in.imp & in.cluster & in.time]))
+      if ("time" %in% facet) {
+        ti <- X[["time"]][in.imp & in.cluster & in.time]
+
+        #Levels only for the time points on display, in the order they were fit rather
+        #than the alphabetical order `factor()` would pick.
+        D[[i]]$time <- factor(time.labels[ti], levels = time.labels[sort(unique(ti))])
+      }
     }
     D <- do.call("rbind", D)
     

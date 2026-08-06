@@ -9,6 +9,10 @@
 
 * The `Observations` component of a `bal.tab` object for a longitudinal treatment is now always present, where previously it was computed only when the balance summary across time points was. It is still displayed only alongside that summary, since it gathers in one place what each time point's own table has already reported.
 
+* Time points are now named for their position in the list, whether the model there is a treatment or a censoring model, and the variable modeled, as in `1. Treatment: A_1` or `2. Censoring: C_1`. This is the form `WeightIt::summary.weightitMSM()` uses, so the same model goes by the same name in both packages. It replaces `Time 1` wherever `bal.tab()` and `bal.plot()` identify a time point. `which.time` is unchanged and still takes a position or a variable name.
+
+* `bal.tab()` accepts a `weightitMSM` object fit with censoring in either of the two shapes \pkg{WeightIt} has returned one: censoring models held among the treatment models, as in \pkg{WeightIt} 2.1.0, or segregated into their own `cens.list` and `cens.covs.list`, as in the development versions between 2.0.0 and 2.1.0.
+
 * Fixed a bug in which a longitudinal treatment combined with `cluster` or `imp` took its default `s.d.denom` from the wrapper rather than from the treatment, so a continuous longitudinal treatment with clusters or imputations failed with an error naming `"pooled"` as an unusable value.
 
 * Fixed a bug in which `bal.plot()` silently ignored `s.weights` for longitudinal treatments, on account of a misspelled name.
@@ -24,6 +28,8 @@
 * Errors raised for one time point of a longitudinal treatment now say which time point they came from, as they already did for clusters and imputations.
 
 * The footnote marking which sample sizes are effective ones now ends its line. When one `bal.tab` is printed inside another, as it is for each cluster, imputation, or time point, the rule drawn under the last of them used to be appended to the end of the footnote.
+
+* A censoring model's sample size table no longer stars its adjusted row or explains the star in a footnote. The heading already says the table holds effective sample sizes, and the only row that could be one is that one; a treatment's table does not star it either.
 
 * A processed treatment is now an object of class `treat`, documented at `?treat-class`, carrying its treatment type, its name, the names and values of its groups, and how those groups label the columns of a balance table. `[` preserves all of it, so a subset of a treatment is still one. This is the same class `WeightIt::.cens()` returns, so an indicator tagged by either package is accepted by both.
 

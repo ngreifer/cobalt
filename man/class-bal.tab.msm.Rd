@@ -27,6 +27,11 @@ Each time point's default \code{s.d.denom} is the one its own kind of model impl
 Note that \code{weightitMSM()} returns a single set of weights, the product across all the models, so balance at an early time point is assessed with weights that include later censoring.
 }
 
+\section{Naming the time points}{
+
+Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in \verb{1. Treatment: A_1} or \verb{2. Censoring: C_1}. This is the form \code{WeightIt::summary.weightitMSM()} uses, so the same model goes by the same name in both packages. The number is the position in the list rather than the treatment period, so that it is the number \code{which.time} takes and a censoring model has one too; \code{which.time} also accepts the variable name on its own (\code{"C_1"}).
+}
+
 \section{Allowable arguments}{
 
 

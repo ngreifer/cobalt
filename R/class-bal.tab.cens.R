@@ -237,14 +237,16 @@ samplesize_cens <- function(C, weights = NULL, s.weights = NULL, subclass = NULL
 
   nn["Censored", ] <- sum(at.risk & C == 1)
 
-  attr(nn, "ss.type") <- c("ss", "ss", rep_with("ess", adj.rows), "ss")
-
   #A `Censored` row that no unit reached says nothing, as with `Discarded`.
   if (nn["Censored", ] == 0) {
-    attr(nn, "ss.type") <- .attr(nn, "ss.type")[rownames(nn) != "Censored"]
     nn <- nn[rownames(nn) != "Censored", , drop = FALSE]
   }
 
+  #No `ss.type`, so no row is starred. That attribute marks which rows of a treatment's
+  #table are effective sample sizes, and it earns its keep there because such a table can
+  #hold several sets of weights fit by different methods, only some of them weighting.
+  #Here the only row that could be an effective sample size is the adjusted one, and the
+  #heading says so; the rest are counts of units, which is what their names call them.
   attr(nn, "tag") <- {
     if (is_null(adj.rows)) "Sample sizes"
     else "Effective sample sizes"

@@ -537,3 +537,59 @@ test_that('"weighted" without weights computes the same factor as "all"', {
                cobalt:::.compute_s.d.denom(m, tb, s.d.denom = "all",
                                            bin.vars = c(FALSE, FALSE)))
 })
+
+# The `treat` class is shared with WeightIt (see `?treat-class`), whose treatments
+# carry `treat.type` but none of cobalt's group attributes. Anything that reads
+# `treat_names()`/`treat_vals()` therefore has to ask `is_processed_treat()` rather
+# than `inherits(treat, "treat")`, or it silently reads NULL off a foreign object.
+
+#A treatment tagged the way WeightIt tags one: the shared class, `treat.type`, and
+#nothing else.
+t_foreign <- function(x = lalonde$treat) {
+  structure(x, class = c("treat", class(x)), treat.type = "binary",
+            treat.name = "treat")
+}
+
+test_that("a treatment carrying only the shared `treat` class is processed", {
+  expect_false(cobalt:::is_processed_treat(t_foreign()))
+  expect_true(cobalt:::is_processed_treat(t_bin()))
+
+  #A cobalt treatment that has not been processed yet is not "processed" either
+  expect_false(cobalt:::is_processed_treat(.cens(lalonde$treat)))
+})
+
+test_that("`s.d.denom` resolves against a foreign `treat` object", {
+  #`treated`/`control` need the group names, which only processing supplies. This
+  #used to error with '`s.d.denom` should be one of "pooled", "all", ...'.
+  expect_identical(as.vector(sdd("treated", treat = t_foreign(), quietly = TRUE)), "1")
+  expect_identical(as.vector(sdd("control", treat = t_foreign(), quietly = TRUE)), "0")
+
+  #And the answer is the one the bare vector would have given
+  for (d in c("treated", "control", "pooled", "hedges")) {
+    expect_identical(sdd(d, treat = t_foreign(), quietly = TRUE),
+                     sdd(d, treat = lalonde$treat, quietly = TRUE),
+                     info = d)
+  }
+})
+
+test_that("col_w_smd() ignores whose `treat` class it was handed", {
+  covs <- lalonde[c("age", "educ", "re74")]
+  w <- w_ate()
+
+  #`unique.treats` came back empty for a foreign object, and the standardization
+  #factor with it: "replacement has length zero"
+  expect_equal(col_w_smd(covs, t_foreign(), w),
+               col_w_smd(covs, lalonde$treat, w))
+
+  for (d in c("treated", "control", "pooled", "all", "weighted", "hedges")) {
+    expect_equal(col_w_smd(covs, t_foreign(), w, s.d.denom = d),
+                 col_w_smd(covs, lalonde$treat, w, s.d.denom = d),
+                 info = d)
+  }
+
+  #Multi-category, where `assign.treat.type()` also used to key on the class
+  expect_equal(col_w_smd(covs, t_foreign(lalonde$race), w, s.d.denom = "pooled",
+                         subset = lalonde$race != "hispan"),
+               col_w_smd(covs, lalonde$race, w, s.d.denom = "pooled",
+                         subset = lalonde$race != "hispan"))
+})

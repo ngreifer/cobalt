@@ -1137,3 +1137,5 @@ try_arg <- function(expr, warn = TRUE) {
 #cli utilities
 .it <- function(...) cli::style_italic(...)
 .ul <- function(...) cli::style_underline(...)
+#Struck-through spaces, which draw as a horizontal rule.
+.st <- function(...) cli::style_strikethrough(...)

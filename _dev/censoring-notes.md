@@ -144,6 +144,14 @@ The `Censored` row is dropped when nothing is censored, following the `Discarded
 precedent. With subclasses the table is transposed — one column per subclass, plus `All` —
 with `Full`, `Uncensored`, and `Censored` rows.
 
+The table carries no `ss.type`, so no row is starred. That attribute marks which rows of a
+*treatment's* table are effective sample sizes, and it pays for itself there because such
+a table can hold several sets of weights fit by different methods, only some of them
+weighting; the star is what the heading cannot say in that case. Here the only row that
+could be an effective sample size is the adjusted one, the heading says so, and the rest
+are counts of units — so the star was pure noise, and a treatment's table does not carry
+one either.
+
 ## Things to remember
 
 1. **`[.cobalt.treat`, not `[.treat`.** WeightIt 2.0.0 registers its own `[.treat`. Two
@@ -246,13 +254,20 @@ Things worth remembering:
     vocabulary `s.d.denom` is written in belongs to the treatment. The old `X.class`
     switch gave `"pooled"` to a clustered *continuous* longitudinal treatment, which
     `.get_s.d.denom.cont()` rejects outright — that combination simply errored.
-15. **`weightitMSM` segregates its models.** `treat.list`/`covs.list` hold only the
-    treatment models, `cens.list`/`cens.covs.list` only the censoring ones, and
-    `cens.time` gives the censoring models' positions in `formula.list`.
-    `.weightitMSM_models()` interleaves them back. Two traps: the covariate lists are
-    unnamed, and the censoring models' names live on `cens.time` — as the deparsed left
-    side of the formula, marker and all (`WeightIt::.cens(C)`), which `.uncens_name()`
-    strips so the time point goes by the indicator's own name.
+15. **A `weightitMSM` comes in two shapes, and both have to work.** WeightIt 2.1.0 treats
+    censoring as a treatment type, so `treat.list`/`covs.list` hold every model in the
+    order it was fit and there is nothing to do. The development versions between 2.0.0
+    and 2.1.0 instead segregated them: `treat.list`/`covs.list` held only the treatment
+    models, `cens.list`/`cens.covs.list` only the censoring ones, and `cens.time` recorded
+    where each censoring model belonged. `.weightitMSM_models()` puts the segregated shape
+    back in order and passes the interleaved one through, so everything downstream sees
+    one shape. Two traps in the old one: the covariate lists are unnamed, and the
+    censoring models' names live on `cens.time` — as the deparsed left side of the
+    formula, marker and all (`WeightIt::.cens(C)`), which `.uncens_name()` strips so the
+    time point goes by the indicator's own name. Both that function and this branch can go
+    once no such object is left in the wild; a `test-censoring.R` case converts whichever
+    shape the fixture is built with into the other and asserts the two agree, so it keeps
+    testing both whichever WeightIt is installed.
 16. **`bal.plot()`'s longitudinal branch is index-driven now.** It used to replicate every
     per-unit vector `sum(appears.in.time)` times, which assumes each time point
     contributes exactly `n` rows; a censoring time point contributes
@@ -264,6 +279,14 @@ Things worth remembering:
     time point.** Three lines downstream (`which.time %in% treat.names[appears.in.time]`,
     `treat.names[X[["time"]]]`) index it as if it were full-length, so a variable missing
     from some time point made `which.time` by name select the wrong one.
+18. **A time point is named `1. Treatment: A_1` / `2. Censoring: C_1`**, built by
+    `.msm_time_labels()` and carried in `print.options$time.labels`. This is the form
+    `WeightIt::summary.weightitMSM()` uses, so a model goes by the same name in both
+    packages, and it is what the section heading and the collected sample sizes use.
+    `bal.plot()` builds the same labels for its facet strips but still matches
+    `which.time` against the bare names, so relabelling changes only what is displayed.
+    `love.plot()` is left alone: it already faceted by the variable name, and its
+    `which.time` matches character input against exactly that facet value.
 
 ## Gates
 

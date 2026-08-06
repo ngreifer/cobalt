@@ -530,7 +530,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   specified <- is_not_null(s.d.denom)
 
   .treat <- function() {
-    if (inherits(treat, "treat")) treat
+    if (is_processed_treat(treat)) treat
     else process_treat(treat)
   }
 
@@ -883,7 +883,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     else {
       unique.treats <- {
-        if (inherits(treat, "treat")) as.character(treat_vals(treat))
+        if (is_processed_treat(treat)) as.character(treat_vals(treat))
         else as.character(unique(treat))
       }
       

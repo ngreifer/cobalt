@@ -137,6 +137,15 @@ test_that("the censoring sample-size table counts the two samples", {
   #A `Censored` row nobody reached is dropped, as `Discarded` is.
   nn_0 <- bal.tab(covs, treat = .cens(rep(0L, n_lalonde)))$Observations
   expect_false("Censored" %in% rownames(nn_0))
+
+  #The heading says the table holds effective sample sizes, so the adjusted row is not
+  #starred as well and no footnote explains a star. The only row that could be an
+  #effective sample size is that one; the rest are counts, as their names say.
+  out <- capture.output(print(bal.tab(covs, treat = .cens(cens_idx), weights = w)))
+
+  expect_false(any(grepl("*", out, fixed = TRUE)))
+  expect_false(any(grepl("indicates effective sample size", out, fixed = TRUE)))
+  expect_true(any(grepl("Effective sample sizes", out, fixed = TRUE)))
 })
 
 test_that("units with a missing indicator are in neither sample", {
@@ -519,7 +528,7 @@ test_that("a longitudinal list gives a table per model, of that model's kind", {
   out <- capture.output(print(b))
 
   expect_identical(sum(grepl("Uncensored", out, fixed = TRUE)), 1L)
-  expect_false(any(grepl("Time 2", out, fixed = TRUE)))
+  expect_false(any(grepl(" - 2. Censoring: C", out, fixed = TRUE)))
 
   #Asking for the summary of a list that has one does print the collected table. (No
   #censoring indicator here, so `nodegree` is the recorded one rather than the blanked
@@ -527,7 +536,8 @@ test_that("a longitudinal list gives a table per model, of that model's kind", {
   b_sum <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ), data = lalonde,
                    weights = w, s.d.denom = "pooled", msm.summary = TRUE)
 
-  expect_true(any(grepl("Time 2", capture.output(print(b_sum)), fixed = TRUE)))
+  expect_true(any(grepl(" - 2. Treatment: nodegree",
+                        capture.output(print(b_sum)), fixed = TRUE)))
 
   #Every entry a censoring model is not a mixture, so that list is summarized.
   C2 <- rep(c(0L, 0L, 0L, 1L, 0L), length.out = n_lalonde)
@@ -569,6 +579,77 @@ test_that("the risk set is accumulated from the censoring indicators", {
   expect_length(b$Time.Balance, 3L)
   expect_s3_class(b$Time.Balance[[2L]], "bal.tab.cens")
   expect_identical(names(b$Time.Balance), c("treat", "cens_idx", "nodegree"))
+})
+
+test_that("both shapes of a weightitMSM censoring object are read the same way", {
+  skip_if_not_installed("WeightIt")
+
+  #WeightIt 2.1.0 treats censoring as a treatment type, so `treat.list`/`covs.list` hold
+  #every model in the order it was fit. Development versions between 2.0.0 and 2.1.0
+  #segregated the censoring models into `cens.list`/`cens.covs.list`, with `cens.time`
+  #recording where each belonged. Both have to give the same tables, so whichever shape
+  #the fixture happens to be built with, this converts it to the other and compares.
+  W <- fx("weightitmsm_cens")
+
+  segregated <- is_not_null(W[["cens.list"]])
+
+  other <- W
+
+  if (segregated) {
+    models <- .weightitMSM_models(W)
+
+    other[["treat.list"]] <- models[["treat.list"]]
+    other[["covs.list"]] <- models[["covs.list"]]
+    other[c("cens.list", "cens.covs.list", "cens.formula.list", "cens.time")] <- NULL
+  }
+  else {
+    is.cens <- vapply(W[["treat.list"]], .is_cens, logical(1L))
+
+    other[["treat.list"]] <- W[["treat.list"]][!is.cens]
+    other[["covs.list"]] <- W[["covs.list"]][!is.cens]
+    other[["cens.list"]] <- unname(W[["treat.list"]][is.cens])
+    other[["cens.covs.list"]] <- unname(W[["covs.list"]][is.cens])
+    other[["cens.time"]] <- setNames(base::which(is.cens),
+                                     names(W[["treat.list"]])[is.cens])
+  }
+
+  #The shapes really are different, or the comparison below says nothing.
+  expect_false(identical(other[["treat.list"]], W[["treat.list"]]))
+  expect_identical(is_not_null(other[["cens.list"]]), !segregated)
+
+  expect_equal(bal.tab(other, un = TRUE), bal.tab(W, un = TRUE))
+})
+
+test_that("a `weightitMSM` object holds its censoring models among the treatments", {
+  #\pkg{WeightIt} 2.1.0 keeps every model in `treat.list`/`covs.list` in the order it was
+  #fit, censoring included, rather than apart in `cens.list`/`cens.covs.list` with
+  #`cens.time` recording where each sat. Built by hand rather than by fitting so that the
+  #shape under test is that one whatever version of WeightIt happens to be installed:
+  #`.weightitMSM_models()` still accepts the older shape, and `fx("weightitmsm_cens")`
+  #produces whichever the installed version makes.
+  d <- msm_lalonde()
+  covs <- d[c("age", "educ")]
+
+  W <- list(weights = w_fixed,
+            treat.list = list(treat = d$treat,
+                              C = .cens(d$C),
+                              nodegree = d$nodegree),
+            covs.list = list(covs, covs, covs),
+            estimand = "ATE",
+            call = quote(weightitMSM(f, data = d)))
+  class(W) <- c("weightitMSM", "weightit")
+
+  b <- bal.tab(W, un = TRUE)
+
+  #The same three tables, of the same three kinds, as the formula list it stands for
+  expect_identical(names(b$Time.Balance), c("treat", "C", "nodegree"))
+  expect_s3_class(b$Time.Balance[[2L]], "bal.tab.cens")
+
+  b_f <- bal.tab(msm_forms(), data = d, weights = w_fixed, un = TRUE)
+
+  expect_equal(grab(b$Time.Balance, "Balance"),
+               grab(b_f$Time.Balance, "Balance"))
+  expect_equal(b$Observations, b_f$Observations)
 })
 
 test_that("which units are at risk does not depend on how the data records the rest", {
@@ -650,6 +731,45 @@ test_that("a longitudinal censoring model composes with clusters", {
 
   expect_equal(sum(unlist(b_cl$Observations[[3L]]["Unadjusted", ])),
                sum(in.cluster[risk3]))
+})
+
+test_that("a time point is named for its position, its kind, and its variable", {
+  d <- msm_lalonde()
+
+  #The form `WeightIt::summary.weightitMSM()` uses, so that the same model goes by the
+  #same name in both packages. Numbered by position in the list, so a censoring model has
+  #a number too and it is the one `which.time` takes.
+  b <- bal.tab(msm_forms(), data = d, weights = w_fixed)
+
+  labels <- c("1. Treatment: treat", "2. Censoring: C", "3. Treatment: nodegree")
+
+  expect_identical(attr(b, "print.options")[["time.labels"]], labels)
+
+  out <- capture.output(print(b))
+  for (l in labels) {
+    expect_true(any(grepl(l, out, fixed = TRUE)), info = l)
+  }
+
+  #The collected sample sizes, which print with the summary, are labelled the same way.
+  b_sum <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ), data = lalonde,
+                   weights = w_fixed, s.d.denom = "pooled", msm.summary = TRUE)
+
+  expect_true(any(grepl(" - 2. Treatment: nodegree",
+                        capture.output(print(b_sum)), fixed = TRUE)))
+
+  #And so are the facets of a plot. `which.time` still selects on the bare variable name.
+  local_null_device()
+
+  p <- bal.plot(msm_forms(), data = d, var.name = "age", which = "unadjusted")
+  panels <- do.call("rbind", lapply(p$layers, function(l) l$data))
+
+  expect_identical(levels(panels$time), labels)
+
+  p2 <- bal.plot(msm_forms(), data = d, var.name = "age", which.time = "C",
+                 which = "unadjusted")
+  panels2 <- do.call("rbind", lapply(p2$layers, function(l) l$data))
+
+  expect_identical(levels(panels2$time), "2. Censoring: C")
 })
 
 test_that("bal.plot() draws a longitudinal censoring model at each kind of time point", {

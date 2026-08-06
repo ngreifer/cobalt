@@ -1989,11 +1989,14 @@ x2base.weightitMSM <- function(x, ...) {
 }
 
 #The treatment and censoring models of a `weightitMSM` object, in the order they were
-#fitted. `weightitMSM()` segregates them -- `treat.list`/`covs.list` hold only the
-#treatment models and `cens.list`/`cens.covs.list` only the censoring ones -- and records
-#where each censoring model sat in the formula list in `cens.time`. Putting them back in
-#that order is what makes each balance table correspond to a model, and what lets the
-#risk set accumulate down the list.
+#fitted, which is what makes each balance table correspond to a model and what lets the
+#risk set accumulate down the list. \pkg{WeightIt} 2.1.0 treats censoring as a treatment
+#type, so `treat.list`/`covs.list` already hold every model in place and there is nothing
+#to do. Development versions between 2.0.0 and 2.1.0 instead segregated them --
+#`treat.list`/`covs.list` held only the treatment models, `cens.list`/`cens.covs.list`
+#only the censoring ones, and `cens.time` recorded where each censoring model sat -- and
+#those objects are put back in order here. Once no such object is left in the wild this
+#can go.
 .weightitMSM_models <- function(x) {
   if (is_null(x[["cens.list"]])) {
     return(list(treat.list = x[["treat.list"]], covs.list = x[["covs.list"]]))
@@ -2023,7 +2026,7 @@ x2base.weightitMSM <- function(x, ...) {
 
 #' @exportS3Method NULL
 x2base.default <- function(x, ...) {
-  
+
   if (!is.list(x)) {
     arg::err("the input object must be an appropriate list, data frame, formula, or the output of one of the supported packages")
   }

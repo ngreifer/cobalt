@@ -292,13 +292,15 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
   #Printing output
   .cat_call(call)
   
+  time.labels <- p.ops[["time.labels"]] %or% paste("Time", seq_along(msm.balance))
+
   if (is_not_null(p.ops[["which.time"]])) {
     .cat_heading("Balance by Time Point")
     for (i in p.ops[["which.time"]]) {
-      .cat_divider(paste0("Time: ", i))
+      .cat_time_divider(time.labels[i])
       print(msm.balance[[i]])
     }
-    .cat_divider_end(paste0("Time: ", i))
+    cli::cat_line()
   }
   
   if (isTRUE(as.logical(p.ops[["msm.summary"]])) && is_not_null(msm.balance.summary)) {
@@ -336,7 +338,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
       cli::cat_line(.ul(.attr(nn[[1L]], "tag")))
 
       for (ti in seq_along(nn)) {
-        cli::cat_line(" - ", .it(paste0("Time ", ti)))
+        cli::cat_line(" - ", .it(time.labels[ti]))
         print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE) || print.warning
       }
 
@@ -722,7 +724,8 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
   }
   
   list(msm.summary = p.ops[["msm.summary"]],
-       which.time = which.time)
+       which.time = which.time,
+       time.labels = p.ops[["time.labels"]])
 }
 #' @exportS3Method NULL
 print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats,
@@ -1131,6 +1134,19 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 
 .cat_divider_end <- function(label) {
   cat(strrep(" -", round(nchar(sprintf("\n - - - %s - - - ", label)) / 2)), "\n\n")
+}
+
+#One time point's heading, in the style `WeightIt::summary.weightitMSM()` uses for the
+#same models: the label centred in a 54-character rule. A label longer than that eats
+#into the rule rather than widening it. There is no closing rule to match, since every
+#heading is already a full-width one.
+.cat_time_divider <- function(label) {
+  pad <- max(0L, 54L - nchar(label) - 2L)
+
+  cli::cat_line()
+  cli::cat_line(.st(strrep(" ", ceiling(pad / 2))),
+                .it(sprintf(" %s ", label)),
+                .st(strrep(" ", floor(pad / 2))))
 }
 
 #The `Observations` block, with its footnote when any size is effective.

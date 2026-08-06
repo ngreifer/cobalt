@@ -19,6 +19,8 @@ The attributes are
 \code{[} preserves all of them, so a subset of a \code{treat} is still a \code{treat}.
 
 \code{\link[=.cens]{.cens()}} is the only way to build one directly; it returns a censoring indicator. \code{WeightIt::.cens()} returns an object with the same class and a compatible \code{treat.type}, so an indicator tagged by either package is accepted here.
+
+The class is shared, so carrying it means only "this is a treatment", not "this carries the attributes above": \pkg{WeightIt} tags its own treatments with it and supplies \code{treat.type} alone, and even \pkg{cobalt}'s \code{\link[=.cens]{.cens()}} has no group names until the treatment is processed. Anything that reads \code{treat_names} or \code{treat_vals} therefore has to check for them rather than for the class, and process the treatment when they are absent.
 }
 \seealso{
 \itemize{
