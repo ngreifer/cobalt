@@ -156,22 +156,14 @@ bal.tab <- function(x, ...) {
   
   x <- try_arg(force(x), warn = TRUE)
   
-  #Replace .all and .none with NULL and NA respectively
   if (!inherits(x, "cobalt.processed.obj")) {
-    
-    .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
-    .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-    
-    if (any(.alls)) {
-      .call[.alls] <- expression(NULL)
-    }
-    
-    if (any(.nones)) {
-      .call[.nones] <- expression(NA)
-    }
-    
+    #Replace .all and .none with NULL and NA respectively. Unlike the other entry points,
+    #the call is re-evaluated whether or not either appeared: what it is really for is to
+    #put the processed object in place of `x`.
+    .call <- .rewrite_all_none(.call) %or% .call
+
     .call[["x"]] <- process_obj(x)
-    
+
     return(eval.parent(.call))
   }
   

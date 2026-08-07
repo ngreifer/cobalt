@@ -71,6 +71,16 @@ test_that("love.plot() accepts a bal.tab call or a raw object", {
               weights = w_fixed, s.d.denom = "pooled", stats = "mean.diffs"),
     "love.plot")
 
+  #`.all`/`.none` are rewritten by re-evaluating the matched call, and the call is then
+  #read again to see whether `x` was written as a call to `bal.tab()`. Both mechanisms
+  #have to survive each other, so they are exercised together.
+  expect_s3_class(
+    love.plot(bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
+                      weights = w_fixed, s.d.denom = "pooled", cluster = cl_idx,
+                      cluster.summary = TRUE),
+              stats = "mean.diffs", which.cluster = .none),
+    "love.plot")
+
   skip_if_not_installed("MatchIt")
   expect_s3_class(love.plot(fx("matchit"), stats = "mean.diffs", binary = "std"),
                   "love.plot")

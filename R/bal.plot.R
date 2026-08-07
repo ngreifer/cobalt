@@ -89,15 +89,12 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   x <- try_arg(force(x), warn = TRUE)
   
   #Replace .all and .none with NULL and NA respectively
-  .call <- match.call(expand.dots = TRUE)
-  .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
-  .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-  if (any(c(.alls, .nones))) {
-    .call[.alls] <- expression(NULL)
-    .call[.nones] <- expression(NA)
-    return(eval.parent(.call))
+  .rewritten <- .rewrite_all_none(match.call(expand.dots = TRUE))
+
+  if (is_not_null(.rewritten)) {
+    return(eval.parent(.rewritten))
   }
-  
+
   X <- process_obj(x) |>
     x2base(..., cluster = cluster, imp = imp)
 

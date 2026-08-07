@@ -118,16 +118,17 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                       wrap = 30, var.names = NULL, title, sample.names, labels = FALSE,
                       position = "right", themes = NULL, ...) {
   
-  #Replace .all and .none with NULL and NA respectively
-  .call <- match.call()
-  .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
-  .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-  if (any(c(.alls, .nones))) {
-    .call[.alls] <- expression(NULL)
-    .call[.nones] <- expression(NA)
-    return(eval.parent(.call))
+  #Replace .all and .none with NULL and NA respectively. `.call` itself is read again
+  #further down, to see whether `x` was written as a call to `bal.tab()`, so the rewritten
+  #version is kept separate rather than assigned over it.
+  .call <- match.call(expand.dots = TRUE)
+
+  .rewritten <- .rewrite_all_none(.call)
+
+  if (is_not_null(.rewritten)) {
+    return(eval.parent(.rewritten))
   }
-  
+
   if (missing(stats)) {
     stats <- NULL
   }

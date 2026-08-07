@@ -146,11 +146,13 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
                                    p.ops, thresholds, p.ops[["cluster.fun"]])
       
       if (p.ops[["disp.bal.tab"]]) {
+        cli::cat_line()
+        
         .cat_heading("Balance summary across all clusters")
+        
         c.balance.summary[, s.keep.col, drop = FALSE] |>
           round_df_char(p.ops[["digits"]], na_vals = ".") |>
           .print_data_frame()
-        cli::cat_line()
       }
       
       .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
@@ -222,13 +224,13 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
                                    p.ops, thresholds, p.ops[["imp.fun"]])
       
       if (p.ops[["disp.bal.tab"]]) {
+        cli::cat_line()
+        
         .cat_heading("Balance summary across all imputations")
         
         i.balance.summary[, s.keep.col, drop = FALSE] |>
           round_df_char(p.ops[["digits"]], na_vals = ".") |>
           .print_data_frame()
-        
-        cli::cat_line()
       }
       
       .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
@@ -306,12 +308,12 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
       s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max"), p.ops, thresholds, "max")
       
       if (p.ops[["disp.bal.tab"]]) {
+        cli::cat_line()
+        
         .cat_heading("Balance summary across all treatment pairs")
         
         .cat_balance_table(m.balance.summary[, s.keep.col, drop = FALSE], keep.row,
                            p.ops[["digits"]])
-        
-        cli::cat_line()
       }
       
       .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
@@ -397,12 +399,12 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
                                    p.ops, thresholds, "max")
       
       if (p.ops[["disp.bal.tab"]]) {
+        cli::cat_line()
+        
         .cat_heading("Balance summary across all time points")
         
         .cat_balance_table(msm.balance.summary[, s.keep.col, drop = FALSE], keep.row,
                            p.ops[["digits"]])
-        
-        cli::cat_line()
       }
       
       .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
@@ -464,7 +466,6 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
   
   invisible(x)
 }
-
 #' @exportS3Method NULL
 bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
   
@@ -501,15 +502,16 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                  intersect(all_STATS(p.ops[["type"]]), p.ops[["stats"]]))),
           p.ops, thresholds)
         
+        cli::cat_line()
+        
         .cat_heading("Balance measures across subclasses")
         
         .cat_balance_table(b.a.subclass[, a.s.keep.col, drop = FALSE], a.s.keep.row,
                            p.ops[["digits"]])
-        
-        cli::cat_line()
       }
       
-      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]], across = " across subclasses")
+      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]],
+                   across = " across subclasses")
       
       if (is_not_null(s.nn)) {
         cli::cat_line(.ul(.attr(s.nn, "tag")))
@@ -540,22 +542,23 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
     }
     
     pfun <- function(i) {
-      if (i > length(which.subclass)) {
-        return(.summary_print())
+      if (i <= length(which.subclass)) {
+        s <- which.subclass[i]
+        
+        s.keep.row <- {
+          if (p.ops[["imbalanced.only"]])
+            rowSums(apply(s.balance[[s]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
+                          function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+          else
+            rep.int(TRUE, nrow(s.balance[[s]]))
+        }
+        
+        .cat_balance_table(s.balance[[s]][, s.keep.col, drop = FALSE], s.keep.row,
+                           p.ops[["digits"]])
       }
-      
-      s <- which.subclass[i]
-      
-      s.keep.row <- {
-        if (p.ops[["imbalanced.only"]])
-          rowSums(apply(s.balance[[s]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
-                        function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-        else
-          rep.int(TRUE, nrow(s.balance[[s]]))
+      else {
+        .summary_print()
       }
-      
-      .cat_balance_table(s.balance[[s]][, s.keep.col, drop = FALSE], s.keep.row,
-                         p.ops[["digits"]])
     }
     
     .cat_segments(labels, pfun)
@@ -1135,12 +1138,17 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
   nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
   
-  if (!any(c(alls, nones))) {
+  if (!any(alls) && !any(nones)) {
     return(NULL)
   }
   
-  .call[alls] <- expression(NULL)
-  .call[nones] <- expression(NA)
+  if (any(alls)) {
+    .call[alls] <- expression(NULL)
+  }
+  
+  if (any(nones)) {
+    .call[nones] <- expression(NA)
+  }
   
   .call
 }
@@ -1187,7 +1195,7 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   nn <- nn[!drop.nn, , drop = FALSE]
   
   for (r in c("All", "Matched")) {
-    rows <- paste0(r, c(" (ESS)", " (Unweighted)"))
+    rows <- paste(r, c("(ESS)", "(Unweighted)"))
     
     if (!all(rows %in% rownames(nn)) ||
         !all(check_if_zero(nn[rows[1L], ] - nn[rows[2L], ]))) {
@@ -1221,7 +1229,9 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 
 #An underlined heading. Takes cli inline markup, interpolated in the caller's frame.
 .cat_heading <- function(..., .envir = parent.frame()) {
-  cli::cat_line(.ul(cli::format_inline(..., .envir = .envir)))
+  cli::format_inline(..., .envir = .envir) |>
+    .ul() |>
+    cli::cat_line()
 }
 
 #The `Call` block.

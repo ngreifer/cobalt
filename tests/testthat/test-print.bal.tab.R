@@ -271,9 +271,14 @@ test_that("a summary across segments prints once, under a rule of its own", {
     expect_identical(sum(startsWith(without, s$heading)), 1L, info = nm)
 
     #The segments really were shown, and the summary sits under a rule of its own
-    #rather than running on from the last of them.
+    #rather than running on from the last of them: the nearest thing above its heading
+    #that is not blank is that rule.
     expect_gt(length(with.segments), length(without))
-    expect_true(is.rule(with.segments[at - 1L]), info = nm)
+
+    above <- with.segments[seq_len(at - 1L)]
+    above <- above[nzchar(trimws(above))]
+
+    expect_true(is.rule(above[length(above)]), info = nm)
   }
 })
 
