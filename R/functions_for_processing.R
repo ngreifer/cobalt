@@ -54,6 +54,30 @@ process_obj <- function(obj) {
   }
 }
 
+#`.all` and `.none` are symbols the user writes in place of `NULL` and `NA`. Every entry
+#point that accepts them -- `bal.tab()`, `bal.plot()`, `love.plot()`, and `bal.tab`'s
+#`print()`, `as.data.frame()`, and `format()` methods -- rewrites its own matched call and
+#evaluates that instead, which is the only way to turn a symbol into a value the argument
+#can hold. Returns the rewritten call, or NULL if neither symbol appeared.
+.rewrite_all_none <- function(.call) {
+  alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+  nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
+  
+  if (!any(alls) && !any(nones)) {
+    return(NULL)
+  }
+  
+  if (any(alls)) {
+    .call[alls] <- expression(NULL)
+  }
+  
+  if (any(nones)) {
+    .call[nones] <- expression(NA)
+  }
+  
+  .call
+}
+
 #x2base
 #Every slot of `X`, in the order `bal.tab()` returns them. `.finish_X()` fills each
 #from the like-named local in the calling `x2base()` method, so a slot missing here is

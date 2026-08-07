@@ -1132,27 +1132,6 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
               which.subclass = which.subclass))
 }
 
-#`.all` and `.none` are symbols the user writes in place of `NULL` and `NA`. Returns
-#the rewritten call for the caller to re-evaluate, or NULL if neither appeared.
-.rewrite_all_none <- function(.call) {
-  alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
-  nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-  
-  if (!any(alls) && !any(nones)) {
-    return(NULL)
-  }
-  
-  if (any(alls)) {
-    .call[alls] <- expression(NULL)
-  }
-  
-  if (any(nones)) {
-    .call[nones] <- expression(NA)
-  }
-  
-  .call
-}
-
 #The display arguments the caller actually supplied, with `x` and the missing ones
 #dropped, ready to hand to `print_process()`.
 .display_args <- function(.env, .dots) {
