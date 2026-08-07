@@ -74,27 +74,8 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
   
   #Prevent exponential notation printing
   rlang::with_options({
-    .bal.tab_print_ruled(x, p.ops)
+    bal.tab_print(x, p.ops)
   }, scipen = 999)
-}
-
-#Every rule in one printout is drawn to a single width: the widest line anywhere in it,
-#which is normally the balance table's. A rule is drawn before what it introduces, so the
-#output is rendered once to find that width and then again to print it. Rendering is pure,
-#and the second pass changes only the rules, which are already at least that wide -- so
-#the width the second pass would measure is the same one.
-#
-#Only the outermost `print()` measures. A nested one -- a cluster's, an imputation's, a
-#time point's -- inherits the width, which is what makes a whole printout line up rather
-#than each block sitting over its own.
-.bal.tab_print_ruled <- function(x, p.ops) {
-  if (is_not_null(getOption("cobalt_rule_width"))) {
-    return(bal.tab_print(x, p.ops))
-  }
-
-  width <- .printed_width(.capture_printed(bal.tab_print(x, p.ops)))
-
-  rlang::with_options(bal.tab_print(x, p.ops), cobalt_rule_width = width)
 }
 
 bal.tab_print <- function(x, p.ops) {
@@ -126,9 +107,10 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
     
     keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops), p.ops, thresholds)
     
-    .cat_block("Balance Measures",
-               .cat_balance_table(balance[, keep.col, drop = FALSE], keep.row,
-                                  p.ops[["digits"]]))
+    .cat_heading("Balance Measures")
+    
+    .cat_balance_table(balance[, keep.col, drop = FALSE], keep.row,
+                        p.ops[["digits"]])
     cli::cat_line()
   }
   
@@ -157,23 +139,24 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
   if (is_not_null(p.ops[["which.cluster"]])) {
     which.cluster <- p.ops[["which.cluster"]]
 
-    .cat_section("Balance by cluster",
-                 paste0("Cluster: ", names(c.balance)[which.cluster]),
-                 function(i) print(c.balance[[which.cluster[i]]]))
+    .cat_heading("Balance by cluster")
+
+    .cat_segments(paste0("Cluster: ", names(c.balance)[which.cluster]),
+                  function(i) print(c.balance[[which.cluster[i]]]))
 
     cli::cat_line()
   }
-
+  
   if (isTRUE(as.logical(p.ops[["cluster.summary"]])) && is_not_null(c.balance.summary)) {
     s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.cluster.funs"]],
                                                  p.ops[["requested.cluster.funs"]]),
                                  p.ops, thresholds, p.ops[["cluster.fun"]])
-
+    
     if (p.ops[["disp.bal.tab"]]) {
-      tab <- round_df_char(c.balance.summary[, s.keep.col, drop = FALSE],
-                           p.ops[["digits"]], na_vals = ".")
-
-      .cat_block("Balance summary across all clusters", .print_data_frame(tab))
+      .cat_heading("Balance summary across all clusters")
+      c.balance.summary[, s.keep.col, drop = FALSE] |>
+        round_df_char(p.ops[["digits"]], na_vals = ".") |>
+        .print_data_frame()
       cli::cat_line()
     }
     
@@ -203,24 +186,26 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
   if (is_not_null(p.ops[["which.imp"]])) {
     which.imp <- p.ops[["which.imp"]]
 
-    .cat_section("Balance by imputation",
-                 paste0("Imputation ", names(i.balance)[which.imp]),
-                 function(i) print(i.balance[[which.imp[i]]]))
+    .cat_heading("Balance by imputation")
+
+    .cat_segments(paste0("Imputation ", names(i.balance)[which.imp]),
+                  function(i) print(i.balance[[which.imp[i]]]))
 
     cli::cat_line()
   }
-
+  
   if (isTRUE(as.logical(p.ops[["imp.summary"]])) && is_not_null(i.balance.summary)) {
     s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.imp.funs"]],
                                                  p.ops[["requested.imp.funs"]]),
                                  p.ops, thresholds, p.ops[["imp.fun"]])
-
+    
     if (p.ops[["disp.bal.tab"]]) {
-      tab <- round_df_char(i.balance.summary[, s.keep.col, drop = FALSE],
-                           p.ops[["digits"]], na_vals = ".")
-
-      .cat_block("Balance summary across all imputations", .print_data_frame(tab))
-
+      .cat_heading("Balance summary across all imputations")
+      
+      i.balance.summary[, s.keep.col, drop = FALSE] |>
+        round_df_char(p.ops[["digits"]], na_vals = ".") |>
+        .print_data_frame()
+      
       cli::cat_line()
     }
     
@@ -256,10 +241,10 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
       paste0(tn[1L], " (0) vs. ", tn[2L], " (1)")
     }, character(1L))
 
-    .cat_section(if (p.ops[["pairwise"]]) "Balance by treatment pair"
-                 else "Balance by treatment group",
-                 labels,
-                 function(i) print(m.balance[[pairs[i]]]))
+    if (p.ops[["pairwise"]]) .cat_heading("Balance by treatment pair")
+    else .cat_heading("Balance by treatment group")
+
+    .cat_segments(labels, function(i) print(m.balance[[pairs[i]]]))
 
     cli::cat_line()
   }
@@ -276,10 +261,11 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max"), p.ops, thresholds, "max")
     
     if (p.ops[["disp.bal.tab"]]) {
-      .cat_block("Balance summary across all treatment pairs",
-                 .cat_balance_table(m.balance.summary[, s.keep.col, drop = FALSE], keep.row,
-                                    p.ops[["digits"]]))
-
+      .cat_heading("Balance summary across all treatment pairs")
+      
+      .cat_balance_table(m.balance.summary[, s.keep.col, drop = FALSE], keep.row,
+                          p.ops[["digits"]])
+      
       cli::cat_line()
     }
     
@@ -312,8 +298,10 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
   if (is_not_null(p.ops[["which.time"]])) {
     which.time <- p.ops[["which.time"]]
 
-    .cat_section("Balance by Time Point", time.labels[which.time],
-                 function(i) print(msm.balance[[which.time[i]]]))
+    .cat_heading("Balance by Time Point")
+
+    .cat_segments(time.labels[which.time],
+                  function(i) print(msm.balance[[which.time[i]]]))
 
     cli::cat_line()
   }
@@ -332,13 +320,14 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     
     
     if (p.ops[["disp.bal.tab"]]) {
-      .cat_block("Balance summary across all time points",
-                 .cat_balance_table(msm.balance.summary[, s.keep.col, drop = FALSE], keep.row,
-                                    p.ops[["digits"]]))
-
+      .cat_heading("Balance summary across all time points")
+      
+      .cat_balance_table(msm.balance.summary[, s.keep.col, drop = FALSE], keep.row,
+                          p.ops[["digits"]])
+      
       cli::cat_line()
     }
-
+    
     .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
 
     #The collected sample sizes belong to the summary: they say the same thing as the
@@ -346,14 +335,17 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     #that gathers the time points together. Without the summary each time point's own
     #table has already reported them.
     if (is_not_null(nn)) {
-      #One table per time point, under a single heading, with the footnote printed once
-      #for the set if any of them starred anything.
-      .cat_section(.attr(nn[[1L]], "tag"), time.labels[seq_along(nn)],
-                   function(ti) {
-                     .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE)
-                   })
+      print.warning <- FALSE
 
-      .cat_ess_footnote(any(vapply(nn, .obs_starred, logical(1L))))
+      #One table per time point, under a single heading.
+      cli::cat_line(.ul(.attr(nn[[1L]], "tag")))
+
+      for (ti in seq_along(nn)) {
+        cli::cat_line(" - ", .it(time.labels[ti]))
+        print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE) || print.warning
+      }
+
+      .cat_ess_footnote(print.warning)
     }
   }
 
@@ -382,22 +374,22 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
     
     which.subclass <- p.ops[["which.subclass"]]
 
-    .cat_section("Balance by subclass",
-                 paste0("Subclass ", which.subclass),
-                 function(i) {
-                   s <- which.subclass[i]
+    .cat_heading("Balance by subclass")
 
-                   s.keep.row <- {
-                     if (p.ops[["imbalanced.only"]])
-                       rowSums(apply(s.balance[[s]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
-                                     function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-                     else
-                       rep.int(TRUE, nrow(s.balance[[s]]))
-                   }
+    .cat_segments(paste0("Subclass ", which.subclass), function(i) {
+      s <- which.subclass[i]
 
-                   .cat_balance_table(s.balance[[s]][, s.keep.col, drop = FALSE], s.keep.row,
-                                      p.ops[["digits"]])
-                 })
+      s.keep.row <- {
+        if (p.ops[["imbalanced.only"]])
+          rowSums(apply(s.balance[[s]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
+                        function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        else
+          rep.int(TRUE, nrow(s.balance[[s]]))
+      }
+
+      .cat_balance_table(s.balance[[s]][, s.keep.col, drop = FALSE], s.keep.row,
+                         p.ops[["digits"]])
+    })
 
     cli::cat_line()
   }
@@ -423,19 +415,21 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                intersect(all_STATS(p.ops[["type"]]), p.ops[["stats"]]))),
         p.ops, thresholds)
       
-      .cat_block("Balance measures across subclasses",
-                 .cat_balance_table(b.a.subclass[, a.s.keep.col, drop = FALSE], a.s.keep.row,
-                                    p.ops[["digits"]]))
-
+      .cat_heading("Balance measures across subclasses")
+      
+      .cat_balance_table(b.a.subclass[, a.s.keep.col, drop = FALSE], a.s.keep.row,
+                          p.ops[["digits"]])
+      
       cli::cat_line()
     }
-
+    
     .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]], across = " across subclasses")
-
+    
     if (is_not_null(s.nn)) {
-      tab <- round_df_char(s.nn, digits = min(2L, p.ops[["digits"]]), pad = " ")
-
-      .cat_block(.attr(s.nn, "tag"), .print_data_frame(tab))
+      cli::cat_line(.ul(.attr(s.nn, "tag")))
+      s.nn |>
+        round_df_char(digits = min(2L, p.ops[["digits"]]), pad = " ") |>
+        .print_data_frame()
     }
   }
   
@@ -1043,15 +1037,6 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   c(out, .resolve_p.ops(x_, A))
 }
 
-#Whether an `Observations` table needs its effective sample sizes starred: only when the
-#rows after the first are a mix of effective and plain sizes, which is when the heading
-#cannot say which is which on its own.
-.obs_starred <- function(nn) {
-  ss.type <- .attr(nn, "ss.type")[rowSums(nn) != 0]
-
-  length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)
-}
-
 #Prints one `Observations` table: drop the rows no unit reached, collapse an
 #`(ESS)`/`(Unweighted)` pair when the two agree, and mark the effective sample sizes
 #with a star. Returns whether a star was printed, so the caller can add the footnote
@@ -1060,11 +1045,9 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   drop.nn <- rowSums(nn) == 0
   ss.type <- .attr(nn, "ss.type")[!drop.nn]
   heading <- .attr(nn, "tag")
-
-  starred <- .obs_starred(nn)
-
+  
   nn <- nn[!drop.nn, , drop = FALSE]
-
+  
   for (r in c("All", "Matched")) {
     rows <- paste0(r, c(" (ESS)", " (Unweighted)"))
     
@@ -1077,19 +1060,20 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
     rownames(nn)[rownames(nn) == rows[1L]] <- r
   }
   
+  if (tag) {
+    cli::cat_line(.ul(heading))
+  }
+  
+  starred <- length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)
+  
   if (starred) {
     nn <- setNames(cbind(nn, ifelse(ss.type == "ess", "*", "")), c(names(nn), ""))
   }
-
-  tab <- round_df_char(nn, digits = min(2L, digits), pad = " ")
-
-  if (tag) {
-    .cat_block(heading, .print_data_frame(tab))
-  }
-  else {
-    .print_data_frame(tab)
-  }
-
+  
+  nn |>
+    round_df_char(digits = min(2L, digits), pad = " ") |>
+    .print_data_frame()
+  
   starred
 }
 
@@ -1097,71 +1081,9 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 #The blocks a printed `bal.tab` is made of. Each method assembles the same handful of
 #them, so they are written once here and the methods read as a list of blocks.
 
-#The narrowest a rule is ever drawn, whatever sits under it.
-.RULE_WIDTH <- 44L
-
-#A label centered in a rule, the form `WeightIt::summary.weightitMSM()` uses for the same
-#kind of heading. `width` is the width of whatever the rule introduces, so a heading sits
-#over its own table rather than over a fixed width that may be far narrower or far wider
-#than it. It never shrinks below `.RULE_WIDTH`, below the label with a space either side,
-#or below the width the printout as a whole settled on -- see `.bal.tab_print_ruled()`,
-#which is what makes every rule in one printout match.
-.cat_rule <- function(label, width = 0L) {
-  width <- max(.RULE_WIDTH, width, nchar(label) + 2L,
-               getOption("cobalt_rule_width", 0L))
-  pad <- width - nchar(label) - 2L
-
-  cli::cat_line(.st(strrep(" ", ceiling(pad / 2))),
-                .it(sprintf(" %s ", label)),
-                .st(strrep(" ", floor(pad / 2))))
-}
-
-#Everything an expression prints, with the styling it would have used. \pkg{cli} decides
-#whether to emit ANSI from the connection it is writing to, and `capture.output()` diverts
-#that to a file, so the decision is pinned to what it was before the diversion. Widths are
-#then measured with `ansi_nchar()`, which counts what will be seen rather than what is
-#stored.
-.capture_printed <- function(expr) {
-  #`invisible()` so that a block whose expression happens to return something visibly --
-  #`.print_observations()` returns whether it starred anything -- does not have that
-  #auto-printed into the middle of the output.
-  rlang::with_options(utils::capture.output(invisible(expr)),
-                      cli.num_colors = cli::num_ansi_colors())
-}
-
-.printed_width <- function(out) {
-  max(0L, cli::ansi_nchar(out))
-}
-
-#One labelled block: the rule, drawn to the width of the block, and then the block. The
-#block is rendered before the rule so that its width is known in time. `label` is a plain
-#string, not cli markup: a label can hold a cluster name or a treatment level, and a brace
-#in one of those is a brace.
-.cat_block <- function(label, expr) {
-  out <- .capture_printed(expr)
-
-  .cat_rule(label, .printed_width(out))
-
-  writeLines(out)
-}
-
-#A heading over a set of sibling blocks -- one per cluster, imputation, time point,
-#subclass, or treatment pair. Every rule in the section is drawn to one width, that of the
-#widest thing any of them prints, so the section reads as a stack rather than as a ragged
-#pile. `print.one(i)` prints the `i`th block's contents.
-.cat_section <- function(heading, labels, print.one) {
-  out <- lapply(seq_along(labels), function(i) .capture_printed(print.one(i)))
-
-  width <- max(vapply(out, .printed_width, numeric(1L)),
-               nchar(c(labels, heading)) + 2L)
-
-  .cat_rule(heading, width)
-
-  for (i in seq_along(labels)) {
-    cli::cat_line()
-    .cat_rule(labels[i], width)
-    writeLines(out[[i]])
-  }
+#An underlined heading. Takes cli inline markup, interpolated in the caller's frame.
+.cat_heading <- function(..., .envir = parent.frame()) {
+  cli::cat_line(.ul(cli::format_inline(..., .envir = .envir)))
 }
 
 #The `Call` block.
@@ -1169,8 +1091,9 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   if (is_null(call)) {
     return(invisible())
   }
-
-  .cat_block("Call", cli::cat_line(" ", paste(deparse(call), collapse = "\n")))
+  
+  .cat_heading("Call")
+  cli::cat_line(" ", paste(deparse(call), collapse = "\n"))
   cli::cat_line()
 }
 
@@ -1194,18 +1117,70 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 .cat_tallies <- function(baltal, maximbal, compute, digits, across = "") {
   for (s in compute) {
     if (is_not_null(baltal[[s]])) {
-      .cat_block(cli::format_inline("Balance tally for {STATS[[s]][['balance_tally_for']]}{across}"),
-                 .print_data_frame(baltal[[s]]))
+      .cat_heading("Balance tally for {STATS[[s]][['balance_tally_for']]}{across}")
+      .print_data_frame(baltal[[s]])
       cli::cat_line()
     }
-
+    
     if (is_not_null(maximbal[[s]])) {
-      tab <- round_df_char(maximbal[[s]], digits, na_vals = ".")
-
-      .cat_block(cli::format_inline("Variable with the greatest {STATS[[s]][['variable_with_the_greatest']]}{across}"),
-                 .print_data_frame(tab, row.names = FALSE))
+      .cat_heading("Variable with the greatest {STATS[[s]][['variable_with_the_greatest']]}{across}")
+      maximbal[[s]] |>
+        round_df_char(digits, na_vals = ".") |>
+        .print_data_frame(row.names = FALSE)
       cli::cat_line()
     }
+  }
+}
+
+#The narrowest a segment divider is ever drawn, whatever sits under it.
+.RULE_WIDTH <- 44L
+
+#The divider one segment of a segmented `bal.tab` sits under -- a cluster, an imputation,
+#a subclass, a treatment pair, a time point. The label is centred in a rule, the form
+#`WeightIt::summary.weightitMSM()` uses for the same kind of heading. Only these dividers
+#are drawn this way: the headings *within* a segment (`Balance Measures`, `Sample sizes`)
+#are underlined as they always were. There is no closing rule to match, since the divider
+#is already a full-width one.
+.cat_rule <- function(label, width = 0L) {
+  width <- max(.RULE_WIDTH, width, nchar(label) + 2L)
+  pad <- width - nchar(label) - 2L
+
+  cli::cat_line(.st(strrep(" ", ceiling(pad / 2))),
+                .it(sprintf(" %s ", label)),
+                .st(strrep(" ", floor(pad / 2))))
+}
+
+#Everything an expression prints, with the styling it would have used. \pkg{cli} decides
+#whether to emit ANSI from the connection it is writing to, and `capture.output()` diverts
+#that to a file, so the decision is pinned to what it was before the diversion. Widths are
+#then measured with `ansi_nchar()`, which counts what will be seen rather than what is
+#stored. `invisible()` so that a segment whose expression happens to return something
+#visibly does not have that auto-printed into the middle of the output.
+.capture_printed <- function(expr) {
+  rlang::with_options(utils::capture.output(invisible(expr)),
+                      cli.num_colors = cli::num_ansi_colors())
+}
+
+.printed_width <- function(out) {
+  max(0L, cli::ansi_nchar(out))
+}
+
+#A set of segments, each under its divider. `print.one(i)` prints the `i`th one.
+#
+#Every divider in the set is drawn to one width -- that of the widest line any of the
+#segments prints, which is normally a balance table's -- so the set reads as a stack
+#rather than as a ragged pile, and so a divider is as wide as what it introduces. That
+#means rendering the segments before drawing the first divider, since a divider comes
+#above what it is about.
+.cat_segments <- function(labels, print.one) {
+  out <- lapply(seq_along(labels), function(i) .capture_printed(print.one(i)))
+
+  width <- max(vapply(out, .printed_width, numeric(1L)), nchar(labels) + 2L)
+
+  for (i in seq_along(labels)) {
+    cli::cat_line()
+    .cat_rule(labels[i], width)
+    writeLines(out[[i]])
   }
 }
 
