@@ -217,6 +217,66 @@ test_that("longitudinal treatments print per-time-point tables", {
   expect_match(out, "Time")
 })
 
+test_that("a summary across segments prints once, under a rule of its own", {
+  # A segmented `bal.tab` prints its summary as one more segment when the segments are
+  # shown, so that a rule separates it from the last of them, and prints it on its own
+  # when they are not. Printing it twice is the mistake that arrangement invites, so
+  # every shape is pinned here rather than only the one it was first written for.
+  covs <- lalonde[c("age", "educ")]
+  treat <- lalonde$treat
+
+  shapes <- list(
+    cluster = list(
+      b = bal.tab(covs, treat = treat, cluster = cl_idx, s.d.denom = "pooled",
+                  cluster.summary = TRUE),
+      heading = "Balance summary across all clusters",
+      arg = "which.cluster"),
+    imp = list(
+      b = bal.tab(covs, treat = treat, imp = imp_idx, s.d.denom = "pooled",
+                  imp.summary = TRUE),
+      heading = "Balance summary across all imputations",
+      arg = "which.imp"),
+    multi = list(
+      b = bal.tab(covs, treat = lalonde$race, s.d.denom = "pooled",
+                  multi.summary = TRUE),
+      heading = "Balance summary across all treatment pairs",
+      arg = "which.treat"),
+    msm = list(
+      b = bal.tab(list(treat ~ age + educ, nodegree ~ age + educ + treat),
+                  data = lalonde, msm.summary = TRUE),
+      heading = "Balance summary across all time points",
+      arg = "which.time"),
+    subclass = list(
+      b = bal.tab(covs, treat = treat, subclass = sub_idx, s.d.denom = "pooled",
+                  subclass.summary = TRUE),
+      heading = "Balance measures across subclasses",
+      arg = "which.subclass")
+  )
+
+  #An unlabelled rule: the divider a summary segment sits under.
+  is.rule <- function(x) grepl(sprintf("^%s+$", cli::symbol$line), trimws(x))
+
+  for (nm in names(shapes)) {
+    s <- shapes[[nm]]
+
+    #NULL displays every segment, NA none of them.
+    with.segments <- capture.output(
+      do.call(print, c(list(s$b), setNames(list(NULL), s$arg))))
+    without <- capture.output(
+      do.call(print, c(list(s$b), setNames(list(NA), s$arg))))
+
+    at <- which(startsWith(with.segments, s$heading))
+
+    expect_length(at, 1L)
+    expect_identical(sum(startsWith(without, s$heading)), 1L, info = nm)
+
+    #The segments really were shown, and the summary sits under a rule of its own
+    #rather than running on from the last of them.
+    expect_gt(length(with.segments), length(without))
+    expect_true(is.rule(with.segments[at - 1L]), info = nm)
+  }
+})
+
 test_that("nested shapes print without error", {
   local_null_device()
 

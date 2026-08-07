@@ -110,7 +110,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
     .cat_heading("Balance Measures")
     
     .cat_balance_table(balance[, keep.col, drop = FALSE], keep.row,
-                        p.ops[["digits"]])
+                       p.ops[["digits"]])
     cli::cat_line()
   }
   
@@ -136,37 +136,62 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
   #Printing
   .cat_call(call)
   
-  summary.follows <- isTRUE(as.logical(p.ops[["cluster.summary"]])) &&
+  print_summary <- isTRUE(as.logical(p.ops[["cluster.summary"]])) &&
     is_not_null(c.balance.summary)
-
+  
+  .summary_print <- {
+    if (print_summary) function() {
+      s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.cluster.funs"]],
+                                                   p.ops[["requested.cluster.funs"]]),
+                                   p.ops, thresholds, p.ops[["cluster.fun"]])
+      
+      if (p.ops[["disp.bal.tab"]]) {
+        .cat_heading("Balance summary across all clusters")
+        c.balance.summary[, s.keep.col, drop = FALSE] |>
+          round_df_char(p.ops[["digits"]], na_vals = ".") |>
+          .print_data_frame()
+        cli::cat_line()
+      }
+      
+      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
+      
+      .cat_observations(nn, p.ops[["digits"]])
+    }
+    else function() {
+      invisible(NULL)
+    }
+  }
+  
   if (is_not_null(p.ops[["which.cluster"]])) {
     which.cluster <- p.ops[["which.cluster"]]
-
-    .cat_heading("Balance by cluster")
-
-    .cat_segments(paste0("Cluster: ", names(c.balance)[which.cluster]),
-                  function(i) print(c.balance[[which.cluster[i]]]),
-                  .close = summary.follows)
-
-    cli::cat_line()
-  }
-
-  if (summary.follows) {
-    s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.cluster.funs"]],
-                                                 p.ops[["requested.cluster.funs"]]),
-                                 p.ops, thresholds, p.ops[["cluster.fun"]])
     
-    if (p.ops[["disp.bal.tab"]]) {
-      .cat_heading("Balance summary across all clusters")
-      c.balance.summary[, s.keep.col, drop = FALSE] |>
-        round_df_char(p.ops[["digits"]], na_vals = ".") |>
-        .print_data_frame()
-      cli::cat_line()
+    .cat_heading("Balance by cluster")
+    
+    labels <- paste0("Cluster: ", names(c.balance)[which.cluster])
+    
+    if (print_summary) {
+      labels <- c(labels, "")
     }
     
-    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
+    pfun <- function(i) {
+      if (i <= length(which.cluster)) {
+        print(c.balance[[which.cluster[i]]])
+      }
+      else {
+        .summary_print()
+      }
+    }
     
-    .cat_observations(nn, p.ops[["digits"]])
+    .cat_segments(labels, pfun)
+    
+    cli::cat_line()
+    
+    #The summary was the last segment, so it must not be printed again below.
+    print_summary <- FALSE
+  }
+  
+  if (print_summary) {
+    .summary_print()
   }
   
   invisible(x)
@@ -187,39 +212,64 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
   #Printing output
   .cat_call(call)
   
-  summary.follows <- isTRUE(as.logical(p.ops[["imp.summary"]])) &&
+  print_summary <- isTRUE(as.logical(p.ops[["imp.summary"]])) &&
     is_not_null(i.balance.summary)
-
+  
+  .summary_print <- {
+    if (print_summary) function() {
+      s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.imp.funs"]],
+                                                   p.ops[["requested.imp.funs"]]),
+                                   p.ops, thresholds, p.ops[["imp.fun"]])
+      
+      if (p.ops[["disp.bal.tab"]]) {
+        .cat_heading("Balance summary across all imputations")
+        
+        i.balance.summary[, s.keep.col, drop = FALSE] |>
+          round_df_char(p.ops[["digits"]], na_vals = ".") |>
+          .print_data_frame()
+        
+        cli::cat_line()
+      }
+      
+      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
+      
+      .cat_observations(nn, p.ops[["digits"]])
+    }
+    else function() {
+      invisible(NULL)
+    }
+  }
+  
   if (is_not_null(p.ops[["which.imp"]])) {
     which.imp <- p.ops[["which.imp"]]
-
-    .cat_heading("Balance by imputation")
-
-    .cat_segments(paste0("Imputation ", names(i.balance)[which.imp]),
-                  function(i) print(i.balance[[which.imp[i]]]),
-                  .close = summary.follows)
-
-    cli::cat_line()
-  }
-
-  if (summary.follows) {
-    s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.imp.funs"]],
-                                                 p.ops[["requested.imp.funs"]]),
-                                 p.ops, thresholds, p.ops[["imp.fun"]])
     
-    if (p.ops[["disp.bal.tab"]]) {
-      .cat_heading("Balance summary across all imputations")
-      
-      i.balance.summary[, s.keep.col, drop = FALSE] |>
-        round_df_char(p.ops[["digits"]], na_vals = ".") |>
-        .print_data_frame()
-      
-      cli::cat_line()
+    .cat_heading("Balance by imputation")
+    
+    labels <- paste0("Imputation ", names(i.balance)[which.imp])
+    
+    if (print_summary) {
+      labels <- c(labels, "")
     }
     
-    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
+    pfun <- function(i) {
+      if (i <= length(which.imp)) {
+        print(i.balance[[which.imp[i]]])
+      }
+      else {
+        .summary_print()
+      }
+    }
     
-    .cat_observations(nn, p.ops[["digits"]])
+    .cat_segments(labels, pfun)
+    
+    cli::cat_line()
+    
+    #The summary was the last segment, so it must not be printed again below.
+    print_summary <- FALSE
+  }
+  
+  if (print_summary) {
+    .summary_print()
   }
   
   invisible(x)
@@ -239,55 +289,78 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
   
   #Printing output
   .cat_call(call)
-
-  summary.follows <- isTRUE(as.logical(p.ops[["multi.summary"]])) &&
+  
+  print_summary <- isTRUE(as.logical(p.ops[["multi.summary"]])) &&
     is_not_null(m.balance.summary)
-
+  
+  .summary_print <- {
+    if (print_summary) function() {
+      keep.row <- {
+        if (p.ops[["imbalanced.only"]])
+          rowSums(apply(m.balance.summary[grepl(".Threshold", names(m.balance.summary), fixed = TRUE)], 2L,
+                        function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        else
+          rep.int(TRUE, nrow(m.balance.summary))
+      }
+      
+      s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max"), p.ops, thresholds, "max")
+      
+      if (p.ops[["disp.bal.tab"]]) {
+        .cat_heading("Balance summary across all treatment pairs")
+        
+        .cat_balance_table(m.balance.summary[, s.keep.col, drop = FALSE], keep.row,
+                           p.ops[["digits"]])
+        
+        cli::cat_line()
+      }
+      
+      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
+      
+      .cat_observations(nn, p.ops[["digits"]])
+    }
+    else function() {
+      invisible(NULL)
+    }
+  }
+  
   if (is_not_null(p.ops[["disp.treat.pairs"]])) {
     pairs <- p.ops[["disp.treat.pairs"]]
-
-    labels <- vapply(pairs, function(i) {
-      tn <- .attr(m.balance[[i]], "print.options")[["treat_names"]]
-
-      paste0(tn[1L], " (0) vs. ", tn[2L], " (1)")
-    }, character(1L))
-
+    
     if (p.ops[["pairwise"]]) .cat_heading("Balance by treatment pair")
     else .cat_heading("Balance by treatment group")
-
-    .cat_segments(labels, function(i) print(m.balance[[pairs[i]]]),
-                  .close = summary.follows)
-
+    
+    labels <- vapply(pairs, function(i) {
+      tn <- .attr(m.balance[[i]], "print.options")[["treat_names"]]
+      
+      paste0(tn[1L], " (0) vs. ", tn[2L], " (1)")
+    }, character(1L))
+    
+    if (print_summary) {
+      labels <- c(labels, "")
+    }
+    
+    pfun <- function(i) {
+      if (i <= length(pairs)) {
+        print(m.balance[[pairs[i]]])
+      }
+      else {
+        .summary_print()
+      }
+    }
+    
+    .cat_segments(labels, pfun)
+    
     cli::cat_line()
+    
+    #The summary was the last segment, so it must not be printed again below.
+    print_summary <- FALSE
   }
-
-  if (summary.follows) {
-    keep.row <- {
-      if (p.ops[["imbalanced.only"]])
-        rowSums(apply(m.balance.summary[grepl(".Threshold", names(m.balance.summary), fixed = TRUE)], 2L,
-                      function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-      else
-        rep.int(TRUE, nrow(m.balance.summary))
-    }
-    
-    s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max"), p.ops, thresholds, "max")
-    
-    if (p.ops[["disp.bal.tab"]]) {
-      .cat_heading("Balance summary across all treatment pairs")
-      
-      .cat_balance_table(m.balance.summary[, s.keep.col, drop = FALSE], keep.row,
-                          p.ops[["digits"]])
-      
-      cli::cat_line()
-    }
-    
-    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
-    
-    .cat_observations(nn, p.ops[["digits"]])
+  
+  if (print_summary) {
+    .summary_print()
   }
   
   invisible(x)
-  
 }
 #' @exportS3Method NULL
 bal.tab_print.bal.tab.msm <- function(x, p.ops) {
@@ -306,65 +379,89 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
   .cat_call(call)
   
   time.labels <- p.ops[["time.labels"]] %or% paste("Time", seq_along(msm.balance))
-
-  summary.follows <- isTRUE(as.logical(p.ops[["msm.summary"]])) &&
+  
+  print_summary <- isTRUE(as.logical(p.ops[["msm.summary"]])) &&
     is_not_null(msm.balance.summary)
-
+  
+  .summary_print <- {
+    if (print_summary) function() {
+      keep.row <- {
+        if (p.ops[["imbalanced.only"]])
+          rowSums(apply(msm.balance.summary[grepl(".Threshold", names(msm.balance.summary), fixed = TRUE)], 2L,
+                        function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        else
+          rep.int(TRUE, nrow(msm.balance.summary))
+      }
+      
+      s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max", include.times = TRUE),
+                                   p.ops, thresholds, "max")
+      
+      if (p.ops[["disp.bal.tab"]]) {
+        .cat_heading("Balance summary across all time points")
+        
+        .cat_balance_table(msm.balance.summary[, s.keep.col, drop = FALSE], keep.row,
+                           p.ops[["digits"]])
+        
+        cli::cat_line()
+      }
+      
+      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
+      
+      #The collected sample sizes belong to the summary: they say the same thing as the
+      #tables above, gathered in one place, so they are shown alongside the one other
+      #thing that gathers the time points together. Without the summary each time point's
+      #own table has already reported them.
+      if (is_not_null(nn)) {
+        print.warning <- FALSE
+        
+        #One table per time point, under a single heading.
+        cli::cat_line(.ul(.attr(nn[[1L]], "tag")))
+        
+        for (ti in seq_along(nn)) {
+          cli::cat_line(" - ", .it(time.labels[ti]))
+          print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE) || print.warning
+        }
+        
+        .cat_ess_footnote(print.warning)
+      }
+    }
+    else function() {
+      invisible(NULL)
+    }
+  }
+  
   if (is_not_null(p.ops[["which.time"]])) {
     which.time <- p.ops[["which.time"]]
-
+    
     .cat_heading("Balance by Time Point")
-
-    .cat_segments(time.labels[which.time],
-                  function(i) print(msm.balance[[which.time[i]]]),
-                  .close = summary.follows)
-
-    cli::cat_line()
-  }
-
-  if (summary.follows) {
-    keep.row <- {
-      if (p.ops[["imbalanced.only"]])
-        rowSums(apply(msm.balance.summary[grepl(".Threshold", names(msm.balance.summary), fixed = TRUE)], 2L,
-                      function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-      else
-        rep.int(TRUE, nrow(msm.balance.summary))
+    
+    labels <- time.labels[which.time]
+    
+    if (print_summary) {
+      labels <- c(labels, "")
     }
     
-    s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, "max", include.times = TRUE),
-                                 p.ops, thresholds, "max")
-    
-    
-    if (p.ops[["disp.bal.tab"]]) {
-      .cat_heading("Balance summary across all time points")
-      
-      .cat_balance_table(msm.balance.summary[, s.keep.col, drop = FALSE], keep.row,
-                          p.ops[["digits"]])
-      
-      cli::cat_line()
-    }
-    
-    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]])
-
-    #The collected sample sizes belong to the summary: they say the same thing as the
-    #tables above, gathered in one place, so they are shown alongside the one other thing
-    #that gathers the time points together. Without the summary each time point's own
-    #table has already reported them.
-    if (is_not_null(nn)) {
-      print.warning <- FALSE
-
-      #One table per time point, under a single heading.
-      cli::cat_line(.ul(.attr(nn[[1L]], "tag")))
-
-      for (ti in seq_along(nn)) {
-        cli::cat_line(" - ", .it(time.labels[ti]))
-        print.warning <- .print_observations(nn[[ti]], p.ops[["digits"]], tag = FALSE) || print.warning
+    pfun <- function(i) {
+      if (i <= length(which.time)) {
+        print(msm.balance[[which.time[i]]])
       }
-
-      .cat_ess_footnote(print.warning)
+      else {
+        .summary_print()
+      }
     }
+    
+    .cat_segments(labels, pfun)
+    
+    cli::cat_line()
+    
+    #The summary was the last segment, so it must not be printed again below.
+    print_summary <- FALSE
   }
-
+  
+  if (print_summary) {
+    .summary_print()
+  }
+  
   invisible(x)
 }
 
@@ -382,8 +479,50 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
   
   .cat_call(call)
   
-  summary.follows <- p.ops[["subclass.summary"]] && is_not_null(b.a.subclass)
-
+  print_summary <- p.ops[["subclass.summary"]] && is_not_null(b.a.subclass)
+  
+  .summary_print <- {
+    if (print_summary) function() {
+      if (p.ops[["disp.bal.tab"]]) {
+        a.s.keep.row <- {
+          if (p.ops[["imbalanced.only"]])
+            rowSums(apply(b.a.subclass[grepl(".Threshold", names(b.a.subclass), fixed = TRUE)], 2L,
+                          function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+          else
+            rep.int(TRUE, nrow(b.a.subclass))
+        }
+        #`Balance.Across.Subclass` is an ordinary balance table, so its statistics are
+        #intersected with those requested; the per-subclass blocks' are not. With
+        #`quick = FALSE` the two therefore differ.
+        a.s.keep.col <- .keep_bal_cols(
+          .p.ops_col_spec(p.ops, samples = c("Un", "Adj"),
+                          compute = if (isTRUE(p.ops[["quick"]])) NULL
+                          else c("means", "sds",
+                                 intersect(all_STATS(p.ops[["type"]]), p.ops[["stats"]]))),
+          p.ops, thresholds)
+        
+        .cat_heading("Balance measures across subclasses")
+        
+        .cat_balance_table(b.a.subclass[, a.s.keep.col, drop = FALSE], a.s.keep.row,
+                           p.ops[["digits"]])
+        
+        cli::cat_line()
+      }
+      
+      .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]], across = " across subclasses")
+      
+      if (is_not_null(s.nn)) {
+        cli::cat_line(.ul(.attr(s.nn, "tag")))
+        s.nn |>
+          round_df_char(digits = min(2L, p.ops[["digits"]]), pad = " ") |>
+          .print_data_frame()
+      }
+    }
+    else function() {
+      invisible(NULL)
+    }
+  }
+  
   #Print subclass balance
   if (p.ops[["disp.bal.tab"]] && is_not_null(p.ops[["which.subclass"]])) {
     #A subclass table has one block: the subclassification *is* the adjustment.
@@ -391,12 +530,22 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                  p.ops, thresholds)
     
     which.subclass <- p.ops[["which.subclass"]]
-
+    
     .cat_heading("Balance by subclass")
-
-    .cat_segments(paste0("Subclass ", which.subclass), function(i) {
+    
+    labels <- paste0("Subclass ", which.subclass)
+    
+    if (print_summary) {
+      labels <- c(labels, "")
+    }
+    
+    pfun <- function(i) {
+      if (i > length(which.subclass)) {
+        return(.summary_print())
+      }
+      
       s <- which.subclass[i]
-
+      
       s.keep.row <- {
         if (p.ops[["imbalanced.only"]])
           rowSums(apply(s.balance[[s]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
@@ -404,51 +553,22 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
         else
           rep.int(TRUE, nrow(s.balance[[s]]))
       }
-
+      
       .cat_balance_table(s.balance[[s]][, s.keep.col, drop = FALSE], s.keep.row,
                          p.ops[["digits"]])
-    }, .close = summary.follows)
-
+    }
+    
+    .cat_segments(labels, pfun)
+    
     cli::cat_line()
+    
+    #The summary was the last segment, so it must not be printed again below.
+    print_summary <- FALSE
   }
-
+  
   #Print balance across subclasses
-  if (summary.follows) {
-    
-    if (p.ops[["disp.bal.tab"]]) {
-      a.s.keep.row <- {
-        if (p.ops[["imbalanced.only"]])
-          rowSums(apply(b.a.subclass[grepl(".Threshold", names(b.a.subclass), fixed = TRUE)], 2L,
-                        function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-        else
-          rep.int(TRUE, nrow(b.a.subclass))
-      }
-      #`Balance.Across.Subclass` is an ordinary balance table, so its statistics are
-      #intersected with those requested; the per-subclass blocks' are not. With
-      #`quick = FALSE` the two therefore differ.
-      a.s.keep.col <- .keep_bal_cols(
-        .p.ops_col_spec(p.ops, samples = c("Un", "Adj"),
-                        compute = if (isTRUE(p.ops[["quick"]])) NULL
-                        else c("means", "sds",
-                               intersect(all_STATS(p.ops[["type"]]), p.ops[["stats"]]))),
-        p.ops, thresholds)
-      
-      .cat_heading("Balance measures across subclasses")
-      
-      .cat_balance_table(b.a.subclass[, a.s.keep.col, drop = FALSE], a.s.keep.row,
-                          p.ops[["digits"]])
-      
-      cli::cat_line()
-    }
-    
-    .cat_tallies(baltal, maximbal, p.ops[["compute"]], p.ops[["digits"]], across = " across subclasses")
-    
-    if (is_not_null(s.nn)) {
-      cli::cat_line(.ul(.attr(s.nn, "tag")))
-      s.nn |>
-        round_df_char(digits = min(2L, p.ops[["digits"]]), pad = " ") |>
-        .print_data_frame()
-    }
+  if (print_summary) {
+    .summary_print()
   }
   
   invisible(x)
@@ -494,7 +614,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
       else c("min", "mean", "max")
     }
   }
-
+  
   cluster.fun <- arg::match_arg(cluster.fun, computed.cluster.funs,
                                 several.ok = TRUE)
   
@@ -569,7 +689,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
       else c("min", "mean", "max")
     }
   }
-
+  
   imp.fun <- arg::match_arg(imp.fun, computed.imp.funs,
                             several.ok = TRUE)
   
@@ -1151,21 +1271,29 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 }
 
 #The narrowest a segment divider is ever drawn, whatever sits under it.
-.RULE_WIDTH <- 44L
+.RULE_WIDTH <- 15L
 
 #The divider one segment of a segmented `bal.tab` sits under -- a cluster, an imputation,
-#a subclass, a treatment pair, a time point. The label is centred in a rule, the form
-#`WeightIt::summary.weightitMSM()` uses for the same kind of heading. Only these dividers
-#are drawn this way: the headings *within* a segment (`Balance Measures`, `Sample sizes`)
-#are underlined as they always were. There is no closing rule to match, since the divider
-#is already a full-width one.
+#a subclass, a treatment pair, a time point. Only these dividers are drawn this way: the
+#headings *within* a segment (`Balance Measures`, `Sample sizes`) are underlined as they
+#always were.
+#
+#An empty label gives a bare rule, which is what a summary across the segments sits under:
+#it is one more segment, but there is nothing to name over it that the heading inside it
+#does not already say.
 .cat_rule <- function(label, width = 0L) {
-  width <- max(.RULE_WIDTH, width, nchar(label) + 2L)
-  pad <- width - nchar(label) - 2L
-
-  cli::cat_line(.st(strrep(" ", ceiling(pad / 2))),
-                .it(sprintf(" %s ", label)),
-                .st(strrep(" ", floor(pad / 2))))
+  if (nzchar(label)) {
+    width <- max(.RULE_WIDTH, width, nchar(label) + 5L)
+    pad <- width - nchar(label) - 2L
+    cli::cat_line(strrep(cli::symbol$line, 3L),
+                  " ",
+                  .it(label),
+                  " ",
+                  strrep(cli::symbol$line, pad - 3L), "\n")
+  }
+  else {
+    cli::cat_line(strrep(cli::symbol$line, width))
+  }
 }
 
 #Everything an expression prints, with the styling it would have used. \pkg{cli} decides
@@ -1191,26 +1319,22 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 #means rendering the segments before drawing the first divider, since a divider comes
 #above what it is about.
 #
-#`.close` draws an unlabelled rule of the same width under the last segment, closing the
-#set. Callers pass it when a summary across the segments follows, so that the summary is
-#not read as another part of the last segment.
-.cat_segments <- function(labels, print.one, .close = FALSE) {
+#A summary across the segments is passed in as a final segment with an empty label, so
+#that it sits under a rule of the same width with nothing named over it -- see any of the
+#`bal.tab_print()` methods.
+.cat_segments <- function(labels, print.one) {
   out <- lapply(seq_along(labels), function(i) .capture_printed(print.one(i)))
-
+  
   #Settled here rather than left to `.cat_rule()` so that the closing rule below is drawn
   #to the same width as the dividers above it.
-  width <- max(.RULE_WIDTH, vapply(out, .printed_width, numeric(1L)), nchar(labels) + 2L)
-
+  width <- max(.RULE_WIDTH, vapply(out, .printed_width, numeric(1L)), nchar(labels) + 5L)
+  
   for (i in seq_along(labels)) {
     cli::cat_line()
     .cat_rule(labels[i], width)
     writeLines(out[[i]])
   }
-
-  if (.close) {
-    cli::cat_line(.st(strrep(" ", width)))
-  }
-
+  
   invisible(width)
 }
 
@@ -1227,7 +1351,7 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
   if (starred) {
     cli::cat_line(.it("* indicates effective sample size"))
   }
-
+  
   invisible(starred)
 }
 
