@@ -20,12 +20,14 @@
 #'   \item{`type`}{the covariate type: `"Binary"`, `"Contin."`, or `"Distance"`.}
 #'   \item{`sample`}{`"Unadjusted"`, or the name of the set of weights.}
 #'   \item{`stat`}{the name of the statistic, using the same names as `bal.tab()`'s `stats` argument (e.g., `"mean.diffs"`), with `"mean"` and `"sd"` for the distribution summary statistics.}
-#'   \item{`group`}{for `"mean"` and `"sd"` with a binary treatment, which treatment group the value belongs to; `NA` otherwise.}
+#'   \item{`group`}{for `"mean"` and `"sd"`, the name of the treatment group the value describes, as [bal.tab()] names it: the two group names for a binary treatment, the level for a multi-category one, `"Uncensored"` or `"Full"` for a censoring indicator, and `"All"` for a continuous treatment, which has no groups, or for the full sample when `pairwise = FALSE`. `NA` for a statistic that contrasts two groups, which belongs to neither of them.}
 #'   \item{`estimate`}{the value of the statistic.}
 #'   \item{`threshold`}{the balance verdict, e.g. `"Balanced, <0.1"`, when a threshold was requested for that statistic; `NA` otherwise.}
 #'   \item{`threshold.value`}{the numeric threshold; `NA` when none was requested.}
 #' }
 #' When the data are segmented -- by cluster, imputation, treatment pair, time point, or subclass -- one further column per level of segmentation identifies it. Segmentation is always a column, never a nested list, so the result is a single rectangle whatever the shape of the input.
+#'
+#' A multi-category treatment is reported one pair of groups at a time, but a mean or a standard deviation belongs to a group rather than to a comparison, and is the same in every pair that group appears in. Such a row therefore appears once, with `pair` set to `NA`; only the statistics that contrast two groups carry a `pair`. The same applies to the full sample's own means when `pairwise = FALSE`, which would otherwise be repeated against every group.
 #'
 #' With `wide = TRUE`, the columns are those `print()` displays, with the covariate names moved from the row names into a `variable` column and any segmentation columns retained.
 #'
@@ -64,19 +66,57 @@
 #'
 NULL
 
-#The innermost balance tables, each with the segmentation that identifies it. A
-#subclassified object is the one shape whose leaves are bare data frames rather than
-#`bal.tab` objects, so it is reached explicitly.
-.bal.tab_leaves <- function(x, keys = list()) {
+#What a leaf's groups are called, indexed by the label its balance table's columns carry.
+#`print()` labels a binary treatment's columns positionally -- `M.0`, `M.1` -- which says
+#nothing about which group is which, and a multi-category object reuses those same two
+#positions for a different pair of groups in every table. Returns NULL for a treatment
+#with no groups at all.
+.leaf_groups <- function(x) {
+  p.ops <- .attr(x, "print.options")
+
+  treat_names <- p.ops[["treat_names"]]
+
+  if (is_null(treat_names)) {
+    return(NULL)
+  }
+
+  setNames(unname(treat_names), p.ops[["group.labels"]] %or% c("0", "1"))
+}
+
+#What a per-group estimate's group is called. A continuous treatment has no groups, so its
+#means and standard deviations describe the sample as a whole -- the same thing
+#`pairwise = FALSE` calls `All`.
+.ALL_GROUP <- "All"
+
+.group_name <- function(label, groups) {
+  if (is.na(label) || is_null(groups)) {
+    return(.ALL_GROUP)
+  }
+
+  out <- unname(groups[label])
+
+  if (is.na(out)) label else out
+}
+
+#The innermost balance tables, each with the segmentation that identifies it and the names
+#of the groups its columns are about. A subclassified object is the one shape whose leaves
+#are bare data frames rather than `bal.tab` objects, so it is reached explicitly.
+.bal.tab_leaves <- function(x, keys = list(), groups = NULL) {
+  #Each level of a segmented object may name its groups differently -- every pair of a
+  #multi-category treatment does -- so the innermost naming wins.
+  groups <- .leaf_groups(x) %or% groups
+
   if (inherits(x, c("bal.tab.bin", "bal.tab.cont"))) {
     return(list(list(keys = keys,
-                     table = x[["Balance"]])))
+                     table = x[["Balance"]],
+                     groups = groups)))
   }
 
   if (inherits(x, "bal.tab.subclass")) {
     return(lapply(names(x[["Subclass.Balance"]]), function(i) {
       list(keys = c(keys, list(subclass = i)),
-           table = x[["Subclass.Balance"]][[i]])
+           table = x[["Subclass.Balance"]][[i]],
+           groups = groups)
     }))
   }
 
@@ -97,7 +137,7 @@ NULL
   } %or% as.character(seq_along(children))
 
   lapply(seq_along(children), function(i) {
-    .bal.tab_leaves(children[[i]], c(keys, setNames(list(nms[i]), level)))
+    .bal.tab_leaves(children[[i]], c(keys, setNames(list(nms[i]), level)), groups)
   }) |>
     unlist(recursive = FALSE)
 }
@@ -135,7 +175,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
 
     d <- {
       if (wide) .bal.tab_wide(tab, spec, keep.row)
-      else .bal.tab_long(tab, spec, keep.row, p.ops)
+      else .bal.tab_long(tab, spec, keep.row, p.ops, leaf[["groups"]])
     }
 
     if (is_null(leaf[["keys"]]) || NROW(d) == 0L) {
@@ -146,7 +186,34 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
           row.names = NULL)
   })
 
-  do.call("rbind", c(out, list(make.row.names = FALSE, stringsAsFactors = FALSE)))
+  out <- do.call("rbind", c(out, list(make.row.names = FALSE, stringsAsFactors = FALSE)))
+
+  .drop_repeated_groups(out)
+}
+
+#A multi-category treatment is reported one pair at a time, but a mean or a standard
+#deviation belongs to a group rather than to a comparison, and is the same in every pair
+#that group appears in -- as is the full sample's when `pairwise = FALSE`. Reported once
+#per pair it would say the same thing several times and imply it depended on the
+#comparison, so it is reported once, with no pair attached.
+.drop_repeated_groups <- function(d) {
+  if (is_null(d) || !all(c("pair", "group", "stat") %in% names(d))) {
+    return(d)
+  }
+
+  per.group <- !is.na(d[["group"]])
+
+  if (!any(per.group)) {
+    return(d)
+  }
+
+  is.na(d[["pair"]][per.group]) <- TRUE
+
+  d <- unique(d)
+
+  rownames(d) <- NULL
+
+  d
 }
 
 #The rows `print()` would show, given `imbalanced.only`.
@@ -165,7 +232,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
 }
 
 #One row per covariate, sample, and statistic.
-.bal.tab_long <- function(tab, spec, keep.row, p.ops) {
+.bal.tab_long <- function(tab, spec, keep.row, p.ops, groups = NULL) {
   vals <- spec[spec[["quantity"]] %in% c("means", "sds", "stat"), , drop = FALSE]
   thr <- spec[spec[["quantity"]] == "threshold", , drop = FALSE]
 
@@ -192,7 +259,11 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
                              "means" = "mean",
                              "sds" = "sd",
                              s),
-               group = vals[["group"]][k],
+               #A statistic that contrasts two groups belongs to neither of them.
+               group = {
+                 if (vals[["quantity"]][k] == "stat") NA_character_
+                 else .group_name(vals[["group"]][k], groups)
+               },
                estimate = tab[[vals[["name"]][k]]][keep.row],
                threshold = {
                  if (is_null(thr.col)) NA_character_

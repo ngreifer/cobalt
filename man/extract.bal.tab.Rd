@@ -35,12 +35,14 @@
 \item{\code{type}}{the covariate type: \code{"Binary"}, \code{"Contin."}, or \code{"Distance"}.}
 \item{\code{sample}}{\code{"Unadjusted"}, or the name of the set of weights.}
 \item{\code{stat}}{the name of the statistic, using the same names as \code{bal.tab()}'s \code{stats} argument (e.g., \code{"mean.diffs"}), with \code{"mean"} and \code{"sd"} for the distribution summary statistics.}
-\item{\code{group}}{for \code{"mean"} and \code{"sd"} with a binary treatment, which treatment group the value belongs to; \code{NA} otherwise.}
+\item{\code{group}}{for \code{"mean"} and \code{"sd"}, the name of the treatment group the value describes, as \code{\link[=bal.tab]{bal.tab()}} names it: the two group names for a binary treatment, the level for a multi-category one, \code{"Uncensored"} or \code{"Full"} for a censoring indicator, and \code{"All"} for a continuous treatment, which has no groups, or for the full sample when \code{pairwise = FALSE}. \code{NA} for a statistic that contrasts two groups, which belongs to neither of them.}
 \item{\code{estimate}}{the value of the statistic.}
 \item{\code{threshold}}{the balance verdict, e.g. \code{"Balanced, <0.1"}, when a threshold was requested for that statistic; \code{NA} otherwise.}
 \item{\code{threshold.value}}{the numeric threshold; \code{NA} when none was requested.}
 }
 When the data are segmented -- by cluster, imputation, treatment pair, time point, or subclass -- one further column per level of segmentation identifies it. Segmentation is always a column, never a nested list, so the result is a single rectangle whatever the shape of the input.
+
+A multi-category treatment is reported one pair of groups at a time, but a mean or a standard deviation belongs to a group rather than to a comparison, and is the same in every pair that group appears in. Such a row therefore appears once, with \code{pair} set to \code{NA}; only the statistics that contrast two groups carry a \code{pair}. The same applies to the full sample's own means when \code{pairwise = FALSE}, which would otherwise be repeated against every group.
 
 With \code{wide = TRUE}, the columns are those \code{print()} displays, with the covariate names moved from the row names into a \code{variable} column and any segmentation columns retained.
 

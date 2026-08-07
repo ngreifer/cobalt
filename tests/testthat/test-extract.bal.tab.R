@@ -55,23 +55,67 @@ test_that("as.data.frame() reports means and SDs as statistics with a group", {
 
   expect_setequal(d$stat, c("mean", "sd", "mean.diffs"))
 
-  #A binary treatment has a mean per group; a mean difference belongs to neither.
-  expect_setequal(d$group[d$stat == "mean"], c("0", "1"))
+  #A binary treatment has a mean per group, named the way `bal.tab()` names the group
+  #rather than by the position its column takes; a mean difference belongs to neither.
+  expect_setequal(d$group[d$stat == "mean"], c("Control", "Treated"))
   expect_true(all(is.na(d$group[d$stat == "mean.diffs"])))
 
   #Moments carry no threshold, whatever thresholds were requested.
   expect_true(all(is.na(d$threshold[d$stat %in% c("mean", "sd")])))
   expect_true(all(is.na(d$threshold.value[d$stat %in% c("mean", "sd")])))
 
-  m <- d[d$stat == "mean" & d$sample == "Unadjusted" & d$group == "1", ]
+  m <- d[d$stat == "mean" & d$sample == "Unadjusted" & d$group == "Treated", ]
   expect_equal(m$estimate[match(rownames(b$Balance), m$variable)], b$Balance$M.1.Un)
 
-  #A continuous treatment has no groups at all.
+  #A continuous treatment has no groups, so its moments describe the whole sample.
   b_c <- bal.tab(covs3(), treat = lalonde$re75, weights = w_fixed, un = TRUE,
                  disp = c("means", "sds"))
   d_c <- as.data.frame(b_c)
-  expect_true(all(is.na(d_c$group)))
+  expect_true(all(d_c$group[d_c$stat %in% c("mean", "sd")] == "All"))
+  expect_true(all(is.na(d_c$group[d_c$stat == "correlations"])))
   expect_setequal(d_c$stat, c("mean", "sd", "correlations"))
+})
+
+test_that("as.data.frame() reports a multi-category group's own moments once", {
+  # Balance is computed one pair of groups at a time, but a group's own mean is the same
+  # in every pair it appears in. Reported per pair it would say the same thing several
+  # times over and imply it depended on the comparison, so it is reported once, named for
+  # the group and belonging to no pair.
+  covs <- lalonde["educ"]
+  race <- lalonde$race
+
+  for (pairwise in c(TRUE, FALSE)) {
+    b <- bal.tab(covs, treat = race, s.d.denom = "pooled", weights = w_fixed, un = TRUE,
+                 disp = c("means", "sds"), pairwise = pairwise)
+
+    d <- as.data.frame(b, which.treat = .all)
+
+    moments <- d[d$stat %in% c("mean", "sd"), , drop = FALSE]
+    contrasts <- d[d$stat == "mean.diffs", , drop = FALSE]
+
+    #Every group is named, and named once per variable, sample, and statistic.
+    groups <- if (pairwise) levels(race) else c("All", levels(race))
+
+    expect_setequal(moments$group, groups)
+    expect_identical(anyDuplicated(moments[c("variable", "sample", "stat", "group")]), 0L)
+
+    #A moment belongs to a group, a mean difference to a pair, and neither to both.
+    expect_true(all(is.na(moments$pair)), info = pairwise)
+    expect_false(anyNA(contrasts$pair), info = pairwise)
+    expect_true(all(is.na(contrasts$group)), info = pairwise)
+
+    #The values are the ones `bal.tab()` computed, and are right for the named group --
+    #the thing the positional labels got wrong, since a pair's name and its `0`/`1`
+    #columns run in opposite order.
+    un <- moments[moments$stat == "mean" & moments$sample == "Unadjusted", ]
+
+    expect_equal(un$estimate[match(levels(race), un$group)],
+                 as.vector(tapply(lalonde$educ, race, mean)))
+
+    if (!pairwise) {
+      expect_equal(un$estimate[un$group == "All"], mean(lalonde$educ))
+    }
+  }
 })
 
 test_that("as.data.frame() puts each level of segmentation in its own column", {
