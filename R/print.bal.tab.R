@@ -136,18 +136,22 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
   #Printing
   .cat_call(call)
   
+  summary.follows <- isTRUE(as.logical(p.ops[["cluster.summary"]])) &&
+    is_not_null(c.balance.summary)
+
   if (is_not_null(p.ops[["which.cluster"]])) {
     which.cluster <- p.ops[["which.cluster"]]
 
     .cat_heading("Balance by cluster")
 
     .cat_segments(paste0("Cluster: ", names(c.balance)[which.cluster]),
-                  function(i) print(c.balance[[which.cluster[i]]]))
+                  function(i) print(c.balance[[which.cluster[i]]]),
+                  .close = summary.follows)
 
     cli::cat_line()
   }
-  
-  if (isTRUE(as.logical(p.ops[["cluster.summary"]])) && is_not_null(c.balance.summary)) {
+
+  if (summary.follows) {
     s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.cluster.funs"]],
                                                  p.ops[["requested.cluster.funs"]]),
                                  p.ops, thresholds, p.ops[["cluster.fun"]])
@@ -183,18 +187,22 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
   #Printing output
   .cat_call(call)
   
+  summary.follows <- isTRUE(as.logical(p.ops[["imp.summary"]])) &&
+    is_not_null(i.balance.summary)
+
   if (is_not_null(p.ops[["which.imp"]])) {
     which.imp <- p.ops[["which.imp"]]
 
     .cat_heading("Balance by imputation")
 
     .cat_segments(paste0("Imputation ", names(i.balance)[which.imp]),
-                  function(i) print(i.balance[[which.imp[i]]]))
+                  function(i) print(i.balance[[which.imp[i]]]),
+                  .close = summary.follows)
 
     cli::cat_line()
   }
-  
-  if (isTRUE(as.logical(p.ops[["imp.summary"]])) && is_not_null(i.balance.summary)) {
+
+  if (summary.follows) {
     s.keep.col <- .keep_bal_cols(.p.ops_col_spec(p.ops, p.ops[["computed.imp.funs"]],
                                                  p.ops[["requested.imp.funs"]]),
                                  p.ops, thresholds, p.ops[["imp.fun"]])
@@ -231,7 +239,10 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
   
   #Printing output
   .cat_call(call)
-  
+
+  summary.follows <- isTRUE(as.logical(p.ops[["multi.summary"]])) &&
+    is_not_null(m.balance.summary)
+
   if (is_not_null(p.ops[["disp.treat.pairs"]])) {
     pairs <- p.ops[["disp.treat.pairs"]]
 
@@ -244,12 +255,13 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     if (p.ops[["pairwise"]]) .cat_heading("Balance by treatment pair")
     else .cat_heading("Balance by treatment group")
 
-    .cat_segments(labels, function(i) print(m.balance[[pairs[i]]]))
+    .cat_segments(labels, function(i) print(m.balance[[pairs[i]]]),
+                  .close = summary.follows)
 
     cli::cat_line()
   }
-  
-  if (isTRUE(as.logical(p.ops[["multi.summary"]])) && is_not_null(m.balance.summary)) {
+
+  if (summary.follows) {
     keep.row <- {
       if (p.ops[["imbalanced.only"]])
         rowSums(apply(m.balance.summary[grepl(".Threshold", names(m.balance.summary), fixed = TRUE)], 2L,
@@ -295,18 +307,22 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
   
   time.labels <- p.ops[["time.labels"]] %or% paste("Time", seq_along(msm.balance))
 
+  summary.follows <- isTRUE(as.logical(p.ops[["msm.summary"]])) &&
+    is_not_null(msm.balance.summary)
+
   if (is_not_null(p.ops[["which.time"]])) {
     which.time <- p.ops[["which.time"]]
 
     .cat_heading("Balance by Time Point")
 
     .cat_segments(time.labels[which.time],
-                  function(i) print(msm.balance[[which.time[i]]]))
+                  function(i) print(msm.balance[[which.time[i]]]),
+                  .close = summary.follows)
 
     cli::cat_line()
   }
-  
-  if (isTRUE(as.logical(p.ops[["msm.summary"]])) && is_not_null(msm.balance.summary)) {
+
+  if (summary.follows) {
     keep.row <- {
       if (p.ops[["imbalanced.only"]])
         rowSums(apply(msm.balance.summary[grepl(".Threshold", names(msm.balance.summary), fixed = TRUE)], 2L,
@@ -366,6 +382,8 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
   
   .cat_call(call)
   
+  summary.follows <- p.ops[["subclass.summary"]] && is_not_null(b.a.subclass)
+
   #Print subclass balance
   if (p.ops[["disp.bal.tab"]] && is_not_null(p.ops[["which.subclass"]])) {
     #A subclass table has one block: the subclassification *is* the adjustment.
@@ -389,13 +407,13 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
 
       .cat_balance_table(s.balance[[s]][, s.keep.col, drop = FALSE], s.keep.row,
                          p.ops[["digits"]])
-    })
+    }, .close = summary.follows)
 
     cli::cat_line()
   }
-  
+
   #Print balance across subclasses
-  if (p.ops[["subclass.summary"]] && is_not_null(b.a.subclass)) {
+  if (summary.follows) {
     
     if (p.ops[["disp.bal.tab"]]) {
       a.s.keep.row <- {
@@ -1172,16 +1190,28 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 #rather than as a ragged pile, and so a divider is as wide as what it introduces. That
 #means rendering the segments before drawing the first divider, since a divider comes
 #above what it is about.
-.cat_segments <- function(labels, print.one) {
+#
+#`.close` draws an unlabelled rule of the same width under the last segment, closing the
+#set. Callers pass it when a summary across the segments follows, so that the summary is
+#not read as another part of the last segment.
+.cat_segments <- function(labels, print.one, .close = FALSE) {
   out <- lapply(seq_along(labels), function(i) .capture_printed(print.one(i)))
 
-  width <- max(vapply(out, .printed_width, numeric(1L)), nchar(labels) + 2L)
+  #Settled here rather than left to `.cat_rule()` so that the closing rule below is drawn
+  #to the same width as the dividers above it.
+  width <- max(.RULE_WIDTH, vapply(out, .printed_width, numeric(1L)), nchar(labels) + 2L)
 
   for (i in seq_along(labels)) {
     cli::cat_line()
     .cat_rule(labels[i], width)
     writeLines(out[[i]])
   }
+
+  if (.close) {
+    cli::cat_line(.st(strrep(" ", width)))
+  }
+
+  invisible(width)
 }
 
 #The `Observations` block, with its footnote when any size is effective.
