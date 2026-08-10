@@ -11,7 +11,7 @@
 #'     \item{`treat.name`}{the name the treatment was given, if it had one.}
 #'     \item{`treat_names`}{for a binary treatment, the display names of the two groups, named `control` and `treated`; for a multi-category treatment, one name per level; for a censoring indicator, `Uncensored` and `Censored`. `NULL` for a continuous treatment.}
 #'     \item{`treat_vals`}{the values in the data that those names correspond to.}
-#'     \item{`group_labels`}{how the treatment's groups are labelled in the column names of a balance table. `c("0", "1")` for a binary treatment, which is \pkg{cobalt}'s positional convention (`M.0` is the control group's mean); otherwise whatever names the groups have.}
+#'     \item{`group_labels`}{how the treatment's groups are labeled in the column names of a balance table. `c("0", "1")` for a binary treatment, which is \pkg{cobalt}'s positional convention (`M.0` is the control group's mean); otherwise whatever names the groups have.}
 #' }
 #'
 #' `[` preserves all of them, so a subset of a `treat` is still a `treat`.
@@ -48,9 +48,9 @@ TREAT_ATTRS <- c("treat.type", "treat.name", "treat_names", "treat_vals",
   set_class(y, class(x))
 }
 
-#What a plot calls each unit's group. An ordinary treatment is labelled by its own
+#What a plot calls each unit's group. An ordinary treatment is labeled by its own
 #values; one whose groups are named something more informative than their values -- the
-#two samples of a censoring comparison -- is labelled by those names.
+#two samples of a censoring comparison -- is labeled by those names.
 treat_labels <- function(treat) {
   labels <- unname(group_labels(treat))
 
@@ -87,7 +87,7 @@ is_processed_treat <- function(treat) {
 `group_labels<-` <- function(treat, value) {
   `attr<-`(treat, "group_labels", value)
 }
-#How a treatment's groups are labelled in a balance table's column names. A binary
+#How a treatment's groups are labeled in a balance table's column names. A binary
 #treatment uses `c("0", "1")` positionally -- `M.0` has always meant the control
 #group's mean -- so that is the default rather than the group names; a treatment that
 #wants its groups named says so.

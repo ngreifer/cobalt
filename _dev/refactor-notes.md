@@ -32,7 +32,7 @@ golden_build(filter = "regex")   # regenerate only cells a change intentionally 
 
 A cell whose fixture cannot build is recorded `unavailable = TRUE`, and `compare_golden()`
 reports an "availability changed" line. **That field earned its place repeatedly** — it is
-how a deleted function and a mislabelled `.msm` flag were both caught, because the symptom
+how a deleted function and a mislabeled `.msm` flag were both caught, because the symptom
 was an error, not a wrong number.
 
 `check_col_spec()` is deliberately *not* tautological: the table builders call
@@ -124,17 +124,17 @@ The first two are now *unrepresentable*, not merely fixed: they were length mism
 between a positionally-built display index and the actual columns, and there is now
 exactly one spec row per column.
 
-### The four open behaviour questions, resolved
+### The four open behavior questions, resolved
 
 `_dev/stale-code-candidates.md` is gone: it held four decisions rather than refactors, and
-all four were made. Recorded here because each changed behaviour.
+all four were made. Recorded here because each changed behavior.
 
 - **A multi-category ATC is an ATT.** With more than two groups there is no single control
   group for an ATC to name, so `focal` identifies the reference group either way and is
   required either way. The two used to be separate branches in
   `process_focal_and_estimand()` that could disagree; reachable only from `bal.init()`,
   since `bal.tab()` resolves `focal`/`estimand` in each `x2base()` method.
-- **`s.d.denom` is honoured per time point.** `base.bal.tab.msm()` used to *overwrite* it
+- **`s.d.denom` is honored per time point.** `base.bal.tab.msm()` used to *overwrite* it
   with `switch(X.class, cont = "all", "pooled")`. That value is still the default — a
   longitudinal treatment targets the ATE and those are the ATE's denominators — but a
   supplied value now survives, and an unusable one is now rejected instead of ignored.
@@ -233,7 +233,7 @@ left untouched, which also preserved their per-block `cat()` conventions.
     afterwards.
 11. **Do not delimit a function by "the next definition matching a pattern".** A script
     using "up to the next `x2base.*`" swallowed two helper functions that are not methods —
-    deleting one outright and giving the other its neighbour's `.msm = TRUE`. Brace-match,
+    deleting one outright and giving the other its neighbor's `.msm = TRUE`. Brace-match,
     and audit every generated call site against the previous revision.
 12. **Tests before a rewrite, and they must pin the artifact, not the surface.** This
     worked three times. For `get_covs_from_formula()` the artifact is the `co.names`
@@ -250,7 +250,7 @@ left untouched, which also preserved their per-block `cat()` conventions.
     `balance_table()` as a duplicate formal.
 14. **`.assign_X_class()` ranks `cluster` above `msm`**, so **cluster is the only shape
     that can receive a longitudinal `X`**. The `if (is_null(X[["covs.list"]]))` guard in
-    the cluster wrapper is deliberate; do not generalise it to imp/multi. Relatedly,
+    the cluster wrapper is deliberate; do not generalize it to imp/multi. Relatedly,
     `.cluster_check()` needs `X[["treat"]] %or% X[["treat.list"]]` — it used to reach the
     list only by `$` partial matching.
 15. **`s.d.denom` nullification differs three ways and must stay visible.** A leaf clears

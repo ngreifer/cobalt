@@ -92,7 +92,7 @@ base.bal.tab.cluster <- function(X,
   #Get list of bal.tabs for each cluster
   out[["Cluster.Balance"]] <- lapply(levels(X[["cluster"]]), function(cl) {
     #Subsetting is inside `tryCatch()` so that errors it raises (e.g., a cluster
-    #in which the treatment takes only one value) are labelled with the cluster.
+    #in which the treatment takes only one value) are labeled with the cluster.
     tryCatch({
       X_cl <- subset_X(X, X[["cluster"]] == cl) |>
         .assign_X_class()

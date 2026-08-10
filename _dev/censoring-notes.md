@@ -91,7 +91,7 @@ replaced the old `processed.treat` class and gathered `assign.treat.type()`,
 from three.
 
 `group_labels` is what makes the censoring columns readable. It is how a treatment's
-groups are labelled in a balance table's column names, and it defaults to `c("0", "1")`
+groups are labeled in a balance table's column names, and it defaults to `c("0", "1")`
 because that is cobalt's positional convention for a binary treatment — `M.0` has always
 meant the control group's mean, and changing that would break every existing table. The
 stacked pseudo-treatment sets it to `c("Uncensored", "Full")` instead, and the label flows
@@ -284,7 +284,7 @@ Things worth remembering:
     `WeightIt::summary.weightitMSM()` uses, so a model goes by the same name in both
     packages, and it is what the section heading and the collected sample sizes use.
     `bal.plot()` builds the same labels for its facet strips but still matches
-    `which.time` against the bare names, so relabelling changes only what is displayed.
+    `which.time` against the bare names, so relabeling changes only what is displayed.
     `love.plot()` is left alone: it already faceted by the variable name, and its
     `which.time` matches character input against exactly that facet value.
 
@@ -314,7 +314,7 @@ unrelated `inst/doc` warnings of its own.
   and the same strata say the same thing given to `subclass`.
 - **Per-time-point weight sets.** `weightitMSM` returns one weight vector, the product
   across all its models, so balance at an early time point is assessed with weights that
-  include later censoring. That is existing cobalt behaviour for MSMs and matches
+  include later censoring. That is existing cobalt behavior for MSMs and matches
   WeightIt's own documented recipe; it is now said out loud in `?class-bal.tab.msm`.
 - **Per-time-point headings.** They stay `Time: <index>`. In a mixed model the index is
   not the study time point, but each child's own sample-size table identifies its kind and
