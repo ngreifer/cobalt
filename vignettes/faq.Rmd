@@ -223,7 +223,9 @@ head(as.data.frame(b))
 ```
 
 The result is tidy: one row per covariate, sample, and statistic, with
-the balance verdict and the threshold alongside. That shape is the same
+the balance verdict and the threshold alongside. Those last two columns
+appear only when a threshold is on display, since they would otherwise
+be empty throughout; the rest are always there. That shape is the same
 whatever the input, which makes it convenient for plotting or for your
 own aggregation. When the data are segmented---by cluster, imputation,
 treatment pair, time point, or subclass---each level of segmentation

@@ -22,9 +22,11 @@
 #'   \item{`stat`}{the name of the statistic, using the same names as `bal.tab()`'s `stats` argument (e.g., `"mean.diffs"`), with `"mean"` and `"sd"` for the distribution summary statistics.}
 #'   \item{`group`}{for `"mean"` and `"sd"`, the name of the treatment group the value describes, as [bal.tab()] names it: the two group names for a binary treatment, the level for a multi-category one, `"Uncensored"` or `"Full"` for a censoring indicator, and `"All"` for a continuous treatment, which has no groups, or for the full sample when `pairwise = FALSE`. `NA` for a statistic that contrasts two groups, which belongs to neither of them.}
 #'   \item{`estimate`}{the value of the statistic.}
-#'   \item{`threshold`}{the balance verdict, e.g. `"Balanced, <0.1"`, when a threshold was requested for that statistic; `NA` otherwise.}
-#'   \item{`threshold.value`}{the numeric threshold; `NA` when none was requested.}
+#'   \item{`threshold`}{the balance verdict, e.g. `"Balanced, <0.1"`, when a threshold was requested for that statistic; `NA` for a row it does not cover, such as a mean.}
+#'   \item{`threshold.value`}{the numeric threshold, on the same rows.}
 #' }
+#' The two threshold columns are present only when a threshold is on display for at least one statistic; when none is, they would be empty throughout and are omitted. The rest of the columns are always present.
+#'
 #' When the data are segmented -- by cluster, imputation, treatment pair, time point, or subclass -- one further column per level of segmentation identifies it. Segmentation is always a column, never a nested list, so the result is a single rectangle whatever the shape of the input.
 #'
 #' A multi-category treatment is reported one pair of groups at a time, but a mean or a standard deviation belongs to a group rather than to a comparison, and is the same in every pair that group appears in. Such a row therefore appears once, with `pair` set to `NA`; only the statistics that contrast two groups carry a `pair`. The same applies to the full sample's own means when `pairwise = FALSE`, which would otherwise be repeated against every group.
@@ -188,7 +190,17 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
 
   out <- do.call("rbind", c(out, list(make.row.names = FALSE, stringsAsFactors = FALSE)))
 
-  .drop_repeated_groups(out)
+  out <- .drop_repeated_groups(out)
+
+  #The threshold columns have nothing to say when no threshold is on display for any
+  #statistic, so they are not carried. When one is, they stay and are `NA` on the rows it
+  #does not cover: a mean has no verdict of its own, and neither has a statistic that was
+  #given no threshold.
+  if (is_not_null(out) && is_null(thresholds)) {
+    out[c("threshold", "threshold.value")] <- NULL
+  }
+
+  out
 }
 
 #A multi-category treatment is reported one pair at a time, but a mean or a standard

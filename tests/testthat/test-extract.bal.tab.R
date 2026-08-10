@@ -2,8 +2,11 @@
 
 covs3 <- function() lalonde[c("age", "educ", "married")]
 
-tidy_cols <- c("variable", "type", "sample", "stat", "group", "estimate",
-               "threshold", "threshold.value")
+#The columns every tidy result has. The two threshold columns join them only when a
+#threshold is on display; see the test that pins that.
+tidy_cols <- c("variable", "type", "sample", "stat", "group", "estimate")
+
+tidy_cols_thr <- c(tidy_cols, "threshold", "threshold.value")
 
 test_that("as.data.frame() returns one row per covariate, sample, and statistic", {
   b <- bal.tab(covs3(), treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
@@ -12,7 +15,7 @@ test_that("as.data.frame() returns one row per covariate, sample, and statistic"
   d <- as.data.frame(b)
 
   expect_s3_class(d, "data.frame")
-  expect_named(d, tidy_cols)
+  expect_named(d, tidy_cols_thr)
 
   #3 covariates x 2 samples x 2 statistics.
   expect_identical(nrow(d), 12L)
@@ -45,6 +48,35 @@ test_that("as.data.frame() returns one row per covariate, sample, and statistic"
   #`type` comes from the table, and rows are grouped by covariate.
   expect_setequal(d$type, c("Contin.", "Binary"))
   expect_identical(unique(d$variable), rownames(b$Balance))
+})
+
+test_that("as.data.frame() carries the threshold columns only when there is a threshold", {
+  # They say nothing at all when no threshold is on display, so they are not carried.
+  # Whether they are is decided by the arguments, not by whether the values happen to come
+  # out `NA`: a threshold on one statistic keeps them for every row, `NA` on the rows that
+  # statistic does not cover.
+  covs <- covs3()
+  t <- lalonde$treat
+
+  no.thr <- as.data.frame(bal.tab(covs, treat = t, s.d.denom = "pooled"))
+
+  expect_named(no.thr, tidy_cols)
+
+  b <- bal.tab(covs, treat = t, s.d.denom = "pooled", stats = c("m", "ks"),
+               thresholds = c(m = .1), disp = "means")
+
+  thr <- as.data.frame(b)
+
+  expect_named(thr, tidy_cols_thr)
+
+  #Kept for every row, filled in only where the threshold applies.
+  expect_false(all(is.na(thr$threshold)))
+  expect_true(all(is.na(thr$threshold[thr$stat != "mean.diffs"])))
+  expect_true(all(thr$threshold.value[thr$stat == "mean.diffs"] == .1))
+
+  #Suppressing the display of the only threshold drops them again, since `print()` would
+  #not show it either.
+  expect_named(as.data.frame(b, disp.thresholds = c(m = FALSE)), tidy_cols)
 })
 
 test_that("as.data.frame() reports means and SDs as statistics with a group", {
