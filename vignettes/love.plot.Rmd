@@ -81,7 +81,7 @@ love.plot(w.out1,
           thresholds = c(m = .1))
 ```
 
-The plot is already looking much better and more informative, but let's change a few things to make it more professional. First, we'll change the names of the variables so they are easier to read. We can create a vector of new variable names and then supply that to the `var.names` argument in `love.plot()`. If it would be a burden to type out all the names, you can use the `var.names()` function to create a CSV file (i.e., spreadsheet) that can be customized and loaded back into R to be used with `love.plot()`. See `?var.names` for more information. Because we only have a few variable names, we'll just manually create a vector of names.
+The plot is already looking much better and more informative, but let's change a few things to make it more professional. First, we'll change the names of the variables so they are easier to read. We can create a vector of new variable names and then supply that to the `var.names` argument in `love.plot()`. If it would be a burden to type out all the names, you can use the `var.names()` function to create a CSV file (i.e., spreadsheet) that can be customized and loaded back into R to be used with `love.plot()`. See `?var.names` for more information, and `?display-options` for the several ways `var.names` can be specified and for how to supply it to `bal.tab()` once instead of to each display. Because we only have a few variable names, we'll just manually create a vector of names.
 
 ```{r}
 new.names <- c(age = "Age (Years)",

@@ -267,6 +267,22 @@ report without recomputing anything:
 as.data.frame(b, stats = "v", un = FALSE)
 ```
 
+They also take `var.names`, which gives the covariates the names you
+want to report them under. Give it to `bal.tab()` and it applies
+wherever the object is displayed afterwards, including `love.plot()`;
+give it here and it adds to that:
+
+```{r}
+format(b, var.names = c(age = "Age", race = "Race/Ethnicity",
+                        re74 = "Earnings, 1974"))
+```
+
+A name given for a base variable reaches every name it appears in, which
+is why one entry for `race` renames all three of its levels. Only the
+displayed names change---`b$Balance` still has the stored ones---so
+nothing downstream has to know about them. See `?display-options` for
+the other ways to specify it.
+
 The underlying components are still there if you want them: the balance
 table lives in `b$Balance` for an unsegmented object, and in a
 differently named component otherwise (`b$Cluster.Balance` and so on).

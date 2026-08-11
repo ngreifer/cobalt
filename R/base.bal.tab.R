@@ -32,6 +32,7 @@ base.bal.tab.base <- function(X,
                               disp = NULL,
                               disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE),
                               disp.call = getOption("cobalt_disp.call", FALSE),
+                              var.names = NULL,
                               abs = FALSE,
                               quick = TRUE,
                               .obs = NULL,
@@ -131,7 +132,8 @@ base.bal.tab.base <- function(X,
                                      treat_names = treat_names(X[["treat"]]),
                                      group.labels = group_labels(X[["treat"]]),
                                      type = type,
-                                     co.names = co.names)
-  
+                                     co.names = co.names,
+                                     var.names = .process_var.names(var.names))
+
   set_class(out, c(paste.("bal.tab", type), "bal.tab"))
 }

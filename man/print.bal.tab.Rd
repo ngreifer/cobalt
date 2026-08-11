@@ -25,6 +25,7 @@
   which.cluster,
   cluster.summary,
   cluster.fun,
+  var.names = NULL,
   digits = max(3L, getOption("digits") - 3),
   ...
 )
@@ -69,6 +70,8 @@
 \item{cluster.summary}{\code{logical}; when used with clustered data, whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}. See \code{\link{class-bal.tab.cluster}} for details.}
 
 \item{cluster.fun}{\code{character}; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See \code{\link{class-bal.tab.cluster}} for details.}
+
+\item{var.names}{an optional object providing alternate names for the variables, which will otherwise be displayed as they are stored. Entries given here add to those given in the original call to \code{bal.tab()} and replace any entry they name. See \code{\link{display-options}} for how to specify it.}
 
 \item{digits}{the number of digits to display.}
 

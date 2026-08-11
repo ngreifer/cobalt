@@ -22,6 +22,7 @@
 #' @param which.cluster when used with clustered data, which cluster(s) to display. If `NULL`, all clusters will be displayed. If `NA`, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to `bal.tab()`, omit this argument. See [`class-bal.tab.cluster`] for details.
 #' @param cluster.summary `logical`; when used with clustered data, whether to display the cluster summary table. If `which.cluster` is `NA`, `cluster.summary` will be set to `TRUE`. See [`class-bal.tab.cluster`] for details.
 #' @param cluster.fun `character`; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See [`class-bal.tab.cluster`] for details.
+#' @param var.names an optional object providing alternate names for the variables, which will otherwise be displayed as they are stored. Entries given here add to those given in the original call to `bal.tab()` and replace any entry they name. See [`display-options`] for how to specify it.
 #' @param digits the number of digits to display.
 #' @param ... further arguments passed to or from other methods.
 #' 
@@ -60,22 +61,27 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
                           which.imp, imp.summary, imp.fun, 
                           which.treat, multi.summary, 
                           which.time, msm.summary,
-                          which.cluster, cluster.summary, cluster.fun, 
+                          which.cluster, cluster.summary, cluster.fun,
+                          var.names = NULL,
                           digits = max(3L, getOption("digits") - 3), ...) {
-  
+
   #Replace .all and .none with NULL and NA respectively
   .call <- .rewrite_all_none(match.call(expand.dots = TRUE))
-  
+
   if (is_not_null(.call)) {
     return(eval.parent(.call))
   }
-  
+
   p.ops <- .resolve_p.ops(x, .display_args(environment(), list(...)))
-  
+
   #Prevent exponential notation printing
   rlang::with_options({
-    bal.tab_print(x, p.ops)
+    bal.tab_print(.rename_bal.tab(x, p.ops[["var.names"]], p.ops[["seps"]]), p.ops)
   }, scipen = 999)
+
+  #The object itself, not the copy that was printed: the replacements are how the
+  #covariates are displayed, not what they are called.
+  invisible(x)
 }
 
 bal.tab_print <- function(x, p.ops) {
@@ -876,10 +882,11 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
 }
 #' @exportS3Method NULL
 print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats,
-                                  disp.thresholds, disp, digits = max(3, getOption("digits") - 3),
+                                  disp.thresholds, disp, var.names = NULL,
+                                  digits = max(3, getOption("digits") - 3),
                                   ...) {
   p.ops <- .attr(x, "print.options")
-  
+
   drop.thresholds <- c()
   
   #Adjustments to print options
@@ -1072,7 +1079,15 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
        group.labels = p.ops[["group.labels"]],
        quick = p.ops[["quick"]],
        stats = p.ops[["stats"]],
-       disp.call = p.ops[["disp.call"]])
+       disp.call = p.ops[["disp.call"]],
+       #`var.names` given here adds to what `bal.tab()` was given rather than replacing
+       #it, so that a name settled on once need not be repeated at every display.
+       var.names = .merge_var.names(p.ops[["var.names"]],
+                                    .process_var.names(var.names)),
+       #The separators, on the other hand, are one value each, so one given here replaces
+       #the one the object was built with.
+       seps = .merge_seps(.attr(p.ops[["co.names"]], "seps"),
+                          ...get("factor_sep"), ...get("int_sep")))
 }
 #' @exportS3Method NULL
 print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, ...) {
@@ -1144,7 +1159,7 @@ print_process.bal.tab.subclass <- function(x, which.subclass, subclass.summary, 
 
 #Resolves display arguments against what the object actually carries, giving the
 #`p.ops` list that decides which columns and rows are shown. `print()`, `format()`,
-#and `as.data.frame()` all go through here, so all three honour the same arguments
+#and `as.data.frame()` all go through here, so all three honor the same arguments
 #and raise the same warnings when `quick = TRUE` withheld a value.
 .resolve_p.ops <- function(x, A) {
   out <- do.call("print_process", c(list(x), A), quote = TRUE)

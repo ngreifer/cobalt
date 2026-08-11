@@ -9,26 +9,32 @@ var.names(b, type, file = NULL, minimal = FALSE)
 \arguments{
 \item{b}{a \code{bal.tab} object; the output of a call to \code{\link[=bal.tab]{bal.tab()}}.}
 
-\item{type}{the type of output desired. Can either be \code{"df"} for a data.frame or \code{"vec"} for a named vector. See "Value". The default is \code{"vec"} unless \code{file} is not \code{NULL}.}
+\item{type}{the type of output desired. Can either be \code{"df"} for a data frame or \code{"vec"} for a named vector. See "Value". The default is \code{"vec"} unless \code{file} is not \code{NULL}.}
 
 \item{file}{optional; a file name to save the output if \code{type = "df"}. See \code{\link[utils:write.csv]{utils::write.csv()}}, which \code{var.name()} calls. Must end in \code{.csv}.}
 
 \item{minimal}{whether the output should contain all variable names (i.e., all rows that appear the output of \code{bal.tab()}) or just the unique base variables. See "Details".}
 }
 \value{
-If \code{type = "vec"}, a character vector the the variable names both as the names and the entries.
+If \code{type = "vec"}, a character vector with the variable names as the names and the names they are displayed under as the entries.
 
-If \code{type = "df"}, a \code{data.frame} with two columns called \code{"old"} and \code{"new"}, each with the variables as the entries.
+If \code{type = "df"}, a data frame with two columns called \code{"old"} and \code{"new"}, the first with the variable names and the second with the names they are displayed under.
+
+When no \code{var.names} has been applied to the object, every variable is displayed as it is stored and the two agree. When one has, the names it produced are given, so that they can be edited rather than written out again; see Details.
 
 If file is not \code{NULL}, the output will be returned invisibly.
 }
 \description{
-This function extracts variable names from a \code{bal.tab} object for use in specifying alternate variable names in \code{\link[=love.plot]{love.plot()}}. Optionally, a file can be written for easy editing of names.
+This function extracts variable names from a \code{bal.tab} object for use in specifying alternate variable names in \code{\link[=bal.tab]{bal.tab()}}, \link[=print.bal.tab]{print()}, \link[=extract.bal.tab]{format()}, \link[=extract.bal.tab]{as.data.frame()}, and \code{\link[=love.plot]{love.plot()}}. Optionally, a file can be written for easy editing of names.
 }
 \details{
-The purpose of the function is to make supplying new variable names to the \code{var.names} argument in \code{\link[=love.plot]{love.plot()}} easier. Rather than manually creating a vector or \code{data.frame} with all the variable names that one desires to change, one can use \code{var.names()} to extract variable names from a \code{bal.tab} object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into R for use in \code{love.plot()}, as demonstrated in the Example.
+The purpose of the function is to make supplying new variable names to the \code{var.names} argument easier. Rather than manually creating a vector or data frame with all the variable names that one desires to change, one can use \code{var.names()} to extract variable names from a \code{bal.tab} object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into R, as demonstrated in the Example. See \code{\link{display-options}} for what \code{var.names} does and for the structures it accepts.
 
 When \code{minimal = TRUE}, only a minimal set of variables will be output. For example, if the variables analyzed in \code{bal.tab()} are \code{age}, \code{race}, and \code{married}, and \code{int = TRUE} in \code{bal.tab()}, many variables will appear in the output, including expansions of the factor variables, the polynomial terms, and the interactions. Rather than renaming all of these variables individually, one can rename just the three base variables, and all variables that arise from them will be accordingly renamed. Setting \code{minimal = TRUE} requests only these base variables.
+
+If a \code{var.names} was given in the call to \code{bal.tab()}, the names it produced are what is returned, so that a set of names arrived at once can be edited rather than written out again. Passing the result back to any of the functions that take \code{var.names} reproduces the names it came from, because the old names it is keyed by are the ones the variables are stored under, which \code{var.names} never changes.
+
+Which names an edit then reaches follows from \code{minimal}, as it does for any \code{var.names}: an edit to a base variable in the minimal output reaches every name that variable appears in, while an edit to an entry of the full output changes only the name it is an entry for.
 }
 \note{
 Not all programs can properly read the Unicode characters for the polynomial terms when requested. These may appear strange in, e.g., Excel, but R will process the characters correctly.
@@ -42,7 +48,20 @@ v1 <- var.names(b1, type = "vec", minimal = TRUE)
 v1["age"] <- "Age (Years)"
 v1["race"] <- "Race/Eth"
 v1["married"] <- "Married"
-love.plot(b1, var.names = v1)
+
+love.plot(b1, var.names = v1, factor_sep = ": ")
+
+#The same names in the table, set once in `bal.tab()`
+b1 <- bal.tab(treat ~ age + race + married, data = lalonde,
+              int = TRUE, var.names = v1)
+b1
+
+#They come back out to be edited rather than rewritten
+v1 <- var.names(b1, type = "vec", minimal = TRUE)
+v1
+
+v1["married"] <- "Married at baseline"
+print(b1, var.names = v1)
 \dontrun{
 b2 <- bal.tab(treat ~ age + race + married + educ + nodegree +
                   re74 + re75 + I(re74==0) + I(re75==0), 
@@ -54,4 +73,7 @@ v2 <- read.csv("varnames.csv")
 love.plot(b2, var.names = v2)
 }
 
+}
+\seealso{
+\code{\link{display-options}} for \code{var.names}, the argument this function supplies
 }

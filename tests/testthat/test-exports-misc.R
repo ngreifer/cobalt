@@ -80,8 +80,9 @@ test_that("var.names() writes a csv and validates the filename", {
 })
 
 test_that("var.names() rejects objects that are not bal.tabs", {
-  expect_err(var.names(1), "no variable names were found in the object")
-  expect_err(var.names(lalonde), "no variable names were found in the object")
+  expect_err(var.names(1), "must inherit from class")
+  expect_err(var.names(lalonde), "must inherit from class")
+  expect_err(var.names(), "must be supplied")
 })
 
 test_that("set.cobalt.options() sets and get.cobalt.options() returns options", {
@@ -92,7 +93,7 @@ test_that("set.cobalt.options() sets and get.cobalt.options() returns options", 
   expect_identical(getOption("cobalt_binary"), "std")
   expect_identical(get.cobalt.options("binary")[["binary"]], "std")
 
-  #The option really changes bal.tab()'s behaviour.
+  #The option really changes bal.tab()'s behavior.
   b_std <- bal.tab(lalonde[c("married")], treat = lalonde$treat,
                    s.d.denom = "pooled")
   set.cobalt.options(binary = "raw")
@@ -130,7 +131,7 @@ test_that("set.cobalt.options() rejects invalid input", {
   expect_err(set.cobalt.options(binary = "bogus"), "No options will be set")
   expect_err(set.cobalt.options(un = "yes"), "No options will be set")
 
-  #`stats` accepts every statistic in the registry, and the option is honoured.
+  #`stats` accepts every statistic in the registry, and the option is honored.
   for (s in cobalt:::all_STATS()) {
     expect_no_error(set.cobalt.options(stats = s))
   }

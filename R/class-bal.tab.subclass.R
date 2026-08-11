@@ -50,6 +50,7 @@ base.bal.tab.subclass <- function(X,
                                   subclass.summary = getOption("cobalt_subclass.summary"),
                                   disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE),
                                   disp.call = getOption("cobalt_disp.call", FALSE),
+                                  var.names = NULL,
                                   abs = FALSE,
                                   quick = TRUE,
                                   .obs = NULL,
@@ -232,8 +233,9 @@ base.bal.tab.subclass <- function(X,
                                      treat_names = treat_vals(X[["treat"]]),
                                      group.labels = group_labels(X[["treat"]]),
                                      type = type,
-                                     co.names = co.names)
-  
+                                     co.names = co.names,
+                                     var.names = .process_var.names(var.names))
+
   set_class(out, c("bal.tab.subclass", "bal.tab"))
 }
 

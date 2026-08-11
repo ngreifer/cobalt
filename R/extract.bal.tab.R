@@ -9,6 +9,7 @@
 #' @param x a `bal.tab` object; the output of a call to [bal.tab()].
 #' @param row.names,optional ignored; present for consistency with the [as.data.frame()] generic.
 #' @param ... arguments passed to [print.bal.tab()] to control which statistics, samples, and covariates are included, e.g. `stats`, `disp`, `un`, `imbalanced.only`, or `disp.thresholds`. The `.all` and `.none` shorthands are accepted as they are by `print()`. Arguments that were not computed in the original call to `bal.tab()` cannot be requested here, for the same reason they cannot be requested in `print()`.
+#' @param var.names an optional object providing alternate names for the variables, which will otherwise be returned as they are stored. Entries given here add to those given in the original call to [bal.tab()] and replace any entry they name. See [`display-options`] for how to specify it.
 #' @param wide `logical`; for `as.data.frame()`, whether to return the table in the layout `print()` uses, with one column per sample and statistic, rather than the default tidy layout. Default is `FALSE`.
 #' @param digits for `format()`, the number of significant digits to display. Default is the same as for `print()`.
 #' @param component for `format()`, which table to return: `"balance"` (the default) for the balance table, or `"observations"` for the sample size table.
@@ -38,12 +39,15 @@
 #' @details
 #' Both functions accept every argument `print()` accepts, and resolve them the same way, so the same warnings are raised when a requested value was not computed because `quick = TRUE` in the original call to `bal.tab()`.
 #'
+#' The `variable` column and the row names carry the covariates' display names, so `var.names` -- given here or in the original call to `bal.tab()` -- changes them. What the covariates are stored under is unaffected. See [`display-options`].
+#'
 #' `as.data.frame()` returns the balance statistics themselves, from each innermost balance table. It does not return the summaries across clusters, imputations, treatment pairs, or time points, which are aggregates of those statistics; `format()` returns the summary when that is what `print()` displays.
 #'
 #' @seealso
 #' * [bal.tab()]
 #' * [print.bal.tab()]
 #' * [love.plot()] for a graphical alternative
+#' * [`display-options`] for `var.names`
 #'
 #' @examples
 #' data("lalonde", package = "cobalt")
@@ -147,7 +151,7 @@ NULL
 #' @rdname extract.bal.tab
 #' @exportS3Method as.data.frame bal.tab
 as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
-                                  wide = FALSE) {
+                                  var.names = NULL, wide = FALSE) {
   .call <- .rewrite_all_none(match.call(expand.dots = TRUE))
 
   if (is_not_null(.call)) {
@@ -162,7 +166,7 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
   p.ops <- .resolve_p.ops(x, A)
   thresholds <- setdiff(names(p.ops[["thresholds"]]), p.ops[["drop.thresholds"]])
 
-  leaves <- .bal.tab_leaves(x)
+  leaves <- .bal.tab_leaves(.rename_bal.tab(x, p.ops[["var.names"]], p.ops[["seps"]]))
 
   out <- lapply(leaves, function(leaf) {
     tab <- leaf[["table"]]
@@ -320,7 +324,8 @@ as.data.frame.bal.tab <- function(x, row.names = NULL, optional = FALSE, ...,
 
 #' @rdname extract.bal.tab
 #' @exportS3Method format bal.tab
-format.bal.tab <- function(x, ..., digits = max(3L, getOption("digits") - 3L),
+format.bal.tab <- function(x, ..., var.names = NULL,
+                           digits = max(3L, getOption("digits") - 3L),
                            component = "balance") {
   .call <- .rewrite_all_none(match.call(expand.dots = TRUE))
 
@@ -334,6 +339,8 @@ format.bal.tab <- function(x, ..., digits = max(3L, getOption("digits") - 3L),
   A[["component"]] <- NULL
 
   p.ops <- .resolve_p.ops(x, A)
+
+  x <- .rename_bal.tab(x, p.ops[["var.names"]], p.ops[["seps"]])
 
   if (component == "observations") {
     nn <- x[["Observations"]]

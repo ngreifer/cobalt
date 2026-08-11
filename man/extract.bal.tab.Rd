@@ -6,11 +6,19 @@
 \alias{format.bal.tab}
 \title{Extract a Balance Table for Further Use}
 \usage{
-\method{as.data.frame}{bal.tab}(x, row.names = NULL, optional = FALSE, ..., wide = FALSE)
+\method{as.data.frame}{bal.tab}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...,
+  var.names = NULL,
+  wide = FALSE
+)
 
 \method{format}{bal.tab}(
   x,
   ...,
+  var.names = NULL,
   digits = max(3L, getOption("digits") - 3L),
   component = "balance"
 )
@@ -21,6 +29,8 @@
 \item{row.names, optional}{ignored; present for consistency with the \code{\link[=as.data.frame]{as.data.frame()}} generic.}
 
 \item{...}{arguments passed to \code{\link[=print.bal.tab]{print.bal.tab()}} to control which statistics, samples, and covariates are included, e.g. \code{stats}, \code{disp}, \code{un}, \code{imbalanced.only}, or \code{disp.thresholds}. The \code{.all} and \code{.none} shorthands are accepted as they are by \code{print()}. Arguments that were not computed in the original call to \code{bal.tab()} cannot be requested here, for the same reason they cannot be requested in \code{print()}.}
+
+\item{var.names}{an optional object providing alternate names for the variables, which will otherwise be returned as they are stored. Entries given here add to those given in the original call to \code{\link[=bal.tab]{bal.tab()}} and replace any entry they name. See \code{\link{display-options}} for how to specify it.}
 
 \item{wide}{\code{logical}; for \code{as.data.frame()}, whether to return the table in the layout \code{print()} uses, with one column per sample and statistic, rather than the default tidy layout. Default is \code{FALSE}.}
 
@@ -58,6 +68,8 @@ Together they are meant to remove the need to pick apart a \code{bal.tab} object
 \details{
 Both functions accept every argument \code{print()} accepts, and resolve them the same way, so the same warnings are raised when a requested value was not computed because \code{quick = TRUE} in the original call to \code{bal.tab()}.
 
+The \code{variable} column and the row names carry the covariates' display names, so \code{var.names} -- given here or in the original call to \code{bal.tab()} -- changes them. What the covariates are stored under is unaffected. See \code{\link{display-options}}.
+
 \code{as.data.frame()} returns the balance statistics themselves, from each innermost balance table. It does not return the summaries across clusters, imputations, treatment pairs, or time points, which are aggregates of those statistics; \code{format()} returns the summary when that is what \code{print()} displays.
 }
 \examples{
@@ -87,5 +99,6 @@ as.data.frame(b, stats = "ks", un = FALSE)
 \item \code{\link[=bal.tab]{bal.tab()}}
 \item \code{\link[=print.bal.tab]{print.bal.tab()}}
 \item \code{\link[=love.plot]{love.plot()}} for a graphical alternative
+\item \code{\link{display-options}} for \code{var.names}
 }
 }

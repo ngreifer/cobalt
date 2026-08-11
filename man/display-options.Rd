@@ -28,13 +28,16 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \item{\code{stats}}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is \code{"mean.diffs"} (i.e., [standardized] mean differences), and for continuous treatments, the default is \code{"correlations"} (i.e., treatment-covariate Pearson correlations).
 }
 
-\item{\code{factor_sep}}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.
+\item{\code{factor_sep}}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}. See the section \emph{Variable names using \code{var.names}} below, which covers the separators too.
 }
 
 \item{\code{int_sep}}{\code{character}; the string used to separate two variables involved in an interaction when variable names are printed. Default is \code{" * "}. Older versions of \pkg{cobalt} used \code{"_"}.
 }
 
 \item{\code{disp.call}}{\code{logical}; whether to display the function call from the original input object, if present. Default is \code{FALSE}, so the function call is not displayed.
+}
+
+\item{\code{var.names}}{an optional object providing alternate names for the variables, which will otherwise be displayed as they are stored. See the section \emph{Variable names using \code{var.names}} below.
 }
 }
 \subsection{When subclassification is used}{
@@ -99,10 +102,37 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 }
 }
 
+\section{Variable names using \code{var.names}}{
+
+
+Variables are displayed as they are named in the output of \code{\link[=bal.tab]{bal.tab()}}, which may not be how they should be named in a report; \code{var.names} supplies alternate names for them. It is taken by \code{bal.tab()} and by everything that displays a \code{bal.tab} object (i.e., \link[=print.bal.tab]{print()}, \link[=extract.bal.tab]{format()}, \link[=extract.bal.tab]{as.data.frame()}, and \code{\link[=love.plot]{love.plot()}}) and means the same thing in all of them. What is given to \code{bal.tab()} applies to everything that displays the object afterwards, so a set of names need be settled on only once; what is given to one of the others adds to that and replaces any entry it names.
+
+Only the names on display change. The variables are still stored, and still selected, under their own names, so \code{var.names} never has to be undone to work with the object. Because the names on display are what is being changed, it is important to know them before specifying alternate ones: they may differ from the names in the original data. \code{\link[=var.names]{var.names()}} extracts them, optionally to a CSV file to edit and read back in; when a \code{var.names} has already been applied, it reports the names that produced, so a set arrived at once can be edited rather than written out again.
+
+\code{var.names} pairs each old name with the new name to display in its place, in any of three structures:
+\enumerate{
+\item a vector or list of new variable names, with the \code{names} of the values the old variable names
+\item a data frame with exactly one column containing the new variable names and the row names containing the old variable names
+\item a data frame with two columns, the first (or the one named \code{"old"}) containing the old variable names and the second (or the one named \code{"new"}) containing the new variable names.
+}
+
+A variable not named in it keeps the name it has.
+
+Names are matched either against the whole name string or against the components a name is built from. For example, if a factor variable \code{"X"} with levels \code{"a"}, \code{"b"}, and \code{"c"} is displayed, the variables \code{"X_a"}, \code{"X_b"}, and \code{"X_c"} will be displayed. You can enter replacement names for all three variables individually, or you can simply specify a replacement name for \code{"X"}, and \code{"X"} will be replaced by the given name everywhere it appears, including not just factor expansions but also polynomials and the interactions produced by \code{int = TRUE}. In an interaction with another variable, say \code{"Y"}, there are several ways to replace the name of the interaction term \code{"X_a * Y"}. If the entire string (\code{"X_a * Y"}) is included in \code{var.names}, the entire string will be replaced. If \code{"X_a"} is included, only it will be replaced (and it will be replaced everywhere else it appears). If \code{"X"} is included, only it will be replaced (and it will be replaced everywhere else it appears). See the example at \code{\link[=var.names]{var.names()}}.
+
+Two variables cannot be given the same name, which would leave them indistinguishable in a table and sitting on top of each other in a plot; doing so is an error.
+\subsection{The separators}{
+
+\code{factor_sep} and \code{int_sep} are taken in the same places and honored the same way: given to \code{bal.tab()} they apply to everything that displays the object afterwards, and given to one of the display functions they apply there. Each is a single string rather than a set of entries, so one given later simply replaces the one in force, as in \code{love.plot(b, factor_sep = ": ")}.
+
+A \code{bal.tab} object records what each name is made of, so the separators can be changed after the fact without the names having to be parsed apart, and a replacement given for a variable applies whichever separators are on display. The names a covariate is stored under, and by which \code{var.names} keys its replacements, are those the object was built with, and are not affected.
+}
+}
+
 \section{Setting options globally}{
 
 
-In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link[=set.cobalt.options]{set.cobalt.options()}} and retrieve it using \code{\link[=get.cobalt.options]{get.cobalt.options()}}. Note that global options cannot be set for \code{which.subclass}, \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
+In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link[=set.cobalt.options]{set.cobalt.options()}} and retrieve it using \code{\link[=get.cobalt.options]{get.cobalt.options()}}. Note that global options cannot be set for \code{which.subclass}, \code{which.cluster}, \code{which.imp}, \code{which.treat}, \code{which.time}, or \code{var.names}.
 }
 
 \seealso{

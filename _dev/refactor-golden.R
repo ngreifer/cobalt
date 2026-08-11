@@ -42,7 +42,7 @@ GOLDEN_DIR <- file.path("_dev", "golden")
 
 .FX <- NULL
 
-#Build a fixture, returning the condition instead of signalling if it fails.
+#Build a fixture, returning the condition instead of signaling if it fails.
 gfx <- function(name) {
   if (is.null(.FX)) {
     .FX <<- .golden_load_fixtures()
@@ -215,6 +215,13 @@ golden_grid <- function() {
   g$df_binary_std <- function() {
     bal.tab(covs, treat = treat, s.d.denom = "pooled", weights = w, un = TRUE,
             binary = "std", continuous = "raw")
+  }
+  #Display names, given for two base variables and reaching the factor expansions and
+  #the interactions they appear in, and the greatest-imbalance table.
+  g$df_var_names <- function() {
+    bal.tab(covs[c("age", "educ", "race")], treat = treat, s.d.denom = "pooled",
+            weights = w, un = TRUE, int = TRUE, thresholds = c(m = .1),
+            var.names = c(age = "Age", race = "Race/Eth"))
   }
 
   for (sdd in c("pooled", "treated", "control", "all", "weighted", "hedges")) {
@@ -544,7 +551,7 @@ golden_grid <- function() {
 #Objects for which love.plot()'s data is captured. Restricted to single-stat plots,
 #which return a ggplot whose $plot$data is a plain data.frame.
 .golden_loveplot_cells <- function() {
-  c("df_default", "df_all_stats", "df_two_weights", "cont_default",
+  c("df_default", "df_all_stats", "df_two_weights", "df_var_names", "cont_default",
     "multi_default", "cluster_summary", "imp_summary", "subclass_summary",
     "msm_summary", "obj_matchit")
 }

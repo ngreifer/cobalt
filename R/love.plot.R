@@ -19,7 +19,7 @@
 #' @param alpha `numeric`; the transparency of the points. See [ggplot2::scale_alpha()].
 #' @param size `numeric`; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now `size` corresponds directly to the `size` aesthetic in [ggplot2::geom_point()].
 #' @param wrap `numeric`; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.
-#' @param var.names an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See Details on how to specify `var.names`. [var.names()] can be a useful tool for extracting and editing the names from the `bal.tab` object.
+#' @param var.names an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See [`display-options`] for how to specify `var.names`. Names given in the original call to [bal.tab()] are used as well; those given here add to them and replace any entry they name. [var.names()] can be a useful tool for extracting and editing the names from the `bal.tab` object.
 #' @param title `character`; the title of the plot.
 #' @param sample.names `character`; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted"). For example, when matching it used, it may be useful to enter `c("Unmatched", "Matched")`.
 #' @param labels `logical` or `character`; labels to give the plots when multiple `stats` are requested. If `TRUE`, the labels will be capital letters. Otherwise, must be a string with the same length as `stats`. This can be useful when the plots are to be used in an article.
@@ -52,13 +52,11 @@
 #' If a `love.plot` object is supplied, the plot being drawn will use the variable order in the supplied `love.plot` object. This can be useful when making more than one plot and the variable order should be the same across plots.
 #' 
 #' ### Variable names using `var.names`
-#' 
-#' The default in `love.plot()` is to present variables as they are named in the output of the call to `bal.tab()`, so it is important to know this output before specifying alternate variable names when using `var.names`, as the displayed variable names may differ from those in the original data.
-#' 
-#' There are several ways to specify alternate names for presentation in the displayed plot using the `var.names` argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the `names` of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from `bal.tab()` is not provided in the list of old variable names, `love.plot()` will use the original old variable name.
-#' 
-#' `love.plot()` can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable `"X"` with levels `"a"`, `"b"`, and `"c"` is displayed with `love.plot()`, the variables `"X_a"`, `"X_b"`, and `"X_c"` will be displayed. You can enter replacement names for all three variables individually with `var.names`, or you can simply specify a replacement name for `"X"`, and `"X"` will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in `int = TRUE` in the original `bal.tab()` call. In an interaction with another variable, say `"Y"`, there are several ways to replace the name of the interaction term `"X_a * Y"`. If the entire string (`"X_a * Y"`) is included in `var.names`, the entire string will be replaced. If `"X_a"` is included in `var.names`, only it will be replaced (and it will be replaced everywhere else it appears). If `"X"` is included in `var.names`, only it will be replaced (and it will be replaced everywhere else it appears). See example at [var.names()].
-#' 
+#'
+#' The variables are presented as they are named in the output of the call to `bal.tab()`, which may not be how they should be named in a report. `var.names` supplies alternate names for them; it is documented at [`display-options`], along with the several structures it accepts and how a name given for a base variable reaches the factor levels, polynomials, and interactions it appears in. It is one of the display options, so it can be given to `bal.tab()` instead, in which case the plot uses those names without being told them again.
+#'
+#' The `factor_sep` and `int_sep` display options are taken here too, so the separators a plot displays can be chosen without recomputing the object; see [`display-options`].
+#'
 #' ### Stars and the x-axis label with mean differences
 #' 
 #' When mean differences are to be displayed, `love.plot()` attempts to figure out the appropriate label for the x-axis. If all mean differences are standardized, the x-axis label will be "Standardized Mean Differences". If all mean differences are raw (i.e., unstandardized), the x-axis label will be "Mean Differences". Otherwise, `love.plot()` turns to the `stars` argument. If "raw", the x-axis label will be "Standardized Mean Differences" (i.e., because un-starred variables have standardized mean differences displayed). If "std", the x-axis label will be "Mean Differences" (i.e., because un-starred variables have raw mean differences displayed). If "none", the x-axis label will be "Mean Differences" and a warning will be issued recommending the use of `stars`. 
@@ -68,8 +66,10 @@
 #' @note
 #' `love.plot` can also be called by using `plot()` or `autoplot()` on a `bal.tab` object. If used in this way, some messages may appear twice. It is recommended that you just use `love.plot()` instead.
 #' 
-#' @seealso 
+#' @seealso
 #' [bal.tab()], `vignette("love.plot")`
+#'
+#' [`display-options`] for `var.names`
 #' 
 #' @examplesIf rlang::is_installed("WeightIt")
 #' data("lalonde", package = "cobalt")
@@ -208,9 +208,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
 
   #Process stats
   if (is_null(stats)) {
-    #The documented default is the same as `bal.tab()`'s, but that statistic is
-    #only available if it was requested there. When it was not, fall back to the
-    #first computed one rather than erroring on a default the user never chose.
     stats <- switch(type,
                     "bin" = getOption("cobalt_stats", "mean.diffs"),
                     "cont" = getOption("cobalt_stats", "correlations"))
@@ -222,14 +219,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
 
   stats <- arg::match_arg(stats, all_STATS(type), several.ok = TRUE)
 
-  #`match_arg()` only checks that the statistic is valid for the treatment type,
-  #not that it was actually computed. Without this check a statistic that was not
-  #requested in the original `bal.tab()` call fails much later with an opaque
-  #shape mismatch; `print.bal.tab()` performs the same check.
   if (is_not_null(computed.stats) && !all(stats %in% computed.stats)) {
     arg::err("{.arg stats} cannot contain {.or {.val {setdiff(stats, computed.stats)}}} when {?it/they} {?was/were} not requested in the original call to {.fun bal.tab}")
   }
-
 
   #Get B and config
   if (inherits(x, "bal.tab.subclass")) {
@@ -376,8 +368,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         if (abs) {
-          #Each statistic supplies its own absolute value; a variance ratio folds
-          #around 1 rather than 0.
           col.stat <- .stat_of_col(.attr(x, "print.options"), stats, stat.cols)
 
           B_stack[stat.cols] <- lapply(stat.cols, function(sc) {
@@ -419,12 +409,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       }
       
       one.level.facet <- facet[vapply(B[facet], all_the_same, logical(1L))]
-      subtitle2 <- {
-        if (is_null(one.level.facet)) NULL
-        else toString(vapply(one.level.facet, function(olf) {
-          paste(firstup(olf), B[1L, olf], sep = ": ")
-        }, character(1L)))
-      }
+      
+      subtitle2 <- if (is_not_null(one.level.facet)) toString(vapply(one.level.facet, function(olf) {
+        paste(firstup(olf), B[1L, olf], sep = ": ")
+      }, character(1L)))
       
       B[one.level.facet] <- NULL
       
@@ -473,95 +461,25 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     arg::wrn("no aggregation will take place, so {.arg agg.fun} will be ignored. Remember to set {.code which.<ARG> = .none} to aggregate across <ARG>")
   }
   
-  #Process variable names
-  if (is_not_null(var.names)) {
-    if (is.data.frame(var.names)) {
-      if (ncol(var.names) == 1L) {
-        if (is_null(row.names(var.names))) {
-          arg::err("if {.arg var.names} is a data frame with one column, its rows must be named")
-        }
-        
-        new.labels <- setNames(unlist(as.character(var.names[, 1L])),
-                               rownames(var.names))
-      }
-      else if (all(c("old", "new") %in% names(var.names))) {
-        new.labels <- setNames(unlist(as.character(var.names[, "new"])), var.names[, "old"])
-      }
-      else {
-        if (ncol(var.names) > 2L) {
-          arg::wrn("only using first 2 columns of {.arg var.names}")
-        }
-        
-        new.labels <- setNames(unlist(as.character(var.names[, 2L])), var.names[, 1L])
-      }
-    } 
-    else if (is.atomic(var.names)) {
-      if (is_null(names(var.names))) {
-        arg::err("if {.arg var.names} is a vector, its values must be named")
-      }
-      
-      new.labels <- setNames(as.character(var.names), names(var.names))
-    }
-    else if (is.list(var.names)) {
-      if (!all_apply(var.names, function(z) is.character(z) || is.factor(z))) {
-        arg::err("if {.arg var.names} is a list, its values must be the new names of the variables")
-      }
-      
-      if (is_null(names(var.names))) {
-        arg::err("if {.arg var.names} is a list, its values must be named")
-      }
-      
-      new.labels <- unlist(var.names) #already a list
-    }
-    else {
-      arg::err("the argument to {.arg var.names} is not one of the accepted structures. See {.help [?love.plot](cobalt::love.plot)} for details")
-    }
-    
-    co.names <- .attr(x, "print.options")[["co.names"]]
-    seps <- .attr(co.names, "seps")
-    for (i in names(co.names)) {
-      comp <- co.names[[i]][["component"]]
-      type <- co.names[[i]][["type"]]
-      
-      if (i %in% names(new.labels) && !is.na(new.labels[i])) {
-        co.names[[i]][["component"]] <- new.labels[i]
-        co.names[[i]][["type"]] <- "base"
-      }
-      else if ("isep" %in% type) {
-        named.vars <- character(sum(type == "isep") + 1L)
-        sep.inds <- c(which(type == "isep"), length(comp) + 1L)
-        named.vars <- lapply(seq_along(sep.inds), function(k) {
-          inds <- {
-            if (k == 1L) seq(1L, sep.inds[k] - 1L) 
-            else seq(sep.inds[k - 1L] + 1L, sep.inds[k] - 1L)
-          }
-          
-          var <- comp[inds]
-          pasted.var <- paste(var, collapse = "")
-          
-          if (pasted.var %in% names(new.labels)) {
-            return(new.labels[pasted.var])
-          }
-          
-          var.is.base <- type[inds] == "base"
-          paste(ifelse(var.is.base & var %in% names(new.labels) & !is.na(new.labels[var]),
-                       new.labels[var], var), collapse = "")
-        })
-        co.names[[i]][["component"]] <- do.call("paste", c(unname(named.vars), list(sep = seps["int"])))
-      }
-      else {
-        co.names[[i]][["component"]] <- ifelse(type == "base" & comp %in% names(new.labels) & !is.na(new.labels[comp]),
-                                               new.labels[comp], comp)
-      }
-    }
-    
-    recode.labels <- setNames(names(co.names), 
-                              vapply(co.names, function(x) paste(x[["component"]], collapse = ""),
-                                     character(1L)))
-    
-    B[["variable.names"]] <- do.call(f.recode, c(list(B[["variable.names"]]), recode.labels))
+  #Process variable names. What `bal.tab()` was given is honored here too, so that a plot
+  #of an object whose names were already settled needs no `var.names` of its own; what is
+  #given here adds to that and replaces any entry it names. The separators work the same
+  #way, except that one given here replaces rather than adds to the one in force.
+  co.names <- .bal.tab_co.names(x)
+
+  new.labels <- .merge_var.names(.attr(x, "print.options")[["var.names"]],
+                                 .process_var.names(var.names))
+
+  seps <- .merge_seps(.attr(co.names, "seps"), ...get("factor_sep"), ...get("int_sep"))
+
+  if (is_not_null(new.labels) || !identical(seps, .attr(co.names, "seps"))) {
+    map <- .var_names_map(co.names, new.labels, seps)
+
+    #`f.recode()` pairs each new name with the old one it replaces.
+    B[["variable.names"]] <- f.recode(B[["variable.names"]],
+                                      setNames(names(map), unname(map)))
   }
-  
+
   distance.names <- as.character(unique(B[["variable.names"]][B[["Type"]] == "Distance"],
                                         nmax = sum(B[["Type"]] == "Distance")))
   
@@ -647,11 +565,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   #Setting up appearance
   
   #Alpha (transparency)
-  if (is.numeric(alpha[1L]) && !anyNA(alpha[1L]) && 
-      between(alpha[1L], c(0, 1))) {
-    alpha <- alpha[1L]
-  }
-  else {
+  if (!is_number(alpha) || anyNA(alpha) || !between(alpha, c(0, 1))) {
     arg::wrn("the argument to {.arg alpha} must be a number between 0 and 1. Using 1 instead")
     alpha <- 1
   }
@@ -730,7 +644,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   if (is_not_null(facet) && is_not_null(var.order) &&
       !inherits(var.order, "love.plot") && tolower(var.order) != "alphabetical") {
-    arg::wrn('{.arg var.order} cannot be set with faceted plots (unless {.val {"alphabetical"}}). Ignoring {.arg var.order}')
+    arg::wrn("{.arg var.order} cannot be set with faceted plots (unless {.val alphabetical}). Ignoring {.arg var.order}")
     var.order <- NULL
   }
   
@@ -791,18 +705,18 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       sample.vals <- sample.names[levels(SS[["Sample"]])]
       SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
       
-      if (all(is.na(as.matrix(SS[c("min.stat", "max.stat", "mean.stat")])))) {
+      if (allNA(as.matrix(SS[c("min.stat", "max.stat", "mean.stat")]))) {
         arg::err("no balance statistics to display. This can occur when {.code {STATS[[s]]$disp_stat} = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       
-      missing.stat <- all(is.na(SS[["mean.stat"]]))
+      missing.stat <- allNA(SS[["mean.stat"]])
       if (missing.stat) {
         arg::err("{.arg {firstup(STATS[[s]]$balance_tally_for)}} cannot be displayed. This can occur when {.arg {STATS[[s]]$disp_stat}} {?is/are} {.val {FALSE}} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       
       gone <- character()
       for (i in sample.vals) {
-        if (all(is.na(as.matrix(SS[SS[["Sample"]] == i, c("min.stat", "max.stat", "mean.stat")])))) {
+        if (allNA(as.matrix(SS[SS[["Sample"]] == i, c("min.stat", "max.stat", "mean.stat")]))) {
           gone <- c(gone, i)
           
           if (i == sample.names["Unadjusted"] && !adj_only) {
@@ -905,14 +819,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       sample.vals <- sample.names[levels(SS[["Sample"]])]
       SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
       
-      missing.stat <- all(is.na(SS[["stat"]]))
+      missing.stat <- allNA(SS[["stat"]])
       if (missing.stat) {
         arg::err("{firstup(STATS[[s]]$balance_tally_for)} cannot be displayed. This can occur when {.arg {STATS[[s]]$disp_stat}} {?is/are} {.val {FALSE}} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
       }
       
       gone <- character()
       for (i in sample.vals) {
-        if (all(is.na(SS[["stat"]][SS[["Sample"]] == i]))) {
+        if (allNA(SS[["stat"]][SS[["Sample"]] == i])) {
           gone <- c(gone, i)
           if (!adj_only && i == sample.names["Unadjusted"]) {
             arg::wrn("unadjusted values are missing. This can occur when {.code un = FALSE} and {.code quick = TRUE} in the original call to {.fun bal.tab}")
@@ -922,7 +836,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       }
       
       if (abs) {
-        SS[["stat"]] <- abs_(SS[["stat"]], ratio = s == "variance.ratios")
+        SS[["stat"]] <- STATS[[s]]$abs(SS[["stat"]])
       }
       
       dec <- FALSE
@@ -1009,7 +923,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         SS.sub[["Sample"]] <- factor(SS.sub[["Sample"]], levels = subclass.names, labels = subclass.names)
         
         if (abs) {
-          SS.sub[["stat"]] <- abs_(SS.sub[["stat"]], ratio = s == "variance.ratios")
+          SS.sub[["stat"]] <- STATS[[s]]$abs(SS.sub[["stat"]])
         }
         
         SS <- rbind(SS, SS.sub)
@@ -1122,7 +1036,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       )
       
       f <- function(q) {
-        is.na(q[["stat"]])[q$type == "Distance"] <- TRUE
+        is.na(q[["stat"]][q$type == "Distance"]) <- TRUE
         q
       }
     }

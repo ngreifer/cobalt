@@ -154,7 +154,7 @@ bal.tab(treat ~ covs, data = lalonde,
         binary = "std", continuous = "std")
 ```
 
-Users can specify additional variables for which to display balance using the argument to `addl`, which can be supplied as a data.frame, a formula containing variables, or a string of names of variables. Users can also add all two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`, and can add polynomials (e.g., squares) of covariates by specifying a numeric argument to `poly`. Interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables. For more details on interactions, see "Details on Calculations", below. To only request a few desired interaction terms, these can be entered into `addl` using a formula, as in `addl = ~ V1 * V2`. Below, balance is requested on the variables stored in `covs`, the additional variables `nodegree` and `married`, and their interactions and squares.
+Users can specify additional variables for which to display balance using the argument to `addl`, which can be supplied as a data frame, a formula containing variables, or a string of names of variables. Users can also add all two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`, and can add polynomials (e.g., squares) of covariates by specifying a numeric argument to `poly`. Interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables. For more details on interactions, see "Details on Calculations", below. To only request a few desired interaction terms, these can be entered into `addl` using a formula, as in `addl = ~ V1 * V2`. Below, balance is requested on the variables stored in `covs`, the additional variables `nodegree` and `married`, and their interactions and squares.
 
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
@@ -341,7 +341,7 @@ If mean difference are requested, `love.plot()` will use the mean differences as
 
 The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariates will be listed in the order of the original dataset. If `"adjusted"`, covariates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviations are allowed. The distance variable(s), if any, will always be displayed at the top. They can be omitted by setting `drop.distance = TRUE`.
 
-The plot uses the original variable names as they are given in the data set, which may not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for `love.plot()` with `?love.plot`. Below is an example, creating a publication-ready plot with a few other arguments to customize output:
+The plot uses the original variable names as they are given in the data set, which may not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for the display options with `?display-options`. Below is an example, creating a publication-ready plot with a few other arguments to customize output:
 
 ```{r, fig.width = 5}
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
@@ -368,6 +368,13 @@ love.plot(m.out, stats = c("mean.diffs", "ks.statistics"),
 This plot shows that balance was improved on almost all variables after adjustment, bringing all but two below the threshold of .1 for absolute mean differences.
 
 A helper function, `var.names()` can be used to more easily create new variable names when many variables are present. See `?var.names` for details.
+
+`var.names` can also be supplied to `bal.tab()` itself, in which case the names are used everywhere the resulting object is displayed---by `print()`, `format()`, `as.data.frame()`, and `love.plot()`---so a set of readable names need only be settled on once. Each of those still takes a `var.names` of its own, which adds to the one given to `bal.tab()` and replaces any entry it names. Only the displayed names change; the variables are still stored, and still selected, under their own names. See `?display-options`.
+
+```{r}
+b <- bal.tab(m.out, var.names = v)
+b
+```
 
 When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stats` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
 
@@ -507,7 +514,7 @@ bal.tab(W.out.cens, un = TRUE, disp = "m")
 
 The units still under observation had lower values of `age` than the sample as a whole before weighting (a standardized mean difference of about .177), and the weights remove that difference. By default the standardization factor for standardized mean differences is the standard deviation in the full at-risk sample, which can be changed by setting `s.d.denom` to `"uncensored"` or to any of the values available for binary treatments.
 
-`bal.plot()` and `love.plot()` work as they do elsewhere. `bal.plot()` displays the weighted uncensored sample against the unweighted full sample, with the two labelled as such.
+`bal.plot()` and `love.plot()` work as they do elsewhere. `bal.plot()` displays the weighted uncensored sample against the unweighted full sample, with the two labeled as such.
 
 ```{r, fig.width = 6}
 #Assessing balance graphically
