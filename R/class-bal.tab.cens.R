@@ -2,16 +2,16 @@
 #' @name class-bal.tab.cens
 #'
 #' @description
-#' When [bal.tab()] is given a censoring indicator marked with [.cens()] rather than a treatment, it asks a different question. A censoring model has no second treatment group to compare against; its target is the full at-risk sample, and what matters is whether the units still under observation resemble that sample once weighted. This page outlines the output in this case.
+#' When [bal.tab()] is given a censoring indicator marked with [.cens()] rather than a treatment, its target is the full at-risk sample, and what matters is whether the units still under observation resemble that sample once weighted. This page outlines the output in this case.
 #'
 #' Balance is therefore assessed between two samples built from the same units:
 #'
 #' * **Uncensored**: the units with `C == 0`, carrying the censoring weights.
-#' * **Full**: every at-risk unit, i.e. every unit with a non-missing `C`, carrying a weight of 1.
+#' * **Full**: every at-risk unit, i.e., every unit with a non-missing `C`, carrying a weight of 1.
 #'
-#' Setting `un = TRUE` adds the same comparison with the uncensored units unweighted, which is the balance the weights were estimated to remove.
+#' Setting `un = TRUE` adds the same comparison with the uncensored units unweighted, which is the imbalance the weights were estimated to remove.
 #'
-#' The two samples are compared using the same statistics available for binary treatments (`mean.diffs`, `variance.ratios`, `ks.statistics`, and `ovl.coefficients`), because internally they are stacked into a binary comparison. The two samples name their own columns rather than taking a binary treatment's positional `0` and `1`, so the balance table has `M.Uncensored` and `SD.Uncensored` for the uncensored sample and `M.Full` and `SD.Full` for the full one, and `Diff` is the difference between the full sample and the uncensored one. That direction is the arrangement described under "Assessing balance" in `WeightIt::.cens()`, so the values agree with the manual computation documented there.
+#' The two samples are compared using the same statistics available for binary treatments (`mean.diffs`, `variance.ratios`, `ks.statistics`, and `ovl.coefficients`), because internally they are stacked into a binary comparison. The two samples name their own columns rather than taking a binary treatment's positional `0` and `1`, so the balance table has `M.Uncensored` and `SD.Uncensored` for the uncensored sample and `M.Full` and `SD.Full` for the full one, and `Diff` is the difference between the full sample and the uncensored one.
 #'
 #' [bal.plot()] works too, showing the weighted uncensored sample against the unweighted full sample.
 #'
@@ -20,10 +20,10 @@
 #' Every argument to `bal.tab()` applies as it does with a binary treatment, with the following exceptions.
 #'
 #' \describe{
-#'     \item{`s.d.denom`}{allowable values are `"full"` (the default), which uses the standard deviation of the covariate in the full at-risk sample; `"uncensored"`, which uses that of the uncensored sample; and `"pooled"`, `"all"`, `"weighted"`, and `"hedges"`, which behave as they do for a binary treatment. Because a censoring model's target is fixed by its design rather than inferred, no note is printed about the value used.}
+#'     \item{`s.d.denom`}{allowable values are `"full"` (the default), which uses the standard deviation of the covariate in the full at-risk sample; `"uncensored"`, which uses that of the uncensored sample; and `"pooled"`, `"all"`, `"weighted"`, and `"hedges"`, which behave as they do for a binary treatment.}
 #'     \item{`estimand` and `focal`}{do not apply and are ignored with a warning. The target is the full at-risk sample.}
 #'     \item{`subclass`}{applies: subclassifying is itself a way of solving a censoring problem, in that within each subclass the uncensored units should resemble every at-risk unit in it. See "With subclasses" below.}
-#'     \item{`match.strata`}{does not apply. It turns strata into weights before the two samples exist; the same strata say the same thing supplied to `subclass`.}
+#'     \item{`match.strata`}{does not apply.}
 #' }
 #'
 #' `cluster` and `imp` apply as usual, and produce a `bal.tab.cluster` or `bal.tab.imp` object whose per-cluster or per-imputation components are the censoring balance tables described here.
@@ -69,12 +69,6 @@ base.bal.tab.subclass.cens <- function(X, ...) {
 
   X <- s[["X"]]
 
-  #Subclassification is itself the censoring solution: within each subclass the
-  #uncensored units should look like every at-risk unit in it. Expressed as weights that
-  #is `n_k / n_{k,uncensored}` for the uncensored units and 1 for the full sample, which
-  #is exactly what `strata2weights()` produces for an ATT whose focal group is the full
-  #sample. So the summary across subclasses needs nothing new either; it just needs to
-  #be told which group is the target.
   X[["estimand"]] <- "ATT"
 
   out <- base.bal.tab.subclass(X, type = "bin", .obs = s[["obs"]], ...)
@@ -242,11 +236,6 @@ samplesize_cens <- function(C, weights = NULL, s.weights = NULL, subclass = NULL
     nn <- nn[rownames(nn) != "Censored", , drop = FALSE]
   }
 
-  #No `ss.type`, so no row is starred. That attribute marks which rows of a treatment's
-  #table are effective sample sizes, and it earns its keep there because such a table can
-  #hold several sets of weights fit by different methods, only some of them weighting.
-  #Here the only row that could be an effective sample size is the adjusted one, and the
-  #heading says so; the rest are counts of units, which is what their names call them.
   attr(nn, "tag") <- {
     if (is_null(adj.rows)) "Sample sizes"
     else "Effective sample sizes"

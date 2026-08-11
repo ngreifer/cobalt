@@ -45,7 +45,7 @@ test_that("get.w.mnps() handles the ATT estimand and several stop methods", {
   #Selecting one stop method gives a vector.
   expect_type(get.w(m, stop.method = "es.mean"), "double")
 
-  #Sampling weights are honoured.
+  #Sampling weights are honored.
   expect_no_error(get.w(m, s.weights = TRUE))
 })
 
@@ -70,7 +70,7 @@ test_that("get.w.CBPS() can recompute the weights from the propensity scores", {
   expect_equal(cor(from_obj, recomputed), 1, tolerance = .2)
 })
 
-test_that("estimand is honoured by the matching-based methods", {
+test_that("estimand is honored by the matching-based methods", {
   for (nm in c("optmatch", "cem_match")) {
     obj <- fx(nm)
     for (e in c("ATT", "ATC", "ATE")) {

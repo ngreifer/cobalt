@@ -47,6 +47,7 @@ set.cobalt.options <- function(..., default = FALSE) {
   if (...length() > 0L && (is_null(...names()) || "" %in% ...names())) {
     arg::err("all arguments must be named")
   }
+  
   multiple.allowed <- c("stats", "disp", "cluster.fun", "imp.fun")
   any.string.allowed <- c("int_sep", "factor_sep")
   

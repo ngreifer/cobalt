@@ -9,7 +9,7 @@
 #' Inside a formula the marker is stripped before the formula is processed, so `.cens()` is not actually evaluated there and the treatment name remains that of the indicator itself (e.g., `C` rather than `.cens(C)`).
 #'
 #' @details
-#' Censoring is its own treatment type in \pkg{cobalt}, distinct from binary, multi-category, and continuous treatments, because the question it asks is different. There is no second treatment group to compare against: the target is the full at-risk sample, and what matters is whether the units still under observation resemble it once weighted. See [`class-bal.tab.cens`] for the output this produces and the arguments that control it.
+#' Censoring is considered its own treatment type in \pkg{cobalt}, distinct from binary, multi-category, and continuous treatments. What matters is whether the units still under observation resemble the full sample once weighted. See [`class-bal.tab.cens`] for the output this produces and the arguments that control it.
 #'
 #' This function is deliberately identical in name and contract to `WeightIt::.cens()`, so that the same code works whichever package is attached; \pkg{cobalt} defines its own only to avoid depending on \pkg{WeightIt}. `bal.tab()` recognizes an indicator tagged by either.
 #'
@@ -77,7 +77,7 @@
                "i" = "logical values are also allowed, as are factors whose levels are {.val {0}} and {.val {1}} or {.val {FALSE}} and {.val {TRUE}}"))
   }
 
-  if (all(is.na(C))) {
+  if (allNA(C)) {
     arg::err("the censoring indicator has no non-missing values")
   }
 

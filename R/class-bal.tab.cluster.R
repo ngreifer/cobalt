@@ -2,7 +2,7 @@
 #' @name class-bal.tab.cluster
 #' 
 #' @description
-#' When using [bal.tab()] with clustered data, the output will be different from the case with single-level data, and there are some options that are common across all `bal.tab()` methods. This page outlines the outputs and options in this case.
+#' When using [bal.tab()] with clustered or subgrouped data, the output will be different from the case with single-level data, and there are some options that are common across all `bal.tab()` methods. This page outlines the outputs and options in this case.
 #'     
 #' There are two main components of the output of `bal.tab()` with clustered data: the within-cluster balance summaries and the across-cluster balance summary. The within-cluster balance summaries display balance for units within each cluster separately.
 #'     

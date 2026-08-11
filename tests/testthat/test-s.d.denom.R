@@ -277,7 +277,7 @@ test_that("`s.d.denom` is irrelevant to statistics that do not standardize", {
                  b_p$Balance$Diff.Adj[!binary_rows])
 })
 
-test_that("`s.d.denom` is honoured at each time point of a longitudinal treatment", {
+test_that("`s.d.denom` is honored at each time point of a longitudinal treatment", {
     fx <- sdd_fixture()
 
     set.seed(28)
@@ -366,7 +366,7 @@ test_that("an unrecognized `estimand` warns instead of silently becoming ATE", {
 # `.get_s.d.denom()` directly, one test per branch, because it is the function that
 # decides the standardization factor and the branch that produced a given answer is
 # not otherwise observable. Written before the function was restructured, so they pin
-# the behaviour rather than describe the implementation.
+# the behavior rather than describe the implementation.
 
 sdd <- function(...) cobalt:::.get_s.d.denom(...)
 
@@ -379,7 +379,7 @@ w_att <- function() ifelse(lalonde$treat == 1, 1, seq_len(nrow(lalonde)) / nrow(
 w_atc <- function() ifelse(lalonde$treat == 0, 1, seq_len(nrow(lalonde)) / nrow(lalonde))
 w_ate <- function() seq_len(nrow(lalonde)) / nrow(lalonde)
 
-test_that(".get_s.d.denom() honours an explicit `s.d.denom`", {
+test_that(".get_s.d.denom() honors an explicit `s.d.denom`", {
   tb <- t_bin()
 
   #The four denominators that need no treatment information.
@@ -466,7 +466,7 @@ test_that(".get_s.d.denom() infers a denominator when nothing is specified", {
                                  quietly = TRUE)),
                    c("pooled", "pooled"))
 
-  #Subclasses of equal size favour no group.
+  #Subclasses of equal size favor no group.
   expect_identical(as.vector(sdd(treat = tb,
                                  subclass = factor(rep(1:4, length.out = nrow(lalonde))),
                                  quietly = TRUE)),

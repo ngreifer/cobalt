@@ -333,7 +333,7 @@ test_that("bal.tab() handles several weight sets as independent columns", {
   expect_identical(attr(b, "print.options")$weight.names, c("a", "b"))
   expect_identical(colnames(b$Observations), c("Control", "Treated"))
 
-  #With more than one weight set the shared unadjusted row is labelled "All".
+  #With more than one weight set the shared unadjusted row is labeled "All".
   expect_identical(rownames(b$Observations), c("All", "a", "b"))
   expect_identical(unname(attr(b$Observations, "ss.type")), c("ss", "ess", "ess"))
 
@@ -365,7 +365,7 @@ test_that("bal.tab() adds `addl` and interaction terms without altering the orig
   expect_equal(b_addl$Balance[1:2, ], b$Balance)
 
   #So does `int = TRUE`, which adds the cross term. Squares are `poly`'s job, not
-  #`int`'s -- asserting both here pins the division of labour between them.
+  #`int`'s -- asserting both here pins the division of labor between them.
   b_int <- bal.tab(covs, treat = f$treat, s.d.denom = "pooled", weights = f$w,
                    un = TRUE, int = TRUE)
   expect_equal(b_int$Balance[rownames(b$Balance), ], b$Balance)

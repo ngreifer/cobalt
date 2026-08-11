@@ -63,7 +63,7 @@ test_that("subclassification works with a continuous treatment", {
   expect_equal(sum(b$Observations[sub_levels]), nrow(lalonde))
 })
 
-test_that("continuous subclassification honours the display arguments", {
+test_that("continuous subclassification honors the display arguments", {
   covs <- lalonde[c("age", "educ", "married", "race")]
 
   #`s.weights` make a subclass's share its share of the population, which is what keeps
@@ -106,7 +106,7 @@ test_that("continuous subclassification honours the display arguments", {
   expect_no_error(capture.output(print(b_cl)))
 })
 
-test_that("which.subclass and disp.subclass are honoured at bal.tab() time", {
+test_that("which.subclass and disp.subclass are honored at bal.tab() time", {
   covs <- lalonde[c("age", "educ")]
 
   #The deprecated `disp.subclass` selects every subclass.
@@ -151,7 +151,7 @@ test_that("thresholds are computed per subclass", {
 test_that("per-subclass thresholds use each statistic's own absolute value", {
   #Variance ratios are compared on `pmax(x, 1/x)`, not `abs(x)`, so a ratio below
   #1 can still exceed the threshold. The per-subclass tables previously used
-  #`abs()` for every statistic and so labelled those as balanced.
+  #`abs()` for every statistic and so labeled those as balanced.
   covs <- lalonde[c("age", "educ", "re74")]
 
   b <- bal.tab(covs, treat = lalonde$treat, subclass = sub_idx,

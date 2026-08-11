@@ -61,7 +61,10 @@ base.bal.tab.multi <- function(X,
     check_if_zero_weights(X[["weights"]], X[["treat"]])
     if (ncol(X[["weights"]]) == 1L) names(X[["weights"]]) <- "Adj"
   }
-  if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+  
+  if (is_null(A[["quick"]])) {
+    A[["quick"]] <- TRUE
+  }
   
   if (missing(which.treat)) {
     if (is_null(X[["imp"]])) which.treat <- NA
@@ -142,6 +145,7 @@ base.bal.tab.multi <- function(X,
     if (any(treat_vals(X[["treat"]]) == "All")) {
       arg::err("{.val All} cannot be the name of a treatment level. Please rename your treatments")
     }
+    
     balance.tables <- lapply(treat.combinations, function(t) {
       n <- length(X[["treat"]])
       X_t <- X

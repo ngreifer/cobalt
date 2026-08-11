@@ -291,9 +291,6 @@ trim_string <- function(x, char = " ", symmetrical = TRUE, recursive = TRUE) {
   
   x
 }
-space <- function(n) {
-  strrep(" ", n)
-}
 str_rev <- function(x) {
   vapply(lapply(strsplit(x, NULL), rev), paste, character(1L), collapse = "")
 }
@@ -579,28 +576,6 @@ ave_w.m <- function(x, ..., w = NULL) {
   }
   
   x
-}
-
-#Formulas
-subbars <- function(term) {
-  if (is.name(term) || !is.language(term)) {
-    return(term)
-  }
-  
-  if (length(term) == 2L) {
-    term[[2L]] <- subbars(term[[2L]])
-    return(term)
-  }
-  
-  if (is.call(term) && (term[[1L]] == as.name("|") || term[[1L]] == as.name("||"))) {
-    term[[1L]] <- as.name("+")
-  }
-  
-  for (j in seq_len(term)[-1L]) {
-    term[[j]] <- subbars(term[[j]])
-  }
-  
-  term
 }
 
 #treat/covs
@@ -905,7 +880,7 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
 is_mat_like <- function(x) {
   length(dim(x)) == 2L
 }
-is_null <- function(x) {identical(length(x), 0L)}
+is_null <- function(x) {isTRUE(length(x) == 0L)}
 is_not_null <- function(x) !is_null(x)
 `%or%` <- function(x, y) {
   # like `%||%` but works for non-NULL length 0 objects
@@ -1020,6 +995,9 @@ na.rem <- function(x) {
 anyNA_col <- function(x) {
   colSums(is.na(x)) > 0L
 }
+allNA <- function(x) {
+  anyNA(x) && all(is.na(x))
+}
 check_if_call_from_fun <- function(fun) {
   # Check if called from within function f
   if (missing(fun) || !exists(deparse1(substitute(fun)), mode = "function")) {
@@ -1035,14 +1013,9 @@ check_if_call_from_fun <- function(fun) {
   FALSE
 }
 has_method <- function(class, fun) {
-  if (!rlang::is_string(fun)) {
-    stop("'fun' must be a string of length 1.")
-  }
-  
-  if (!is.character(class)) {
-    stop("'class' must be a character vector.")
-  }
-  
+  arg::arg_string(fun)
+  arg::arg_character(class)
+
   vapply(class, function(cl) is_not_null(utils::getS3method(fun, cl, optional = TRUE,
                                                             envir = asNamespace(utils::packageName()))),
          logical(1L))
@@ -1122,11 +1095,11 @@ try_arg <- function(expr, warn = TRUE) {
     arg::err("{conditionMessage(e)}")
   }
   
-  .w <- function(w) {
-    arg::wrn("{conditionMessage(w)}")
-  }
-  
   if (warn) {
+    .w <- function(w) {
+      arg::wrn("{conditionMessage(w)}")
+    }
+    
     rlang::try_fetch(expr, error = .e, warning = .w)
   }
   else {
@@ -1137,5 +1110,3 @@ try_arg <- function(expr, warn = TRUE) {
 #cli utilities
 .it <- function(...) cli::style_italic(...)
 .ul <- function(...) cli::style_underline(...)
-#Struck-through spaces, which draw as a horizontal rule.
-.st <- function(...) cli::style_strikethrough(...)

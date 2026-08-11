@@ -37,7 +37,7 @@ test_that("a single aggregation function produces a threshold summary", {
   expect_match(squish(capture.output(print(b_imp))), "Balance tally for")
 })
 
-test_that("errors inside one group are labelled with that group", {
+test_that("errors inside one group are labeled with that group", {
   covs <- lalonde[c("age", "educ")]
 
   #All-zero weights in one arm of a single cluster or imputation.

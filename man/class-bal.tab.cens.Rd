@@ -4,17 +4,17 @@
 \alias{class-bal.tab.cens}
 \title{Using \code{bal.tab()} with a Censoring Indicator}
 \description{
-When \code{\link[=bal.tab]{bal.tab()}} is given a censoring indicator marked with \code{\link[=.cens]{.cens()}} rather than a treatment, it asks a different question. A censoring model has no second treatment group to compare against; its target is the full at-risk sample, and what matters is whether the units still under observation resemble that sample once weighted. This page outlines the output in this case.
+When \code{\link[=bal.tab]{bal.tab()}} is given a censoring indicator marked with \code{\link[=.cens]{.cens()}} rather than a treatment, its target is the full at-risk sample, and what matters is whether the units still under observation resemble that sample once weighted. This page outlines the output in this case.
 
 Balance is therefore assessed between two samples built from the same units:
 \itemize{
 \item \strong{Uncensored}: the units with \code{C == 0}, carrying the censoring weights.
-\item \strong{Full}: every at-risk unit, i.e. every unit with a non-missing \code{C}, carrying a weight of 1.
+\item \strong{Full}: every at-risk unit, i.e., every unit with a non-missing \code{C}, carrying a weight of 1.
 }
 
-Setting \code{un = TRUE} adds the same comparison with the uncensored units unweighted, which is the balance the weights were estimated to remove.
+Setting \code{un = TRUE} adds the same comparison with the uncensored units unweighted, which is the imbalance the weights were estimated to remove.
 
-The two samples are compared using the same statistics available for binary treatments (\code{mean.diffs}, \code{variance.ratios}, \code{ks.statistics}, and \code{ovl.coefficients}), because internally they are stacked into a binary comparison. The two samples name their own columns rather than taking a binary treatment's positional \code{0} and \code{1}, so the balance table has \code{M.Uncensored} and \code{SD.Uncensored} for the uncensored sample and \code{M.Full} and \code{SD.Full} for the full one, and \code{Diff} is the difference between the full sample and the uncensored one. That direction is the arrangement described under "Assessing balance" in \code{WeightIt::.cens()}, so the values agree with the manual computation documented there.
+The two samples are compared using the same statistics available for binary treatments (\code{mean.diffs}, \code{variance.ratios}, \code{ks.statistics}, and \code{ovl.coefficients}), because internally they are stacked into a binary comparison. The two samples name their own columns rather than taking a binary treatment's positional \code{0} and \code{1}, so the balance table has \code{M.Uncensored} and \code{SD.Uncensored} for the uncensored sample and \code{M.Full} and \code{SD.Full} for the full one, and \code{Diff} is the difference between the full sample and the uncensored one.
 
 \code{\link[=bal.plot]{bal.plot()}} works too, showing the weighted uncensored sample against the unweighted full sample.
 }
@@ -24,10 +24,10 @@ The two samples are compared using the same statistics available for binary trea
 Every argument to \code{bal.tab()} applies as it does with a binary treatment, with the following exceptions.
 
 \describe{
-\item{\code{s.d.denom}}{allowable values are \code{"full"} (the default), which uses the standard deviation of the covariate in the full at-risk sample; \code{"uncensored"}, which uses that of the uncensored sample; and \code{"pooled"}, \code{"all"}, \code{"weighted"}, and \code{"hedges"}, which behave as they do for a binary treatment. Because a censoring model's target is fixed by its design rather than inferred, no note is printed about the value used.}
+\item{\code{s.d.denom}}{allowable values are \code{"full"} (the default), which uses the standard deviation of the covariate in the full at-risk sample; \code{"uncensored"}, which uses that of the uncensored sample; and \code{"pooled"}, \code{"all"}, \code{"weighted"}, and \code{"hedges"}, which behave as they do for a binary treatment.}
 \item{\code{estimand} and \code{focal}}{do not apply and are ignored with a warning. The target is the full at-risk sample.}
 \item{\code{subclass}}{applies: subclassifying is itself a way of solving a censoring problem, in that within each subclass the uncensored units should resemble every at-risk unit in it. See "With subclasses" below.}
-\item{\code{match.strata}}{does not apply. It turns strata into weights before the two samples exist; the same strata say the same thing supplied to \code{subclass}.}
+\item{\code{match.strata}}{does not apply.}
 }
 
 \code{cluster} and \code{imp} apply as usual, and produce a \code{bal.tab.cluster} or \code{bal.tab.imp} object whose per-cluster or per-imputation components are the censoring balance tables described here.

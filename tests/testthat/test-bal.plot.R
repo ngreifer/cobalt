@@ -17,7 +17,7 @@ geoms <- function(p) {
   unname(vapply(p$layers, function(l) class(l$geom)[1L], character(1L)))
 }
 
-#Build the plot and require that nothing is signalled.
+#Build the plot and require that nothing is signaled.
 built <- function(p) {
   expect_no_condition(b <- ggplot2::ggplot_build(p))
   invisible(b)
@@ -426,14 +426,14 @@ test_that("deprecated un, size.weight, and colours are accepted", {
   expect_msg(bal.plot(covs, treat = tb, var.name = "age", weights = w_fixed,
                       size.weight = TRUE))
 
-  #`colours` in both colour-handling blocks.
+  #`colours` in both color-handling blocks.
   built(bal.plot(covs, treat = tb, var.name = "age", weights = w_fixed,
                  which = "both", colours = c("red", "blue")))
   built(bal.plot(covs, treat = lalonde$re75, var.name = "race",
                  colours = c("red", "blue", "green")))
 })
 
-test_that("colors are validated in both colour blocks", {
+test_that("colors are validated in both color blocks", {
   covs <- covs4()
 
   #Categorical treatment.

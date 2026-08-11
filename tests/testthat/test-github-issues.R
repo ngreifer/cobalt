@@ -205,7 +205,7 @@ test_that("(#89) love.plot() doesn't throw any error when manually removing rows
   })
 
   #`var.names` lists variables that are no longer in the table (`married`,
-  #`nodegree`, `distance`); the rows that remain must be relabelled and the surplus
+  #`nodegree`, `distance`); the rows that remain must be relabeled and the surplus
   #entries quietly ignored.
   labs <- levels(ggplot2::ggplot_build(p)$plot$data$var)
 
@@ -214,7 +214,7 @@ test_that("(#89) love.plot() doesn't throw any error when manually removing rows
                     "Earnings 1974", "Earnings 1975"))
   expect_length(labs, nrow(b$Balance))
 
-  #No original name may survive the relabelling.
+  #No original name may survive the relabeling.
   expect_false(any(rownames(b$Balance) %in% labs))
 
   #A variable absent from `var.names` keeps its original name.

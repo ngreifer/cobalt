@@ -37,9 +37,9 @@ col_w_edist <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, 
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("'mat' must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -114,9 +114,9 @@ col_pair_diff <- function(mat, treat, strata = NULL, std = TRUE, s.d.denom = "po
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("mat must be a data frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("mat must be a data frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     

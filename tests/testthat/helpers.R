@@ -19,7 +19,7 @@ squish <- function(x) {
 #Shared back end for the three expectations below.
 .expect_cnd_text <- function(cnd, text, what) {
   if (is.null(cnd)) {
-    testthat::fail(sprintf("Expected %s, but none was signalled.", what))
+    testthat::fail(sprintf("Expected %s, but none was signaled.", what))
     return(invisible(NULL))
   }
 

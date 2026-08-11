@@ -28,7 +28,7 @@ unsplitfactor(
 )
 }
 \arguments{
-\item{data}{A \code{data.frame} containing the variables to be split or unsplit. In \code{splitfactor()}, can be a factor variable to be split.}
+\item{data}{A data frame containing the variables to be split or unsplit. In \code{splitfactor()}, can be a factor variable to be split.}
 
 \item{var.name}{For \code{splitfactor()}, the names of the factor variables to split. If not specified, will split all factor variables in \code{data}. If \code{data} is a factor, the stem for each of the new variables to be created. For \code{unsplitfactor()}, the name of the previously split factor. If not specified and \code{data} is the output of a call to \code{splitfactor()}, all previously split variables will be unsplit.}
 
@@ -53,7 +53,7 @@ unsplitfactor(
 \item{dropped.na}{If \code{TRUE}, will assume that \code{NA}s in the variables to be unsplit correspond to \code{NA} in the unsplit factor (i.e., that \code{drop.na = TRUE} was specified in \code{split.factor()}). If \code{FALSE}, will assume there is a dummy called "var.name_stem_NA" (e.g., "x_NA") that contains 1s where the unsplit factor should be \code{NA} (i.e., that \code{drop.na = FALSE} was specified in \code{split.factor()}. If \code{NA}s are stored in a different column with the same stem, e.g., "x_miss", that name (e.g., "miss") can be entered instead.}
 }
 \value{
-For \code{splitfactor()}, a \code{data.frame} containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a \code{data.frame} containing the original data set with the newly created factor variables.
+For \code{splitfactor()}, a data frame containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a data frame containing the original data set with the newly created factor variables.
 }
 \description{
 \code{splitfactor()} splits factor variables into dummy (0/1) variables. This can be useful when functions do not process factor variables well or require numeric matrices to operate. \code{unsplitfactor()} combines dummy variables into factor variables, undoing the operation of \code{splitfactor()}.
@@ -61,7 +61,7 @@ For \code{splitfactor()}, a \code{data.frame} containing the original data set w
 \details{
 If there are \code{NA}s in the variable to be split, the new variables created by \code{splitfactor()} will have \code{NA} where the original variable is \code{NA}.
 
-When using \code{unsplitfactor()} on a \code{data.frame} that was generated with \code{splitfactor()}, the arguments \code{dropped.na}, and \code{sep} are unnecessary.
+When using \code{unsplitfactor()} on a data frame that was generated with \code{splitfactor()}, the arguments \code{dropped.na}, and \code{sep} are unnecessary.
 
 If \code{split.with} is supplied, the elements will be split in the same way \code{data} is. For example, if \code{data} contained a 4-level factor that was to be split, the entries of \code{split.with} at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of \code{data} after being split. The resulting values are stored in the \code{"split.with"} attribute of the output object. See Examples.
 }

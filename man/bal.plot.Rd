@@ -89,14 +89,14 @@ To change the plot and axis titles, use \code{\link[ggplot2:labs]{ggplot2::labs(
 \itemize{
 \item For \code{matchit} objects: None
 \item For \code{weightit} objects: None
-\item For \code{ps}, \code{ps.cont}, \code{mnps}, and \code{iptw} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
-\item For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
-\item For \code{optmatch} objects: \code{formula} and \code{data} or \code{covs} (\code{treat} is not required).
+\item For \code{ps}, \code{ps.cont}, \code{mnps}, and \code{iptw} objects: \code{stop.method} (see \link[=bal.tab.ps]{defaults}).
+\item For \code{Match} objects: \code{formula} and \code{data}, or \code{covs} and \code{treat}.
+\item For \code{optmatch} objects: \code{formula} and \code{data}, or \code{covs} (\code{treat} is not required).
 \item For \code{CBPS} objects: None
-\item For \code{ebalance} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{ebalance} objects: \code{formula} and \code{data}, or \code{covs} and \code{treat}.
 \item For \code{formula}s: \code{data}
 \item For \code{data.frame}s: \code{treat}
-\item For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{designmatch} objects: \code{formula} and \code{data}, or \code{covs} and \code{treat}.
 \item For \code{sbw} objects: None
 \item For \code{mimids} and \code{wimids} objects: None, but an argument to \code{which.imp} should be specified.
 \item For other objects processed through \code{bal.tab()}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).

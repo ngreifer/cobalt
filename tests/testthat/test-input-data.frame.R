@@ -319,7 +319,7 @@ test_that("invalid covariates and treatments are rejected", {
 
   #A character vector is not a supported `x`; it falls through to the default
   #method. Covariates are named via `addl`/`distance` instead, where the
-  #character-vector path is honoured.
+  #character-vector path is honored.
   expect_err(bal.tab(c("age", "educ"), treat = lalonde$treat, data = lalonde),
              "input object must be an appropriate list, data frame, formula")
   expect_err(bal.tab(covs, treat = lalonde$treat, addl = "nope", data = lalonde),
@@ -380,7 +380,7 @@ test_that("invalid subset, focal, thresholds, and method are rejected", {
                      s.d.denom = "pooled"),
              "All `subset` set to FALSE")
   expect_err(bal.tab(covs, treat = lalonde$treat, subset = "a"),
-             "must be a logical or numeric vector")
+             "`subset` must be a logical vector or a whole numeric vector")
   expect_err(bal.tab(covs, treat = lalonde$treat, subset = 1e6),
              "cannot be larger than the number of units")
   expect_err(bal.tab(covs, treat = lalonde$treat, subset = c(-1, 2)),

@@ -198,7 +198,7 @@ test_that("as.data.frame() puts each level of segmentation in its own column", {
   expect_identical(nrow(d_n), nlevels(cl_idx) * nlevels(sub) * 3L)
 })
 
-test_that("as.data.frame() honours print()'s display arguments", {
+test_that("as.data.frame() honors print()'s display arguments", {
   b <- bal.tab(covs3(), treat = lalonde$treat, s.d.denom = "pooled", weights = w_fixed,
                un = TRUE, stats = c("m", "ks"), thresholds = c(m = .1), quick = FALSE)
 
@@ -309,7 +309,7 @@ test_that("format() renders NA as a period and pads the decimals", {
   }
   expect_length(unique(dec(f[["Diff.Un"]])), 1L)
 
-  #`digits` is honoured.
+  #`digits` is honored.
   expect_false(identical(format(b, digits = 2L)[["Diff.Un"]], f[["Diff.Un"]]))
 })
 

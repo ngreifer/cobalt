@@ -2,7 +2,7 @@
 #' @name treat-class
 #'
 #' @description
-#' \pkg{cobalt} represents a processed treatment variable as an object of class `treat`: the treatment values themselves, carrying attributes that record what kind of treatment it is and what its groups are called. Every `bal.tab()` method builds one, and every balance computation reads it rather than re-deriving the same facts from the values.
+#' \pkg{cobalt} represents a processed treatment variable as an object of class `treat`, carrying attributes that record what kind of treatment it is and what its groups are called. Every [bal.tab()] method builds one, and every balance computation reads it rather than re-deriving the same facts from the values.
 #'
 #' The attributes are
 #'

@@ -294,7 +294,7 @@ process_init_covs <- function(covs) {
   nm <- deparse1(substitute(covs))
   
   if ((!is.numeric(covs) && !is.data.frame(covs)) || length(dim(covs)) > 2L) {
-    arg::err("{.arg {nm}} must be a data.frame or numeric matrix")
+    arg::err("{.arg {nm}} must be a data frame or numeric matrix")
   }
   
   needs.splitting <- FALSE
@@ -1031,7 +1031,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
       x <- data.frame(x)
     }
     else if (!is.matrix(x)) {
-      arg::err("{.arg x} must be a data.frame or matrix")
+      arg::err("{.arg x} must be a data frame or matrix")
     }
   }
   x <- as.data.frame(x)

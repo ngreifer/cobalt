@@ -4,12 +4,11 @@
 \alias{class-bal.tab.msm}
 \title{Using \code{bal.tab()} with Longitudinal Treatments}
 \description{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{When using [bal.tab()] with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all `bal.tab()` methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
+When using \code{\link[=bal.tab]{bal.tab()}} with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all \code{bal.tab()} methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
 
-There are two main components of the output of `bal.tab()` with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
+There are two main components of the output of \code{bal.tab()} with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
 
 The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used, or if the time points are not all of the same kind (see below).
-}\if{html}{\out{</div>}}
 }
 \note{
 The balance tables presented here are not the same as those recommended by Jackson (2016) and computed in his R package, \CRANpkg{confoundr}, as these do not take into account treatment history. The balance statistics presented here should be used with caution and may not reflect balance in an accurate way.
@@ -23,13 +22,11 @@ Each entry is assessed among the units still under observation entering it. A un
 A censoring balance table and a treatment balance table say different things about different samples, so a list that mixes them gets no balance summary across time points, exactly as a list mixing continuous and binary treatments does not. Each time point's own table still reports its sample sizes. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.
 
 Each time point's default \code{s.d.denom} is the one its own kind of model implies -- \code{"pooled"} for a binary or multi-category treatment, \code{"all"} for a continuous one, and \code{"full"} for a censoring indicator -- so that a model gives the same numbers in a list as it would on its own. A value supplied to \code{s.d.denom} is shared by every time point, which is one reason it is recommended not to set it for longitudinal treatments.
-
-Note that \code{weightitMSM()} returns a single set of weights, the product across all the models, so balance at an early time point is assessed with weights that include later censoring.
 }
 
 \section{Naming the time points}{
 
-Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in \verb{1. Treatment: A_1} or \verb{2. Censoring: C_1}. This is the form \code{WeightIt::summary.weightitMSM()} uses, so the same model goes by the same name in both packages. The number is the position in the list rather than the treatment period, so that it is the number \code{which.time} takes and a censoring model has one too; \code{which.time} also accepts the variable name on its own (\code{"C_1"}).
+Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in \verb{1. Treatment: A_1} or \verb{2. Censoring: C_1}. The number is the position in the list rather than the treatment period, so that it is the number \code{which.time} takes and a censoring model has one too; \code{which.time} also accepts the variable name on its own (e.g., \code{"C_1"}).
 }
 
 \section{Allowable arguments}{

@@ -89,7 +89,7 @@ test_that("bal.compute() dispatches on a raw covariate set as well as a bal.init
 
   expect_equal(direct, viainit)
 
-  #`s.weights` are honoured on both paths.
+  #`s.weights` are honored on both paths.
   d_sw <- bal.compute(x, treat = t_bin(), stat = "smd.mean", s.weights = sw_fixed)
   i_sw <- bal.compute(bal.init(x, treat = t_bin(), stat = "smd.mean",
                                s.weights = sw_fixed))
@@ -233,7 +233,7 @@ test_that("bal.init() validates its covariates and treatment", {
   x <- covs_num()
 
   expect_err(bal.init(array(1, c(4, 2, 2)), treat = rep(0:1, 2), stat = "smd.mean"),
-             "must be a data.frame or numeric matrix")
+             "must be a data frame or numeric matrix")
   expect_err(bal.init(x, treat = rep(1, nrow(lalonde)), stat = "smd.mean"),
              "treatment must have at least two unique values")
   expect_err(bal.init(x, treat = t_bin()[-1L], stat = "smd.mean"),
@@ -284,7 +284,7 @@ test_that("each statistic's function builds its own init when not given one", {
   }
 })
 
-test_that("s.weights are honoured by every statistic, not just smd", {
+test_that("s.weights are honored by every statistic, not just smd", {
   x <- covs_num()
 
   for (s in c("ks.max", "ovl.mean", "energy.dist", "mahalanobis", "r2.2")) {
@@ -336,7 +336,7 @@ test_that("a multi-category ATC is an ATT and requires focal", {
   expect_identical(atc, att)
 })
 
-test_that("distance.cov honours std and matches distance.cor", {
+test_that("distance.cov honors std and matches distance.cor", {
   x <- covs_num()
 
   raw <- bal.compute(bal.init(x, treat = t_cont(), stat = "distance.cov",

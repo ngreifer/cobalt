@@ -346,7 +346,7 @@ test_that("what does not apply to a censoring indicator says so", {
   #Matching strata become weights before the two samples exist, and say the same thing
   #given to `subclass`, which is supported.
   expect_err(bal.tab(covs, treat = .cens(cens_idx), match.strata = sub_idx),
-             "matching strata are not allowed with a censoring indicator; supply them to `subclass`")
+             "matching strata are not allowed with a censoring indicator")
 
   #`estimand` and `focal` name a treatment group; there is none to name.
   expect_wrn(bal.tab(covs, treat = .cens(cens_idx), weights = w, estimand = "ATT"),
@@ -424,7 +424,7 @@ test_that("bal.plot() shows the weighted sample against the full one", {
     }))
   }
 
-  #The two groups are the two samples, and they are labelled as such rather than as a
+  #The two groups are the two samples, and they are labeled as such rather than as a
   #control and a treated group.
   pl <- bal.plot(covs, treat = .cens(cens_idx), weights = w, var.name = "age",
                  which = "both")
@@ -678,7 +678,7 @@ test_that("which units are at risk does not depend on how the data records the r
   #is for a point treatment.
   expect_err(bal.tab(list(treat ~ age + educ, nodegree ~ age + educ),
                      data = d_na, weights = w_fixed),
-             "missing values must not exist in `treat`")
+             "`treat` must not contain NA values")
 })
 
 test_that("a longitudinal censoring model composes with imputations", {
@@ -750,7 +750,7 @@ test_that("a time point is named for its position, its kind, and its variable", 
     expect_true(any(grepl(l, out, fixed = TRUE)), info = l)
   }
 
-  #The collected sample sizes, which print with the summary, are labelled the same way.
+  #The collected sample sizes, which print with the summary, are labeled the same way.
   b_sum <- bal.tab(list(treat ~ age + educ, nodegree ~ age + educ), data = lalonde,
                    weights = w_fixed, s.d.denom = "pooled", msm.summary = TRUE)
 

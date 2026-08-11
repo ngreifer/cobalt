@@ -18,7 +18,7 @@ Inside a formula the marker is stripped before the formula is processed, so \cod
 \code{.cens()} marks a variable as a censoring indicator rather than a treatment, so that \code{\link[=bal.tab]{bal.tab()}} assesses the balance of the units still under observation against the full at-risk sample. It is most often used on the left side of a formula, as in \code{.cens(C) ~ x1 + x2}, but it can also be called directly and supplied to \code{bal.tab()}'s \code{treat} argument.
 }
 \details{
-Censoring is its own treatment type in \pkg{cobalt}, distinct from binary, multi-category, and continuous treatments, because the question it asks is different. There is no second treatment group to compare against: the target is the full at-risk sample, and what matters is whether the units still under observation resemble it once weighted. See \code{\link{class-bal.tab.cens}} for the output this produces and the arguments that control it.
+Censoring is considered its own treatment type in \pkg{cobalt}, distinct from binary, multi-category, and continuous treatments. What matters is whether the units still under observation resemble the full sample once weighted. See \code{\link{class-bal.tab.cens}} for the output this produces and the arguments that control it.
 
 This function is deliberately identical in name and contract to \code{WeightIt::.cens()}, so that the same code works whichever package is attached; \pkg{cobalt} defines its own only to avoid depending on \pkg{WeightIt}. \code{bal.tab()} recognizes an indicator tagged by either.
 }

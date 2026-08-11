@@ -195,7 +195,7 @@ test_that("faceted shapes are plotted with an aggregation function", {
   )
 
   #`agg.fun` only takes effect when a facet dimension is collapsed; with every
-  #level displayed cobalt warns that it is ignored, which is correct behaviour.
+  #level displayed cobalt warns that it is ignored, which is correct behavior.
   for (nm in names(shapes)) {
     for (af in c("range", "max", "mean")) {
       p <- suppressWarnings(love.plot(shapes[[nm]], stats = "mean.diffs",

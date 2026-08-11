@@ -2,7 +2,7 @@
 #' 
 #' @description `splitfactor()` splits factor variables into dummy (0/1) variables. This can be useful when functions do not process factor variables well or require numeric matrices to operate. `unsplitfactor()` combines dummy variables into factor variables, undoing the operation of `splitfactor()`.
 #' 
-#' @param data A `data.frame` containing the variables to be split or unsplit. In `splitfactor()`, can be a factor variable to be split.
+#' @param data A data frame containing the variables to be split or unsplit. In `splitfactor()`, can be a factor variable to be split.
 #' @param var.name For `splitfactor()`, the names of the factor variables to split. If not specified, will split all factor variables in `data`. If `data` is a factor, the stem for each of the new variables to be created. For `unsplitfactor()`, the name of the previously split factor. If not specified and `data` is the output of a call to `splitfactor()`, all previously split variables will be unsplit.
 #' @param drop.level The name of a level of `var.name` for which to drop the dummy variable. Only works if there is only one variable to be split.
 #' @param drop.first Whether to drop the first dummy created for each factor. If `"if2"`, will only drop the first category if the factor has exactly two levels. The default is to always drop the first dummy (`TRUE`).
@@ -16,12 +16,12 @@
 #' @param dropped.na If `TRUE`, will assume that `NA`s in the variables to be unsplit correspond to `NA` in the unsplit factor (i.e., that `drop.na = TRUE` was specified in `split.factor()`). If `FALSE`, will assume there is a dummy called "var.name_stem_NA" (e.g., "x_NA") that contains 1s where the unsplit factor should be `NA` (i.e., that `drop.na = FALSE` was specified in `split.factor()`. If `NA`s are stored in a different column with the same stem, e.g., "x_miss", that name (e.g., "miss") can be entered instead.
 #' 
 #' @returns
-#' For `splitfactor()`, a `data.frame` containing the original data set with the newly created dummies. For `unsplitfactor()`. a `data.frame` containing the original data set with the newly created factor variables.
+#' For `splitfactor()`, a data frame containing the original data set with the newly created dummies. For `unsplitfactor()`. a data frame containing the original data set with the newly created factor variables.
 #' 
 #' @details
 #' If there are `NA`s in the variable to be split, the new variables created by `splitfactor()` will have `NA` where the original variable is `NA`.
 #' 
-#' When using `unsplitfactor()` on a `data.frame` that was generated with `splitfactor()`, the arguments `dropped.na`, and `sep` are unnecessary.
+#' When using `unsplitfactor()` on a data frame that was generated with `splitfactor()`, the arguments `dropped.na`, and `sep` are unnecessary.
 #' 
 #' If `split.with` is supplied, the elements will be split in the same way `data` is. For example, if `data` contained a 4-level factor that was to be split, the entries of `split.with` at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of `data` after being split. The resulting values are stored in the `"split.with"` attribute of the output object. See Examples.
 #' 
@@ -60,12 +60,13 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
 
   arg::arg_supplied(data)
   
-  if (is.matrix(data) || length(dim(data)) == 2L) {
+  if (is.matrix(data) || is_mat_like(data)) {
     data <- as.data.frame(data)
   }
   
   if (is.data.frame(data)) {
     data <- as.data.frame(data)
+    
     if (check) {
       factor.names <- names(data)[vapply(data, function(z) is.character(z) || is.factor(z), logical(1L))]
       
@@ -136,6 +137,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
   else if (is.atomic(data) && length(dim(data)) <= 1L) {
     dep <- deparse1(substitute(data))
     data <- data.frame(data)
+    
     if (missing(var.name) || is_null(var.name)) {
       names(data) <- dep
     }
@@ -148,6 +150,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     else {
       arg::err("{.arg var.name} must be an atomic or factor vector of length 1 with the stem of the new variable")
     }
+    
     var.name <- names(data)
     
     if (is_not_null(split.with)) {
@@ -164,15 +167,17 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
         if (!is.atomic(split.with)) {
           arg::err("{.arg split.with} must be an atomic vector or factor or list thereof")
         }
+        
         if (length(split.with) != ncol(data)) {
           arg::err("{.arg split.with} must have length 1")
         }
+        
         split.with <- list(split.with)
       }
     }
   }
   else {
-    arg::err("{.arg data} must be a data.frame or factor")
+    arg::err("{.arg data} must be a data frame or factor")
   }
   
   if (is_not_null(drop.level) && length(var.name) > 1L) {
@@ -220,7 +225,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       drop.na[v] <- FALSE
     }
     else if (drop.na[v]) {
-      is.na(k)[is.na(x), -na.level] <- TRUE
+      is.na(k[is.na(x), -na.level]) <- TRUE
     }
     
     dropl <- rlang::rep_named(new.levels, FALSE)
@@ -318,7 +323,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   arg::arg_supplied(data)
   
   if (!is.data.frame(data)) {
-    arg::err("{.arg data} must be a data.frame containing the variables to unsplit")
+    arg::err("{.arg data} must be a data frame containing the variables to unsplit")
   }
   
   if (missing(var.name)) {
@@ -355,17 +360,14 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   if (is_null(dropped.level)) {
     dropped.level <- NULL
   }
+  else if (length(dropped.level) %nin% c(1L, length(var.name)) || !is.atomic(dropped.level)) {
+    arg::err("{.arg dropped.level} must be an atomic vector containing the value of the dropped category of each split variable. See {.help [?unsplitfactor](cobalt::unsplitfactor)} for details")
+  }
+  else if (length(dropped.level) == 1L) {
+    dropped.level <- rlang::rep_named(var.name, dropped.level)
+  }
   else {
-    if (length(dropped.level) %nin% c(1L, length(var.name)) || !is.atomic(dropped.level)) {
-      arg::err("{.arg dropped.level} must be an atomic vector containing the value of the dropped category of each split variable. See {.help [?unsplitfactor](cobalt::unsplitfactor)} for details")
-    }
-    
-    if (length(dropped.level) == 1L) {
-      dropped.level <- rlang::rep_named(var.name, dropped.level)
-    }
-    else {
-      names(dropped.level) <- var.name
-    }
+    names(dropped.level) <- var.name
   }
   
   not.the.stem <- character()

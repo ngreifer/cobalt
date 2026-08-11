@@ -1,4 +1,4 @@
-#' @title Compute Balance and Summary Statistics for Covariates
+#' Compute Balance and Summary Statistics for Covariates
 #' 
 #' @description These functions quickly compute balance statistics for the given covariates. These functions are used in [bal.tab()], but they are available for use in programming without having to call `bal.tab()` to get them.
 #' \itemize{
@@ -36,7 +36,7 @@
 #' @param type for `col_w_cov()` and `col_w_corr()`, the type of covariance/correlation to be computed. Allowable options include `"pearson"` and `"spearman"`. When `"spearman"` is requested, the covariates and treatment are first turned into ranks using [rank()] with `na.last = "keep"`.
 #' @param integrate `logical`; for `col_w_ovl()`, whether to use [integrate()] to calculate the area of overlap for continuous variables. If `FALSE`, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When `TRUE`, `integrate()` will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (`TRUE`) is to use `integrate()` when possible.
 #' @param steps for `col_w_ovl()`, the number of points to use to compute the Riemann sum to approximate the integral. Used when `integrate = FALSE` and also when `integrate = TRUE` but [integrate()] fails and the Riemann sum is used as a fallback. Default is 1001 for 1000 partitions.
-#' @param ... for all functions, additional arguments supplied to [splitfactor()] when `mat` is a data.frame. `data`, `var.name`, `drop.first`, and `drop.level` are ignored; `drop.first` is automatically set to `"if2"`. For `col_w_ovl()`, other arguments passed to [density()] besides `x` and `weights`. Note that the default value for `bw` when unspecified is `"nrd"` rather than the default in `density()`, which is `"nrd0"`.
+#' @param ... for all functions, additional arguments supplied to [splitfactor()] when `mat` is a data frame. `data`, `var.name`, `drop.first`, and `drop.level` are ignored; `drop.first` is automatically set to `"if2"`. For `col_w_ovl()`, other arguments passed to [density()] besides `x` and `weights`. Note that the default value for `bw` when unspecified is `"nrd"` rather than the default in `density()`, which is `"nrd0"`.
 #' 
 #' @returns
 #' A vector of balance statistics, one for each variable in `mat`. If `mat` has column names, the output will be named as well.

@@ -2,11 +2,11 @@
 #' @name class-bal.tab.msm
 #' 
 #' @description
-#'     When using [bal.tab()] with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all `bal.tab()` methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
+#' When using [bal.tab()] with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all `bal.tab()` methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
 #'     
-#'     There are two main components of the output of `bal.tab()` with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
+#' There are two main components of the output of `bal.tab()` with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
 #'
-#'     The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used, or if the time points are not all of the same kind (see below).
+#' The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used, or if the time points are not all of the same kind (see below).
 #'
 #' @section Mixing treatments and censoring:
 #' One entry of the list may be a censoring indicator marked with [.cens()] rather than a treatment, as in `list(A1 ~ x, .cens(C1) ~ x, A2 ~ x)`, which is how a joint treatment-and-censoring model is written for `WeightIt::weightitMSM()`. `bal.tab()` produces one table per entry, of whichever kind that entry is: an ordinary balance table for a treatment, and the censoring balance table described at [`class-bal.tab.cens`] for an indicator.
@@ -17,10 +17,8 @@
 #'
 #' Each time point's default `s.d.denom` is the one its own kind of model implies -- `"pooled"` for a binary or multi-category treatment, `"all"` for a continuous one, and `"full"` for a censoring indicator -- so that a model gives the same numbers in a list as it would on its own. A value supplied to `s.d.denom` is shared by every time point, which is one reason it is recommended not to set it for longitudinal treatments.
 #'
-#' Note that `weightitMSM()` returns a single set of weights, the product across all the models, so balance at an early time point is assessed with weights that include later censoring.
-#'
 #' @section Naming the time points:
-#' Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in `1. Treatment: A_1` or `2. Censoring: C_1`. This is the form `WeightIt::summary.weightitMSM()` uses, so the same model goes by the same name in both packages. The number is the position in the list rather than the treatment period, so that it is the number `which.time` takes and a censoring model has one too; `which.time` also accepts the variable name on its own (`"C_1"`).
+#' Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in `1. Treatment: A_1` or `2. Censoring: C_1`. The number is the position in the list rather than the treatment period, so that it is the number `which.time` takes and a censoring model has one too; `which.time` also accepts the variable name on its own (e.g., `"C_1"`).
 #'
 #' @section Allowable arguments:
 #'

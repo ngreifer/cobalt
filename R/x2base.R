@@ -27,7 +27,7 @@ x2base <- function(x, ...) {
 .x2base_data <- function(..., .datalist = list(), .imp) {
   imp <- if (missing(.imp)) ...get("imp") else .imp
   data <- ...get("data")
-
+  
   if (is_not_null(data)) {
     if (inherits(data, "mids")) {
       data <- .mids_complete(data)
@@ -37,21 +37,23 @@ x2base <- function(x, ...) {
       data <- NULL
     }
   }
-
+  
   list(data = data,
        imp = do.call("process_imp", c(list(imp, data), .datalist)))
 }
 
 .reject_args <- function(.args, .what, ...) {
   for (a in .args) {
-    if (is_null(...get(a))) next
-
+    if (is_null(...get(a))) {
+      next
+    }
+    
     subject <- switch(a,
                       "subclass" = "subclasses are",
                       "match.strata" = "matching strata are",
                       "s.weights" = "sampling weights are",
                       sprintf("{.arg %s} is", a))
-
+    
     arg::err(paste(subject, "not allowed with", .what))
   }
 }
@@ -60,18 +62,15 @@ x2base <- function(x, ...) {
 #the full at-risk sample, so neither has anything to say; they are ignored rather than
 #rejected, because a `weightit` object may carry an `estimand` slot it never used.
 .reject_cens_args <- function(...) {
-  supplied <- c("estimand", "focal")[c(is_not_null(...get("estimand")),
-                                       is_not_null(...get("focal")))]
-
+  supplied <- c("estimand"[is_not_null(...get("estimand"))],
+                "focal"[is_not_null(...get("focal"))])
+  
   if (is_not_null(supplied)) {
     arg::wrn("{.arg {supplied}} {?does/do} not apply to a censoring indicator, whose target is the full at-risk sample; ignoring {?it/them}")
   }
-
-  #`subclass` is supported -- subclassifying *is* a way of solving a censoring problem --
-  #but `match.strata`, which turns strata into weights before the two samples exist, is
-  #not, and the same strata say the same thing given to `subclass`.
+  
   if (is_not_null(...get("match.strata"))) {
-    arg::err("matching strata are not allowed with a censoring indicator; supply them to {.arg subclass} instead")
+    arg::err("matching strata are not allowed with a censoring indicator")
   }
 }
 
@@ -88,29 +87,29 @@ x2base <- function(x, ...) {
 .finish_X <- function(.length, ..., .call = NULL, .msm = FALSE,
                       .env = parent.frame()) {
   .get <- function(nm) get0(nm, envir = .env, inherits = FALSE)
-
+  
   checked <- unlist(.length[c("vectors", "data.frames", "lists")], use.names = FALSE)
-
+  
   expanded <- do.call("length_imp_process",
                       c(list(setNames(lapply(checked, .get), checked)), .length,
                         list(imp = .get("imp"))))
-
+  
   X <- if (.msm) initialize_X_msm() else initialize_X()
-
+  
   #`X`'s slots are named after the locals that fill them, taking the expanded value
   #where there is one. A slot the method never assigned stays NULL, which is what
   #every consumer expects of an absent one.
   for (i in names(X)) {
     X[[i]] <- if (i %in% checked) expanded[[i]] else .get(i)
   }
-
+  
   .stats <- process_stats_and_thresholds(X[[if (.msm) "treat.list" else "treat"]], ...)
-
+  
   X[["stats"]] <- .stats[["stats"]]
   X[["thresholds"]] <- .stats[["thresholds"]]
   X[["s.d.denom"]] <- .stats[["s.d.denom"]]
   X[["call"]] <- .call
-
+  
   #A longitudinal method holds lists of data frames, which `anyNA()` only descends
   #into when asked.
   missings <- {
@@ -118,13 +117,13 @@ x2base <- function(x, ...) {
       anyNA(X[["addl.list"]], recursive = TRUE)
     else anyNA(X[["covs"]]) || anyNA(X[["addl"]])
   }
-
+  
   if (missings) {
     arg::wrn("missing values exist in the covariates. Displayed values omit these observations")
   }
-
+  
   X <- subset_X(X, .get("subset"))
-
+  
   setNames(X[names(X)], names(X))
 }
 
@@ -152,7 +151,7 @@ x2base.matchit <- function(x, ...) {
     else {
       #Recreating covs from model object and x[["X"]]. Have to do this because when 
       #discard != NULL and reestimate = TRUE, cases are lost. This recovers them.
-
+      
       order <- setNames(.attr(x[["model"]][["terms"]], "order"),
                         .attr(x[["model"]][["terms"]], "term.labels"))
       assign <- setNames(.attr(x[["X"]], "assign"), colnames(x[["X"]]))
@@ -194,7 +193,7 @@ x2base.matchit <- function(x, ...) {
   #Get method
   if (inherits(x, "matchit.subclass")) {
     method <- ...get("method", "subclassification")
-
+    
     method <- arg::match_arg(method, c("weighting", "subclassification"))
   }
   else {
@@ -284,7 +283,7 @@ x2base.ps <- function(x, ...) {
   .d <- .x2base_data(..., .datalist = list(ps.data))
   data <- .d[["data"]]
   imp <- .d[["imp"]]
-
+  
   #Process treat
   treat <- process_treat(x[["treat"]], data, ps.data)
   
@@ -608,14 +607,12 @@ x2base.data.frame <- function(x, ...) {
   
   #Process covs
   covs <- x
-  if (is.null(covs)) {
+  if (is_null(covs)) {
     arg::err("{.arg covs} data frame must be specified")
   }
   
   if (rlang::is_formula(covs)) {
     covs <- get_covs_from_formula(covs, data = data)
-    # if (is_null(covs)) {
-    # }
   }
   
   if (is_null(.attr(covs, "co.names"))) {
@@ -660,7 +657,8 @@ x2base.data.frame <- function(x, ...) {
     }
   }
   else {
-    .specified_method <- arg::match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+    .specified_method <- arg::match_arg(method, c("weighting", "matching", "subclassification"),
+                                        several.ok = TRUE)
     
     if (length(method) == 1L) {
       if (.specified_method == "weighting") {
@@ -769,7 +767,7 @@ x2base.data.frame <- function(x, ...) {
       }
     }
     else if (is_not_null(.specified_method) && is_not_null(.not_present) && is_not_null(.assuming)) {
-      arg::msg('{.code method = "{(.specified_method)}"} is specified, but {.arg {.not_present}} {?was/were} not supplied. Assuming {.val {(.assuming)}} and using {.arg {(.using)}} instead')
+      arg::msg('{.code method = "{(.specified_method)}"} is specified, but {.arg {(.not_present)}} {?was/were} not supplied. Assuming {.val {(.assuming)}} and using {.arg {(.using)}} instead')
     }
   }
   
@@ -787,7 +785,7 @@ x2base.data.frame <- function(x, ...) {
   }
   else {
     focal <- process_focal(...get("focal"), treat)
-
+    
     if (get.treat.type(treat) == "binary") {
       if (is_null(focal) && is_not_null(estimand)) {
         focal <- switch(toupper(estimand),
@@ -795,14 +793,14 @@ x2base.data.frame <- function(x, ...) {
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]],
                         NULL)
       }
-
+      
       #Process pairwise
       if (is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
         attr(treat, "treat.type") <- "multinomial"
       }
     }
   }
-
+  
   #Process subclass
   if ("subclass" %in% .using) {
     subclass <- .process_vector(...get("subclass"), 
@@ -822,10 +820,11 @@ x2base.data.frame <- function(x, ...) {
                                     which = "matching strata membership",
                                     missing.okay = TRUE)
     
-    weights <- data.frame(weights = strata2weights(match.strata,
-                                                   treat = treat,
-                                                   estimand = estimand,
-                                                   focal = focal))
+    weights <- match.strata |>
+      strata2weights(treat = treat, estimand = estimand,
+                     focal = focal) |>
+      data.frame() |>
+      setNames("weights")
   }
   
   #Process weights
@@ -872,7 +871,7 @@ x2base.CBPS <- function(x, ...) {
   #Process estimand
   estimand <- ...get("estimand")
   .reject_args("estimand", "{.cls CBPS} objects", ...)
-
+  
   #Get method
   method <- "weighting"
   
@@ -997,7 +996,7 @@ x2base.ebalance <- function(x, ...) {
 #' @exportS3Method NULL
 x2base.optmatch <- function(x, ...) {
   #Process optmatch
-  if (all(is.na(x))) {
+  if (allNA(x)) {
     arg::err("the supplied {.cls optmatch} object contains no valid matches")
   }
   
@@ -1088,7 +1087,7 @@ x2base.cem.match <- function(x, ...) {
   .d <- .x2base_data(...)
   data <- .d[["data"]]
   imp <- .d[["imp"]]
-
+  
   if (is_null(data)) {
     arg::err("an argument to {.arg data} must be specified with {.cls cem.match} objects")
   }
@@ -1190,18 +1189,18 @@ x2base.weightit <- function(x, ...) {
   distance <- process_distance(...get("distance"), datalist = list(data, weightit.data),
                                obj.distance = if (get.treat.type(treat) %in% c("binary", "censoring")) x[["ps"]],
                                obj.distance.name = "prop.score")
-
+  
   #Process focal
   focal <- x[["focal"]]
-
+  
   #Process pairwise
   if (get.treat.type(treat) == "binary" && is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
     attr(treat, "treat.type") <- "multinomial"
   }
-
+  
   #Reject arguments that do not apply
   .reject_args(c("subclass", "match.strata"), "{.cls weightit} objects", ...)
-
+  
   if (get.treat.type(treat) == "censoring") {
     .reject_cens_args(...)
     focal <- NULL
@@ -1347,7 +1346,9 @@ x2base.mimids <- function(x, ...) {
   #Process distance
   m.distance <- unlist(grab(models, "distance"))
   
-  if (all(is.na(m.distance))) m.distance <- NULL
+  if (allNA(m.distance)) {
+    m.distance <- NULL
+  }
   
   distance <- process_distance(...get("distance"), datalist = list(data, m.data),
                                obj.distance = m.distance, 
@@ -1434,7 +1435,10 @@ x2base.wimids <- function(x, ...) {
   
   #Process distance
   w.distance <- unlist(grab(models, "ps"))
-  if (all(is.na(w.distance))) w.distance <- NULL
+  
+  if (allNA(w.distance)) {
+    w.distance <- NULL
+  }
   
   distance <- process_distance(...get("distance"), datalist = list(data, w.data),
                                obj.distance = if (get.treat.type(treat) == "binary") w.distance, 
@@ -1749,7 +1753,8 @@ x2base.data.frame.list <- function(x, ...) {
     }
   }
   else {
-    specified.method <- arg::match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+    specified.method <- arg::match_arg(method, c("weighting", "matching", "subclassification"),
+                                       several.ok = TRUE)
     if (any(specified.method == "subclassification") || specified["subclass"] || specified["match.strata"]) {
       arg::wrn("only weighting is allowed with multiple treatment time points. Assuming weighting instead")
       method <- "weighting"
@@ -1932,13 +1937,13 @@ x2base.weightitMSM <- function(x, ...) {
   imp <- .d[["imp"]]
   
   models <- .weightitMSM_models(x)
-
+  
   #Process treat.list
   treat.list <- process_treat.list(models[["treat.list"]],
                                    data, weightitMSM.data, weightitMSM.data2)
   #Process covs.list
   covs.list <- lapply(models[["covs.list"]], function(z) get_covs_from_formula(data = z))
-
+  
   #Get estimand
   estimand <- x[["estimand"]]
   
@@ -2001,32 +2006,32 @@ x2base.weightitMSM <- function(x, ...) {
   if (is_null(x[["cens.list"]])) {
     return(list(treat.list = x[["treat.list"]], covs.list = x[["covs.list"]]))
   }
-
+  
   n.models <- length(x[["treat.list"]]) + length(x[["cens.list"]])
   cens.pos <- as.integer(x[["cens.time"]])
   treat.pos <- setdiff(seq_len(n.models), cens.pos)
-
+  
   treat.list <- make_list(n.models)
   treat.list[treat.pos] <- x[["treat.list"]]
   treat.list[cens.pos] <- x[["cens.list"]]
-
+  
   names(treat.list) <- character(n.models)
   names(treat.list)[treat.pos] <- names(x[["treat.list"]]) %or% as.character(treat.pos)
   #The censoring models' names live on `cens.time` rather than on `cens.list`.
   names(treat.list)[cens.pos] <- .uncens_name(names(x[["cens.time"]])) %or%
     as.character(cens.pos)
-
+  
   #Neither covariate list is named.
   covs.list <- make_list(n.models)
   covs.list[treat.pos] <- x[["covs.list"]]
   covs.list[cens.pos] <- x[["cens.covs.list"]]
-
+  
   list(treat.list = treat.list, covs.list = covs.list)
 }
 
 #' @exportS3Method NULL
 x2base.default <- function(x, ...) {
-
+  
   if (!is.list(x)) {
     arg::err("the input object must be an appropriate list, data frame, formula, or the output of one of the supported packages")
   }
@@ -2061,8 +2066,6 @@ x2base.default <- function(x, ...) {
                             type = c("character", "numeric", "logical")),
             s.weights = list(name = c("s.weights", "sw", "sweights", "sampw"),
                              type = c("numeric")),
-            #`names(x)` is lowercased below before these are matched, so the
-            #aliases must be lowercase too.
             focal = list(name = c("focal", "treatatt"),
                          type = c("character", "numeric")),
             call = list(name = c("call"),
@@ -2202,7 +2205,7 @@ x2base.default <- function(x, ...) {
   if (inherits(o.data, "mids")) {
     o.data <- .mids_complete(o.data)
   }
-
+  
   .d <- .x2base_data(..., .datalist = list(o.data))
   data <- .d[["data"]]
   imp <- .d[["imp"]]
@@ -2306,7 +2309,8 @@ x2base.default <- function(x, ...) {
     }
   }
   else {
-    specified.method <- arg::match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+    specified.method <- arg::match_arg(method, c("weighting", "matching", "subclassification"),
+                                       several.ok = TRUE)
     
     method <- if (specified["weights"]) "weighting" else "matching"
     
@@ -2377,7 +2381,7 @@ x2base.default <- function(x, ...) {
   if (inherits(o.data, "mids")) {
     o.data <- .mids_complete(o.data)
   }
-
+  
   .d <- .x2base_data(..., .datalist = list(o.data))
   data <- .d[["data"]]
   imp <- .d[["imp"]]
@@ -2467,7 +2471,8 @@ x2base.default <- function(x, ...) {
     }
   }
   else {
-    .specified_method <- arg::match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+    .specified_method <- arg::match_arg(method, c("weighting", "matching", "subclassification"),
+                                        several.ok = TRUE)
     
     if (length(method) == 1L) {
       if (.specified_method == "weighting") {
@@ -2576,7 +2581,7 @@ x2base.default <- function(x, ...) {
       }
     }
     else if (is_not_null(.specified_method) && is_not_null(.not_present) && is_not_null(.assuming)) {
-      arg::msg('{.code method = "{(.specified_method)}"} is specified, but {.arg {.not_present}} {?was/were} not supplied. Assuming {.val {(.assuming)}} and using {.arg {(.using)}} instead')
+      arg::msg('{.code method = "{(.specified_method)}"} is specified, but {.arg {(.not_present)}} {?was/were} not supplied. Assuming {.val {(.assuming)}} and using {.arg {(.using)}} instead')
     }
   }
   

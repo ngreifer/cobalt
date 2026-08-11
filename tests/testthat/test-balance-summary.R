@@ -80,7 +80,7 @@ test_that("col_w_vr(), col_w_ks(), and col_w_ovl() return sensible ranges", {
   expect_equal(unname(col_w_ovl(sep, treat = tb)), 1)
 })
 
-test_that("col_w_ovl() honours `integrate`, `steps`, and `bw`", {
+test_that("col_w_ovl() honors `integrate`, `steps`, and `bw`", {
   m <- m2()
   tb <- lalonde$treat
 

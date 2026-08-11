@@ -3,13 +3,15 @@
 
 # *cobalt* (development version)
 
+* `set.cobalt.options()` accepted `factor_sep` and `int_sep`, but nothing read them, so setting one had no effect. They are now honored.
+
 * Added support for assessing the balance of a censoring model. A treatment marked with the new `.cens()` function is a censoring indicator rather than a treatment, and `bal.tab()` compares the units still under observation, weighted, against the full at-risk sample; with `un = TRUE` it also reports that comparison before weighting, which is the imbalance the weights were estimated to remove. All the statistics available for binary treatments are available, the moment columns are named for the two samples (`M.Uncensored`, `M.Full`), and `cluster`, `imp`, and `subclass` all apply -- subclassification is itself a way of solving a censoring problem. `bal.plot()` shows the weighted uncensored sample against the unweighted full sample. `bal.tab()` accepts a `weightit` object fit with a censoring model, a `.cens(C) ~ x1 + x2` formula, or `treat = .cens(C)` with a data frame of covariates. `cobalt::.cens()` is deliberately identical to `WeightIt::.cens()` so that the same code works whichever package is attached; \pkg{cobalt} defines its own only to avoid depending on \pkg{WeightIt}. See `?.cens` and `?class-bal.tab.cens`.
 
 * A censoring indicator can also appear among longitudinal treatments, as in `bal.tab(list(A1 ~ x, .cens(C1) ~ x, A2 ~ x))`, which is how a joint treatment-and-censoring model is written for `WeightIt::weightitMSM()`; such an object is now accepted directly, where it previously failed with `Missing values must not exist in 'treat'`. `bal.tab()` produces one table per entry, of whichever kind that entry's model is, and assesses each among the units still under observation entering it. The risk set is accumulated from the censoring indicators themselves rather than from where treatments happen to be missing, so it makes no difference whether the data records a treatment for a unit that has already dropped out or leaves it blank; a missing treatment for a unit that is still under observation is now an error naming the time point it appeared in. A list that mixes censoring with treatment gets no balance summary across time points, as a list mixing continuous and binary treatments already does not. `bal.plot()` supports this too, showing whichever comparison the requested time point is about. See `?class-bal.tab.msm`.
 
 * The `Observations` component of a `bal.tab` object for a longitudinal treatment is now always present, where previously it was computed only when the balance summary across time points was. It is still displayed only alongside that summary, since it gathers in one place what each time point's own table has already reported.
 
-* The divider naming each segment of a segmented `bal.tab` -- a cluster, an imputation, a subclass, a treatment pair, a time point -- is now the label centered in a rule, the form `WeightIt::summary.weightitMSM()` uses, in place of ` - - - Label - - - `. An unlabelled rule of the same width closes the set when a balance summary across the segments follows it, so that the summary is not read as another part of the last segment. Its width responds to what it introduces: every divider in one set is drawn to the width of the widest line any of those segments prints, which is normally the balance table, and never narrower than 44 characters or than the label itself. The headings within a segment (`Balance Measures`, `Sample sizes`, and the rest) are unchanged. Only the presentation changed; the objects `bal.tab()` returns are untouched.
+* The divider naming each segment of a segmented `bal.tab` -- a cluster, an imputation, a subclass, a treatment pair, a time point -- is now the label centered in a rule, the form `WeightIt::summary.weightitMSM()` uses, in place of ` - - - Label - - - `. An unlabeled rule of the same width closes the set when a balance summary across the segments follows it, so that the summary is not read as another part of the last segment. Its width responds to what it introduces: every divider in one set is drawn to the width of the widest line any of those segments prints, which is normally the balance table, and never narrower than 44 characters or than the label itself. The headings within a segment (`Balance Measures`, `Sample sizes`, and the rest) are unchanged. Only the presentation changed; the objects `bal.tab()` returns are untouched.
 
 * Time points are now named for their position in the list, whether the model there is a treatment or a censoring model, and the variable modeled, as in `1. Treatment: A_1` or `2. Censoring: C_1`. This is the form `WeightIt::summary.weightitMSM()` uses, so the same model goes by the same name in both packages. It replaces `Time 1` wherever `bal.tab()` and `bal.plot()` identify a time point. `which.time` is unchanged and still takes a position or a variable name.
 
@@ -51,7 +53,7 @@
 
 * Fixed a bug in which requesting `cluster.summary = TRUE` with clustered, subclassified data failed with `missing value where TRUE/FALSE needed`. A subclassified cluster has no single balance table to summarize across clusters, so the summary is now omitted, as it already is with multiply imputed data.
 
-* `set.cobalt.options()` now accepts any statistic for `stats`. Previously only `"mean.diffs"` was allowed, even though `getOption("cobalt_stats")` was honoured for all of them, so the option could not be set to anything else.
+* `set.cobalt.options()` now accepts any statistic for `stats`. Previously only `"mean.diffs"` was allowed, even though `getOption("cobalt_stats")` was honored for all of them, so the option could not be set to anything else.
 
 * The per-statistic display options (`disp.diff`, `disp.v.ratio`, `disp.ks`, `disp.ovl`, `disp.corr`, `disp.spear`, and `disp.dcorr`) now take effect when set with `set.cobalt.options()`. `disp.v.ratio` and `disp.ks` were previously accepted but never read; the rest were rejected. The full set is now generated from the statistic registry, and the vestigial `target.summary` option, which was never read, has been removed.
 
@@ -59,7 +61,7 @@
 
 * `bal.init()` now treats `estimand = "ATC"` with a multi-category treatment identically to `estimand = "ATT"`, as documented: `focal` names the group every other group is compared against, and is required. The two were previously handled by separate branches that could disagree about what to do when `focal` was omitted.
 
-* `bal.tab()` now honours `s.d.denom` with longitudinal treatments. Each time point's standardization factor was previously overwritten with the one the ATE implies -- `"pooled"` for binary and multi-category treatments, `"all"` for continuous ones -- so any value supplied to `s.d.denom` was silently discarded, and an unusable value went unreported. That value is still the default, since longitudinal treatments target the ATE, so results are unchanged unless `s.d.denom` was supplied.
+* `bal.tab()` now honors `s.d.denom` with longitudinal treatments. Each time point's standardization factor was previously overwritten with the one the ATE implies -- `"pooled"` for binary and multi-category treatments, `"all"` for continuous ones -- so any value supplied to `s.d.denom` was silently discarded, and an unusable value went unreported. That value is still the default, since longitudinal treatments target the ATE, so results are unchanged unless `s.d.denom` was supplied.
 
 * The error `bal.plot()` raises when `var.name` names one level of a factor rather than the factor itself now says which variable to supply instead. Splitting a factor into dummies is how `bal.tab()` summarizes it one level at a time, so a name like `race_black` appears in the balance table; `bal.plot()` plots the factor, so the dummy's name is still rejected.
 
@@ -77,7 +79,7 @@
 
 * Fixed a bug in `print()` for `bal.tab` objects with subclasses in which supplying both `disp.thresholds` and `disp.call` failed with an uninformative error.
 
-* Fixed a bug in the per-subclass balance tables in which every statistic was compared to its threshold using its absolute value, even when the statistic defines a different one. This affected variance ratios, which are compared using `pmax(x, 1/x)`: a ratio below 1 whose reciprocal exceeded the threshold was labelled as balanced. The across-subclass summary table was already correct.
+* Fixed a bug in the per-subclass balance tables in which every statistic was compared to its threshold using its absolute value, even when the statistic defines a different one. This affected variance ratios, which are compared using `pmax(x, 1/x)`: a ratio below 1 whose reciprocal exceeded the threshold was labeled as balanced. The across-subclass summary table was already correct.
 
 * Fixed a bug in `bal.compute()` and `bal.init()` in which `stat = "r2"` failed for all inputs. The same underlying problem affected `bal.tab()` when `int = TRUE` was supplied with a single covariate or when `poly` was greater than 1 and all covariates were binary.
 
@@ -103,7 +105,7 @@
 
 * For `ps` and `iptw` objects fit with `version = "xgboost"`, `bal.tab()` now asks for `formula`/`covs` (or `formula.list`/`covs.list`) when the fitted model records no feature names at all, rather than failing with an uninformative error from `reformulate()`. This is the case for models fit with *xgboost* 3.0.0 or later, which no longer store feature names in the model object.
 
-* Errors arising within a single cluster or imputation are now consistently labelled with that cluster or imputation. Previously, errors raised while subsetting the data escaped unlabelled.
+* Errors arising within a single cluster or imputation are now consistently labeled with that cluster or imputation. Previously, errors raised while subsetting the data escaped unlabeled.
 
 * Fixed a bug in `splitfactor()` in which supplying `check = FALSE` along with a mix of valid and invalid variable names failed to produce the intended warning.
 
@@ -247,7 +249,7 @@
 
 * Fixed a bug when using `bal.plot()` with longitudinal treatments.
 
-* Fixed a bug in while the display options `factor_sep` and `int_sep` were not functioning correctly.
+* Fixed a bug in which the display options `factor_sep` and `int_sep` were not functioning correctly.
 
 * Fixed a bug when no covariates are supplied.
 
@@ -841,7 +843,7 @@
 
 * Speed improvements
 
-* Fixed a bug causing mislabelling of categorical variables
+* Fixed a bug causing mislabeling of categorical variables
 
 * Changed calculation of weighted variance to be in line with recommendations; `CBPS` can now be used with standardized weights
 

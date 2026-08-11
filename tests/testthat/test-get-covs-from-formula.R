@@ -127,7 +127,7 @@ test_that("get_covs_from_formula() adds a missingness indicator", {
   expect_false(anyNA(covs[, "na:<NA>"]))
 })
 
-test_that("get_covs_from_formula() honours the separators", {
+test_that("get_covs_from_formula() honors the separators", {
   d <- lalonde
 
   covs <- gcf(treat ~ race + age:educ, d, factor_sep = ".", int_sep = " x ")

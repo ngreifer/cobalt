@@ -437,8 +437,8 @@ test_that("splitfactor() accepts a bare factor and names it after the argument",
 })
 
 test_that("splitfactor() rejects data that is neither a data frame nor a factor", {
-  expect_err(splitfactor(list(a = 1)), "must be a data.frame or factor")
-  expect_err(splitfactor(array(1, c(2L, 2L, 2L))), "must be a data.frame or factor")
+  expect_err(splitfactor(list(a = 1)), "must be a data frame or factor")
+  expect_err(splitfactor(array(1, c(2L, 2L, 2L))), "must be a data frame or factor")
 })
 
 test_that("splitfactor(check = FALSE) splits non-factor columns", {
@@ -565,7 +565,7 @@ test_that("unsplitfactor() reconstructs NAs from an NA column", {
   expect_err(unsplitfactor(s3, "f", dropped.na = FALSE), "more than one")
 })
 
-test_that("unsplitfactor() honours `replace`, vector `sep`, and vector `dropped.level`", {
+test_that("unsplitfactor() honors `replace`, vector `sep`, and vector `dropped.level`", {
   d <- data.frame(a = seq_len(30),
                   f = factor(c("A", "B")[rep(1:2, length.out = 30)]),
                   g = factor(c("X", "Y")[rep(1:2, length.out = 30)]))
@@ -589,7 +589,7 @@ test_that("unsplitfactor() validates its arguments", {
   d <- data.frame(f = factor(c("A", "B")[rep(1:2, length.out = 30)]))
   s <- splitfactor(d, "f", drop.first = FALSE)
 
-  expect_err(unsplitfactor(1:10), "must be a data.frame")
+  expect_err(unsplitfactor(1:10), "must be a data frame")
   expect_err(unsplitfactor(s, 1), "must be a character vector")
   expect_err(unsplitfactor(lalonde), "must be a character vector")
   expect_err(unsplitfactor(s, c("f", "f"), sep = c("_", "_", "_")),

@@ -1,4 +1,4 @@
-#' @title Visualize Distributional Balance
+#' Visualize Distributional Balance
 #' 
 #' @description Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using \pkg{ggplot2}.
 #' 
@@ -28,14 +28,14 @@
 #'     
 #' * For `matchit` objects: None
 #' * For `weightit` objects: None
-#' * For `ps`, `ps.cont`, `mnps`, and `iptw` objects: (`stop.method`; see [defaults][bal.tab.ps]).
-#' * For `Match` objects: `formula` and `data` or `covs` and `treat`.
-#' * For `optmatch` objects: `formula` and `data` or `covs` (`treat` is not required).
+#' * For `ps`, `ps.cont`, `mnps`, and `iptw` objects: `stop.method` (see [defaults][bal.tab.ps]).
+#' * For `Match` objects: `formula` and `data`, or `covs` and `treat`.
+#' * For `optmatch` objects: `formula` and `data`, or `covs` (`treat` is not required).
 #' * For `CBPS` objects: None
-#' * For `ebalance` objects: `formula` and `data` or `covs` and `treat`.
+#' * For `ebalance` objects: `formula` and `data`, or `covs` and `treat`.
 #' * For `formula`s: `data`
 #' * For `data.frame`s: `treat`
-#' * For `designmatch` objects: `formula` and `data` or `covs` and `treat`.
+#' * For `designmatch` objects: `formula` and `data`, or `covs` and `treat`.
 #' * For `sbw` objects: None
 #' * For `mimids` and `wimids` objects: None, but an argument to `which.imp` should be specified.
 #' * For other objects processed through `bal.tab()`'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
@@ -347,7 +347,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   is.categorical.var <- is.factor(X[["var"]]) || is.character(X[["var"]]) || is_binary(X[["var"]]) 
   
   if (is_null(X[["subclass"]]) || (rlang::is_string(which) && which == "unadjusted")) {
-    if (is_not_null(which.sub) && !all(is.na(which.sub))) {
+    if (is_not_null(which.sub) && !allNA(which.sub)) {
       if (is_null(X[["subclass"]])) {
         arg::wrn("{.arg which.sub} was specified but no subclasses were supplied. Ignoring {.arg which.sub}")
       }
@@ -409,7 +409,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         in.imp <- !is.na(X[["imp"]])
         facet <- c("imp", facet)
       }
-      else if (!all(is.na(which.imp))) {
+      else if (!allNA(which.imp)) {
         if (!is.numeric(which.imp)) {
           arg::err("the argument to {.arg which.imp} must be the indices corresponding to the imputations for which distributions are to be displayed")
         }
@@ -423,7 +423,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         facet <- c("imp", facet)
       }
     }
-    else if (is_not_null(which.imp) && !all(is.na(which.imp))) {
+    else if (is_not_null(which.imp) && !allNA(which.imp)) {
       arg::wrn("{.arg which.imp} was specified but no {.arg imp} values were supplied. Ignoring {.arg which.imp}")
     }
     
@@ -433,7 +433,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         in.cluster <- !is.na(X[["cluster"]])
         facet <- c("cluster", facet)
       }
-      else if (!all(is.na(which.cluster))) {
+      else if (!allNA(which.cluster)) {
         if (is.numeric(which.cluster)) {
           if (!all(which.cluster %in% seq_len(nlevels(X[["cluster"]])))) {
             .b <- setdiff(which.cluster, seq_len(nlevels(X[["cluster"]])))
@@ -463,7 +463,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     
     in.time <- rep_with(TRUE, X[["var"]])
     if (is_not_null(X[["time"]])) {
-      if (is_null(which.time) || all(is.na(which.time))) {
+      if (is_null(which.time) || allNA(which.time)) {
         in.time <- !is.na(X[["time"]])
       }
       else if (is.numeric(which.time)) {

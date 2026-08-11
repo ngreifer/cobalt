@@ -4,7 +4,7 @@
 \alias{treat-class}
 \title{The \code{treat} Class}
 \description{
-\pkg{cobalt} represents a processed treatment variable as an object of class \code{treat}: the treatment values themselves, carrying attributes that record what kind of treatment it is and what its groups are called. Every \code{bal.tab()} method builds one, and every balance computation reads it rather than re-deriving the same facts from the values.
+\pkg{cobalt} represents a processed treatment variable as an object of class \code{treat}, carrying attributes that record what kind of treatment it is and what its groups are called. Every \code{\link[=bal.tab]{bal.tab()}} method builds one, and every balance computation reads it rather than re-deriving the same facts from the values.
 
 The attributes are
 
@@ -13,7 +13,7 @@ The attributes are
 \item{\code{treat.name}}{the name the treatment was given, if it had one.}
 \item{\code{treat_names}}{for a binary treatment, the display names of the two groups, named \code{control} and \code{treated}; for a multi-category treatment, one name per level; for a censoring indicator, \code{Uncensored} and \code{Censored}. \code{NULL} for a continuous treatment.}
 \item{\code{treat_vals}}{the values in the data that those names correspond to.}
-\item{\code{group_labels}}{how the treatment's groups are labelled in the column names of a balance table. \code{c("0", "1")} for a binary treatment, which is \pkg{cobalt}'s positional convention (\code{M.0} is the control group's mean); otherwise whatever names the groups have.}
+\item{\code{group_labels}}{how the treatment's groups are labeled in the column names of a balance table. \code{c("0", "1")} for a binary treatment, which is \pkg{cobalt}'s positional convention (\code{M.0} is the control group's mean); otherwise whatever names the groups have.}
 }
 
 \code{[} preserves all of them, so a subset of a \code{treat} is still a \code{treat}.

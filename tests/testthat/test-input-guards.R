@@ -123,7 +123,7 @@ test_that("get.w() requires `treat` for designmatch objects", {
   expect_length(get.w(dm, treat = lalonde$treat), n_lalonde)
 })
 
-test_that("get.w.ps() honours stop.method, estimand, and s.weights", {
+test_that("get.w.ps() honors stop.method, estimand, and s.weights", {
   ps <- fx("ps")
 
   #Two stop methods were requested, so a data frame comes back.

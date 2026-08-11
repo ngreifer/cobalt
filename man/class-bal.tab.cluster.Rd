@@ -4,7 +4,7 @@
 \alias{class-bal.tab.cluster}
 \title{Using \code{bal.tab()} with Clustered Data}
 \description{
-When using \code{\link[=bal.tab]{bal.tab()}} with clustered data, the output will be different from the case with single-level data, and there are some options that are common across all \code{bal.tab()} methods. This page outlines the outputs and options in this case.
+When using \code{\link[=bal.tab]{bal.tab()}} with clustered or subgrouped data, the output will be different from the case with single-level data, and there are some options that are common across all \code{bal.tab()} methods. This page outlines the outputs and options in this case.
 
 There are two main components of the output of \code{bal.tab()} with clustered data: the within-cluster balance summaries and the across-cluster balance summary. The within-cluster balance summaries display balance for units within each cluster separately.
 

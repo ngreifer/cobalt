@@ -81,7 +81,7 @@ test_that("a `distance` in the input list is used and keeps its component name",
   expect_identical(rownames(b$Balance), c("distance", "age", "educ"))
 })
 
-test_that("`subclass`, `match.strata`, and `estimand` aliases are honoured", {
+test_that("`subclass`, `match.strata`, and `estimand` aliases are honored", {
   covs <- lalonde[c("age", "educ")]
 
   for (a in c("subclass", "strata")) {

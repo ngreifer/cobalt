@@ -253,7 +253,7 @@ test_that("a summary across segments prints once, under a rule of its own", {
       arg = "which.subclass")
   )
 
-  #An unlabelled rule: the divider a summary segment sits under.
+  #An unlabeled rule: the divider a summary segment sits under.
   is.rule <- function(x) grepl(sprintf("^%s+$", cli::symbol$line), trimws(x))
 
   for (nm in names(shapes)) {
@@ -486,7 +486,7 @@ test_that("a subclass bal.tab with thresholds prints tallies and max imbalance",
   expect_match(out, "M.Threshold")
 })
 
-test_that("the subclass print method honours stats, disp.call, and disp.thresholds", {
+test_that("the subclass print method honors stats, disp.call, and disp.thresholds", {
   b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, subclass = sub_idx,
                s.d.denom = "pooled", un = TRUE, subclass.summary = TRUE,
                stats = c("mean.diffs", "variance.ratios"),
