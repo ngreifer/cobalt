@@ -77,6 +77,9 @@
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+\code{x}, invisibly. \code{print()} is called for the side effect of displaying the balance table and leaves the object as it was; the arguments above decide what is shown, not what is returned.
+}
 \description{
 Prints \code{bal.tab()} output in a clean way. Provides options for printing.
 }

@@ -30,6 +30,22 @@ as well as data not processed through these packages.
 For more information, check out the *cobalt*
 [website](https://ngreifer.github.io/cobalt/)!
 
+### Installation
+
+You can install the current stable version of *cobalt* from CRAN with:
+
+``` r
+install.packages("cobalt")
+```
+
+You can install the development version of *cobalt* from
+[GitHub](https://github.com/ngreifer/cobalt) with:
+
+``` r
+# install.packages("pak")
+pak::pak("ngreifer/cobalt")
+```
+
 ### Why cobalt?
 
 Most of the major conditioning packages contain functions to assess
@@ -136,7 +152,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
           var.order = "unadjusted")
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" alt="" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" style="display: block; margin: auto;" />
 
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using
@@ -146,10 +162,4 @@ Use `citation("cobalt")` to generate a bibliographic reference for the
 *cobalt* package.
 
 Bugs appear in *cobalt* occasionally, often found by users. Please
-report any bugs at <https://github.com/ngreifer/cobalt/issues>. To
-install the latest development version of *cobalt*, which may have
-removed a bug you’re experiencing, use the following code:
-
-``` r
-pak::pak("ngreifer/cobalt")
-```
+report any bugs at <https://github.com/ngreifer/cobalt/issues>.

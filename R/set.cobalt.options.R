@@ -7,7 +7,12 @@
 #' For `get.cobalt.options()`, one or more strings containing the name of a parameter option to be retrieved. See examples. If empty, all available options and their values will be returned.
 #' 
 #' @param default if `TRUE`, sets all \pkg{cobalt} options not named in `...` to their default values.
-#' 
+#'
+#' @returns
+#' `set.cobalt.options()` is called for its side effect of setting options, and returns invisibly: the previous values of any options it returned to their defaults, as [options()] gives them, or `NULL` if it returned none.
+#'
+#' `get.cobalt.options()` returns a named list with one entry per requested option, holding its current value, or `NULL` for an option that has not been set. Called with no arguments, it returns every available option.
+#'
 #' @details When an option is set to `NULL`, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed [here][display-options]. Some others (e.g., `continuous` and `binary`) are described on the [bal.tab()] help page.
 #' 
 #' @seealso 

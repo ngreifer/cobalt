@@ -26,6 +26,22 @@ Welcome to *cobalt*, which stands for **Co**variate **Bal**ance **T**ables (and 
 
 For more information, check out the *cobalt* [website](https://ngreifer.github.io/cobalt/)!
 
+### Installation
+
+You can install the current stable version of *cobalt* from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("cobalt")
+```
+
+You can install the development version of *cobalt* from [GitHub](https://github.com/ngreifer/cobalt) with:
+
+```{r, eval = FALSE}
+# install.packages("pak")
+pak::pak("ngreifer/cobalt")
+```
+
+
 ### Why cobalt?
 
 Most of the major conditioning packages contain functions to assess balance; so why use *cobalt* at all? *cobalt* arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. In addition, *cobalt* has unique plotting capabilities that make use of *ggplot2* in R for balance assessment and reporting.
@@ -74,8 +90,4 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
 
 Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: "Matching was performed using the *Matching* package (Sekhon, 2011), and covariate balance was assessed using *cobalt* (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, `r R.version$year`)." Use `citation("cobalt")` to generate a bibliographic reference for the *cobalt* package.
 
-Bugs appear in *cobalt* occasionally, often found by users. Please report any bugs at https://github.com/ngreifer/cobalt/issues. To install the latest development version of *cobalt*, which may have removed a bug you're experiencing, use the following code:
-
-```{r, eval=FALSE}
-pak::pak("ngreifer/cobalt")
-```
+Bugs appear in *cobalt* occasionally, often found by users. Please report any bugs at https://github.com/ngreifer/cobalt/issues.

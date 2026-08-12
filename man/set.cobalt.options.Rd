@@ -16,6 +16,11 @@ For \code{get.cobalt.options()}, one or more strings containing the name of a pa
 
 \item{default}{if \code{TRUE}, sets all \pkg{cobalt} options not named in \code{...} to their default values.}
 }
+\value{
+\code{set.cobalt.options()} is called for its side effect of setting options, and returns invisibly: the previous values of any options it returned to their defaults, as \code{\link[=options]{options()}} gives them, or \code{NULL} if it returned none.
+
+\code{get.cobalt.options()} returns a named list with one entry per requested option, holding its current value, or \code{NULL} for an option that has not been set. Called with no arguments, it returns every available option.
+}
 \description{
 Makes it easier to set \pkg{cobalt} options. \code{set.cobalt.options()} is essentially a wrapper for \code{\link[=options]{options()}} but performs several checks, and \code{get.cobalt.options()} is essentially a wrapper for \code{\link[=getOption]{getOption()}}.
 }

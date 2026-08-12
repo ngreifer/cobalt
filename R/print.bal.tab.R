@@ -25,7 +25,10 @@
 #' @param var.names an optional object providing alternate names for the variables, which will otherwise be displayed as they are stored. Entries given here add to those given in the original call to `bal.tab()` and replace any entry they name. See [`display-options`] for how to specify it.
 #' @param digits the number of digits to display.
 #' @param ... further arguments passed to or from other methods.
-#' 
+#'
+#' @returns
+#' `x`, invisibly. `print()` is called for the side effect of displaying the balance table and leaves the object as it was; the arguments above decide what is shown, not what is returned.
+#'
 #' @details Simply calling `bal.tab()` will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The `print()` function automatically dispatches the correct method for the `bal.tab` object given.
 #' 
 #' Any parameter used in `bal.tab()` for calculations, such as `int`, `addl`, or `distance`, cannot be used with `print()`; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to `bal.tab()` must be performed.
