@@ -8,5 +8,7 @@ docs
 .positai
 Rplots.pdf
 tests/testthat/_snaps/*.new.md
+tests/testthat/_problems
+tests/testthat/testthat-problems.rds
 _dev/golden
 CLAUDE.md
