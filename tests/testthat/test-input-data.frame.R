@@ -25,11 +25,13 @@ test_that("treatment type determines the bal.tab subclass", {
   covs <- fx("covs")
 
   expect_s3_class(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled"), "bal.tab.bin")
-  expect_s3_class(bal.tab(covs, treat = lalonde$race), "bal.tab.multi")
+  expect_s3_class(bal.tab(covs, treat = lalonde$race, s.d.denom = "pooled"),
+                  "bal.tab.multi")
   expect_s3_class(bal.tab(covs, treat = lalonde$re75), "bal.tab.cont")
 
   #A two-level factor is still binary.
-  expect_s3_class(bal.tab(covs, treat = factor(lalonde$treat)), "bal.tab.bin")
+  expect_s3_class(bal.tab(covs, treat = factor(lalonde$treat), s.d.denom = "pooled"),
+                  "bal.tab.bin")
 })
 
 test_that("`treat` can be named in `data` or supplied as a vector", {

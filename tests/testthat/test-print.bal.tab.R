@@ -133,7 +133,8 @@ test_that("continuous treatments print correlations", {
 
 test_that("multi-category treatments print pairwise tables and a summary", {
   b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race,
-               weights = w_fixed, un = TRUE, multi.summary = TRUE)
+               weights = w_fixed, un = TRUE, multi.summary = TRUE,
+               s.d.denom = "pooled")
 
   out <- printed(b)
   expect_match(out, "Balance summary across all treatment pairs")
@@ -289,7 +290,7 @@ test_that("nested shapes print without error", {
     `cluster+imp` = bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
                             cluster = cl_idx, imp = imp_idx, s.d.denom = "pooled"),
     `cluster+multi` = bal.tab(lalonde[c("age", "educ")], treat = lalonde$race,
-                              cluster = cl_idx),
+                              cluster = cl_idx, s.d.denom = "pooled"),
     `cluster+msm` = bal.tab(list(treat ~ age, treat ~ age + educ), data = lalonde,
                             cluster = cl_idx),
     `cluster+subclass` = bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat,
@@ -420,7 +421,7 @@ test_that("two weight sets with different methods are reported side by side", {
 
 test_that("pairwise = FALSE prints balance by treatment group", {
   b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race, weights = w_fixed,
-               pairwise = FALSE, un = TRUE)
+               pairwise = FALSE, un = TRUE, s.d.denom = "pooled")
 
   out <- printed(b, which.treat = NULL)
   expect_match(out, "Balance by treatment group")
@@ -452,7 +453,7 @@ test_that("which.imp accepts every documented form and warns otherwise", {
 
 test_that("which.treat accepts every documented form and warns otherwise", {
   b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race, weights = w_fixed,
-               multi.summary = TRUE)
+               multi.summary = TRUE, s.d.denom = "pooled")
 
   expect_match(printed(b, which.treat = 1L), "vs.")
   expect_match(printed(b, which.treat = "black"), "black")
@@ -526,7 +527,7 @@ test_that("the subclass print method honors stats, disp.call, and disp.threshold
 
 test_that("print() rewrites the .all and .none shorthands", {
   b <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race, weights = w_fixed,
-               multi.summary = TRUE)
+               multi.summary = TRUE, s.d.denom = "pooled")
 
   #The rewrite inspects print()'s own call, so these must be called directly
   #rather than through a wrapper: passing `.all` down through another frame

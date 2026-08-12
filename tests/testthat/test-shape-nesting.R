@@ -59,8 +59,8 @@ test_that("the wrapper classes nest in the documented precedence", {
 
   expect_s3_class(bal.tab(covs, treat = lalonde$treat, cluster = cl_idx,
                           imp = imp_idx, s.d.denom = "pooled"), "bal.tab.cluster")
-  expect_s3_class(bal.tab(covs, treat = lalonde$race, cluster = cl_idx),
-                  "bal.tab.cluster")
+  expect_s3_class(bal.tab(covs, treat = lalonde$race, cluster = cl_idx,
+                          s.d.denom = "pooled"), "bal.tab.cluster")
   expect_s3_class(bal.tab(covs, treat = lalonde$treat, subclass = sub_idx,
                           cluster = cl_idx, s.d.denom = "pooled"),
                   "bal.tab.cluster")

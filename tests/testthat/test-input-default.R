@@ -132,7 +132,8 @@ test_that("`focal` restricts non-pairwise comparisons for multi-category treatme
   expect_setequal(names(b$Pair.Balance), c("white vs. black", "white vs. hispan"))
 
   #Without `focal`, `pairwise = FALSE` compares each group to the whole sample.
-  b0 <- bal.tab(list(treat = lalonde$race, covs = covs), pairwise = FALSE)
+  b0 <- bal.tab(list(treat = lalonde$race, covs = covs), pairwise = FALSE,
+                s.d.denom = "pooled")
   expect_true(all(startsWith(names(b0$Pair.Balance), "All vs. ")))
 })
 

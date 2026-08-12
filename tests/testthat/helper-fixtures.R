@@ -297,8 +297,14 @@ fx <- function(name) {
   }
 
   if (!exists(name, envir = .fx_cache, inherits = FALSE)) {
-    built <- tryCatch(suppressMessages(suppressWarnings(reg$build())),
-                      error = function(e) e)
+    #Building a fixture is setup rather than anything under test, so none of it reaches
+    #the console. `capture.output()` is what catches the fitting functions that report
+    #progress with `cat()` rather than with a message -- \pkg{twang} announcing which
+    #group it is treating as focal, \pkg{sbw} narrating its optimizer.
+    utils::capture.output(
+      built <- tryCatch(suppressMessages(suppressWarnings(reg$build())),
+                        error = function(e) e))
+
     assign(name, built, envir = .fx_cache)
   }
 

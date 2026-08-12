@@ -43,12 +43,30 @@ squish <- function(x) {
   invisible(cnd)
 }
 
+#Each of the three expectations below asserts that one condition was signaled.
+#Anything else the expression prints or signals is incidental to that assertion, and
+#letting it through only buries the reporter's own output, so the other two condition
+#classes are muffled and printed output is discarded.
+#
+#That is a real amount of output rather than a stray line or two: `expect_wrn()` and
+#`expect_msg()` run the expression to completion, so `expect_wrn(print(b, ...))` --
+#the shape most of the `print()` argument checks take -- wrote a whole balance table
+#to the console on every call.
+#
+#`capture.output()` evaluates its argument in the calling frame, so the promise is
+#still forced there and assignments inside the expression still take effect there.
+
 #Expect an error whose message contains `text` (literal, whitespace-insensitive).
 expect_err <- function(object, text = NULL) {
-  cnd <- tryCatch({
-    force(object)
-    NULL
-  }, error = function(e) e)
+  cnd <- NULL
+
+  utils::capture.output(
+    withCallingHandlers(cnd <- tryCatch({
+      force(object)
+      NULL
+    }, error = function(e) e),
+    message = function(m) invokeRestart("muffleMessage"),
+    warning = function(w) invokeRestart("muffleWarning")))
 
   .expect_cnd_text(cnd, text, "error")
 }
@@ -58,11 +76,13 @@ expect_err <- function(object, text = NULL) {
 expect_wrn <- function(object, text = NULL) {
   cnd <- NULL
 
-  withCallingHandlers(force(object),
-                      warning = function(w) {
-                        if (is.null(cnd)) cnd <<- w
-                        invokeRestart("muffleWarning")
-                      })
+  utils::capture.output(
+    withCallingHandlers(force(object),
+                        message = function(m) invokeRestart("muffleMessage"),
+                        warning = function(w) {
+                          if (is.null(cnd)) cnd <<- w
+                          invokeRestart("muffleWarning")
+                        }))
 
   .expect_cnd_text(cnd, text, "warning")
 }
@@ -72,11 +92,13 @@ expect_wrn <- function(object, text = NULL) {
 expect_msg <- function(object, text = NULL) {
   cnd <- NULL
 
-  withCallingHandlers(force(object),
-                      message = function(m) {
-                        if (is.null(cnd)) cnd <<- m
-                        invokeRestart("muffleMessage")
-                      })
+  utils::capture.output(
+    withCallingHandlers(force(object),
+                        warning = function(w) invokeRestart("muffleWarning"),
+                        message = function(m) {
+                          if (is.null(cnd)) cnd <<- m
+                          invokeRestart("muffleMessage")
+                        }))
 
   .expect_cnd_text(cnd, text, "message")
 }

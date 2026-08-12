@@ -189,7 +189,7 @@ test_that("faceted shapes are plotted with an aggregation function", {
     imp = bal.tab(covs, treat = lalonde$treat, imp = imp_idx, weights = w_fixed,
                   s.d.denom = "pooled", un = TRUE, binary = "std"),
     multi = bal.tab(covs, treat = lalonde$race, weights = w_fixed, un = TRUE,
-                    binary = "std"),
+                    binary = "std", s.d.denom = "pooled"),
     msm = bal.tab(list(treat ~ age, nodegree ~ age + educ), data = lalonde,
                   un = TRUE, binary = "std")
   )
@@ -317,7 +317,7 @@ test_that("aggregation works for imputations, treatment groups, and time points"
                   which.imp = .none))
 
   b_multi <- bal.tab(covs, treat = lalonde$race, weights = w_fixed, un = TRUE,
-                     binary = "std")
+                     binary = "std", s.d.denom = "pooled")
   built(love.plot(b_multi, stats = "mean.diffs", which.treat = .none))
 
   b_msm <- bal.tab(list(treat ~ age, nodegree ~ age + educ), data = lalonde,
@@ -351,7 +351,8 @@ test_that("which.* select facet levels numerically and by name", {
   expect_err(love.plot(b, stats = "mean.diffs", which.cluster = TRUE), "must be")
 
   b_multi <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race,
-                     weights = w_fixed, un = TRUE, binary = "std")
+                     weights = w_fixed, un = TRUE, binary = "std",
+                     s.d.denom = "pooled")
   built(love.plot(b_multi, stats = "mean.diffs", which.treat = 1L))
   built(love.plot(b_multi, stats = "mean.diffs", which.treat = "black"))
   expect_err(love.plot(b_multi, stats = "mean.diffs", which.treat = "zzz"),
@@ -359,7 +360,8 @@ test_that("which.* select facet levels numerically and by name", {
 
   #`pairwise = FALSE` changes the set of comparisons being faceted.
   b_np <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$race,
-                  weights = w_fixed, un = TRUE, binary = "std", pairwise = FALSE)
+                  weights = w_fixed, un = TRUE, binary = "std", pairwise = FALSE,
+                  s.d.denom = "pooled")
   built(love.plot(b_np, stats = "mean.diffs", which.treat = .none))
 })
 
