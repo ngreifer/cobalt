@@ -27,8 +27,8 @@
     [`cobalt::.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md)
     is deliberately identical to
     [`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html)
-    so that the same code works whichever package is attached; defines
-    its own only to avoid depending on . See
+    so that the same code works whichever package is attached; *cobalt*
+    defines its own only to avoid depending on *WeightIt*. See
     [`?.cens`](https://ngreifer.github.io/cobalt/reference/cens.md) and
     `?class-bal.tab.cens`.
 
@@ -202,13 +202,6 @@
     [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
     identify a time point. `which.time` is unchanged and still takes a
     position or a variable name.
-
-  - [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
-    accepts a `weightitMSM` object fit with censoring in either of the
-    two shapes *WeightIt* has returned one: censoring models held among
-    the treatment models, as in *WeightIt* 2.1.0, or segregated into
-    their own `cens.list` and `cens.covs.list`, as in the development
-    versions between 2.0.0 and 2.1.0.
 
   - [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
     now supports multiply imputed data supplied in stacked form (an
