@@ -21,6 +21,7 @@ reference:
   - display-options
 - title: Helper Functions
 - contents:
+  - .cens
   - balance-summary
   - bal.compute
   - f.build
@@ -29,6 +30,7 @@ reference:
   - set.cobalt.options
   - splitfactor
   - var.names
+  - extract.bal.tab
 - title: Data
 - contents: lalonde
 articles:

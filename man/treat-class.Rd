@@ -28,3 +28,4 @@ The class is shared, so carrying it means only "this is a treatment", not "this 
 \item \code{\link{class-bal.tab.cens}}
 }
 }
+\keyword{internal}
