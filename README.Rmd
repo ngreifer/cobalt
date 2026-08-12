@@ -75,6 +75,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
 Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: "Matching was performed using the *Matching* package (Sekhon, 2011), and covariate balance was assessed using *cobalt* (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, `r R.version$year`)." Use `citation("cobalt")` to generate a bibliographic reference for the *cobalt* package.
 
 Bugs appear in *cobalt* occasionally, often found by users. Please report any bugs at https://github.com/ngreifer/cobalt/issues. To install the latest development version of *cobalt*, which may have removed a bug you're experiencing, use the following code:
+
 ```{r, eval=FALSE}
 pak::pak("ngreifer/cobalt")
 ```
