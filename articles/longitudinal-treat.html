@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2026-08-03</h4>
+            <h4 data-toc-skip class="date">2026-08-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/longitudinal-treat.Rmd" class="external-link"><code>vignettes/longitudinal-treat.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-treat.Rmd</code></div>
@@ -87,18 +87,18 @@ Greifer</h4>
 <p>This is an introduction to the use of <em>cobalt</em> with
 longitudinal treatments. These occur when there are multiple treatment
 periods spaced over time, with the potential for time-dependent
-confounding to occur. A common way to estimate treatment effects in
-these scenarios is to use marginal structural models (MSM), weighted by
-balancing weights. The goal of applying weights is to simulate a
-sequential randomization design, where the probability of being assigned
-to treatment at each time point is independent of each unit’s prior
-covariate and treatment history. For introduction to MSMs in general,
-see <span class="citation">Thoemmes and Ong (<a href="#ref-thoemmesPrimerInverseProbability2016">2016</a>)</span>, <span class="citation">VanderWeele et al. (<a href="#ref-vanderweeleCausalInferenceLongitudinal2016">2016</a>)</span>,
+confounding and censoring to occur. A common way to estimate treatment
+effects in these scenarios is to use marginal structural models (MSMs),
+weighted by balancing weights. The goal of applying weights is to
+simulate a sequential randomization design, where the probability of
+being assigned to treatment at each time point is independent of each
+unit’s prior covariate and treatment history. For introduction to MSMs
+in general, see <span class="citation">Thoemmes and Ong (<a href="#ref-thoemmesPrimerInverseProbability2016">2016</a>)</span>, <span class="citation">VanderWeele et al. (<a href="#ref-vanderweeleCausalInferenceLongitudinal2016">2016</a>)</span>,
 <span class="citation">Cole and Hernán (<a href="#ref-coleConstructingInverseProbability2008">2008</a>)</span>, or
 <span class="citation">Robins et al. (<a href="#ref-robinsMarginalStructuralModels2000">2000</a>)</span>. The key
 issue addressed by this guide and <em>cobalt</em> in general is
 assessing balance before each treatment period to ensure the removal of
-confounding.</p>
+confounding and bias due to censoring.</p>
 <p>In preprocessing for MSMs, three types of variables are relevant:
 baseline covariates, treatments, and intermediate outcomes/time-varying
 covariates. The goal of balance assessment is to assess whether after
@@ -111,7 +111,8 @@ assess balance with longitudinal treatments. First, we’ll examine an
 example data set and identify some tools that can be used to generate
 weights for MSMs. Next we’ll use <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code> to assess and
-present balance.</p>
+present balance. Finally, we’ll look at what changes when units are
+censored between treatment periods.</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
@@ -145,18 +146,20 @@ following:</p>
 </li>
 <li>
 <code>A_2</code> is independent from <code>X1_0</code>,
-<code>X2_0</code>, <code>A_1,</code>X1_1<code>, and</code>X2_1`</li>
+<code>X2_0</code>, <code>A_1</code>, <code>X1_1</code>, and
+<code>X2_1</code>
+</li>
 <li>
-<code>tx3</code> is independent from <code>X1_0</code>,
-<code>X2_0</code>,
-<code>A_1,</code>X1_1<code>,</code>X2_1<code>,</code>A_2,
-<code>X1_2</code>, and <code>X2_2</code>
+<code>A_3</code> is independent from <code>X1_0</code>,
+<code>X2_0</code>, <code>A_1</code>, <code>X1_1</code>,
+<code>X2_1</code>, <code>A_2</code>, <code>X1_2</code>, and
+<code>X2_2</code>
 </li>
 </ol>
 <p>Note these conditions are different from and weaker than those
 described by <span class="citation">Jackson (<a href="#ref-jacksonDiagnosticsConfoundingTimevarying2016">2016</a>)</span>.
-See his <code>confoundr</code> package for implementing the diagnostics
-he describes.</p>
+See his <em>confoundr</em> package for implementing the diagnostics he
+describes.</p>
 </div>
 <div class="section level2">
 <h2 id="bal-tab">
@@ -169,7 +172,7 @@ interface requires a list of formulas, one for each treatment, and a
 data set containing the relevant variables. The data set must be in the
 “wide” setup, where each time point receives its own columns and each
 unit has exactly one row of data. The formula interface is similar to
-the <em>WeightIt</em> input seen above. The data frame interface
+the <em>WeightIt</em> input seen below. The data frame interface
 requires a list of treatment values for each time point and a data frame
 or list of covariates for each time point. We’ll use the formula
 interface here.</p>
@@ -181,7 +184,8 @@ interface here.</p>
 <span>               <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
 <span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
 <span>        data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all time points</span></span></span>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all time points</span></span></span>
 <span><span class="co">##        Times    Type Max.Diff.Un</span></span>
 <span><span class="co">## X1_0 1, 2, 3 Contin.      0.6897</span></span>
 <span><span class="co">## X2_0 1, 2, 3  Binary      0.3253</span></span>
@@ -191,15 +195,14 @@ interface here.</p>
 <span><span class="co">## X1_2       3 Contin.      0.4749</span></span>
 <span><span class="co">## X2_2       3  Binary      0.5945</span></span>
 <span><span class="co">## A_2        3  Binary      0.1620</span></span>
-<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
-<span><span class="co">##  - <span style="font-style: italic;">Time 1</span></span></span>
+<span><span class="co">##  - <span style="font-style: italic;">1. Treatment: A_1</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
 <span><span class="co">## All    3306    4194</span></span>
-<span><span class="co">##  - <span style="font-style: italic;">Time 2</span></span></span>
+<span><span class="co">##  - <span style="font-style: italic;">2. Treatment: A_2</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
 <span><span class="co">## All    3701    3799</span></span>
-<span><span class="co">##  - <span style="font-style: italic;">Time 3</span></span></span>
+<span><span class="co">##  - <span style="font-style: italic;">3. Treatment: A_3</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
 <span><span class="co">## All    4886    2614</span></span></code></pre>
 <p>Here we see a summary of balance across all time points. This
@@ -224,7 +227,8 @@ across time points, but this can be requested again by setting
 <span>        which.time <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by Time Point</span></span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Time: 1</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">1. Treatment: A_1</span> </span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##         Type Diff.Un</span></span>
 <span><span class="co">## X1_0 Contin.  0.6897</span></span>
@@ -234,7 +238,8 @@ across time points, but this can be requested again by setting
 <span><span class="co">##     Control Treated</span></span>
 <span><span class="co">## All    3306    4194</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Time: 2</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">2. Treatment: A_2</span> </span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##         Type Diff.Un</span></span>
 <span><span class="co">## X1_1 Contin.  0.8736</span></span>
@@ -247,7 +252,8 @@ across time points, but this can be requested again by setting
 <span><span class="co">##     Control Treated</span></span>
 <span><span class="co">## All    3701    3799</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Time: 3</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">3. Treatment: A_3</span> </span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##         Type Diff.Un</span></span>
 <span><span class="co">## X1_2 Contin.  0.4749</span></span>
@@ -261,8 +267,7 @@ across time points, but this can be requested again by setting
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All    4886    2614</span></span>
-<span><span class="co">##  - - - - - - - - - - -</span></span></code></pre>
+<span><span class="co">## All    4886    2614</span></span></code></pre>
 <p>Here we see balance by time point. At each time point, a
 <code>bal.tab</code> object is produced for that time point. These
 function just like regular <code>bal.tab</code> objects.</p>
@@ -292,7 +297,8 @@ see balance for each time point and across time points.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">Wmsm</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, which.time <span class="op">=</span> <span class="va">.all</span>, msm.summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by Time Point</span></span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Time: 1</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">1. Treatment: A_1</span> ───────────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##         Type Diff.Un Diff.Adj</span></span>
 <span><span class="co">## X1_0 Contin.  0.6897   0.0026</span></span>
@@ -303,7 +309,8 @@ see balance for each time point and across time points.</p>
 <span><span class="co">## Unadjusted 3306.    4194. </span></span>
 <span><span class="co">## Adjusted    845.79   899.4</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Time: 2</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">2. Treatment: A_2</span> ───────────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##         Type Diff.Un Diff.Adj</span></span>
 <span><span class="co">## X1_1 Contin.  0.8736   0.0531</span></span>
@@ -317,7 +324,8 @@ see balance for each time point and across time points.</p>
 <span><span class="co">## Unadjusted 3701.   3799.  </span></span>
 <span><span class="co">## Adjusted    912.87  829.87</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Time: 3</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">3. Treatment: A_3</span> ───────────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##         Type Diff.Un Diff.Adj</span></span>
 <span><span class="co">## X1_2 Contin.  0.4749   0.0643</span></span>
@@ -333,7 +341,8 @@ see balance for each time point and across time points.</p>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted 4886.   2614.  </span></span>
 <span><span class="co">## Adjusted   1900.26  600.12</span></span>
-<span><span class="co">##  - - - - - - - - - - - </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─────────────────────────────────────────────</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all time points</span></span></span>
 <span><span class="co">##        Times    Type Max.Diff.Un Max.Diff.Adj</span></span>
@@ -345,17 +354,16 @@ see balance for each time point and across time points.</p>
 <span><span class="co">## X1_2       3 Contin.      0.4749       0.0643</span></span>
 <span><span class="co">## X2_2       3  Binary      0.5945       0.0096</span></span>
 <span><span class="co">## A_2        3  Binary      0.1620       0.0054</span></span>
-<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
-<span><span class="co">##  - <span style="font-style: italic;">Time 1</span></span></span>
+<span><span class="co">##  - <span style="font-style: italic;">1. Treatment: A_1</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted 3306.    4194. </span></span>
 <span><span class="co">## Adjusted    845.79   899.4</span></span>
-<span><span class="co">##  - <span style="font-style: italic;">Time 2</span></span></span>
+<span><span class="co">##  - <span style="font-style: italic;">2. Treatment: A_2</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted 3701.   3799.  </span></span>
 <span><span class="co">## Adjusted    912.87  829.87</span></span>
-<span><span class="co">##  - <span style="font-style: italic;">Time 3</span></span></span>
+<span><span class="co">##  - <span style="font-style: italic;">3. Treatment: A_3</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted 4886.   2614.  </span></span>
 <span><span class="co">## Adjusted   1900.26  600.12</span></span></code></pre>
@@ -413,6 +421,183 @@ is displayed. The <code>agg.fun</code> argument is set to
 <p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="480" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
+<h2 id="censoring">Censoring<a class="anchor" aria-label="anchor" href="#censoring"></a>
+</h2>
+<p>Units often stop being observed partway through a study, which leaves
+later treatments and the outcome unrecorded for them. If dropout depends
+on treatment or covariate history, the units who remain are not
+representative of the sample that started, and weighting them to
+resemble it is the standard remedy <span class="citation">(<a href="#ref-robinsAnalysisSemiparametricRegression1995">Robins et al.
+1995</a>; <a href="#ref-hernanMarginalStructuralModels2000">Hernán et
+al. 2000</a>)</span>. The censoring model that produces those weights
+sits in the sequence alongside the treatment models, and its balance is
+assessed at the point where the censoring occurs.</p>
+<p>A censoring indicator is marked with <code><a href="../reference/cens.html">.cens()</a></code> and follows
+the survival convention, in which <code>1</code> means the unit was
+censored and <code>0</code> means it is still under observation. It goes
+in the list of models at the position where it happens. Below we add an
+indicator of dropout after treatment period 2, so that <code>A_3</code>
+is unobserved for the units it censors. Units with higher
+<code>X1_2</code> and those treated at period 2 are more likely to drop
+out.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">msmdata</span><span class="op">$</span><span class="va">C_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">msmdata</span><span class="op">)</span>, <span class="fl">1</span>,</span>
+<span>                      prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span> <span class="op">+</span> <span class="fl">.35</span> <span class="op">*</span> <span class="va">msmdata</span><span class="op">$</span><span class="va">X1_2</span> <span class="op">+</span></span>
+<span>                                        <span class="fl">.8</span> <span class="op">*</span> <span class="va">msmdata</span><span class="op">$</span><span class="va">A_2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#A_3 is not observed for the units censored after period 2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">msmdata</span><span class="op">$</span><span class="va">A_3</span><span class="op">[</span><span class="va">msmdata</span><span class="op">$</span><span class="va">C_2</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span></code></pre></div>
+<p>The list of formulas now has four entries for three treatment
+periods. The censoring model gets the same history as the treatment
+model that follows it.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="fu"><a href="../reference/cens.html">.cens</a></span><span class="op">(</span><span class="va">C_2</span><span class="op">)</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>               <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>               <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>               <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>        data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by Time Point</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">1. Treatment: A_1</span> </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_0 Contin.  0.6897</span></span>
+<span><span class="co">## X2_0  Binary -0.3253</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##     Control Treated</span></span>
+<span><span class="co">## All    3306    4194</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">2. Treatment: A_2</span> </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_1 Contin.  0.8736</span></span>
+<span><span class="co">## X2_1  Binary -0.2994</span></span>
+<span><span class="co">## A_1   Binary  0.1267</span></span>
+<span><span class="co">## X1_0 Contin.  0.5276</span></span>
+<span><span class="co">## X2_0  Binary -0.0599</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##     Control Treated</span></span>
+<span><span class="co">## All    3701    3799</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">3. Censoring: C_2</span> </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_2 Contin.  0.1991</span></span>
+<span><span class="co">## X2_2  Binary -0.0000</span></span>
+<span><span class="co">## A_2   Binary  0.0606</span></span>
+<span><span class="co">## X1_1 Contin.  0.1393</span></span>
+<span><span class="co">## X2_1  Binary -0.0207</span></span>
+<span><span class="co">## A_1   Binary  0.0206</span></span>
+<span><span class="co">## X1_0 Contin.  0.0752</span></span>
+<span><span class="co">## X2_0  Binary -0.0118</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##            Total</span></span>
+<span><span class="co">## Full        7500</span></span>
+<span><span class="co">## Uncensored  6158</span></span>
+<span><span class="co">## Censored    1342</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">4. Treatment: A_3</span> </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_2 Contin.  0.5003</span></span>
+<span><span class="co">## X2_2  Binary -0.5841</span></span>
+<span><span class="co">## A_2   Binary  0.1512</span></span>
+<span><span class="co">## X1_1 Contin.  0.5622</span></span>
+<span><span class="co">## X2_1  Binary -0.0437</span></span>
+<span><span class="co">## A_1   Binary  0.0936</span></span>
+<span><span class="co">## X1_0 Contin.  0.3534</span></span>
+<span><span class="co">## X2_0  Binary -0.0375</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##        0    1</span></span>
+<span><span class="co">## All 4126 2032</span></span></code></pre>
+<p>There is one table per entry, of whichever kind that entry’s model
+is. The first, second, and fourth are ordinary treatment balance tables;
+the third compares the units still under observation to the full sample
+at risk at that point, as described in the “Using <em>cobalt</em> with
+censoring” section of <code><a href="../articles/cobalt.html">vignette("cobalt")</a></code>. Its sample size
+table has a single column and reports how many units were at risk, how
+many remained, and how many were censored.</p>
+<p>Two things about the third and fourth tables are worth pointing out.
+First, the fourth table is computed among the 6158 units still under
+observation, not all 7500: a unit censored at period 2 has no treatment
+at period 3 and nothing left to balance. Which units those are is worked
+out from the censoring indicators themselves, so it makes no difference
+whether the data leaves <code>A_3</code> missing for them, as here, or
+records a value anyway. Second, no balance summary across time points is
+displayed, and neither is the collected table of sample sizes that
+normally accompanies it; each time point’s own table reports its sample
+sizes anyway. A censoring table and a treatment table describe different
+comparisons, so there is nothing meaningful to aggregate across them,
+just as there is nothing to aggregate across a mix of continuous and
+binary treatments. A list in which every entry is a censoring indicator
+is not a mixture and is summarized as usual.</p>
+<p><code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM()</a></code> takes the same list and fits the censoring
+model along with the treatment models, returning a single set of weights
+that is their product.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Wmsm.cens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>                              <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                                <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>                              <span class="fu"><a href="../reference/cens.html">.cens</a></span><span class="op">(</span><span class="va">C_2</span><span class="op">)</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>                                <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                                <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>                              <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>                                <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                                <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>                         data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">Wmsm.cens</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, which.time <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by Time Point</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">3. Censoring: C_2</span> ───────</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##         Type Diff.Un Diff.Adj</span></span>
+<span><span class="co">## X1_2 Contin.  0.1991   0.0623</span></span>
+<span><span class="co">## X2_2  Binary -0.0000  -0.0113</span></span>
+<span><span class="co">## A_2   Binary  0.0606   0.0112</span></span>
+<span><span class="co">## X1_1 Contin.  0.1393   0.0226</span></span>
+<span><span class="co">## X2_1  Binary -0.0207   0.0106</span></span>
+<span><span class="co">## A_1   Binary  0.0206   0.0657</span></span>
+<span><span class="co">## X1_0 Contin.  0.0752  -0.0095</span></span>
+<span><span class="co">## X2_0  Binary -0.0118  -0.0001</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
+<span><span class="co">##            Total</span></span>
+<span><span class="co">## Full        7500</span></span>
+<span><span class="co">## Uncensored  6158</span></span>
+<span><span class="co">## Adjusted    1495</span></span>
+<span><span class="co">## Censored    1342</span></span></code></pre>
+<p>Because the weights are the product across all four models, balance
+at any one time point is assessed with weights that include the others,
+censoring among them.</p>
+<p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> and <code><a href="../reference/love.plot.html">love.plot()</a></code> work here too.
+At a censoring time point, <code><a href="../reference/bal.plot.html">bal.plot()</a></code> shows the weighted
+uncensored sample against the unweighted full sample rather than two
+treatment groups.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm.cens</span>, var.name <span class="op">=</span> <span class="st">"X1_2"</span>, which.time <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>         which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="480" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm.cens</span>, binary <span class="op">=</span> <span class="st">"std"</span>, which.time <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="480" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
 <h2 id="other-packages">Other Packages<a class="anchor" aria-label="anchor" href="#other-packages"></a>
 </h2>
 <p>Here we used <em>WeightIt</em> to generate our MSM weights, but
@@ -444,6 +629,12 @@ Cole, Stephen R., and Miguel A Hernán. 2008. <span>“Constructing
 Models</span>.”</span> <em>American Journal of Epidemiology</em> 168
 (6): 656–64. <a href="https://doi.org/10.1093/aje/kwn164" class="external-link">https://doi.org/10.1093/aje/kwn164</a>.
 </div>
+<div id="ref-hernanMarginalStructuralModels2000" class="csl-entry">
+Hernán, Miguel Ángel, Babette Brumback, and James M. Robins. 2000.
+<span>“Marginal Structural Models to Estimate the Causal Effect of
+Zidovudine on the Survival of <span>HIV</span>-Positive Men.”</span>
+<em>Epidemiology</em> 11 (5): 561–70. <a href="https://doi.org/10.1097/00001648-200009000-00012" class="external-link">https://doi.org/10.1097/00001648-200009000-00012</a>.
+</div>
 <div id="ref-jacksonDiagnosticsConfoundingTimevarying2016" class="csl-entry">
 Jackson, John W. 2016. <span>“Diagnostics for Confounding of
 Time-Varying and Other Joint Exposures:”</span> <em>Epidemiology</em> 27
@@ -453,6 +644,12 @@ Time-Varying and Other Joint Exposures:”</span> <em>Epidemiology</em> 27
 Robins, James M., Miguel Ángel Hernán, and Babette Brumback. 2000.
 <span>“Marginal Structural Models and Causal Inference in
 Epidemiology.”</span> <em>Epidemiology</em> 11 (5): 550–60. <a href="https://doi.org/10.1097/00001648-200009000-00011" class="external-link">https://doi.org/10.1097/00001648-200009000-00011</a>.
+</div>
+<div id="ref-robinsAnalysisSemiparametricRegression1995" class="csl-entry">
+Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. 1995.
+<span>“Analysis of Semiparametric Regression Models for Repeated
+Outcomes in the Presence of Missing Data.”</span> <em>Journal of the
+American Statistical Association</em> 90 (429): 106–21. <a href="https://doi.org/10.1080/01621459.1995.10476493" class="external-link">https://doi.org/10.1080/01621459.1995.10476493</a>.
 </div>
 <div id="ref-thoemmesPrimerInverseProbability2016" class="csl-entry">
 Thoemmes, Felix J., and Anthony D. Ong. 2016. <span>“A Primer on Inverse

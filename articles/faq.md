@@ -195,15 +195,10 @@ problems [here](https://stats.stackexchange.com/a/565705/116195).
 
 ### How do I extract the balance tables from the `bal.tab()` object?
 
-The output of a call to
-[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md) is
-a `bal.tab` object, which has several components depending on the
-features of the dataset (e.g., whether the data are multiply imputed or
-clustered or whether the treatment is binary or multi-category, etc.).
-In the most basic case, a binary or continuous treatment with no
-clustering, no multiple imputations, a single time point, and
-subclassification is not used, the balance table is stored in the
-`Balance` component of the output object. Let’s take a look:
+Use [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) to
+get the balance statistics as data, or
+[`format()`](https://rdrr.io/r/base/format.html) to get the table
+exactly as [`print()`](https://rdrr.io/r/base/print.html) displays it.
 
 ``` r
 
@@ -211,57 +206,162 @@ data("lalonde")
 
 b <- bal.tab(treat ~ age + educ + race + married + re74,
              data = lalonde, s.d.denom = "treated",
-             disp = "means", stats = c("m", "v"))
+             disp = "means", stats = c("m", "v"),
+             thresholds = c(m = .1))
 
-# View the structure of the object
-str(b, give.attr = FALSE)
-#> List of 2
-#>  $ Balance     :'data.frame':    7 obs. of  9 variables:
-#>   ..$ Type       : chr [1:7] "Contin." "Contin." "Binary" "Binary" ...
-#>   ..$ M.0.Un     : num [1:7] 28.03 10.235 0.203 0.142 0.655 ...
-#>   ..$ M.1.Un     : num [1:7] 25.8162 10.3459 0.8432 0.0595 0.0973 ...
-#>   ..$ Diff.Un    : num [1:7] -0.3094 0.055 0.6404 -0.0827 -0.5577 ...
-#>   ..$ V.Ratio.Un : num [1:7] 0.44 0.496 NA NA NA ...
-#>   ..$ M.0.Adj    : num [1:7] NA NA NA NA NA NA NA
-#>   ..$ M.1.Adj    : num [1:7] NA NA NA NA NA NA NA
-#>   ..$ Diff.Adj   : num [1:7] NA NA NA NA NA NA NA
-#>   ..$ V.Ratio.Adj: num [1:7] NA NA NA NA NA NA NA
-#>  $ Observations:'data.frame':    1 obs. of  2 variables:
-#>   ..$ Control: num 429
-#>   ..$ Treated: num 185
-
-b$Balance
-#>                Type       M.0.Un       M.1.Un     Diff.Un V.Ratio.Un M.0.Adj
-#> age         Contin.   28.0303030 2.581622e+01 -0.30944526  0.4399955      NA
-#> educ        Contin.   10.2354312 1.034595e+01  0.05496466  0.4958934      NA
-#> race_black   Binary    0.2027972 8.432432e-01  0.64044604         NA      NA
-#> race_hispan  Binary    0.1421911 5.945946e-02 -0.08273168         NA      NA
-#> race_white   Binary    0.6550117 9.729730e-02 -0.55771436         NA      NA
-#> married      Binary    0.5128205 1.891892e-01 -0.32363132         NA      NA
-#> re74        Contin. 5619.2365064 2.095574e+03 -0.72108381  0.5181285      NA
-#>             M.1.Adj Diff.Adj V.Ratio.Adj
-#> age              NA       NA          NA
-#> educ             NA       NA          NA
-#> race_black       NA       NA          NA
-#> race_hispan      NA       NA          NA
-#> race_white       NA       NA          NA
-#> married          NA       NA          NA
-#> re74             NA       NA          NA
+head(as.data.frame(b))
+#>   variable    type     sample            stat   group   estimate
+#> 1      age Contin. Unadjusted            mean Control 28.0303030
+#> 2      age Contin. Unadjusted            mean Treated 25.8162162
+#> 3      age Contin. Unadjusted      mean.diffs    <NA> -0.3094453
+#> 4      age Contin. Unadjusted variance.ratios    <NA>  0.4399955
+#> 5     educ Contin. Unadjusted            mean Control 10.2354312
+#> 6     educ Contin. Unadjusted            mean Treated 10.3459459
+#>            threshold threshold.value
+#> 1               <NA>              NA
+#> 2               <NA>              NA
+#> 3 Not Balanced, >0.1             0.1
+#> 4               <NA>              NA
+#> 5               <NA>              NA
+#> 6               <NA>              NA
 ```
 
-It’s not a very pretty object, which is why the
-[`print()`](https://rdrr.io/r/base/print.html) method makes it look
-nicer. If you are willing to process this table yourself, you can easily
-extract it from the
+The result is tidy: one row per covariate, sample, and statistic, with
+the balance verdict and the threshold alongside. Those last two columns
+appear only when a threshold is on display, since they would otherwise
+be empty throughout; the rest are always there. That shape is the same
+whatever the input, which makes it convenient for plotting or for your
+own aggregation. When the data are segmented—by cluster, imputation,
+treatment pair, time point, or subclass—each level of segmentation
+becomes a column rather than a nested list, so the result is always a
+single rectangle.
+
+Set `wide = TRUE` to get the layout
+[`print()`](https://rdrr.io/r/base/print.html) uses instead, with one
+column per sample and statistic:
+
+``` r
+
+as.data.frame(b, wide = TRUE)
+#>      variable    Type       M.0.Un       M.1.Un     Diff.Un     M.Threshold.Un
+#> 1         age Contin.   28.0303030 2.581622e+01 -0.30944526 Not Balanced, >0.1
+#> 2        educ Contin.   10.2354312 1.034595e+01  0.05496466     Balanced, <0.1
+#> 3  race_black  Binary    0.2027972 8.432432e-01  0.64044604 Not Balanced, >0.1
+#> 4 race_hispan  Binary    0.1421911 5.945946e-02 -0.08273168     Balanced, <0.1
+#> 5  race_white  Binary    0.6550117 9.729730e-02 -0.55771436 Not Balanced, >0.1
+#> 6     married  Binary    0.5128205 1.891892e-01 -0.32363132 Not Balanced, >0.1
+#> 7        re74 Contin. 5619.2365064 2.095574e+03 -0.72108381 Not Balanced, >0.1
+#>   V.Ratio.Un
+#> 1  0.4399955
+#> 2  0.4958934
+#> 3         NA
+#> 4         NA
+#> 5         NA
+#> 6         NA
+#> 7  0.5181285
+```
+
+[`format()`](https://rdrr.io/r/base/format.html) returns the printed
+table as a data frame of formatted strings—rounded, decimal-aligned,
+with missing values shown as `.`—which is what you want when the
+destination is a document rather than more code:
+
+``` r
+
+format(b)
+#>                Type    M.0.Un    M.1.Un Diff.Un     M.Threshold.Un V.Ratio.Un
+#> age         Contin.   28.0303   25.8162 -0.3094 Not Balanced, >0.1     0.4400
+#> educ        Contin.   10.2354   10.3459  0.0550     Balanced, <0.1     0.4959
+#> race_black   Binary    0.2028    0.8432  0.6404 Not Balanced, >0.1          .
+#> race_hispan  Binary    0.1422    0.0595 -0.0827     Balanced, <0.1          .
+#> race_white   Binary    0.6550    0.0973 -0.5577 Not Balanced, >0.1          .
+#> married      Binary    0.5128    0.1892 -0.3236 Not Balanced, >0.1          .
+#> re74        Contin. 5619.2365 2095.5737 -0.7211 Not Balanced, >0.1     0.5181
+```
+
+Because it is an ordinary data frame, it goes straight into any table
+renderer, so a balance table in a Quarto or R Markdown document is one
+line:
+
+``` r
+
+knitr::kable(format(b))
+```
+
+Use `component = "observations"` for the sample size table.
+
+Both functions accept every argument
+[`print()`](https://rdrr.io/r/base/print.html) accepts—`stats`, `disp`,
+`un`, `imbalanced.only`, `disp.thresholds`, the `which.*` arguments—and
+resolve them the same way, so you can select what to report without
+recomputing anything:
+
+``` r
+
+as.data.frame(b, stats = "v", un = FALSE)
+#>       variable    type     sample            stat   group     estimate
+#> 1          age Contin. Unadjusted            mean Control 2.803030e+01
+#> 2          age Contin. Unadjusted            mean Treated 2.581622e+01
+#> 3          age Contin. Unadjusted variance.ratios    <NA> 4.399955e-01
+#> 4         educ Contin. Unadjusted            mean Control 1.023543e+01
+#> 5         educ Contin. Unadjusted            mean Treated 1.034595e+01
+#> 6         educ Contin. Unadjusted variance.ratios    <NA> 4.958934e-01
+#> 7   race_black  Binary Unadjusted            mean Control 2.027972e-01
+#> 8   race_black  Binary Unadjusted            mean Treated 8.432432e-01
+#> 9   race_black  Binary Unadjusted variance.ratios    <NA>           NA
+#> 10 race_hispan  Binary Unadjusted            mean Control 1.421911e-01
+#> 11 race_hispan  Binary Unadjusted            mean Treated 5.945946e-02
+#> 12 race_hispan  Binary Unadjusted variance.ratios    <NA>           NA
+#> 13  race_white  Binary Unadjusted            mean Control 6.550117e-01
+#> 14  race_white  Binary Unadjusted            mean Treated 9.729730e-02
+#> 15  race_white  Binary Unadjusted variance.ratios    <NA>           NA
+#> 16     married  Binary Unadjusted            mean Control 5.128205e-01
+#> 17     married  Binary Unadjusted            mean Treated 1.891892e-01
+#> 18     married  Binary Unadjusted variance.ratios    <NA>           NA
+#> 19        re74 Contin. Unadjusted            mean Control 5.619237e+03
+#> 20        re74 Contin. Unadjusted            mean Treated 2.095574e+03
+#> 21        re74 Contin. Unadjusted variance.ratios    <NA> 5.181285e-01
+```
+
+They also take `var.names`, which gives the covariates the names you
+want to report them under. Give it to
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
-output and do what you want with it, e.g., saving it to a CSV file or
-making a pretty table using another package. Although I have been
-working on a way to do this more easily (i.e., to create a
-publication-ready table from a `bal.tab` object), it might be a while
-because the main purpose of this package is balance assessment, not
-formatting for publication (although I did put a lot of work into
-[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
-to make it customizable for publication).
+and it applies wherever the object is displayed afterwards, including
+[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md);
+give it here and it adds to that:
+
+``` r
+
+format(b, var.names = c(age = "Age", race = "Race/Ethnicity",
+                        re74 = "Earnings, 1974"))
+#>                          Type    M.0.Un    M.1.Un Diff.Un     M.Threshold.Un
+#> Age                   Contin.   28.0303   25.8162 -0.3094 Not Balanced, >0.1
+#> educ                  Contin.   10.2354   10.3459  0.0550     Balanced, <0.1
+#> Race/Ethnicity_black   Binary    0.2028    0.8432  0.6404 Not Balanced, >0.1
+#> Race/Ethnicity_hispan  Binary    0.1422    0.0595 -0.0827     Balanced, <0.1
+#> Race/Ethnicity_white   Binary    0.6550    0.0973 -0.5577 Not Balanced, >0.1
+#> married                Binary    0.5128    0.1892 -0.3236 Not Balanced, >0.1
+#> Earnings, 1974        Contin. 5619.2365 2095.5737 -0.7211 Not Balanced, >0.1
+#>                       V.Ratio.Un
+#> Age                       0.4400
+#> educ                      0.4959
+#> Race/Ethnicity_black           .
+#> Race/Ethnicity_hispan          .
+#> Race/Ethnicity_white           .
+#> married                        .
+#> Earnings, 1974            0.5181
+```
+
+A name given for a base variable reaches every name it appears in, which
+is why one entry for `race` renames all three of its levels. Only the
+displayed names change—`b$Balance` still has the stored ones—so nothing
+downstream has to know about them. See `?display-options` for the other
+ways to specify it.
+
+The underlying components are still there if you want them: the balance
+table lives in `b$Balance` for an unsegmented object, and in a
+differently named component otherwise (`b$Cluster.Balance` and so on).
+`str(b, give.attr = FALSE)` shows the structure.
 
 ### How are balance statistics computed when using subclassification?
 
@@ -284,7 +384,9 @@ msub <- MatchIt::matchit(treat ~ age + educ + race + married + re74,
 # Balance in the first subclass
 bal.tab(msub, which.sub = 1, binary = "std")
 #> Balance by subclass
-#>  - - - Subclass 1 - - - 
+#> 
+#> ─── Subclass 1 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance   0.1574
 #> age          Contin.  -1.0433
@@ -354,6 +456,7 @@ weighted.mean(smds, ns)
 #> [1] -0.2354095
 
 bal.tab(msub)
+#> 
 #> Balance measures across subclasses
 #>                 Type Diff.Adj
 #> distance    Distance   0.1081
@@ -364,7 +467,6 @@ bal.tab(msub)
 #> race_white    Binary  -0.0115
 #> married       Binary  -0.1160
 #> re74         Contin.  -0.3200
-#> 
 #> Sample sizes by subclass
 #>           1   2  3   4   5   6 All
 #> Control 102 100 88  72  39  28 429
@@ -397,6 +499,7 @@ col_w_ks(lalonde$age, treat = lalonde$treat,
 #> [1] 0.1658923
 
 bal.tab(msub, stats = "ks")
+#> 
 #> Balance measures across subclasses
 #>                 Type KS.Adj
 #> distance    Distance 0.2187
@@ -407,7 +510,6 @@ bal.tab(msub, stats = "ks")
 #> race_white    Binary 0.0115
 #> married       Binary 0.1160
 #> re74         Contin. 0.3038
-#> 
 #> Sample sizes by subclass
 #>           1   2  3   4   5   6 All
 #> Control 102 100 88  72  39  28 429

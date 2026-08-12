@@ -17,14 +17,33 @@ only "adjusted" values are available, because the subclassification
 itself is the adjustment.
 
 The balance summary is, for each variable, like a weighted average of
-the balance statistics across subclasses. This is computed internally by
-assigning each individual a weight based on their subclass and treatment
-group membership and then computing weighted balance statistics as usual
-with these weights. This summary is the same one would get if subclasses
-were supplied to the `match.strata` argument rather than to `subclass`.
-Because the means and mean differences are additive, their computed
-values will be weighted averages of the subclass-specific values, but
-for other statistics, the computed values will not be.
+the balance statistics across subclasses. With a binary treatment, this
+is computed internally by assigning each individual a weight based on
+their subclass and treatment group membership and then computing
+weighted balance statistics as usual with these weights. This summary is
+the same one would get if subclasses were supplied to the `match.strata`
+argument rather than to `subclass`. Because the means and mean
+differences are additive, their computed values will be weighted
+averages of the subclass-specific values, but for other statistics, the
+computed values will not be.
+
+With a censoring indicator, subclassification is itself the solution:
+within each subclass the units still under observation should resemble
+every at-risk unit in it, and the summary across subclasses is that
+subclassification expressed as censoring weights. See
+[`class-bal.tab.cens`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.cens.md).
+
+With a continuous treatment, subclassification cannot be expressed as
+weights, because no set of weights makes a continuous treatment
+independent of the covariates within a subclass. The balance summary is
+therefore computed by combining the subclass-specific statistics
+directly, weighting each subclass by its share of the subclassified
+units (using `s.weights`, if supplied). Every statistic is a weighted
+average of the subclass-specific values, except the standard deviations,
+which are combined in quadrature so that the summary value is the pooled
+within-subclass standard deviation. The summary means are consequently
+the same as the means in the original sample, since subclassification
+does not change the distribution of the covariates.
 
 ## Allowable arguments
 

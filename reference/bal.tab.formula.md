@@ -444,7 +444,9 @@ bal.tab(covariates, treat = "treat", data = lalonde,
         subclass = "subclass", disp.subclass = TRUE, 
         s.d.denom = "pooled")
 #> Balance by subclass
-#>  - - - Subclass 1 - - - 
+#> 
+#> ─── Subclass 1 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.  -1.2029
 #> educ        Contin.  -0.2551
@@ -452,7 +454,8 @@ bal.tab(covariates, treat = "treat", data = lalonde,
 #> race_hispan  Binary   0.0000
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 2 - - - 
+#> ─── Subclass 2 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.4108
 #> educ        Contin.   0.3005
@@ -460,7 +463,8 @@ bal.tab(covariates, treat = "treat", data = lalonde,
 #> race_hispan  Binary   0.0000
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 3 - - - 
+#> ─── Subclass 3 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.  -0.1400
 #> educ        Contin.   0.0295
@@ -468,7 +472,8 @@ bal.tab(covariates, treat = "treat", data = lalonde,
 #> race_hispan  Binary  -0.0833
 #> race_white   Binary   0.0833
 #> 
-#>  - - - Subclass 4 - - - 
+#> ─── Subclass 4 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.2294
 #> educ        Contin.  -0.4409
@@ -476,7 +481,8 @@ bal.tab(covariates, treat = "treat", data = lalonde,
 #> race_hispan  Binary  -0.3467
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 5 - - - 
+#> ─── Subclass 5 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.4675
 #> educ        Contin.   0.3427
@@ -484,7 +490,8 @@ bal.tab(covariates, treat = "treat", data = lalonde,
 #> race_hispan  Binary   0.0000
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 6 - - - 
+#> ─── Subclass 6 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.1293
 #> educ        Contin.  -0.0838
@@ -498,7 +505,9 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
         subclass = "subclass", disp.subclass = TRUE, 
         s.d.denom = "pooled")
 #> Balance by subclass
-#>  - - - Subclass 1 - - - 
+#> 
+#> ─── Subclass 1 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.  -1.2029
 #> educ        Contin.  -0.2551
@@ -506,7 +515,8 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
 #> race_hispan  Binary   0.0000
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 2 - - - 
+#> ─── Subclass 2 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.4108
 #> educ        Contin.   0.3005
@@ -514,7 +524,8 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
 #> race_hispan  Binary   0.0000
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 3 - - - 
+#> ─── Subclass 3 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.  -0.1400
 #> educ        Contin.   0.0295
@@ -522,7 +533,8 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
 #> race_hispan  Binary  -0.0833
 #> race_white   Binary   0.0833
 #> 
-#>  - - - Subclass 4 - - - 
+#> ─── Subclass 4 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.2294
 #> educ        Contin.  -0.4409
@@ -530,7 +542,8 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
 #> race_hispan  Binary  -0.3467
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 5 - - - 
+#> ─── Subclass 5 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.4675
 #> educ        Contin.   0.3427
@@ -538,7 +551,8 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
 #> race_hispan  Binary   0.0000
 #> race_white   Binary   0.0000
 #> 
-#>  - - - Subclass 6 - - - 
+#> ─── Subclass 6 ─────────────
+#> 
 #>                Type Diff.Adj
 #> age         Contin.   0.1293
 #> educ        Contin.  -0.0838

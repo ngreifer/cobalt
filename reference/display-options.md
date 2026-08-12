@@ -64,7 +64,9 @@ work correctly.
 - `factor_sep`:
 
   `character`; the string used to separate factor variables from their
-  levels when variable names are printed. Default is `"_"`.
+  levels when variable names are printed. Default is `"_"`. See the
+  section *Variable names using `var.names`* below, which covers the
+  separators too.
 
 - `int_sep`:
 
@@ -77,6 +79,12 @@ work correctly.
   `logical`; whether to display the function call from the original
   input object, if present. Default is `FALSE`, so the function call is
   not displayed.
+
+- `var.names`:
+
+  an optional object providing alternate names for the variables, which
+  will otherwise be displayed as they are stored. See the section
+  *Variable names using `var.names`* below.
 
 ### When subclassification is used
 
@@ -201,6 +209,89 @@ work correctly.
   See
   [`class-bal.tab.msm`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.msm.md).
 
+## Variable names using `var.names`
+
+Variables are displayed as they are named in the output of
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
+which may not be how they should be named in a report; `var.names`
+supplies alternate names for them. It is taken by
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+and by everything that displays a `bal.tab` object (i.e.,
+[print()](https://ngreifer.github.io/cobalt/reference/print.bal.tab.md),
+[format()](https://ngreifer.github.io/cobalt/reference/extract.bal.tab.md),
+[as.data.frame()](https://ngreifer.github.io/cobalt/reference/extract.bal.tab.md),
+and
+[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md))
+and means the same thing in all of them. What is given to
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+applies to everything that displays the object afterwards, so a set of
+names need be settled on only once; what is given to one of the others
+adds to that and replaces any entry it names.
+
+Only the names on display change. The variables are still stored, and
+still selected, under their own names, so `var.names` never has to be
+undone to work with the object. Because the names on display are what is
+being changed, it is important to know them before specifying alternate
+ones: they may differ from the names in the original data.
+[`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md)
+extracts them, optionally to a CSV file to edit and read back in; when a
+`var.names` has already been applied, it reports the names that
+produced, so a set arrived at once can be edited rather than written out
+again.
+
+`var.names` pairs each old name with the new name to display in its
+place, in any of three structures:
+
+1.  a vector or list of new variable names, with the `names` of the
+    values the old variable names
+
+2.  a data frame with exactly one column containing the new variable
+    names and the row names containing the old variable names
+
+3.  a data frame with two columns, the first (or the one named `"old"`)
+    containing the old variable names and the second (or the one named
+    `"new"`) containing the new variable names.
+
+A variable not named in it keeps the name it has.
+
+Names are matched either against the whole name string or against the
+components a name is built from. For example, if a factor variable `"X"`
+with levels `"a"`, `"b"`, and `"c"` is displayed, the variables `"X_a"`,
+`"X_b"`, and `"X_c"` will be displayed. You can enter replacement names
+for all three variables individually, or you can simply specify a
+replacement name for `"X"`, and `"X"` will be replaced by the given name
+everywhere it appears, including not just factor expansions but also
+polynomials and the interactions produced by `int = TRUE`. In an
+interaction with another variable, say `"Y"`, there are several ways to
+replace the name of the interaction term `"X_a * Y"`. If the entire
+string (`"X_a * Y"`) is included in `var.names`, the entire string will
+be replaced. If `"X_a"` is included, only it will be replaced (and it
+will be replaced everywhere else it appears). If `"X"` is included, only
+it will be replaced (and it will be replaced everywhere else it
+appears). See the example at
+[`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md).
+
+Two variables cannot be given the same name, which would leave them
+indistinguishable in a table and sitting on top of each other in a plot;
+doing so is an error.
+
+### The separators
+
+`factor_sep` and `int_sep` are taken in the same places and honored the
+same way: given to
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+they apply to everything that displays the object afterwards, and given
+to one of the display functions they apply there. Each is a single
+string rather than a set of entries, so one given later simply replaces
+the one in force, as in `love.plot(b, factor_sep = ": ")`.
+
+A `bal.tab` object records what each name is made of, so the separators
+can be changed after the fact without the names having to be parsed
+apart, and a replacement given for a variable applies whichever
+separators are on display. The names a covariate is stored under, and by
+which `var.names` keys its replacements, are those the object was built
+with, and are not affected.
+
 ## Setting options globally
 
 In addition to being able to be specified as arguments, if you find you
@@ -210,7 +301,8 @@ can set that as a global option (for the present R session) using
 and retrieve it using
 [`get.cobalt.options()`](https://ngreifer.github.io/cobalt/reference/set.cobalt.options.md).
 Note that global options cannot be set for `which.subclass`,
-`which.cluster`, `which.imp`, `which.treat`, or `which.time`.
+`which.cluster`, `which.imp`, `which.treat`, `which.time`, or
+`var.names`.
 
 ## See also
 

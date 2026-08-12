@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2026-08-03</h4>
+            <h4 data-toc-skip class="date">2026-08-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -98,9 +98,10 @@ efficiency when estimating the causal effect of a treatment <span class="citatio
 2007</a>)</span>. Propensity scores and other related methods (e.g.,
 coarsened exact matching, Mahalanobis distance matching, genetic
 matching) have become popular in the social and health sciences as tools
-for this purpose. Two excellent introductions to propensity scores and
-other preprocessing methods are <span class="citation">Stuart (<a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span> and <span class="citation">Austin (<a href="#ref-austinIntroductionPropensityScore2011">2011</a>)</span>,
-which describe them simply and clearly and point to other sources of
+for this purpose. Some excellent introductions to propensity scores and
+other preprocessing methods are <span class="citation">Stuart (<a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span>, <span class="citation">Austin (<a href="#ref-austinIntroductionPropensityScore2011">2011</a>)</span>, and
+<span class="citation">Greifer and Stuart (<a href="#ref-greiferMatchingMethodsConfounder2021">2021</a>)</span>, which
+describe them simply and clearly and point to other sources of
 knowledge. The logic and theory behind preprocessing will not be
 discussed here, and reader’s knowledge of the causal assumption of
 strong ignorability is assumed.</p>
@@ -232,13 +233,12 @@ effective in diagnosing imbalance and potential bias <span class="citation">(<a 
 method will work best for a given sample, users should try several
 methods, and these methods are spread across various packages; for
 example, full matching is available only in <em>MatchIt</em> and
-<em>optmatch</em>, generalized boosted modeling only in <em>twang</em>,
-covariate balancing propensity score weighting only in <em>CBPS</em>,
-genetic matching only in <em>MatchIt</em> and <em>Matching</em>, and
-entropy balancing only in <em>ebal</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;&lt;em&gt;WeightIt&lt;/em&gt; is a wrapper for &lt;em&gt;twang&lt;/em&gt;,
-&lt;em&gt;CBPS&lt;/em&gt;, &lt;em&gt;ebal&lt;/em&gt;, and other packages for point treatments,
-so it can perform their functions as well.&lt;/p&gt;"><sup>2</sup></a>. If a user wants to
-compare these methods on their ability to generate balance in the
+<em>optmatch</em>, generalized boosted modeling only in
+<em>WeightIt</em> and <em>twang</em>, covariate balancing propensity
+score weighting only in <em>WeightIt</em> and <em>CBPS</em>, genetic
+matching only in <em>MatchIt</em> and <em>Matching</em>, and entropy
+balancing only in <em>WeightIt</em> and <em>ebal</em>. If a user wants
+to compare these methods on their ability to generate balance in the
 sample, they cannot do so on the same metrics and with the same output.
 Each package computes balance statistics differently (if at all), and
 the relevant balance measures are in different places in each package.
@@ -291,9 +291,13 @@ and the handling of data generated with multiple imputation. These more
 advanced uses of <em>cobalt</em> are described in detail in
 <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code>. In addition, <em>cobalt</em>
 includes tools for handling data sets with continuous and multi-category
-treatments. Data sets with longitudinal treatments, where time-varying
-confounding may be an issue, can be handled as well; these uses are
-described in <code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>.</p>
+treatments, and for assessing the balance of a censoring model, in which
+the units still under observation are compared to the sample they were
+drawn from rather than to a second treatment group. Data sets with
+longitudinal treatments, where time-varying confounding may be an issue,
+can be handled as well, including those in which units are censored
+between treatment periods; these uses are described in
+<code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -471,8 +475,8 @@ not to type a non-default option every time they call
 <span><span class="co">## Unadjusted   429.      185</span></span>
 <span><span class="co">## Adjusted     108.2     185</span></span></code></pre>
 <p>Users can specify additional variables for which to display balance
-using the argument to <code>addl</code>, which can be supplied as a
-data.frame, a formula containing variables, or a string of names of
+using the argument to <code>addl</code>, which can be supplied as a data
+frame, a formula containing variables, or a string of names of
 variables. Users can also add all two-way interactions between
 covariates, including those in <code>addl</code>, by specifying
 <code>int = TRUE</code>, and can add polynomials (e.g., squares) of
@@ -581,7 +585,7 @@ statistics for each covariate in each group are displayed. Options
 include <code>"means"</code> and <code>"sds"</code>, which will request
 group means and standard deviations, respectively<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Older versions used the arguments
 &lt;code&gt;disp.means&lt;/code&gt; and &lt;code&gt;disp.sds&lt;/code&gt;, and these are still
-allowed.&lt;/p&gt;"><sup>3</sup></a>.</p>
+allowed.&lt;/p&gt;"><sup>2</sup></a>.</p>
 <p>Next is <code>stats</code>, which controls which balance statistics
 are displayed. For binary and multi-category treatments, options include
 <code>"mean.diffs"</code> for (standardized) mean differences,
@@ -799,7 +803,9 @@ creating the subclasses), as specified by the user. See
 <span>        which.subclass <span class="op">=</span> <span class="va">.all</span>,</span>
 <span>        subclass.summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by subclass</span></span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Subclass 1</span> - - - </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">Subclass 1</span> ───────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
 <span><span class="co">## age         Contin.  -0.4889</span></span>
 <span><span class="co">## educ        Contin.   0.1324</span></span>
@@ -809,7 +815,8 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## re74        Contin.  -0.2334</span></span>
 <span><span class="co">## re75        Contin.  -0.0435</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Subclass 2</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">Subclass 2</span> ───────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
 <span><span class="co">## age         Contin.  -0.4423</span></span>
 <span><span class="co">## educ        Contin.   0.3102</span></span>
@@ -819,7 +826,8 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## re74        Contin.   0.0584</span></span>
 <span><span class="co">## re75        Contin.   0.3445</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Subclass 3</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">Subclass 3</span> ───────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
 <span><span class="co">## age         Contin.   0.4968</span></span>
 <span><span class="co">## educ        Contin.  -0.1031</span></span>
@@ -829,7 +837,8 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## re74        Contin.  -0.1250</span></span>
 <span><span class="co">## re75        Contin.  -0.1912</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Subclass 4</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">Subclass 4</span> ───────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
 <span><span class="co">## age         Contin.   0.2665</span></span>
 <span><span class="co">## educ        Contin.  -0.1616</span></span>
@@ -839,7 +848,8 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## re74        Contin.  -0.1082</span></span>
 <span><span class="co">## re75        Contin.  -0.0307</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">Subclass 5</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">Subclass 5</span> ───────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
 <span><span class="co">## age         Contin.   0.2946</span></span>
 <span><span class="co">## educ        Contin.  -0.0757</span></span>
@@ -848,6 +858,8 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## race_white   Binary   0.0000</span></span>
 <span><span class="co">## re74        Contin.  -0.0546</span></span>
 <span><span class="co">## re75        Contin.  -0.1770</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## ──────────────────────────────────</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance measures across subclasses</span></span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
@@ -858,7 +870,6 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## race_white   Binary  -0.0633</span></span>
 <span><span class="co">## re74        Contin.  -0.0923</span></span>
 <span><span class="co">## re75        Contin.  -0.0170</span></span>
-<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes by subclass</span></span></span>
 <span><span class="co">##           1  2  3  4  5 All</span></span>
 <span><span class="co">## Control 350 25 21 14 19 429</span></span>
@@ -931,10 +942,10 @@ the same as that displayed previously.</p>
 </h4>
 <p>The <em>WeightIt</em> package provides functions and utilities for
 estimating balancing weights and allows for the estimation of weights
-for binary, multi-category, and categorical treatments and both point
-and longitudinal treatments. It was designed to work seamlessly with
-<em>cobalt</em>, so using it with <em>cobalt</em> is very
-straightforward. Below is a simple example of using
+for binary, multi-category, and categorical treatments; both point and
+longitudinal treatments; and censoring. It was designed to work
+seamlessly with <em>cobalt</em>, so using it with <em>cobalt</em> is
+very straightforward. Below is a simple example of using
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <em>WeightIt</em>:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
@@ -1154,9 +1165,9 @@ By using the argument to <code>var.names</code>, users can specify their
 own variable names to be used instead. To specify new variable names
 with <code>var.names</code>, the user must enter an object containing
 the new variable names and, optionally, the old variable names to
-replace. For options of how to do so, see the help file for
-<code><a href="../reference/love.plot.html">love.plot()</a></code> with <code><a href="../reference/love.plot.html">?love.plot</a></code>. Below is an
-example, creating a publication-ready plot with a few other arguments to
+replace. For options of how to do so, see the help file for the display
+options with <code>?display-options</code>. Below is an example,
+creating a publication-ready plot with a few other arguments to
 customize output:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>old <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"educ"</span>, <span class="st">"race_black"</span>, <span class="st">"race_hispan"</span>, </span>
@@ -1185,6 +1196,37 @@ absolute mean differences.</p>
 <p>A helper function, <code><a href="../reference/var.names.html">var.names()</a></code> can be used to more
 easily create new variable names when many variables are present. See
 <code><a href="../reference/var.names.html">?var.names</a></code> for details.</p>
+<p><code>var.names</code> can also be supplied to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
+itself, in which case the names are used everywhere the resulting object
+is displayed—by <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code>,
+<code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>—so a set of
+readable names need only be settled on once. Each of those still takes a
+<code>var.names</code> of its own, which adds to the one given to
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> and replaces any entry it names. Only the
+displayed names change; the variables are still stored, and still
+selected, under their own names. See <code>?display-options</code>.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, var.names <span class="op">=</span> <span class="va">v</span><span class="op">)</span></span>
+<span><span class="va">b</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                        Type Diff.Adj</span></span>
+<span><span class="co">## Propensity Score   Distance   0.0044</span></span>
+<span><span class="co">## Age                 Contin.   0.2395</span></span>
+<span><span class="co">## Years of Education  Contin.  -0.0161</span></span>
+<span><span class="co">## Married              Binary   0.0595</span></span>
+<span><span class="co">## Black                Binary   0.0054</span></span>
+<span><span class="co">## Hispanic             Binary  -0.0054</span></span>
+<span><span class="co">## White                Binary   0.0000</span></span>
+<span><span class="co">## No Degree Earned     Binary   0.0054</span></span>
+<span><span class="co">## Earnings 1974       Contin.  -0.0493</span></span>
+<span><span class="co">## Earnings 1975       Contin.   0.0087</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                   429.       185</span></span>
+<span><span class="co">## Matched (ESS)          46.31     185</span></span>
+<span><span class="co">## Matched (Unweighted)   82.       185</span></span>
+<span><span class="co">## Unmatched             347.         0</span></span></code></pre>
 <p>When the treatment variable is continuous, <code><a href="../reference/love.plot.html">love.plot()</a></code>
 will display Pearson correlations between each covariate and treatment.
 The same arguments apply except that <code>stats</code> is ignored and
@@ -1224,15 +1266,14 @@ inference.</p>
 <p><span class="citation">Bia and Mattei (<a href="#ref-biaStataPackageEstimation2008">2008</a>)</span> describe the
 use of the <code>gpscore</code> function in Stata, which appears to be
 effective for estimating and assessing dose-response functions for
-continuous treatments. In R, there are not many ways to estimate and
+continuous treatments. In R, there are a few ways to estimate and
 condition on the propensity score in these contexts. It is possible,
 using the formulas described by <span class="citation">Hirano and Imbens
 (<a href="#ref-hiranoPropensityScoreContinuous2005">2005</a>)</span>, to
 generate the propensity scores manually and perform weighting,
 subclassification, or covariate adjustment on them. The
 <em>WeightIt</em> package supports continuous treatments with a variety
-of options, including the CBPS method implemented in the <em>CBPS</em>
-package and described by <span class="citation">Fong et al. (<a href="#ref-fongCovariateBalancingPropensity2018">2018</a>)</span>, GBM
+of options, including the CBPS method described by <span class="citation">Fong et al. (<a href="#ref-fongCovariateBalancingPropensity2018">2018</a>)</span>, GBM
 as described by <span class="citation">Zhu et al. (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span>, and
 entropy balancing as described by <span class="citation">Vegetabile et
 al. (<a href="#ref-vegetabileNonparametricEstimationPopulation2020">2021</a>)</span>,
@@ -1271,7 +1312,7 @@ continuous treatments in the <em>WeightIt</em> package. To demonstrate,
 we use the <code>lalonde</code> package included in <em>cobalt</em>,
 using an arbitrary continuous variable as the treatment, though
 substantively this analysis makes little sense.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Generating weights with re75 as the continuous treatment</span></span>
@@ -1299,40 +1340,40 @@ the weighted and unweighted samples by include <code>"ks"</code> (for
 <code>"ks.statistics.target"</code>) in the argument to
 <code>stats</code> along with <code>"c"</code> (for
 <code>"correlations"</code>).</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance numerically</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"k"</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>        thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, poly <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Corr.Un Corr.Adj        R.Threshold KS.Target.Adj</span></span>
-<span><span class="co">## age         Contin.  0.1400  -0.0342     Balanced, &lt;0.1        0.1675</span></span>
-<span><span class="co">## educ        Contin.  0.0183   0.0177     Balanced, &lt;0.1        0.0573</span></span>
-<span><span class="co">## race_black   Binary -0.1405  -0.0041     Balanced, &lt;0.1        0.1036</span></span>
-<span><span class="co">## race_hispan  Binary  0.0616  -0.0040     Balanced, &lt;0.1        0.0138</span></span>
-<span><span class="co">## race_white   Binary  0.0978   0.0067     Balanced, &lt;0.1        0.0898</span></span>
-<span><span class="co">## married      Binary  0.3541  -0.0435     Balanced, &lt;0.1        0.2881</span></span>
-<span><span class="co">## nodegree     Binary -0.0705  -0.0301     Balanced, &lt;0.1        0.0022</span></span>
-<span><span class="co">## re74        Contin.  0.5520  -0.0676     Balanced, &lt;0.1        0.3437</span></span>
-<span><span class="co">## age²        Contin.  0.0998  -0.0449     Balanced, &lt;0.1        0.1675</span></span>
-<span><span class="co">## educ²       Contin.  0.0312   0.0264     Balanced, &lt;0.1        0.0573</span></span>
-<span><span class="co">## re74²       Contin.  0.4607  -0.1058 Not Balanced, &gt;0.1        0.3437</span></span>
-<span><span class="co">## age³        Contin.  0.0627  -0.0538     Balanced, &lt;0.1        0.1675</span></span>
-<span><span class="co">## educ³       Contin.  0.0361   0.0308     Balanced, &lt;0.1        0.0573</span></span>
-<span><span class="co">## re74³       Contin.  0.3790  -0.1121 Not Balanced, &gt;0.1        0.3437</span></span>
+<span><span class="co">## age         Contin.  0.1400  -0.0508     Balanced, &lt;0.1        0.1447</span></span>
+<span><span class="co">## educ        Contin.  0.0183   0.0285     Balanced, &lt;0.1        0.0456</span></span>
+<span><span class="co">## race_black   Binary -0.1405  -0.0166     Balanced, &lt;0.1        0.1159</span></span>
+<span><span class="co">## race_hispan  Binary  0.0616   0.0079     Balanced, &lt;0.1        0.0094</span></span>
+<span><span class="co">## race_white   Binary  0.0978   0.0112     Balanced, &lt;0.1        0.1065</span></span>
+<span><span class="co">## married      Binary  0.3541  -0.0852     Balanced, &lt;0.1        0.2458</span></span>
+<span><span class="co">## nodegree     Binary -0.0705  -0.0315     Balanced, &lt;0.1        0.0067</span></span>
+<span><span class="co">## re74        Contin.  0.5520  -0.1336 Not Balanced, &gt;0.1        0.3108</span></span>
+<span><span class="co">## age²        Contin.  0.0998  -0.0605     Balanced, &lt;0.1        0.1447</span></span>
+<span><span class="co">## educ²       Contin.  0.0312   0.0406     Balanced, &lt;0.1        0.0456</span></span>
+<span><span class="co">## re74²       Contin.  0.4607  -0.1803 Not Balanced, &gt;0.1        0.3108</span></span>
+<span><span class="co">## age³        Contin.  0.0627  -0.0676     Balanced, &lt;0.1        0.1447</span></span>
+<span><span class="co">## educ³       Contin.  0.0361   0.0469     Balanced, &lt;0.1        0.0456</span></span>
+<span><span class="co">## re74³       Contin.  0.3790  -0.1774 Not Balanced, &gt;0.1        0.3108</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance tally for treatment correlations</span></span></span>
 <span><span class="co">##                    count</span></span>
-<span><span class="co">## Balanced, &lt;0.1        12</span></span>
-<span><span class="co">## Not Balanced, &gt;0.1     2</span></span>
+<span><span class="co">## Balanced, &lt;0.1        11</span></span>
+<span><span class="co">## Not Balanced, &gt;0.1     3</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Variable with the greatest treatment correlation</span></span></span>
 <span><span class="co">##  Variable Corr.Adj        R.Threshold</span></span>
-<span><span class="co">##     re74³  -0.1121 Not Balanced, &gt;0.1</span></span>
+<span><span class="co">##     re74²  -0.1803 Not Balanced, &gt;0.1</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##             Total</span></span>
 <span><span class="co">## Unadjusted 614.  </span></span>
-<span><span class="co">## Adjusted    55.55</span></span></code></pre>
+<span><span class="co">## Adjusted    80.85</span></span></code></pre>
 <p>We can also visually assess balance using <code><a href="../reference/bal.plot.html">bal.plot()</a></code>.
 For continuous covariates, <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays a
 scatterplot of treatment against the covariate, and includes a linear
@@ -1351,24 +1392,24 @@ plot of the treatment variable in each category. If treatment and the
 covariate are independent, the densities for each category should
 overlap with each other. A distinct lack of overlap is indicative of
 remaining dependence between treatment and the covariate.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"re74"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<p><img src="cobalt_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-20-2.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-21-2.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>When balance has been achieved to a satisfactory level, users can
 present balance improvements in a Love plot using the
 <code><a href="../reference/love.plot.html">love.plot()</a></code> command, just as with binary treatments.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
 <span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, </span>
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>, wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.5</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-21-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="using-cobalt-with-multi-category-treatments">Using <em>cobalt</em> with multi-category treatments<a class="anchor" aria-label="anchor" href="#using-cobalt-with-multi-category-treatments"></a>
@@ -1382,12 +1423,7 @@ note is the choice of estimand to be examined. The ATE represents the
 causal effect of moving from one treatment group to another for all
 units in the population; the ATT represents the causal effect of moving
 from one treatment group to another “focal” treatment group for just the
-units that would have been in the focal treatment group. The way balance
-is assessed in these scenarios differs. For the ATE, all possible
-treatment pairs must be assessed for balance because all possible
-comparisons are potentially meaningful, but for the ATT, only treatment
-pairs that include the focal treatment group can be meaningfully
-compared, so balance needs only to be assessed in these pairs.</p>
+units that would have been in the focal treatment group.</p>
 <p>In <em>cobalt</em>, users can assess and present balance for
 multi-category treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with
@@ -1404,8 +1440,8 @@ statistics as well. If the worst imbalance is not too great, then
 imbalance for all pairwise comparisons will not be too great either.
 When the ATT is desired, a focal group must be specified (unless done so
 automatically for some methods), and only the treatment group
-comparisons that involve that focal group will be computed and
-displayed.</p>
+comparisons that involve that focal group will be computed and displayed
+by default.</p>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> allows for the display of each pairwise
 treatment or the range of balance across treatment pairs for each
 covariate. <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays distributional balance for
@@ -1417,7 +1453,7 @@ method to examine disparities among groups accounting for covariates
 that might otherwise explain differences among groups. We will use
 <em>WeightIt</em> to generate balanced groups by estimating generalized
 propensity score weights using multinomial logistic regression.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Using WeightIt to generate weights with multinomial</span></span>
@@ -1430,10 +1466,11 @@ propensity score weights using multinomial logistic regression.</p>
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. There are three possible pairwise comparisons,
 all of which can be requested with <code>which.treat = .all</code>. See
 <code>?bal.tab.multi</code> for more details.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Balance summary across treatment pairs</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span></span>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span></span>
 <span><span class="co">##             Type Max.Diff.Un Max.Diff.Adj</span></span>
 <span><span class="co">## age      Contin.      0.3065       0.0557</span></span>
 <span><span class="co">## educ     Contin.      0.5861       0.1140</span></span>
@@ -1441,19 +1478,19 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## nodegree  Binary      0.2187       0.0546</span></span>
 <span><span class="co">## re74     Contin.      0.6196       0.1527</span></span>
 <span><span class="co">## re75     Contin.      0.3442       0.1491</span></span>
-<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##             black hispan  white</span></span>
 <span><span class="co">## Unadjusted 243.    72.   299.  </span></span>
 <span><span class="co">## Adjusted   138.38  54.99 259.59</span></span></code></pre>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance for each pair of treatments</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        disp <span class="op">=</span> <span class="st">"means"</span>,</span>
 <span>        which.treat <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">black (0) vs. hispan (1)</span> ────────────────────────────────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span></span>
 <span><span class="co">## age      Contin.   26.0123   25.9167 -0.0101   26.6155   27.0006   0.0408</span></span>
@@ -1468,7 +1505,8 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## Unadjusted 243.    72.  </span></span>
 <span><span class="co">## Adjusted   138.38  54.99</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">black (0) vs. white (1)</span> ─────────────────────────────────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span></span>
 <span><span class="co">## age      Contin.   26.0123   28.8094  0.2963   26.6155   27.1412   0.0557</span></span>
@@ -1483,7 +1521,8 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## Unadjusted 243.   299.  </span></span>
 <span><span class="co">## Adjusted   138.38 259.59</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span></span>
+<span><span class="co">## ─── <span style="font-style: italic;">hispan (0) vs. white (1)</span> ────────────────────────────────────────────</span></span>
+<span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span></span>
 <span><span class="co">## age      Contin.   25.9167   28.8094  0.3065   27.0006   27.1412   0.0149</span></span>
@@ -1496,29 +1535,157 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##            hispan  white</span></span>
 <span><span class="co">## Unadjusted  72.   299.  </span></span>
-<span><span class="co">## Adjusted    54.99 259.59</span></span>
-<span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
+<span><span class="co">## Adjusted    54.99 259.59</span></span></code></pre>
 <p>We can also assess balance graphically. The same guidelines apply for
 multi-category treatments as do for binary treatments. Ideally,
 covariate distributions will look similar across all treatment
 groups.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<p><img src="cobalt_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-24-2.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-25-2.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>Finally, we can use <code><a href="../reference/love.plot.html">love.plot()</a></code> to display balance
 across treatments. By default, <code><a href="../reference/love.plot.html">love.plot()</a></code> displays the
 values in the summary across pairwise comparisons. To request individual
 treatment comparisons, use <code>which.treat = .all</code> in
 <code><a href="../reference/love.plot.html">love.plot()</a></code>.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, binary <span class="op">=</span> <span class="st">"std"</span>,</span>
 <span>          which.treat <span class="op">=</span> <span class="va">.all</span>, abs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level3">
+<h3 id="using-cobalt-with-censoring">Using <em>cobalt</em> with censoring<a class="anchor" aria-label="anchor" href="#using-cobalt-with-censoring"></a>
+</h3>
+<p>When some units drop out of a study before the outcome is measured,
+the sample that remains may differ systematically from the sample that
+started, and an analysis restricted to it can be biased even if
+treatment was randomly assigned. Inverse probability of censoring
+weights (IPCW) address this by weighting the units still under
+observation so that they resemble the sample as a whole <span class="citation">(<a href="#ref-robinsAnalysisSemiparametricRegression1995">Robins et al.
+1995</a>; <a href="#ref-seamanReviewInverseProbability2013">Seaman and
+White 2013</a>)</span>. Assessing whether the weights have succeeded is
+assessing whether, after weighting the units still under observation,
+they resemble the full sample they were drawn from. That full sample is
+the target, so it is never reweighted, and the comparison is between two
+overlapping samples rather than two disjoint ones.</p>
+<p>In <em>cobalt</em>, a censoring indicator is marked with
+<code><a href="../reference/cens.html">.cens()</a></code>, which distinguishes it from a treatment wherever a
+treatment would ordinarily go: on the left side of a formula, or as the
+argument to <code>treat</code>. The indicator follows the survival
+convention, in which <code>1</code> means the unit was censored and
+<code>0</code> means it is still under observation.
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> then compares two samples: the units with
+<code>C == 0</code>, carrying the censoring weights, against every unit
+at risk, carrying a weight of 1. Setting <code>un = TRUE</code> adds the
+same comparison before weighting, which is the imbalance the weights
+were estimated to remove. All the balance statistics available for
+binary treatments are available here, and the columns are named for the
+two samples rather than for treatment groups, so
+<code>M.Uncensored</code> and <code>M.Full</code> are their means and
+<code>Diff</code> is the difference between the full sample and the
+uncensored one.</p>
+<p>To demonstrate, we add an indicator of loss to follow-up to the
+<code>lalonde</code> data, so that <code>re78</code> is observed only
+for the units with <code>C == 0</code>. Older units and those with lower
+1974 earnings are more likely to drop out. As with the continuous
+treatment example above, this is constructed rather than real, but the
+workflow is the one that would be used with a genuine dropout
+indicator.</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">lalonde</span><span class="op">$</span><span class="va">C</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">)</span>, <span class="fl">1</span>,</span>
+<span>                    prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span> <span class="op">+</span> <span class="fl">.1</span> <span class="op">*</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">age</span> <span class="op">-</span></span>
+<span>                                      <span class="fl">.00003</span> <span class="op">*</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">re74</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Estimating inverse probability of censoring weights</span></span>
+<span><span class="va">W.out.cens</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="fu"><a href="../reference/cens.html">.cens</a></span><span class="op">(</span><span class="va">C</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
+<span>                                     <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>                                 data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>                                 method <span class="op">=</span> <span class="st">"glm"</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> accepts the <code>weightit</code> object
+directly. Note that the sample size table has a single column, because
+the target sample is the same in every row, and that
+<code>Uncensored</code> and <code>Censored</code> sum to
+<code>Full</code>.</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Assessing balance numerically</span></span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.cens</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, disp <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                 Type M.Uncensored.Un M.Full.Un Diff.Un M.Uncensored.Adj</span></span>
+<span><span class="co">## prop.score  Distance          0.1783    0.2052  0.1818           0.2080</span></span>
+<span><span class="co">## age          Contin.         25.6127   27.3632  0.1772          27.5011</span></span>
+<span><span class="co">## educ         Contin.         10.3525   10.2687 -0.0319          10.2788</span></span>
+<span><span class="co">## race_black    Binary          0.4119    0.3958 -0.0161           0.3954</span></span>
+<span><span class="co">## race_hispan   Binary          0.1189    0.1173 -0.0016           0.1175</span></span>
+<span><span class="co">## race_white    Binary          0.4693    0.4870  0.0177           0.4871</span></span>
+<span><span class="co">## married       Binary          0.3934    0.4153  0.0219           0.4192</span></span>
+<span><span class="co">## nodegree      Binary          0.6434    0.6303 -0.0131           0.6294</span></span>
+<span><span class="co">## re74         Contin.       4261.4050 4557.5466  0.0457        4547.8372</span></span>
+<span><span class="co">## re75         Contin.       2144.9218 2184.9382  0.0121        2183.8645</span></span>
+<span><span class="co">##             M.Full.Adj Diff.Adj</span></span>
+<span><span class="co">## prop.score      0.2052  -0.0186</span></span>
+<span><span class="co">## age            27.3632  -0.0140</span></span>
+<span><span class="co">## educ           10.2687  -0.0038</span></span>
+<span><span class="co">## race_black      0.3958   0.0004</span></span>
+<span><span class="co">## race_hispan     0.1173  -0.0003</span></span>
+<span><span class="co">## race_white      0.4870  -0.0001</span></span>
+<span><span class="co">## married         0.4153  -0.0039</span></span>
+<span><span class="co">## nodegree        0.6303   0.0009</span></span>
+<span><span class="co">## re74         4557.5466   0.0015</span></span>
+<span><span class="co">## re75         2184.9382   0.0003</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
+<span><span class="co">##             Total</span></span>
+<span><span class="co">## Full       614.  </span></span>
+<span><span class="co">## Uncensored 488.  </span></span>
+<span><span class="co">## Adjusted   458.34</span></span>
+<span><span class="co">## Censored   126.</span></span></code></pre>
+<p>The units still under observation had lower values of
+<code>age</code> than the sample as a whole before weighting (a
+standardized mean difference of about .177), and the weights remove that
+difference. By default the standardization factor for standardized mean
+differences is the standard deviation in the full at-risk sample, which
+can be changed by setting <code>s.d.denom</code> to
+<code>"uncensored"</code> or to any of the values available for binary
+treatments.</p>
+<p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> and <code><a href="../reference/love.plot.html">love.plot()</a></code> work as they do
+elsewhere. <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays the weighted uncensored
+sample against the unweighted full sample, with the two labeled as
+such.</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
+<span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.cens</span>, <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-29-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
+<span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.cens</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
+<span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span>, binary <span class="op">=</span> <span class="st">"std"</span>,</span>
+<span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-30-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<p>Weights estimated outside <em>WeightIt</em> can be supplied to the
+formula or data frame interfaces, exactly as with a treatment:</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="../reference/cens.html">.cens</a></span><span class="op">(</span><span class="va">C</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>        data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="va">W.out.cens</span><span class="op">$</span><span class="va">weights</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><code>cluster</code>, <code>imp</code>, and <code>subclass</code> all
+apply. Subclassification deserves a note of its own: it is not just
+compatible with censoring but is itself a way of solving a censoring
+problem, in that within each subclass the units still under observation
+should resemble every at-risk unit in it. Supplying
+<code>subclass</code> produces a balance table for each subclass and a
+summary across them, in which a unit still under observation in subclass
+<span class="math inline">\(k\)</span> is weighted by <span class="math inline">\(n_k / n_{k1}\)</span>, the number of at-risk units
+in the subclass over the number of them still under observation. See
+<code>?class-bal.tab.cens</code> for the full set of arguments and the
+shape of the output, and <code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code> for
+censoring that occurs between treatment periods.</p>
 </div>
 <div class="section level3">
 <h3 id="comparing-balancing-methods">Comparing balancing methods<a class="anchor" aria-label="anchor" href="#comparing-balancing-methods"></a>
@@ -1530,7 +1697,7 @@ balancing method need to be supplied together in each call. This can be
 done by supplying the weights or the output objects themselves. For
 example, we can compare matching and inverse probability weighting for
 the ATT using the following code and the output generated above.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
 <span>            <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>        weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
@@ -1554,18 +1721,18 @@ the ATT using the following code and the output generated above.</p>
 <span><span class="co">## Matched   46.31     185</span></span>
 <span><span class="co">## IPW      108.2      185</span></span></code></pre>
 <p>To use <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the same syntax can be used:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>         weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
 <span>                        IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,</span>
 <span>         var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-33-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 <p>With <code><a href="../reference/love.plot.html">love.plot()</a></code>, <code>var.order</code> can be
 <code>"unadjusted"</code>, <code>"alphabetical"</code>, or one of the
 names of the weights to order the variables. Also, <code>colors</code>
 and <code>shapes</code> should have the same length as the number of
 weights or have length 1.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
 <span>              <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
 <span>          data <span class="op">=</span> <span class="va">lalonde</span>, </span>
@@ -1575,11 +1742,11 @@ weights or have length 1.</p>
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>, colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>, </span>
 <span>          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span>
 <span>          line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="480" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-34-1.png" class="r-plt" alt="" width="480" style="display: block; margin: auto;"></p>
 <p>Another way to compare weights from multiple objects is to call
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with one object as usual and supply the other(s)
 to the <code>weights</code> argument; see below for an example:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -1611,7 +1778,7 @@ differences</li>
 prognostic score as a variable in the argument to <code>distance</code>.
 Below is an example of how to do so after a call to
 <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>:</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ctrl.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
 <span>                    <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
 <span>                data <span class="op">=</span> <span class="va">lalonde</span>,</span>
@@ -1640,11 +1807,11 @@ Below is an example of how to do so after a call to
 <span><span class="co">## Matched (ESS)          46.31     185</span></span>
 <span><span class="co">## Matched (Unweighted)   82.       185</span></span>
 <span><span class="co">## Unmatched             347.         0</span></span></code></pre>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, <span class="st">"prog.score"</span>,</span>
 <span>         distance <span class="op">=</span> <span class="va">lalonde</span><span class="op">[</span><span class="st">"prog.score"</span><span class="op">]</span>,</span>
 <span>         which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-30-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-36-1.png" class="r-plt" alt="" width="576" style="display: block; margin: auto;"></p>
 <p>Although the prognostic score is sensitive to the outcome estimation
 model used, a defensible prognostic score model can yield valid
 prognostic scores, which can then be used in balance assessment. In the
@@ -1681,12 +1848,12 @@ computed, is always computed using the <em>unadjusted</em> sample<a class="footn
 which case the standard deviation is computed using the remaining
 unadjusted sample, or &lt;code&gt;s.d.enom&lt;/code&gt; is set to
 &lt;code&gt;"weighted"&lt;/code&gt;, which uses the standard deviation computed in
-the weighted (or matched) sample.&lt;/p&gt;'><sup>4</sup></a>. This is
+the weighted (or matched) sample.&lt;/p&gt;'><sup>3</sup></a>. This is
 line with how <em>MatchIt</em> computes standardized mean differences<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;It is important to note that both &lt;em&gt;twang&lt;/em&gt; and
 &lt;em&gt;Matching&lt;/em&gt; calculate standardized mean differences using the
 standard deviation of the sample in question, not the unadjusted sample,
 though &lt;em&gt;CBPS&lt;/em&gt; uses the standard deviation of the unadjusted
-sample.&lt;/p&gt;"><sup>5</sup></a>, and is
+sample.&lt;/p&gt;"><sup>4</sup></a>, and is
 recommended by Stuart <span class="citation">(<a href="#ref-stuartDevelopingPracticalRecommendations2008">2008</a>, <a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span>. One reason
 to favor the use of the standard deviation of the unadjusted sample is
 that it prevents the <a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">paradoxical
@@ -1922,7 +2089,7 @@ al.</span> (<a href="#ref-aliPropensityScoreBalance2014">2014</a>)</span> found 
 the raw difference in proportion was a better predictor of bias than the
 standardized mean difference for binary variables<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Ali et al. (2014) compared the KS statistic to
 standardized mean differences, but the KS statistic is equivalent to the
-raw difference in proportion for binary variables.&lt;/p&gt;"><sup>6</sup></a>.</p>
+raw difference in proportion for binary variables.&lt;/p&gt;"><sup>5</sup></a>.</p>
 <p><em>MatchIt</em> allows users to view either standardized mean
 differences for all covariates or raw differences for all covariates,
 and <em>twang</em> and <em>Matching</em> display standardized
@@ -1983,7 +2150,7 @@ age. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> produces thi
 otherwise be unobserved by the analyst<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;This value is a linear function of the other observed
 values, so it would in principle be able to be computed by the analyst,
 but it seems more valuable to explicitly include this “redundant
-calculation” for the sake of ease and completeness.&lt;/p&gt;"><sup>7</sup></a>. The interactions
+calculation” for the sake of ease and completeness.&lt;/p&gt;"><sup>6</sup></a>. The interactions
 among levels of a single factor, which always be equal to 0, are
 excluded in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>.</p>
 <p>Interactions between the distance measure and other variables have
@@ -2175,6 +2342,11 @@ Medicine</em> 33 (10): 1685–99. <a href="https://doi.org/10.1002/sim.6058" cla
 Greifer, Noah. 2021. <em><span>WeightIt</span>: Weighting for Covariate
 Balance in Observational Studies</em>.
 </div>
+<div id="ref-greiferMatchingMethodsConfounder2021" class="csl-entry">
+Greifer, Noah, and Elizabeth A Stuart. 2021. <span>“Matching Methods for
+Confounder Adjustment: An Addition to the Epidemiologist’s
+Toolbox.”</span> <em>Epidemiologic Reviews</em> 43 (1): 118–29. <a href="https://doi.org/10.1093/epirev/mxab003" class="external-link">https://doi.org/10.1093/epirev/mxab003</a>.
+</div>
 <div id="ref-hainmuellerEbalEntropyReweighting2014" class="csl-entry">
 Hainmueller, Jens. 2014. <em>Ebal: Entropy Reweighting to Create
 Balanced Samples</em>.
@@ -2267,6 +2439,12 @@ Beth Ann Griffin. 2016. <span>“Toolkit for <span>Weighting</span> and
 <span>Analysis</span> of <span>Nonequivalent Groups</span>: A Tutorial
 for the Twang Package.”</span> <em>R Vignette. RAND</em>.
 </div>
+<div id="ref-robinsAnalysisSemiparametricRegression1995" class="csl-entry">
+Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. 1995.
+<span>“Analysis of Semiparametric Regression Models for Repeated
+Outcomes in the Presence of Missing Data.”</span> <em>Journal of the
+American Statistical Association</em> 90 (429): 106–21. <a href="https://doi.org/10.1080/01621459.1995.10476493" class="external-link">https://doi.org/10.1080/01621459.1995.10476493</a>.
+</div>
 <div id="ref-rosenbaumConstructingControlGroup1985" class="csl-entry">
 Rosenbaum, Paul R., and Donald B. Rubin. 1985. <span>“Constructing a
 <span>Control Group Using Multivariate Matched Sampling Methods That
@@ -2278,6 +2456,11 @@ Rubin, Donald B. 2001. <span>“Using <span>Propensity Scores</span> to
 <span>Help Design Observational Studies</span>: Application to the
 <span>Tobacco Litigation</span>.”</span> <em>Health Services and
 Outcomes Research Methodology</em> 2 (3-4): 169–88. <a href="https://doi.org/10.1023/A:1020363010465" class="external-link">https://doi.org/10.1023/A:1020363010465</a>.
+</div>
+<div id="ref-seamanReviewInverseProbability2013" class="csl-entry">
+Seaman, Shaun R., and Ian R. White. 2013. <span>“Review of Inverse
+Probability Weighting for Dealing with Missing Data.”</span>
+<em>Statistical Methods in Medical Research</em> 22 (3): 278–95. <a href="https://doi.org/10.1177/0962280210395740" class="external-link">https://doi.org/10.1177/0962280210395740</a>.
 </div>
 <div id="ref-sekhonMultivariatePropensityScore2011" class="csl-entry">
 Sekhon, Jasjeet S. 2011. <span>“Multivariate and <span>Propensity Score

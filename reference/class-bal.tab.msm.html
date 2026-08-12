@@ -5,17 +5,11 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using bal.tab() with Longitudinal Treatments — class-bal.tab.msm"><meta name="description" content="When using [bal.tab()] with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all `bal.tab()` methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
-
-There are two main components of the output of `bal.tab()` with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
-
-The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used.
-"><meta property="og:description" content="When using [bal.tab()] with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all `bal.tab()` methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
-
-There are two main components of the output of `bal.tab()` with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
-
-The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used.
-"><meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png"></head><body>
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using bal.tab() with Longitudinal Treatments — class-bal.tab.msm"><meta name="description" content="When using bal.tab() with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all bal.tab() methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
+There are two main components of the output of bal.tab() with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
+The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used, or if the time points are not all of the same kind (see below)."><meta property="og:description" content="When using bal.tab() with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all bal.tab() methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
+There are two main components of the output of bal.tab() with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
+The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used, or if the time points are not all of the same kind (see below)."><meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +17,7 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,17 +53,30 @@ The across-time-points balance summary is, for each variable, the greatest imbal
     </div>
 
     <div class="ref-description section level2">
-    <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>When using [<span class="fu">bal.tab</span>()] with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all <span class="st">`</span><span class="at">bal.tab()</span><span class="st">`</span> methods <span class="cf">for</span> dealing with longitudinal data. This page outlines the outputs and options <span class="cf">in</span> this case.</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>There are two main components of the output of <span class="st">`</span><span class="at">bal.tab()</span><span class="st">`</span> with longitudinal treatments<span class="sc">:</span> the time<span class="sc">-</span>point<span class="sc">-</span>specific balance summary and across<span class="sc">-</span>time<span class="sc">-</span>points balance summary. The time<span class="sc">-</span>point<span class="sc">-</span>specific balance summaries are standard point treatment balance summaries at each time point.</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>The across<span class="sc">-</span>time<span class="sc">-</span>points balance summary is, <span class="cf">for</span> each variable, the greatest imbalance across all time<span class="sc">-</span>point<span class="sc">-</span>specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances <span class="cf">for</span> that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient <span class="cf">for</span> reducing imbalance overall. The balance summary will not be computed <span class="cf">if</span> multi<span class="sc">-</span>category treatments or multiply imputed data are used.</span></code></pre><p></p></div>
+    <p>When using <code><a href="bal.tab.html">bal.tab()</a></code> with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all <code><a href="bal.tab.html">bal.tab()</a></code> methods for dealing with longitudinal data. This page outlines the outputs and options in this case.</p>
+<p>There are two main components of the output of <code><a href="bal.tab.html">bal.tab()</a></code> with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.</p>
+<p>The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used, or if the time points are not all of the same kind (see below).</p>
     </div>
 
 
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
     <p>The balance tables presented here are not the same as those recommended by Jackson (2016) and computed in his R package, <a href="https://CRAN.R-project.org/package=confoundr" class="external-link"><span class="pkg">confoundr</span></a>, as these do not take into account treatment history. The balance statistics presented here should be used with caution and may not reflect balance in an accurate way.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="mixing-treatments-and-censoring">Mixing treatments and censoring<a class="anchor" aria-label="anchor" href="#mixing-treatments-and-censoring"></a></h2>
+
+
+<p>One entry of the list may be a censoring indicator marked with <code><a href="cens.html">.cens()</a></code> rather than a treatment, as in <code>list(A1 ~ x, .cens(C1) ~ x, A2 ~ x)</code>, which is how a joint treatment-and-censoring model is written for <code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">WeightIt::weightitMSM()</a></code>. <code><a href="bal.tab.html">bal.tab()</a></code> produces one table per entry, of whichever kind that entry is: an ordinary balance table for a treatment, and the censoring balance table described at <code><a href="class-bal.tab.cens.html">class-bal.tab.cens</a></code> for an indicator.</p>
+<p>Each entry is assessed among the units still under observation entering it. A unit is under observation until a censoring indicator earlier in the list marks it censored; the risk set is accumulated from the indicators themselves rather than read off the treatments, so it makes no difference whether the data records a treatment for a unit that has already dropped out or leaves it missing. A missing treatment for a unit that is still under observation is an error naming the time point it appeared in. A censoring entry's own comparison uses the risk set as it stands entering it, so it includes the units it is about to remove; those are the full sample it compares against.</p>
+<p>A censoring balance table and a treatment balance table say different things about different samples, so a list that mixes them gets no balance summary across time points, exactly as a list mixing continuous and binary treatments does not. Each time point's own table still reports its sample sizes. A list in which every entry is a censoring indicator is not a mixture and is summarized as usual.</p>
+<p>Each time point's default <code>s.d.denom</code> is the one its own kind of model implies – <code>"pooled"</code> for a binary or multi-category treatment, <code>"all"</code> for a continuous one, and <code>"full"</code> for a censoring indicator – so that a model gives the same numbers in a list as it would on its own. A value supplied to <code>s.d.denom</code> is shared by every time point, which is one reason it is recommended not to set it for longitudinal treatments.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="naming-the-time-points">Naming the time points<a class="anchor" aria-label="anchor" href="#naming-the-time-points"></a></h2>
+
+
+<p>Each time point is named for its position in the list, whether the model there is a treatment or a censoring model, and the variable it is about, as in <code>1. Treatment: A_1</code> or <code>2. Censoring: C_1</code>. The number is the position in the list rather than the treatment period, so that it is the number <code>which.time</code> takes and a censoring model has one too; <code>which.time</code> also accepts the variable name on its own (e.g., <code>"C_1"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="allowable-arguments">Allowable arguments<a class="anchor" aria-label="anchor" href="#allowable-arguments"></a></h2>
@@ -90,8 +97,8 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 
 
 <p>The output is a <code>bal.tab.msm</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p><ul><li><p><code>Time.Balance</code>: For each time point, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.</p></li>
-<li><p><code>Balance.Across.Times</code>: The balance summary across time points. This will include the maximum balance statistic(s) for each covariate across all time points.</p></li>
-<li><p><code>Observations</code>: A table of sample sizes or effective sample sizes for each time point before and after adjustment.</p></li>
+<li><p><code>Balance.Across.Times</code>: The balance summary across time points. This will include the maximum balance statistic(s) for each covariate across all time points. Absent when the time points are not all of the same kind.</p></li>
+<li><p><code>Observations</code>: A list with a table of sample sizes or effective sample sizes for each time point, before and after adjustment. Always present, but displayed only alongside the balance summary across time points: it gathers in one place what each time point's own table has already reported, so without the summary there is nothing it adds.</p></li>
 </ul><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div class="section level2">
@@ -104,6 +111,7 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 <ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code></p></li>
 <li><p><code><a href="bal.tab.time.list.html">bal.tab.time.list()</a></code></p></li>
 <li><p><code><a href="print.bal.tab.html">print.bal.tab()</a></code></p></li>
+<li><p><code><a href="cens.html">.cens()</a></code> and <code><a href="class-bal.tab.cens.html">class-bal.tab.cens</a></code> for a censoring indicator among the time points</p></li>
 <li><p><code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code> for examples</p></li>
 </ul></div>
     </div>

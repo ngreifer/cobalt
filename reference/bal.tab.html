@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -231,6 +231,13 @@
 
 
 <p>For information on using <code>bal.tab()</code> with longitudinal treatments, see <code><a href="class-bal.tab.msm.html">class-bal.tab.msm</a></code> and <code><a href="../articles/longitudinal-treat.html">vignette("longitudinal-treat")</a></code>. Essentially, <code>bal.tab()</code> summarizes balance at each time point and summarizes across time points.</p>
+</div>
+
+<div class="section">
+<h3 id="with-a-censoring-indicator">With a Censoring Indicator<a class="anchor" aria-label="anchor" href="#with-a-censoring-indicator"></a></h3>
+
+
+<p>A treatment supplied as <code><a href="cens.html">.cens()</a></code> is a censoring indicator rather than a treatment, and there is no second treatment group to compare against. <code>bal.tab()</code> instead compares the units still under observation, weighted, against the full at-risk sample. See <code><a href="class-bal.tab.cens.html">class-bal.tab.cens</a></code>.</p>
 </div>
 
 <div class="section">

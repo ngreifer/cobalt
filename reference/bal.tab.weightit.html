@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -249,6 +249,7 @@
 <span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out2</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Type Max.Diff.Un Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.3065       0.0557</span>
@@ -257,12 +258,12 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary      0.2187       0.0546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.      0.6196       0.1527</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.      0.3442       0.1491</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             black hispan  white</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.    72.   299.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   138.38  54.99 259.59</span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out2</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, pairwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Type Max.Diff.Un Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.1532       0.0792</span>
@@ -271,7 +272,6 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary      0.1336       0.0298</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.      0.3390       0.1531</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.      0.1744       0.1468</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             black hispan  white</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.    72.   299.  </span>
@@ -289,6 +289,7 @@
 <span class="r-in"><span>                        data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wmsm.out</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all time points</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Times    Type Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> X1_0 1, 2, 3 Contin.       0.0342</span>
@@ -299,17 +300,16 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> X1_2       3 Contin.       0.0643</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> X2_2       3  Binary       0.0096</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A_2        3  Binary       0.0054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">1. Treatment: A_1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3306.    4194. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    845.79   899.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">2. Treatment: A_2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3701.   3799.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    912.87  829.87</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">3. Treatment: A_3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 4886.   2614.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   1900.26  600.12</span>

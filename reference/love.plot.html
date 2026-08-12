@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -155,7 +155,7 @@
 
 
 <dt id="arg-var-names">var.names<a class="anchor" aria-label="anchor" href="#arg-var-names"></a></dt>
-<dd><p>an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See Details on how to specify <code>var.names</code>. <code><a href="var.names.html">var.names()</a></code> can be a useful tool for extracting and editing the names from the <code>bal.tab</code> object.</p></dd>
+<dd><p>an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See <code><a href="display-options.html">display-options</a></code> for how to specify <code>var.names</code>. Names given in the original call to <code><a href="bal.tab.html">bal.tab()</a></code> are used as well; those given here add to them and replace any entry they name. <code><a href="var.names.html">var.names()</a></code> can be a useful tool for extracting and editing the names from the <code>bal.tab</code> object.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -213,9 +213,8 @@
 <h3 id="variable-names-using-var-names">Variable names using <code>var.names</code><a class="anchor" aria-label="anchor" href="#variable-names-using-var-names"></a></h3>
 
 
-<p>The default in <code>love.plot()</code> is to present variables as they are named in the output of the call to <code><a href="bal.tab.html">bal.tab()</a></code>, so it is important to know this output before specifying alternate variable names when using <code>var.names</code>, as the displayed variable names may differ from those in the original data.</p>
-<p>There are several ways to specify alternate names for presentation in the displayed plot using the <code>var.names</code> argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the <code>names</code> of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from <code><a href="bal.tab.html">bal.tab()</a></code> is not provided in the list of old variable names, <code>love.plot()</code> will use the original old variable name.</p>
-<p><code>love.plot()</code> can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable <code>"X"</code> with levels <code>"a"</code>, <code>"b"</code>, and <code>"c"</code> is displayed with <code>love.plot()</code>, the variables <code>"X_a"</code>, <code>"X_b"</code>, and <code>"X_c"</code> will be displayed. You can enter replacement names for all three variables individually with <code>var.names</code>, or you can simply specify a replacement name for <code>"X"</code>, and <code>"X"</code> will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in <code>int = TRUE</code> in the original <code><a href="bal.tab.html">bal.tab()</a></code> call. In an interaction with another variable, say <code>"Y"</code>, there are several ways to replace the name of the interaction term <code>"X_a * Y"</code>. If the entire string (<code>"X_a * Y"</code>) is included in <code>var.names</code>, the entire string will be replaced. If <code>"X_a"</code> is included in <code>var.names</code>, only it will be replaced (and it will be replaced everywhere else it appears). If <code>"X"</code> is included in <code>var.names</code>, only it will be replaced (and it will be replaced everywhere else it appears). See example at <code><a href="var.names.html">var.names()</a></code>.</p>
+<p>The variables are presented as they are named in the output of the call to <code><a href="bal.tab.html">bal.tab()</a></code>, which may not be how they should be named in a report. <code>var.names</code> supplies alternate names for them; it is documented at <code><a href="display-options.html">display-options</a></code>, along with the several structures it accepts and how a name given for a base variable reaches the factor levels, polynomials, and interactions it appears in. It is one of the display options, so it can be given to <code><a href="bal.tab.html">bal.tab()</a></code> instead, in which case the plot uses those names without being told them again.</p>
+<p>The <code>factor_sep</code> and <code>int_sep</code> display options are taken here too, so the separators a plot displays can be chosen without recomputing the object; see <code><a href="display-options.html">display-options</a></code>.</p>
 </div>
 
 <div class="section">
@@ -233,7 +232,8 @@
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="bal.tab.html">bal.tab()</a></code>, <code><a href="../articles/love.plot.html">vignette("love.plot")</a></code></p></div>
+    <div class="dont-index"><p><code><a href="bal.tab.html">bal.tab()</a></code>, <code><a href="../articles/love.plot.html">vignette("love.plot")</a></code></p>
+<p><code><a href="display-options.html">display-options</a></code> for <code>var.names</code></p></div>
     </div>
 
     <div class="section level2">

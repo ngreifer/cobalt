@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -251,6 +251,7 @@
 <span class="r-in"><span>        distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span><span class="va">ps1</span>, <span class="op">~</span><span class="va">ps2</span>, <span class="op">~</span><span class="va">ps3</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        addl <span class="op">=</span> <span class="op">~</span><span class="va">X1_0</span> <span class="op">*</span> <span class="va">X2_0</span>,</span></span>
 <span class="r-in"><span>        un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all time points</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Times     Type Max.Diff.Un Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ps1                 1 Distance      0.9851       0.0409</span>
@@ -266,17 +267,16 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> X1_2                3  Contin.      0.4749       0.0643</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> X2_2                3   Binary      0.5945       0.0096</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A_2                 3   Binary      0.1620       0.0054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">1. Treatment: A_1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3306.    4194. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    845.79   899.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">2. Treatment: A_2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3701.   3799.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    912.87  829.87</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">3. Treatment: A_3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 4886.   2614.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   1900.26  600.12</span>
@@ -290,6 +290,7 @@
 <span class="r-in"><span>        weights <span class="op">=</span> <span class="va">w</span>,</span></span>
 <span class="r-in"><span>        distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span><span class="va">ps1</span>, <span class="op">~</span><span class="va">ps2</span>, <span class="op">~</span><span class="va">ps3</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all time points</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Times     Type Max.Diff.Un Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ps1        1 Distance      0.9851       0.0409</span>
@@ -303,17 +304,16 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> X1_2       3  Contin.      0.4749       0.0643</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> X2_2       3   Binary      0.5945       0.0096</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A_2        3   Binary      0.1620       0.0054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">1. Treatment: A_1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3306.    4194. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    845.79   899.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">2. Treatment: A_2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3701.   3799.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    912.87  829.87</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">3. Treatment: A_3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 4886.   2614.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   1900.26  600.12</span>

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A <code>data.frame</code> containing the variables to be split or unsplit. In <code>splitfactor()</code>, can be a factor variable to be split.</p></dd>
+<dd><p>A data frame containing the variables to be split or unsplit. In <code>splitfactor()</code>, can be a factor variable to be split.</p></dd>
 
 
 <dt id="arg-var-name">var.name<a class="anchor" aria-label="anchor" href="#arg-var-name"></a></dt>
@@ -131,12 +131,12 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>For <code>splitfactor()</code>, a <code>data.frame</code> containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a <code>data.frame</code> containing the original data set with the newly created factor variables.</p>
+    <p>For <code>splitfactor()</code>, a data frame containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a data frame containing the original data set with the newly created factor variables.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If there are <code>NA</code>s in the variable to be split, the new variables created by <code>splitfactor()</code> will have <code>NA</code> where the original variable is <code>NA</code>.</p>
-<p>When using <code>unsplitfactor()</code> on a <code>data.frame</code> that was generated with <code>splitfactor()</code>, the arguments <code>dropped.na</code>, and <code>sep</code> are unnecessary.</p>
+<p>When using <code>unsplitfactor()</code> on a data frame that was generated with <code>splitfactor()</code>, the arguments <code>dropped.na</code>, and <code>sep</code> are unnecessary.</p>
 <p>If <code>split.with</code> is supplied, the elements will be split in the same way <code>data</code> is. For example, if <code>data</code> contained a 4-level factor that was to be split, the entries of <code>split.with</code> at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of <code>data</code> after being split. The resulting values are stored in the <code>"split.with"</code> attribute of the output object. See Examples.</p>
     </div>
     <div class="section level2">

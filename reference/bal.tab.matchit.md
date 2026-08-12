@@ -320,7 +320,9 @@ m.out2 <- matchit(treat ~ age + educ + race +
 
 bal.tab(m.out2, disp.subclass = TRUE)
 #> Balance by subclass
-#>  - - - Subclass 1 - - - 
+#> 
+#> ─── Subclass 1 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance   0.2785
 #> age          Contin.  -0.4024
@@ -333,7 +335,8 @@ bal.tab(m.out2, disp.subclass = TRUE)
 #> re74         Contin.  -0.5864
 #> re75         Contin.  -0.1729
 #> 
-#>  - - - Subclass 2 - - - 
+#> ─── Subclass 2 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance   0.1873
 #> age          Contin.  -0.7473
@@ -346,7 +349,8 @@ bal.tab(m.out2, disp.subclass = TRUE)
 #> re74         Contin.  -0.0352
 #> re75         Contin.  -0.0970
 #> 
-#>  - - - Subclass 3 - - - 
+#> ─── Subclass 3 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance  -0.0140
 #> age          Contin.   0.0524
@@ -359,7 +363,8 @@ bal.tab(m.out2, disp.subclass = TRUE)
 #> re74         Contin.  -0.2669
 #> re75         Contin.  -0.0970
 #> 
-#>  - - - Subclass 4 - - - 
+#> ─── Subclass 4 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance  -0.0003
 #> age          Contin.  -0.0499
@@ -372,7 +377,8 @@ bal.tab(m.out2, disp.subclass = TRUE)
 #> re74         Contin.  -0.0073
 #> re75         Contin.  -0.0801
 #> 
-#>  - - - Subclass 5 - - - 
+#> ─── Subclass 5 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance  -0.0224
 #> age          Contin.   0.2640
@@ -385,7 +391,8 @@ bal.tab(m.out2, disp.subclass = TRUE)
 #> re74         Contin.   0.0190
 #> re75         Contin.   0.1233
 #> 
-#>  - - - Subclass 6 - - - 
+#> ─── Subclass 6 ──────────────
+#> 
 #>                 Type Diff.Adj
 #> distance    Distance   0.0143
 #> age          Contin.   0.5245

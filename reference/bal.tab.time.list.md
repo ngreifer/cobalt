@@ -322,6 +322,7 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
         distance = list(~ps1, ~ps2, ~ps3),
         addl = ~X1_0 * X2_0,
         un = TRUE)
+#> 
 #> Balance summary across all time points
 #>                 Times     Type Max.Diff.Un Max.Diff.Adj
 #> ps1                 1 Distance      0.9851       0.0409
@@ -337,17 +338,16 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
 #> X1_2                3  Contin.      0.4749       0.0643
 #> X2_2                3   Binary      0.5945       0.0096
 #> A_2                 3   Binary      0.1620       0.0054
-#> 
 #> Effective sample sizes
-#>  - Time 1
+#>  - 1. Treatment: A_1
 #>            Control Treated
 #> Unadjusted 3306.    4194. 
 #> Adjusted    845.79   899.4
-#>  - Time 2
+#>  - 2. Treatment: A_2
 #>            Control Treated
 #> Unadjusted 3701.   3799.  
 #> Adjusted    912.87  829.87
-#>  - Time 3
+#>  - 3. Treatment: A_3
 #>            Control Treated
 #> Unadjusted 4886.   2614.  
 #> Adjusted   1900.26  600.12
@@ -361,6 +361,7 @@ bal.tab(list(msmdata[c("X1_0", "X2_0")],
         weights = w,
         distance = list(~ps1, ~ps2, ~ps3),
         un = TRUE)
+#> 
 #> Balance summary across all time points
 #>        Times     Type Max.Diff.Un Max.Diff.Adj
 #> ps1        1 Distance      0.9851       0.0409
@@ -374,17 +375,16 @@ bal.tab(list(msmdata[c("X1_0", "X2_0")],
 #> X1_2       3  Contin.      0.4749       0.0643
 #> X2_2       3   Binary      0.5945       0.0096
 #> A_2        3   Binary      0.1620       0.0054
-#> 
 #> Effective sample sizes
-#>  - Time 1
+#>  - 1. Treatment: A_1
 #>            Control Treated
 #> Unadjusted 3306.    4194. 
 #> Adjusted    845.79   899.4
-#>  - Time 2
+#>  - 2. Treatment: A_2
 #>            Control Treated
 #> Unadjusted 3701.   3799.  
 #> Adjusted    912.87  829.87
-#>  - Time 3
+#>  - 3. Treatment: A_3
 #>            Control Treated
 #> Unadjusted 4886.   2614.  
 #> Adjusted   1900.26  600.12

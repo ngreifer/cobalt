@@ -2,8 +2,9 @@
 
 When using
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
-with clustered data, the output will be different from the case with
-single-level data, and there are some options that are common across all
+with clustered or subgrouped data, the output will be different from the
+case with single-level data, and there are some options that are common
+across all
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
 methods. This page outlines the outputs and options in this case.
 

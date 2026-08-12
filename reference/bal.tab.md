@@ -405,6 +405,16 @@ and
 Essentially, `bal.tab()` summarizes balance at each time point and
 summarizes across time points.
 
+### With a Censoring Indicator
+
+A treatment supplied as
+[`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md) is a
+censoring indicator rather than a treatment, and there is no second
+treatment group to compare against. `bal.tab()` instead compares the
+units still under observation, weighted, against the full at-risk
+sample. See
+[`class-bal.tab.cens`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.cens.md).
+
 ### With Clustered or Multiply Imputed Data
 
 For information on using `bal.tab()` with clustered data, see

@@ -6,20 +6,20 @@
     }
   };
 </script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="cobalt: Covariate Balance Tables and Plots — cobalt-package"><meta name="description" content='
-A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including MatchIt, WeightIt, twang, CBPS, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments, point and longitudinal treatments, and clustered and multiply imputed data.
+A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including MatchIt, WeightIt, twang, CBPS, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments; point and longitudinal treatments; censored data; and clustered and multiply imputed data.
 The main functions of cobalt are the following:
-bal.tab() - generate tables of balance statistics before and after matching, weighting, or subclassification
-bal.plot() - generate plots to assess balance visually on one covariate at a time
-love.plot() - generate plots to summarize and report balance statistics
+bal.tab() – generate tables of balance statistics before and after matching, weighting, or subclassification
+bal.plot() – generate plots to assess balance visually on one covariate at a time
+love.plot() – generate plots to summarize and report balance statistics
 
 
 Other functions include get.w() for extracting weights from objects produced by other packages, col_w_smd() (and friends documented on the same page) for computing (weighted) balance statistics outside of bal.tab(), bal.compute() for computing scalar balance statistics efficiently, and splitfactor() for splitting factor variables in a dataset into dummy variables.
 cobalt has several vignettes, which can be accessed using vignette(package = "cobalt") or visiting the website at https://ngreifer.github.io/cobalt/.'><meta property="og:description" content='
-A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including MatchIt, WeightIt, twang, CBPS, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments, point and longitudinal treatments, and clustered and multiply imputed data.
+A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including MatchIt, WeightIt, twang, CBPS, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments; point and longitudinal treatments; censored data; and clustered and multiply imputed data.
 The main functions of cobalt are the following:
-bal.tab() - generate tables of balance statistics before and after matching, weighting, or subclassification
-bal.plot() - generate plots to assess balance visually on one covariate at a time
-love.plot() - generate plots to summarize and report balance statistics
+bal.tab() – generate tables of balance statistics before and after matching, weighting, or subclassification
+bal.plot() – generate plots to assess balance visually on one covariate at a time
+love.plot() – generate plots to summarize and report balance statistics
 
 
 Other functions include get.w() for extracting weights from objects produced by other packages, col_w_smd() (and friends documented on the same page) for computing (weighted) balance statistics outside of bal.tab(), bal.compute() for computing scalar balance statistics efficiently, and splitfactor() for splitting factor variables in a dataset into dummy variables.
@@ -31,7 +31,7 @@ cobalt has several vignettes, which can be accessed using vignette(package = "co
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,10 +68,10 @@ cobalt has several vignettes, which can be accessed using vignette(package = "co
 
     <div class="ref-description section level2">
     <p></p>
-<p>A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including <span class="pkg">MatchIt</span>, <span class="pkg">WeightIt</span>, <span class="pkg">twang</span>, <span class="pkg">CBPS</span>, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments, point and longitudinal treatments, and clustered and multiply imputed data.</p>
-<p>The main functions of <span class="pkg">cobalt</span> are the following:</p><ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code> - generate tables of balance statistics before and after matching, weighting, or subclassification</p></li>
-<li><p><code><a href="bal.plot.html">bal.plot()</a></code> - generate plots to assess balance visually on one covariate at a time</p></li>
-<li><p><code><a href="love.plot.html">love.plot()</a></code> - generate plots to summarize and report balance statistics</p></li>
+<p>A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including <span class="pkg">MatchIt</span>, <span class="pkg">WeightIt</span>, <span class="pkg">twang</span>, <span class="pkg">CBPS</span>, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments; point and longitudinal treatments; censored data; and clustered and multiply imputed data.</p>
+<p>The main functions of <span class="pkg">cobalt</span> are the following:</p><ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code> – generate tables of balance statistics before and after matching, weighting, or subclassification</p></li>
+<li><p><code><a href="bal.plot.html">bal.plot()</a></code> – generate plots to assess balance visually on one covariate at a time</p></li>
+<li><p><code><a href="love.plot.html">love.plot()</a></code> – generate plots to summarize and report balance statistics</p></li>
 </ul><p>Other functions include <code><a href="get.w.html">get.w()</a></code> for extracting weights from objects produced by other packages, <code><a href="balance-summary.html">col_w_smd()</a></code> (and friends documented on the same page) for computing (weighted) balance statistics outside of <code><a href="bal.tab.html">bal.tab()</a></code>, <code><a href="bal.compute.html">bal.compute()</a></code> for computing scalar balance statistics efficiently, and <code><a href="splitfactor.html">splitfactor()</a></code> for splitting factor variables in a dataset into dummy variables.</p>
 <p><span class="pkg">cobalt</span> has several vignettes, which can be accessed using <code>vignette(package = "cobalt")</code> or visiting the website at <a href="https://ngreifer.github.io/cobalt/">https://ngreifer.github.io/cobalt/</a>.</p>
     </div>

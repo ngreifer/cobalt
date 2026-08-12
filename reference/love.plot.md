@@ -183,8 +183,12 @@ love.plot(
 
   an optional object providing alternate names for the variables in the
   plot, which will otherwise be the variable names as they are stored.
-  This may be useful when variables have ugly names. See Details on how
-  to specify `var.names`.
+  This may be useful when variables have ugly names. See
+  [`display-options`](https://ngreifer.github.io/cobalt/reference/display-options.md)
+  for how to specify `var.names`. Names given in the original call to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  are used as well; those given here add to them and replace any entry
+  they name.
   [`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md)
   can be a useful tool for extracting and editing the names from the
   `bal.tab` object.
@@ -323,46 +327,23 @@ across plots.
 
 ### Variable names using `var.names`
 
-The default in `love.plot()` is to present variables as they are named
-in the output of the call to
+The variables are presented as they are named in the output of the call
+to
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
-so it is important to know this output before specifying alternate
-variable names when using `var.names`, as the displayed variable names
-may differ from those in the original data.
-
-There are several ways to specify alternate names for presentation in
-the displayed plot using the `var.names` argument by specifying a list
-of old and new variable names, pairing the old name with the new name.
-You can do this in three ways: 1) use a vector or list of new variable
-names, with the `names` of the values the old variable names; 2) use a
-data frame with exactly one column containing the new variable names and
-the row names containing the old variable names; or 3) use a data frame
-with two columns, the first (or the one named "old") containing the old
-variable names and the second (or the one named "new") containing the
-new variable names. If a variable in the output from
-[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md) is
-not provided in the list of old variable names, `love.plot()` will use
-the original old variable name.
-
-`love.plot()` can replace old variables names with new ones based on
-exact matching for the name strings or matching using the variable name
-components. For example, if a factor variable `"X"` with levels `"a"`,
-`"b"`, and `"c"` is displayed with `love.plot()`, the variables `"X_a"`,
-`"X_b"`, and `"X_c"` will be displayed. You can enter replacement names
-for all three variables individually with `var.names`, or you can simply
-specify a replacement name for `"X"`, and `"X"` will be replaced by the
-given name in all instances it appears, including not just factor
-expansions, but also polynomials and interactions in `int = TRUE` in the
-original
+which may not be how they should be named in a report. `var.names`
+supplies alternate names for them; it is documented at
+[`display-options`](https://ngreifer.github.io/cobalt/reference/display-options.md),
+along with the several structures it accepts and how a name given for a
+base variable reaches the factor levels, polynomials, and interactions
+it appears in. It is one of the display options, so it can be given to
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
-call. In an interaction with another variable, say `"Y"`, there are
-several ways to replace the name of the interaction term `"X_a * Y"`. If
-the entire string (`"X_a * Y"`) is included in `var.names`, the entire
-string will be replaced. If `"X_a"` is included in `var.names`, only it
-will be replaced (and it will be replaced everywhere else it appears).
-If `"X"` is included in `var.names`, only it will be replaced (and it
-will be replaced everywhere else it appears). See example at
-[`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md).
+instead, in which case the plot uses those names without being told them
+again.
+
+The `factor_sep` and `int_sep` display options are taken here too, so
+the separators a plot displays can be chosen without recomputing the
+object; see
+[`display-options`](https://ngreifer.github.io/cobalt/reference/display-options.md).
 
 ### Stars and the x-axis label with mean differences
 
@@ -402,6 +383,9 @@ twice. It is recommended that you just use `love.plot()` instead.
 
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
 [`vignette("love.plot")`](https://ngreifer.github.io/cobalt/articles/love.plot.md)
+
+[`display-options`](https://ngreifer.github.io/cobalt/reference/display-options.md)
+for `var.names`
 
 ## Examples
 

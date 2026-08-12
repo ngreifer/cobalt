@@ -135,7 +135,8 @@ bal.tab(m.out, cluster = "race")
 
     ## Balance by cluster
     ## 
-    ##  - - - Cluster: black - - - 
+    ## ─── Cluster: black ───────────
+    ## 
     ## Balance Measures
     ##              Type Diff.Adj
     ## distance Distance   0.0150
@@ -153,7 +154,8 @@ bal.tab(m.out, cluster = "race")
     ## Matched (Unweighted) 76.   156
     ## Unmatched            11.     0
     ## 
-    ##  - - - Cluster: hispan - - - 
+    ## ─── Cluster: hispan ──────────
+    ## 
     ## Balance Measures
     ##              Type Diff.Adj
     ## distance Distance   0.0947
@@ -171,7 +173,8 @@ bal.tab(m.out, cluster = "race")
     ## Matched (Unweighted) 18.   11
     ## Unmatched            43.    0
     ## 
-    ##  - - - Cluster: white - - - 
+    ## ─── Cluster: white ───────────
+    ## 
     ## Balance Measures
     ##              Type Diff.Adj
     ## distance Distance   0.0216
@@ -188,7 +191,6 @@ bal.tab(m.out, cluster = "race")
     ## Matched (ESS)         25.92 18
     ## Matched (Unweighted)  31.   18
     ## Unmatched            250.    0
-    ##  - - - - - - - - - - - - - -
 
 Here we see balance tables for each cluster. These are the same output
 we would see if we use
@@ -205,6 +207,7 @@ summary across clusters and hide the individual clusters by setting
 bal.tab(m.out, cluster = "race", which.cluster = .none)
 ```
 
+    ## 
     ## Balance summary across all clusters
     ##              Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
     ## distance Distance       0.0150        0.0438       0.0947
@@ -214,7 +217,6 @@ bal.tab(m.out, cluster = "race", which.cluster = .none)
     ## nodegree   Binary      -0.0032        0.1117       0.2273
     ## re74      Contin.      -0.1501       -0.0252       0.1161
     ## re75      Contin.      -0.1406       -0.0142       0.0683
-    ## 
     ## Total sample sizes across clusters
     ##                           0   1
     ## All                  429.   185
@@ -257,7 +259,8 @@ bal.tab(m.out, cluster = "race", which.cluster = "black")
 
     ## Balance by cluster
     ## 
-    ##  - - - Cluster: black - - - 
+    ## ─── Cluster: black ───────────
+    ## 
     ## Balance Measures
     ##              Type Diff.Adj
     ## distance Distance   0.0150
@@ -274,7 +277,6 @@ bal.tab(m.out, cluster = "race", which.cluster = "black")
     ## Matched (ESS)        41.53 156
     ## Matched (Unweighted) 76.   156
     ## Unmatched            11.     0
-    ##  - - - - - - - - - - - - - -
 
 ``` r
 
@@ -283,6 +285,7 @@ bal.tab(m.out, cluster = "race", which.cluster = .none,
         cluster.fun = "mean")
 ```
 
+    ## 
     ## Balance summary across all clusters
     ##              Type Mean.Diff.Adj
     ## distance Distance        0.0438
@@ -292,7 +295,6 @@ bal.tab(m.out, cluster = "race", which.cluster = .none,
     ## nodegree   Binary        0.1117
     ## re74      Contin.       -0.0252
     ## re75      Contin.       -0.0142
-    ## 
     ## Total sample sizes across clusters
     ##                           0   1
     ## All                  429.   185
@@ -501,20 +503,20 @@ with it as the first argument.
 bal.tab(wt.out)
 ```
 
+    ## 
     ## Balance summary across all imputations
     ##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj
-    ## age         Contin.       0.0248        0.0390       0.0488
-    ## race_black   Binary      -0.0550       -0.0433      -0.0366
-    ## race_hispan  Binary       0.0066        0.0091       0.0118
-    ## race_white   Binary       0.0297        0.0365       0.0481
-    ## married      Binary       0.0312        0.0429       0.0553
-    ## re74        Contin.      -0.0147       -0.0039       0.0071
-    ## re75        Contin.      -0.0206       -0.0046       0.0016
-    ## 
+    ## age         Contin.       0.0176        0.0346       0.0452
+    ## race_black   Binary      -0.0545       -0.0426      -0.0360
+    ## race_hispan  Binary       0.0073        0.0098       0.0125
+    ## race_white   Binary       0.0288        0.0353       0.0472
+    ## married      Binary       0.0297        0.0417       0.0566
+    ## re74        Contin.      -0.0148       -0.0039       0.0073
+    ## re75        Contin.      -0.0205       -0.0043       0.0028
     ## Average effective sample sizes across imputations
     ##             Total
     ## Unadjusted 614.  
-    ## Adjusted   541.56
+    ## Adjusted   542.04
 
 First, we see a balance summary across all the imputations. This table
 presents the minimum, mean, and maximum balance statistics for each
@@ -543,16 +545,16 @@ bal.tab(wt.out, thresholds = c(c = .05),
         imp.fun = "max", abs = TRUE)
 ```
 
+    ## 
     ## Balance summary across all imputations
     ##                Type Max.Corr.Adj         R.Threshold
-    ## age         Contin.       0.0488     Balanced, <0.05
-    ## race_black   Binary       0.0550 Not Balanced, >0.05
-    ## race_hispan  Binary       0.0118     Balanced, <0.05
-    ## race_white   Binary       0.0481     Balanced, <0.05
-    ## married      Binary       0.0553 Not Balanced, >0.05
-    ## re74        Contin.       0.0147     Balanced, <0.05
-    ## re75        Contin.       0.0206     Balanced, <0.05
-    ## 
+    ## age         Contin.       0.0452     Balanced, <0.05
+    ## race_black   Binary       0.0545 Not Balanced, >0.05
+    ## race_hispan  Binary       0.0125     Balanced, <0.05
+    ## race_white   Binary       0.0472     Balanced, <0.05
+    ## married      Binary       0.0566 Not Balanced, >0.05
+    ## re74        Contin.       0.0148     Balanced, <0.05
+    ## re75        Contin.       0.0205     Balanced, <0.05
     ## Balance tally for treatment correlations
     ##                     count
     ## Balanced, <0.05         5
@@ -560,12 +562,12 @@ bal.tab(wt.out, thresholds = c(c = .05),
     ## 
     ## Variable with the greatest treatment correlation
     ##  Variable Max.Corr.Adj         R.Threshold
-    ##   married       0.0553 Not Balanced, >0.05
+    ##   married       0.0566 Not Balanced, >0.05
     ## 
     ## Average effective sample sizes across imputations
     ##             Total
     ## Unadjusted 614.  
-    ## Adjusted   541.56
+    ## Adjusted   542.04
 
 To view balance on individual imputations, you can specify an imputation
 number to `which.imp`. (The summary across imputations is automatically
@@ -578,22 +580,22 @@ bal.tab(wt.out, which.imp = 1)
 
     ## Balance by imputation
     ## 
-    ##  - - - Imputation 1 - - - 
+    ## ─── Imputation 1 ───────────
+    ## 
     ## Balance Measures
     ##                Type Corr.Adj
-    ## age         Contin.   0.0488
-    ## race_black   Binary  -0.0550
-    ## race_hispan  Binary   0.0089
-    ## race_white   Binary   0.0481
-    ## married      Binary   0.0463
-    ## re74        Contin.   0.0023
-    ## re75        Contin.  -0.0011
+    ## age         Contin.   0.0452
+    ## race_black   Binary  -0.0545
+    ## race_hispan  Binary   0.0096
+    ## race_white   Binary   0.0472
+    ## married      Binary   0.0450
+    ## re74        Contin.   0.0027
+    ## re75        Contin.  -0.0013
     ## 
     ## Effective sample sizes
     ##             Total
     ## Unadjusted 614.  
-    ## Adjusted   530.63
-    ##  - - - - - - - - - - - - - -
+    ## Adjusted   531.33
 
 As with clustered data, all
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
@@ -698,7 +700,9 @@ bal.tab(wt3.out)
 
     ## Balance by treatment pair
     ## 
-    ##  - - - black (0) vs. hispan (1) - - - 
+    ## ─── black (0) vs. hispan (1) ───────────────────────────
+    ## 
+    ## 
     ## Balance summary across all imputations
     ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
     ## age      Contin.      -0.0113        0.0133       0.0261
@@ -707,13 +711,14 @@ bal.tab(wt3.out)
     ## nodegree  Binary       0.0385        0.0501       0.0563
     ## re74     Contin.      -0.1112       -0.0779      -0.0254
     ## re75     Contin.      -0.1134       -0.0881      -0.0574
-    ## 
     ## Average effective sample sizes across imputations
     ##             black hispan
     ## Unadjusted 243.     72. 
     ## Adjusted   157.22   55.7
     ## 
-    ##  - - - black (0) vs. white (1) - - - 
+    ## ─── black (0) vs. white (1) ────────────────────────────
+    ## 
+    ## 
     ## Balance summary across all imputations
     ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
     ## age      Contin.       0.0209        0.0353       0.0494
@@ -722,13 +727,14 @@ bal.tab(wt3.out)
     ## nodegree  Binary       0.0118        0.0192       0.0231
     ## re74     Contin.      -0.1350       -0.1062      -0.0882
     ## re75     Contin.      -0.1213       -0.1044      -0.0895
-    ## 
     ## Average effective sample sizes across imputations
     ##             black  white
     ## Unadjusted 243.   299.  
     ## Adjusted   157.22 260.72
     ## 
-    ##  - - - hispan (0) vs. white (1) - - - 
+    ## ─── hispan (0) vs. white (1) ───────────────────────────
+    ## 
+    ## 
     ## Balance summary across all imputations
     ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
     ## age      Contin.       0.0122        0.0220       0.0399
@@ -737,12 +743,10 @@ bal.tab(wt3.out)
     ## nodegree  Binary      -0.0337       -0.0310      -0.0224
     ## re74     Contin.      -0.0628       -0.0282       0.0030
     ## re75     Contin.      -0.0401       -0.0163       0.0107
-    ## 
     ## Average effective sample sizes across imputations
     ##            hispan  white
     ## Unadjusted   72.  299.  
     ## Adjusted     55.7 260.72
-    ##  - - - - - - - - - - - - - - - - - - - - - - - -
 
 Other options can be supplied to choose how balance is computed with
 multi-category treatments; these are described at `?bal.tab.multi` and

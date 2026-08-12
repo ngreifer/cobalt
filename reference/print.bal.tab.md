@@ -29,6 +29,7 @@ print(
   which.cluster,
   cluster.summary,
   cluster.fun,
+  var.names = NULL,
   digits = max(3L, getOption("digits") - 3),
   ...
 )
@@ -214,6 +215,16 @@ print(
   allowed. See
   [`class-bal.tab.cluster`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.cluster.md)
   for details.
+
+- var.names:
+
+  an optional object providing alternate names for the variables, which
+  will otherwise be displayed as they are stored. Entries given here add
+  to those given in the original call to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  and replace any entry they name. See
+  [`display-options`](https://ngreifer.github.io/cobalt/reference/display-options.md)
+  for how to specify it.
 
 - digits:
 

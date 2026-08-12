@@ -84,7 +84,7 @@ to compute the balance statistic for the sample prior to weighting.
 ``` r
 
 library(cobalt)
-#>  cobalt (Version 4.6.4, Build Date: 2026-08-03)
+#>  cobalt (Version 4.6.3.9002, Build Date: 2026-08-12)
 data("lalonde", package = "cobalt")
 
 covs <- subset(lalonde, select = -c(treat, race, re78))
@@ -152,6 +152,11 @@ applying the weights:
 ``` r
 
 library("WeightIt")
+#> 
+#> Attaching package: 'WeightIt'
+#> The following object is masked from 'package:cobalt':
+#> 
+#>     .cens
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                     re74 + re75,
                   data = lalonde,

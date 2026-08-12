@@ -109,10 +109,25 @@ get.cobalt.options()
 #> $disp.sds
 #> NULL
 #> 
+#> $disp.diff
+#> NULL
+#> 
 #> $disp.v.ratio
 #> NULL
 #> 
 #> $disp.ks
+#> NULL
+#> 
+#> $disp.ovl
+#> NULL
+#> 
+#> $disp.corr
+#> NULL
+#> 
+#> $disp.spear
+#> NULL
+#> 
+#> $disp.dcorr
 #> NULL
 #> 
 #> $disp.subclass
@@ -137,9 +152,6 @@ get.cobalt.options()
 #> NULL
 #> 
 #> $msm.summary
-#> NULL
-#> 
-#> $target.summary
 #> NULL
 #> 
 #> $subclass.summary

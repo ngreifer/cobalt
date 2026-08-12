@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
 
 
 <dt><code>factor_sep</code></dt>
-<dd><p><code>character</code>; the string used to separate factor variables from their levels when variable names are printed. Default is <code>"_"</code>.</p></dd>
+<dd><p><code>character</code>; the string used to separate factor variables from their levels when variable names are printed. Default is <code>"_"</code>. See the section <em>Variable names using <code>var.names</code></em> below, which covers the separators too.</p></dd>
 
 
 <dt><code>int_sep</code></dt>
@@ -92,6 +92,10 @@
 
 <dt><code>disp.call</code></dt>
 <dd><p><code>logical</code>; whether to display the function call from the original input object, if present. Default is <code>FALSE</code>, so the function call is not displayed.</p></dd>
+
+
+<dt><code>var.names</code></dt>
+<dd><p>an optional object providing alternate names for the variables, which will otherwise be displayed as they are stored. See the section <em>Variable names using <code>var.names</code></em> below.</p></dd>
 
 
 </dl><div class="section">
@@ -174,11 +178,32 @@
 
     </div>
     <div class="section level2">
+    <h2 id="variable-names-using-var-names">Variable names using <code>var.names</code><a class="anchor" aria-label="anchor" href="#variable-names-using-var-names"></a></h2>
+
+
+
+<p>Variables are displayed as they are named in the output of <code><a href="bal.tab.html">bal.tab()</a></code>, which may not be how they should be named in a report; <code>var.names</code> supplies alternate names for them. It is taken by <code><a href="bal.tab.html">bal.tab()</a></code> and by everything that displays a <code>bal.tab</code> object (i.e., <a href="print.bal.tab.html">print()</a>, <a href="extract.bal.tab.html">format()</a>, <a href="extract.bal.tab.html">as.data.frame()</a>, and <code><a href="love.plot.html">love.plot()</a></code>) and means the same thing in all of them. What is given to <code><a href="bal.tab.html">bal.tab()</a></code> applies to everything that displays the object afterwards, so a set of names need be settled on only once; what is given to one of the others adds to that and replaces any entry it names.</p>
+<p>Only the names on display change. The variables are still stored, and still selected, under their own names, so <code>var.names</code> never has to be undone to work with the object. Because the names on display are what is being changed, it is important to know them before specifying alternate ones: they may differ from the names in the original data. <code><a href="var.names.html">var.names()</a></code> extracts them, optionally to a CSV file to edit and read back in; when a <code>var.names</code> has already been applied, it reports the names that produced, so a set arrived at once can be edited rather than written out again.</p>
+<p><code>var.names</code> pairs each old name with the new name to display in its place, in any of three structures:</p><ol><li><p>a vector or list of new variable names, with the <code>names</code> of the values the old variable names</p></li>
+<li><p>a data frame with exactly one column containing the new variable names and the row names containing the old variable names</p></li>
+<li><p>a data frame with two columns, the first (or the one named <code>"old"</code>) containing the old variable names and the second (or the one named <code>"new"</code>) containing the new variable names.</p></li>
+</ol><p>A variable not named in it keeps the name it has.</p>
+<p>Names are matched either against the whole name string or against the components a name is built from. For example, if a factor variable <code>"X"</code> with levels <code>"a"</code>, <code>"b"</code>, and <code>"c"</code> is displayed, the variables <code>"X_a"</code>, <code>"X_b"</code>, and <code>"X_c"</code> will be displayed. You can enter replacement names for all three variables individually, or you can simply specify a replacement name for <code>"X"</code>, and <code>"X"</code> will be replaced by the given name everywhere it appears, including not just factor expansions but also polynomials and the interactions produced by <code>int = TRUE</code>. In an interaction with another variable, say <code>"Y"</code>, there are several ways to replace the name of the interaction term <code>"X_a * Y"</code>. If the entire string (<code>"X_a * Y"</code>) is included in <code>var.names</code>, the entire string will be replaced. If <code>"X_a"</code> is included, only it will be replaced (and it will be replaced everywhere else it appears). If <code>"X"</code> is included, only it will be replaced (and it will be replaced everywhere else it appears). See the example at <code><a href="var.names.html">var.names()</a></code>.</p>
+<p>Two variables cannot be given the same name, which would leave them indistinguishable in a table and sitting on top of each other in a plot; doing so is an error.</p><div class="section">
+<h3 id="the-separators">The separators<a class="anchor" aria-label="anchor" href="#the-separators"></a></h3>
+
+
+<p><code>factor_sep</code> and <code>int_sep</code> are taken in the same places and honored the same way: given to <code><a href="bal.tab.html">bal.tab()</a></code> they apply to everything that displays the object afterwards, and given to one of the display functions they apply there. Each is a single string rather than a set of entries, so one given later simply replaces the one in force, as in <code>love.plot(b, factor_sep = ": ")</code>.</p>
+<p>A <code>bal.tab</code> object records what each name is made of, so the separators can be changed after the fact without the names having to be parsed apart, and a replacement given for a variable applies whichever separators are on display. The names a covariate is stored under, and by which <code>var.names</code> keys its replacements, are those the object was built with, and are not affected.</p>
+</div>
+
+    </div>
+    <div class="section level2">
     <h2 id="setting-options-globally">Setting options globally<a class="anchor" aria-label="anchor" href="#setting-options-globally"></a></h2>
 
 
 
-<p>In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code> and retrieve it using <code><a href="set.cobalt.options.html">get.cobalt.options()</a></code>. Note that global options cannot be set for <code>which.subclass</code>, <code>which.cluster</code>, <code>which.imp</code>, <code>which.treat</code>, or <code>which.time</code>.</p>
+<p>In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code> and retrieve it using <code><a href="set.cobalt.options.html">get.cobalt.options()</a></code>. Note that global options cannot be set for <code>which.subclass</code>, <code>which.cluster</code>, <code>which.imp</code>, <code>which.treat</code>, <code>which.time</code>, or <code>var.names</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

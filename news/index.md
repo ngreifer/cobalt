@@ -1,6 +1,252 @@
 # Changelog
 
-## cobalt 4.6.4
+## *cobalt* (development version)
+
+- `var.names`, which supplies alternate names for the variables on
+  display, is no longer confined to
+  [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md).
+  It can be given to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
+  in which case it applies to everything that displays the resulting
+  object – [`print()`](https://rdrr.io/r/base/print.html),
+  [`format()`](https://rdrr.io/r/base/format.html),
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html), and
+  [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+  – so a set of readable names need be settled on only once. Each of
+  those still takes a `var.names` of its own, which adds to the one
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  was given and replaces any entry it names. It is specified the same
+  way everywhere, including the shorthand by which a name given for a
+  base variable reaches the factor levels, polynomials, and interactions
+  it appears in, and it reaches the greatest-imbalance table along with
+  the balance table. Only the names on display change: the variables are
+  still stored, and still selected, under their own names, so
+  [`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md)
+  continues to report those. Giving two variables the same name is now
+  an error rather than silently drawing them on top of each other. Its
+  documentation has moved to `?display-options`, where the other display
+  options are described, from
+  [`?love.plot`](https://ngreifer.github.io/cobalt/reference/love.plot.md),
+  which now links there.
+
+- `factor_sep` and `int_sep` are now taken in the same places
+  `var.names` is: given to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  they apply to everything that displays the object afterwards, and
+  given to [`print()`](https://rdrr.io/r/base/print.html),
+  [`format()`](https://rdrr.io/r/base/format.html),
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html), or
+  [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+  they apply there, replacing the one in force.
+  `love.plot(b, factor_sep = ": ")` therefore relabels the plot without
+  the object having to be recomputed. A `bal.tab` object records what
+  each name is made of, so the separators are changed by reassembling
+  the names rather than by editing the strings, and a `var.names`
+  replacement is still keyed by the name the covariate is stored under
+  whichever separators are on display.
+
+- [`set.cobalt.options()`](https://ngreifer.github.io/cobalt/reference/set.cobalt.options.md)
+  accepted `factor_sep` and `int_sep`, but nothing read them, so setting
+  one had no effect. They are now honored.
+
+- [`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md)
+  now reports the names a `bal.tab` object is displayed under rather
+  than always the stored ones, so a set of names given to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  comes back out to be edited instead of written out again. The `old`
+  column, and the names of the vector, are the stored names as before –
+  they are what a replacement is resolved against – and only the `new`
+  column, and the values of the vector, have changed. With no
+  `var.names` applied the two agree, as they always did.
+  [`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md)
+  also now reports a covariate that appears at only some time points of
+  a longitudinal treatment, which it previously omitted because it read
+  the names of the first time point alone.
+
+- Added support for assessing the balance of a censoring model. A
+  treatment marked with the new
+  [`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md)
+  function is a censoring indicator rather than a treatment, and
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  compares the units still under observation, weighted, against the full
+  at-risk sample; with `un = TRUE` it also reports that comparison
+  before weighting, which is the imbalance the weights were estimated to
+  remove. All the statistics available for binary treatments are
+  available, the moment columns are named for the two samples
+  (`M.Uncensored`, `M.Full`), and `cluster`, `imp`, and `subclass` all
+  apply – subclassification is itself a way of solving a censoring
+  problem.
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  shows the weighted uncensored sample against the unweighted full
+  sample.
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  accepts a `weightit` object fit with a censoring model, a
+  `.cens(C) ~ x1 + x2` formula, or `treat = .cens(C)` with a data frame
+  of covariates.
+  [`cobalt::.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md)
+  is deliberately identical to
+  [`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html)
+  so that the same code works whichever package is attached; defines its
+  own only to avoid depending on . See
+  [`?.cens`](https://ngreifer.github.io/cobalt/reference/cens.md) and
+  `?class-bal.tab.cens`.
+
+- A censoring indicator can also appear among longitudinal treatments,
+  as in `bal.tab(list(A1 ~ x, .cens(C1) ~ x, A2 ~ x))`, which is how a
+  joint treatment-and-censoring model is written for
+  [`WeightIt::weightitMSM()`](https://ngreifer.github.io/WeightIt/reference/weightitMSM.html);
+  such an object is now accepted directly, where it previously failed
+  with `Missing values must not exist in 'treat'`.
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  produces one table per entry, of whichever kind that entry’s model is,
+  and assesses each among the units still under observation entering it.
+  The risk set is accumulated from the censoring indicators themselves
+  rather than from where treatments happen to be missing, so it makes no
+  difference whether the data records a treatment for a unit that has
+  already dropped out or leaves it blank; a missing treatment for a unit
+  that is still under observation is now an error naming the time point
+  it appeared in. A list that mixes censoring with treatment gets no
+  balance summary across time points, as a list mixing continuous and
+  binary treatments already does not.
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  supports this too, showing whichever comparison the requested time
+  point is about. See `?class-bal.tab.msm`.
+
+- The `Observations` component of a `bal.tab` object for a longitudinal
+  treatment is now always present, where previously it was computed only
+  when the balance summary across time points was. It is still displayed
+  only alongside that summary, since it gathers in one place what each
+  time point’s own table has already reported.
+
+- The divider naming each segment of a segmented `bal.tab` – a cluster,
+  an imputation, a subclass, a treatment pair, a time point – is now the
+  label centered in a rule, the form
+  [`WeightIt::summary.weightitMSM()`](https://ngreifer.github.io/WeightIt/reference/summary.weightit.html)
+  uses, in place of `- - - Label - - -`. An unlabeled rule of the same
+  width closes the set when a balance summary across the segments
+  follows it, so that the summary is not read as another part of the
+  last segment. Its width responds to what it introduces: every divider
+  in one set is drawn to the width of the widest line any of those
+  segments prints, which is normally the balance table, and never
+  narrower than 44 characters or than the label itself. The headings
+  within a segment (`Balance Measures`, `Sample sizes`, and the rest)
+  are unchanged. Only the presentation changed; the objects
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  returns are untouched.
+
+- Time points are now named for their position in the list, whether the
+  model there is a treatment or a censoring model, and the variable
+  modeled, as in `1. Treatment: A_1` or `2. Censoring: C_1`. This is the
+  form
+  [`WeightIt::summary.weightitMSM()`](https://ngreifer.github.io/WeightIt/reference/summary.weightit.html)
+  uses, so the same model goes by the same name in both packages. It
+  replaces `Time 1` wherever
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  and
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  identify a time point. `which.time` is unchanged and still takes a
+  position or a variable name.
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  accepts a `weightitMSM` object fit with censoring in either of the two
+  shapes has returned one: censoring models held among the treatment
+  models, as in 2.1.0, or segregated into their own `cens.list` and
+  `cens.covs.list`, as in the development versions between 2.0.0 and
+  2.1.0.
+
+- Fixed a bug in which a longitudinal treatment combined with `cluster`
+  or `imp` took its default `s.d.denom` from the wrapper rather than
+  from the treatment, so a continuous longitudinal treatment with
+  clusters or imputations failed with an error naming `"pooled"` as an
+  unusable value.
+
+- Fixed a bug in which
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  silently ignored `s.weights` for longitudinal treatments, on account
+  of a misspelled name.
+
+- Fixed a bug in which `which.time` given as a treatment name selected
+  the wrong time point in
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  when the plotted variable did not appear at every time point.
+
+- Fixed a bug in which supplying the covariates once alongside an `imp`
+  covering several imputations produced a balance table with no rows in
+  it. Anything given for a single imputation is replicated up to the
+  full data, and the replication dropped the record of what each column
+  of the covariate matrix was, leaving a matrix that read as having no
+  covariates at all. Sample sizes were reported correctly throughout, so
+  the loss was easy to miss.
+
+- Fixed a bug in which a covariate set left with no columns – which
+  happens when the only covariates supplied say nothing about the
+  treatment, such as a factor that takes a single value within every
+  cluster – was not cut down along with everything else when the data
+  was split by cluster or imputation, producing a stream of
+  `longer object length is not a multiple of shorter object length`
+  warnings.
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now supports multiply imputed data supplied in stacked form (an `imp`
+  longer than the data) with continuous longitudinal treatments, which
+  previously failed with “`treat.list` can only contain vectors or data
+  frames”.
+
+- Errors raised for one time point of a longitudinal treatment now say
+  which time point they came from, as they already did for clusters and
+  imputations.
+
+- The footnote marking which sample sizes are effective ones now ends
+  its line. When one `bal.tab` is printed inside another, as it is for
+  each cluster, imputation, or time point, the rule drawn under the last
+  of them used to be appended to the end of the footnote.
+
+- A censoring model’s sample size table no longer stars its adjusted row
+  or explains the star in a footnote. The heading already says the table
+  holds effective sample sizes, and the only row that could be one is
+  that one; a treatment’s table does not star it either.
+
+- A processed treatment is now an object of class `treat`, documented at
+  `?treat-class`, carrying its treatment type, its name, the names and
+  values of its groups, and how those groups label the columns of a
+  balance table. `[` preserves all of it, so a subset of a treatment is
+  still one. This is the same class
+  [`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html)
+  returns, so an indicator tagged by either package is accepted by both.
+
+- Fixed a message that disagreed with itself about number: supplying one
+  covariate with non-finite values reported that “the variable `x`
+  contain non-finite values” and several reported that they “contains”
+  them.
+
+- Added [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html)
+  and [`format()`](https://rdrr.io/r/base/format.html) methods for
+  `bal.tab` objects, to make it easier to report balance in a document.
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
+  the balance statistics as a tidy data frame, one row per covariate,
+  sample, and statistic; segmented data (by cluster, imputation,
+  treatment pair, time point, or subclass) put each level of
+  segmentation in a column rather than a nested list, so the result is a
+  single rectangle whatever the shape of the input.
+  [`format()`](https://rdrr.io/r/base/format.html) returns the balance
+  table exactly as [`print()`](https://rdrr.io/r/base/print.html)
+  displays it, as a data frame of formatted strings, so
+  `knitr::kable(format(b))` produces a publication-ready table with no
+  further processing. Both accept every argument
+  [`print()`](https://rdrr.io/r/base/print.html) accepts and resolve
+  them the same way. The `group` column of the tidy layout names the
+  treatment group a mean or a standard deviation describes – the group’s
+  own name, not the position its column takes in the balance table – and
+  is `NA` for a statistic that contrasts two groups. A continuous
+  treatment has no groups, so its moments are reported for `"All"`.
+  Because a group’s own moments are the same in every pair of a
+  multi-category treatment that group appears in, they are reported
+  once, with no pair attached; only the contrasts carry a pair. The
+  `threshold` and `threshold.value` columns are carried only when a
+  threshold is on display for at least one statistic, since they would
+  otherwise be empty throughout. See
+  [`?extract.bal.tab`](https://ngreifer.github.io/cobalt/reference/extract.bal.tab.md)
+  and the FAQ vignette.
 
 - [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
   now supports clustered longitudinal treatments. Previously, supplying
@@ -12,6 +258,142 @@
   nested within each cluster, as is already done for multi-category
   treatments and imputations. Previously, supplying both `subclass` and
   `cluster` silently ignored `cluster`.
+
+- Fixed a bug in the sample size table for subclassification in which
+  the `Total` entry of the `Discarded` column reported the total number
+  of units rather than the number discarded.
+
+- Fixed a bug in which printing a `bal.tab` object for a multi-category
+  treatment computed with `quick = FALSE` failed with
+  `'names' attribute [7] must be the same length as the vector [3]`.
+
+- Fixed a bug in which narrowing `cluster.fun` or `imp.fun` in
+  [`print()`](https://rdrr.io/r/base/print.html) failed with
+  `undefined columns selected` when the original call to
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  had requested more than one of them. For example,
+  `bal.tab(..., cluster.fun = c("min", "mean", "max"))` followed by
+  `print(., cluster.fun = "max")` now displays the maximum alone, as
+  documented.
+
+- Fixed a bug in which requesting `cluster.summary = TRUE` with
+  clustered, subclassified data failed with
+  `missing value where TRUE/FALSE needed`. A subclassified cluster has
+  no single balance table to summarize across clusters, so the summary
+  is now omitted, as it already is with multiply imputed data.
+
+- [`set.cobalt.options()`](https://ngreifer.github.io/cobalt/reference/set.cobalt.options.md)
+  now accepts any statistic for `stats`. Previously only `"mean.diffs"`
+  was allowed, even though `getOption("cobalt_stats")` was honored for
+  all of them, so the option could not be set to anything else.
+
+- The per-statistic display options (`disp.diff`, `disp.v.ratio`,
+  `disp.ks`, `disp.ovl`, `disp.corr`, `disp.spear`, and `disp.dcorr`)
+  now take effect when set with
+  [`set.cobalt.options()`](https://ngreifer.github.io/cobalt/reference/set.cobalt.options.md).
+  `disp.v.ratio` and `disp.ks` were previously accepted but never read;
+  the rest were rejected. The full set is now generated from the
+  statistic registry, and the vestigial `target.summary` option, which
+  was never read, has been removed.
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now warns when `estimand` is not one of `"ATT"`, `"ATC"`, `"ATE"`,
+  `"ATO"`, or `"ATM"`. Previously an unrecognized value was silently
+  ignored, so a typo such as `estimand = "ATTT"` quietly produced the
+  pooled standardization factor used for the ATE. The value is still
+  ignored rather than treated as an error, and supplying `"ATT"` or
+  `"ATC"` with a multi-category treatment remains silent, since the
+  focal group determines the denominator in that case.
+
+- [`bal.init()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  now treats `estimand = "ATC"` with a multi-category treatment
+  identically to `estimand = "ATT"`, as documented: `focal` names the
+  group every other group is compared against, and is required. The two
+  were previously handled by separate branches that could disagree about
+  what to do when `focal` was omitted.
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now honors `s.d.denom` with longitudinal treatments. Each time point’s
+  standardization factor was previously overwritten with the one the ATE
+  implies – `"pooled"` for binary and multi-category treatments, `"all"`
+  for continuous ones – so any value supplied to `s.d.denom` was
+  silently discarded, and an unusable value went unreported. That value
+  is still the default, since longitudinal treatments target the ATE, so
+  results are unchanged unless `s.d.denom` was supplied.
+
+- The error
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  raises when `var.name` names one level of a factor rather than the
+  factor itself now says which variable to supply instead. Splitting a
+  factor into dummies is how
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  summarizes it one level at a time, so a name like `race_black` appears
+  in the balance table;
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  plots the factor, so the dummy’s name is still rejected.
+
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  now supports subclassification with continuous treatments, which
+  previously failed with “subclasses are not yet compatible with
+  continuous treatments”. The output has the same shape as for a binary
+  treatment: a balance table for each subclass, a balance summary across
+  subclasses, and the subclass sample sizes. Because subclassification
+  cannot be written as a set of weights for a continuous treatment, the
+  summary across subclasses combines the subclass-specific statistics
+  directly, weighting each subclass by its share of the subclassified
+  units; see `?class-bal.tab.subclass`.
+  [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  already supported this case.
+
+- Fixed a bug in which supplying `imp` as the name of a variable in
+  `data` failed for `ps` objects, though it worked for every other
+  supported input.
+
+- Fixed a bug in which `treatATT`, a documented alias for `focal` in
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)’s
+  default method, was silently ignored.
+
+- The warning raised when a threshold falls outside its allowable range
+  now names the argument (e.g., `ks.threshold`) rather than printing the
+  internal expression used to look it up.
+
+- Fixed inconsistencies in the sample size table in how discarded units
+  are counted. A discarded unit now contributes only to the `Discarded`
+  row, so `Matched`, `Unmatched`, and `Discarded` always sum to `All`;
+  previously, for binary treatments, a discarded unit with a nonzero
+  weight was counted as matched as well as discarded. Relatedly, the
+  effective sample size of a weighted or matched sample now always
+  excludes discarded units and always uses the product of `weights` and
+  `s.weights`; for continuous treatments with more than one set of
+  weights, `s.weights` were previously ignored when
+  `method = "matching"`. These only differ from the previous values when
+  a discarded unit has a nonzero weight, which does not arise for any
+  object
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  accepts.
+
+- Fixed a bug in
+  [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+  in which a `bal.tab` object that did not include the default statistic
+  (`"mean.diffs"` for binary and multi-category treatments,
+  `"correlations"` for continuous treatments) could not be plotted at
+  all: `love.plot(bal.tab(..., stats = "ks.statistics"))` failed with an
+  error saying `"mean.diffs"` was not requested.
+  [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+  now falls back to a statistic that was computed. When the default
+  statistic is available it is still used, so plots of objects that
+  include it are unchanged.
+
+- Fixed a bug in [`print()`](https://rdrr.io/r/base/print.html) for
+  `bal.tab` objects with subclasses in which supplying both
+  `disp.thresholds` and `disp.call` failed with an uninformative error.
+
+- Fixed a bug in the per-subclass balance tables in which every
+  statistic was compared to its threshold using its absolute value, even
+  when the statistic defines a different one. This affected variance
+  ratios, which are compared using `pmax(x, 1/x)`: a ratio below 1 whose
+  reciprocal exceeded the threshold was labeled as balanced. The
+  across-subclass summary table was already correct.
 
 - Fixed a bug in
   [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
@@ -103,8 +485,8 @@
   longer store feature names in the model object.
 
 - Errors arising within a single cluster or imputation are now
-  consistently labelled with that cluster or imputation. Previously,
-  errors raised while subsetting the data escaped unlabelled.
+  consistently labeled with that cluster or imputation. Previously,
+  errors raised while subsetting the data escaped unlabeled.
 
 - Fixed a bug in
   [`splitfactor()`](https://ngreifer.github.io/cobalt/reference/splitfactor.md)
@@ -181,7 +563,7 @@
 - Greatly expanded the test suite, including tests for `ps` and `iptw`
   objects fit with `version = "xgboost"`.
 
-## cobalt 4.6.3
+## *cobalt* 4.6.3
 
 CRAN release: 2026-05-30
 
@@ -190,7 +572,7 @@ CRAN release: 2026-05-30
 
 - Documentation updates.
 
-## cobalt 4.6.2
+## *cobalt* 4.6.2
 
 CRAN release: 2026-01-29
 
@@ -199,7 +581,7 @@ CRAN release: 2026-01-29
 - Converted all condition messages to use *cli*, which is now a
   dependency. *crayon* is no longer a dependency.
 
-## cobalt 4.6.1
+## *cobalt* 4.6.1
 
 CRAN release: 2025-08-20
 
@@ -218,7 +600,7 @@ CRAN release: 2025-08-20
 - Fixed bugs when using `pairwise = FALSE` with
   [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md).
 
-## cobalt 4.6.0
+## *cobalt* 4.6.0
 
 CRAN release: 2025-04-15
 
@@ -301,7 +683,7 @@ CRAN release: 2025-04-15
 
 - Code cleaning and refactoring to improve performance.
 
-## cobalt 4.5.5
+## *cobalt* 4.5.5
 
 CRAN release: 2024-04-02
 
@@ -318,7 +700,7 @@ CRAN release: 2024-04-02
 
 - Documentation updates
 
-## cobalt 4.5.4
+## *cobalt* 4.5.4
 
 CRAN release: 2024-02-27
 
@@ -345,7 +727,7 @@ CRAN release: 2024-02-27
   in further detail why some choices were made. See
   [`vignette("faq")`](https://ngreifer.github.io/cobalt/articles/faq.md).
 
-## cobalt 4.5.3
+## *cobalt* 4.5.3
 
 CRAN release: 2024-01-10
 
@@ -370,7 +752,7 @@ CRAN release: 2024-01-10
 - Variables with a single value are now more reliably categorized as
   “binary” in tables and calculations.
 
-## cobalt 4.5.2
+## *cobalt* 4.5.2
 
 CRAN release: 2023-11-20
 
@@ -391,7 +773,7 @@ CRAN release: 2023-11-20
   representation in all treatment groups when `cluster` is specified.
   ([\#70](https://github.com/ngreifer/cobalt/issues/70))
 
-## cobalt 4.5.1
+## *cobalt* 4.5.1
 
 CRAN release: 2023-04-28
 
@@ -452,7 +834,7 @@ CRAN release: 2023-04-28
   [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
   with longitudinal treatments.
 
-- Fixed a bug in while the display options `factor_sep` and `int_sep`
+- Fixed a bug in which the display options `factor_sep` and `int_sep`
   were not functioning correctly.
 
 - Fixed a bug when no covariates are supplied.
@@ -464,7 +846,7 @@ CRAN release: 2023-04-28
   and
   [`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md).
 
-## cobalt 4.5.0
+## *cobalt* 4.5.0
 
 CRAN release: 2023-03-22
 
@@ -509,7 +891,7 @@ CRAN release: 2023-03-22
 - Documentation updates, including some new pages and the use of
   `roxygen2`.
 
-## cobalt 4.4.1
+## *cobalt* 4.4.1
 
 CRAN release: 2022-11-03
 
@@ -536,7 +918,7 @@ CRAN release: 2022-11-03
   or use `set.cobalt.options(disp.call = TRUE)` to display it for the
   session.
 
-## cobalt 4.4.0
+## *cobalt* 4.4.0
 
 CRAN release: 2022-08-15
 
@@ -574,7 +956,7 @@ CRAN release: 2022-08-15
 
 - Updated the logo, thanks to [Ben Stillerman](https://stillben.com).
 
-## cobalt 4.3.2
+## *cobalt* 4.3.2
 
 CRAN release: 2022-01-19
 
@@ -615,7 +997,7 @@ CRAN release: 2022-01-19
   many identified and fixed by
   [@jessecambon](https://github.com/jessecambon)).
 
-## cobalt 4.3.1
+## *cobalt* 4.3.1
 
 CRAN release: 2021-03-30
 
@@ -623,7 +1005,7 @@ CRAN release: 2021-03-30
 
 - Fixed a bug and improved speed when using `match.strata`.
 
-## cobalt 4.3.0
+## *cobalt* 4.3.0
 
 CRAN release: 2021-02-20
 
@@ -731,7 +1113,7 @@ CRAN release: 2021-02-20
 
 - Updates to documentation.
 
-## cobalt 4.2.4
+## *cobalt* 4.2.4
 
 CRAN release: 2020-11-05
 
@@ -749,7 +1131,7 @@ CRAN release: 2020-11-05
 - Updated to support `MatchIt` 4.0.0, which includes sampling weights
   and improved processing of the covariates.
 
-## cobalt 4.2.3
+## *cobalt* 4.2.3
 
 CRAN release: 2020-08-31
 
@@ -774,7 +1156,7 @@ CRAN release: 2020-08-31
 - Effective sample sizes now print only up to two digits (believe me,
   you don’t need three) and print more cleanly with whole numbers.
 
-## cobalt 4.2.2
+## *cobalt* 4.2.2
 
 CRAN release: 2020-06-26
 
@@ -782,7 +1164,7 @@ CRAN release: 2020-06-26
 
 - Minor improvements to error messages and documentation.
 
-## cobalt 4.2.1
+## *cobalt* 4.2.1
 
 CRAN release: 2020-06-20
 
@@ -815,7 +1197,7 @@ CRAN release: 2020-06-20
 
 - Updated some warnings.
 
-## cobalt 4.2.0
+## *cobalt* 4.2.0
 
 CRAN release: 2020-06-04
 
@@ -893,7 +1275,7 @@ CRAN release: 2020-06-04
 
 - General speed and stability improvements.
 
-## cobalt 4.1.0
+## *cobalt* 4.1.0
 
 CRAN release: 2020-04-11
 
@@ -1035,7 +1417,7 @@ CRAN release: 2020-04-11
 
 - Speedups and other small fixes.
 
-## cobalt 4.0.0
+## *cobalt* 4.0.0
 
 CRAN release: 2020-01-08
 
@@ -1201,7 +1583,7 @@ CRAN release: 2020-01-08
 
 - Other bug fixes and performance improvements here and there.
 
-## cobalt 3.9.0
+## *cobalt* 3.9.0
 
 CRAN release: 2019-10-06
 
@@ -1243,7 +1625,7 @@ CRAN release: 2019-10-06
 
 - Other small bug fixes.
 
-## cobalt 3.8.0
+## *cobalt* 3.8.0
 
 CRAN release: 2019-09-12
 
@@ -1296,7 +1678,7 @@ CRAN release: 2019-09-12
 
 - Other bug fixes and improvements.
 
-## cobalt 3.7.0
+## *cobalt* 3.7.0
 
 CRAN release: 2019-05-01
 
@@ -1378,13 +1760,13 @@ CRAN release: 2019-05-01
   [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
   on `mnps` objects with multiple stop methods.
 
-## cobalt 3.6.1
+## *cobalt* 3.6.1
 
 CRAN release: 2019-01-16
 
 - Fixed bug when installed version of R was earlier than 3.5.0.
 
-## cobalt 3.6.0
+## *cobalt* 3.6.0
 
 CRAN release: 2018-11-25
 
@@ -1423,7 +1805,7 @@ CRAN release: 2018-11-25
   present R session). The options can be retrieved with
   [`get.cobalt.options()`](https://ngreifer.github.io/cobalt/reference/set.cobalt.options.md).
 
-## cobalt 3.5.0
+## *cobalt* 3.5.0
 
 CRAN release: 2018-10-25
 
@@ -1499,7 +1881,7 @@ CRAN release: 2018-10-25
   [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
   have been consolidated since they all rely on exactly the same syntax.
 
-## cobalt 3.4.1
+## *cobalt* 3.4.1
 
 CRAN release: 2018-09-15
 
@@ -1533,7 +1915,7 @@ CRAN release: 2018-09-15
   [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
   with continuous treatments.
 
-## cobalt 3.4.0
+## *cobalt* 3.4.0
 
 CRAN release: 2018-08-14
 
@@ -1586,7 +1968,7 @@ CRAN release: 2018-08-14
   [`?bal.tab`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
   for the rationale.
 
-## cobalt 3.3.0
+## *cobalt* 3.3.0
 
 CRAN release: 2018-06-24
 
@@ -1620,7 +2002,7 @@ CRAN release: 2018-06-24
   [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
   handles aggregated balance statistics.
 
-## cobalt 3.2.3
+## *cobalt* 3.2.3
 
 CRAN release: 2018-05-04
 
@@ -1649,7 +2031,7 @@ CRAN release: 2018-05-04
   with the formula interface. The `data` argument is now optional if all
   variables in the formula exist in the environment.
 
-## cobalt 3.2.2
+## *cobalt* 3.2.2
 
 CRAN release: 2018-03-13
 
@@ -1679,7 +2061,7 @@ CRAN release: 2018-03-13
 
 - Restored some vignettes that required `WeightIt`.
 
-## cobalt 3.2.1
+## *cobalt* 3.2.1
 
 CRAN release: 2018-02-20
 
@@ -1694,7 +2076,7 @@ CRAN release: 2018-02-20
   [`get.w()`](https://ngreifer.github.io/cobalt/reference/get.w.md) and
   help files.
 
-## cobalt 3.2.0
+## *cobalt* 3.2.0
 
 CRAN release: 2018-01-17
 
@@ -1725,7 +2107,7 @@ CRAN release: 2018-01-17
 
 - Fixed bug with multiple methods when weights were entered as a list.
 
-## cobalt 3.1.0
+## *cobalt* 3.1.0
 
 CRAN release: 2017-11-12
 
@@ -1750,7 +2132,7 @@ CRAN release: 2017-11-12
 - Fixes to the vignettes. Also, creation of a new vignette to simplify
   the main one.
 
-## cobalt 3.0.0
+## *cobalt* 3.0.0
 
 CRAN release: 2017-10-16
 
@@ -1775,7 +2157,7 @@ CRAN release: 2017-10-16
   `s.weights` with the `formula` method of
   [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md).
 
-## cobalt 2.2.0
+## *cobalt* 2.2.0
 
 CRAN release: 2017-09-05
 
@@ -1822,7 +2204,7 @@ CRAN release: 2017-09-05
   caused when `var.order` was specified to be a sample that was not
   present.
 
-## cobalt 2.1.0
+## *cobalt* 2.1.0
 
 CRAN release: 2017-05-31
 
@@ -1870,7 +2252,7 @@ CRAN release: 2017-05-31
 - `distance`, `addl`, and `weights` can now be specified as lists of the
   usual arguments
 
-## cobalt 2.0.0
+## *cobalt* 2.0.0
 
 CRAN release: 2017-05-14
 
@@ -1915,12 +2297,12 @@ CRAN release: 2017-05-14
 
 - Speed improvements
 
-- Fixed a bug causing mislabelling of categorical variables
+- Fixed a bug causing mislabeling of categorical variables
 
 - Changed calculation of weighted variance to be in line with
   recommendations; `CBPS` can now be used with standardized weights
 
-## cobalt 1.3.1
+## *cobalt* 1.3.1
 
 CRAN release: 2016-12-18
 
@@ -1935,7 +2317,7 @@ CRAN release: 2016-12-18
 
 - Edits to the vignette.
 
-## cobalt 1.3.0
+## *cobalt* 1.3.0
 
 CRAN release: 2016-10-23
 
@@ -1959,7 +2341,7 @@ CRAN release: 2016-10-23
 
 - Edits to the vignette
 
-## cobalt 1.2.0
+## *cobalt* 1.2.0
 
 CRAN release: 2016-09-01
 
@@ -1976,7 +2358,7 @@ CRAN release: 2016-09-01
 
 - Major revisions and adjustments to the vignette
 
-## cobalt 1.1.0
+## *cobalt* 1.1.0
 
 CRAN release: 2016-07-23
 

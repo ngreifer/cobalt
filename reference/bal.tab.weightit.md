@@ -318,6 +318,7 @@ w.out2 <- weightit(race ~ age + educ + married +
                    data = lalonde)
 
 bal.tab(w.out2, un = TRUE)
+#> 
 #> Balance summary across all treatment pairs
 #>             Type Max.Diff.Un Max.Diff.Adj
 #> age      Contin.      0.3065       0.0557
@@ -326,12 +327,12 @@ bal.tab(w.out2, un = TRUE)
 #> nodegree  Binary      0.2187       0.0546
 #> re74     Contin.      0.6196       0.1527
 #> re75     Contin.      0.3442       0.1491
-#> 
 #> Effective sample sizes
 #>             black hispan  white
 #> Unadjusted 243.    72.   299.  
 #> Adjusted   138.38  54.99 259.59
 bal.tab(w.out2, un = TRUE, pairwise = FALSE)
+#> 
 #> Balance summary across all treatment pairs
 #>             Type Max.Diff.Un Max.Diff.Adj
 #> age      Contin.      0.1532       0.0792
@@ -340,7 +341,6 @@ bal.tab(w.out2, un = TRUE, pairwise = FALSE)
 #> nodegree  Binary      0.1336       0.0298
 #> re74     Contin.      0.3390       0.1531
 #> re75     Contin.      0.1744       0.1468
-#> 
 #> Effective sample sizes
 #>             black hispan  white
 #> Unadjusted 243.    72.   299.  
@@ -358,6 +358,7 @@ wmsm.out <- weightitMSM(list(A_1 ~ X1_0 + X2_0,
                         data = msmdata)
 
 bal.tab(wmsm.out)
+#> 
 #> Balance summary across all time points
 #>        Times    Type Max.Diff.Adj
 #> X1_0 1, 2, 3 Contin.       0.0342
@@ -368,17 +369,16 @@ bal.tab(wmsm.out)
 #> X1_2       3 Contin.       0.0643
 #> X2_2       3  Binary       0.0096
 #> A_2        3  Binary       0.0054
-#> 
 #> Effective sample sizes
-#>  - Time 1
+#>  - 1. Treatment: A_1
 #>            Control Treated
 #> Unadjusted 3306.    4194. 
 #> Adjusted    845.79   899.4
-#>  - Time 2
+#>  - 2. Treatment: A_2
 #>            Control Treated
 #> Unadjusted 3701.   3799.  
 #> Adjusted    912.87  829.87
-#>  - Time 3
+#>  - 3. Treatment: A_3
 #>            Control Treated
 #> Unadjusted 4886.   2614.  
 #> Adjusted   1900.26  600.12

@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2026-08-03</h4>
+            <h4 data-toc-skip class="date">2026-08-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/love.plot.Rmd" class="external-link"><code>vignettes/love.plot.Rmd</code></a></small>
       <div class="d-none name"><code>love.plot.Rmd</code></div>
@@ -179,8 +179,11 @@ be a burden to type out all the names, you can use the
 <code><a href="../reference/var.names.html">var.names()</a></code> function to create a CSV file (i.e.,
 spreadsheet) that can be customized and loaded back into R to be used
 with <code><a href="../reference/love.plot.html">love.plot()</a></code>. See <code><a href="../reference/var.names.html">?var.names</a></code> for more
-information. Because we only have a few variable names, we’ll just
-manually create a vector of names.</p>
+information, and <code>?display-options</code> for the several ways
+<code>var.names</code> can be specified and for how to supply it to
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code> once instead of to each display. Because we only
+have a few variable names, we’ll just manually create a vector of
+names.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>age <span class="op">=</span> <span class="st">"Age (Years)"</span>,</span>
 <span>               educ <span class="op">=</span> <span class="st">"Education (Years)"</span>,</span>

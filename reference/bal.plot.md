@@ -247,23 +247,24 @@ additional arguments based on each input type:
 
 - For `weightit` objects: None
 
-- For `ps`, `ps.cont`, `mnps`, and `iptw` objects: (`stop.method`; see
+- For `ps`, `ps.cont`, `mnps`, and `iptw` objects: `stop.method` (see
   [defaults](https://ngreifer.github.io/cobalt/reference/bal.tab.ps.md)).
 
-- For `Match` objects: `formula` and `data` or `covs` and `treat`.
+- For `Match` objects: `formula` and `data`, or `covs` and `treat`.
 
-- For `optmatch` objects: `formula` and `data` or `covs` (`treat` is not
-  required).
+- For `optmatch` objects: `formula` and `data`, or `covs` (`treat` is
+  not required).
 
 - For `CBPS` objects: None
 
-- For `ebalance` objects: `formula` and `data` or `covs` and `treat`.
+- For `ebalance` objects: `formula` and `data`, or `covs` and `treat`.
 
 - For `formula`s: `data`
 
 - For `data.frame`s: `treat`
 
-- For `designmatch` objects: `formula` and `data` or `covs` and `treat`.
+- For `designmatch` objects: `formula` and `data`, or `covs` and
+  `treat`.
 
 - For `sbw` objects: None
 
@@ -310,6 +311,11 @@ bal.plot(m.out, "distance", which = "both", mirror = TRUE,
 
 #Entropy balancing with a continuous treatment
 library(WeightIt)
+#> 
+#> Attaching package: ‘WeightIt’
+#> The following object is masked from ‘package:cobalt’:
+#> 
+#>     .cens
 w.out <- weightit(re75 ~ age + I(age^2) + educ + 
                     race + married + nodegree,
                   data = lalonde, method = "ebal")

@@ -685,6 +685,7 @@ mt.out <- MatchThem::matchthem(treat ~ age + educ + married +
 bal.tab(mt.out)
 ```
 
+    ## 
     ## Balance summary across all imputations
     ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
     ## distance    Distance       0.9503        0.9579       0.9644
@@ -696,7 +697,6 @@ bal.tab(mt.out)
     ## race_white    Binary      -0.2162       -0.1962      -0.1838
     ## re74         Contin.      -0.0799       -0.0600      -0.0355
     ## re75         Contin.      -0.0960       -0.0576      -0.0370
-    ## 
     ## Average sample sizes across imputations
     ##             0   1
     ## All       429 185
@@ -716,6 +716,7 @@ wt.out <- MatchThem::weightthem(treat ~ age + educ + married +
 bal.tab(wt.out)
 ```
 
+    ## 
     ## Balance summary across all imputations
     ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
     ## prop.score  Distance       0.1430        0.1547       0.1618
@@ -727,7 +728,6 @@ bal.tab(wt.out)
     ## race_white    Binary      -0.0733       -0.0665      -0.0596
     ## re74         Contin.      -0.3094       -0.2839      -0.2585
     ## re75         Contin.      -0.1680       -0.1600      -0.1486
-    ## 
     ## Average effective sample sizes across imputations
     ##                 0      1
     ## Unadjusted 429.   185.  

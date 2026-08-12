@@ -247,6 +247,7 @@ mt.out1 <- matchthem(treat ~ age + educ + race +
 #>  #5
 #> 
 bal.tab(mt.out1)
+#> 
 #> Balance summary across all imputations
 #>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
 #> distance    Distance       0.9699        0.9713       0.9734
@@ -259,7 +260,6 @@ bal.tab(mt.out1)
 #> nodegree      Binary       0.0541        0.0627       0.0703
 #> re74         Contin.      -0.1043       -0.0751      -0.0510
 #> re75         Contin.      -0.0686       -0.0570      -0.0473
-#> 
 #> Average sample sizes across imputations
 #>             0   1
 #> All       429 185
@@ -284,6 +284,7 @@ mt.out2 <- matchthem(treat ~ age + educ + race +
 #> 
 
 bal.tab(mt.out2)
+#> 
 #> Balance summary across all imputations
 #>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
 #> distance    Distance       0.9756        0.9756       0.9756
@@ -296,7 +297,6 @@ bal.tab(mt.out2)
 #> nodegree      Binary       0.0757        0.0757       0.0757
 #> re74         Contin.      -0.1210       -0.0986      -0.0838
 #> re75         Contin.      -0.0591       -0.0426      -0.0283
-#> 
 #> Average sample sizes across imputations
 #>             0   1
 #> All       429 185
@@ -316,6 +316,7 @@ wt.out <- weightthem(treat ~ age + educ + race +
 #> 
 
 bal.tab(wt.out)
+#> 
 #> Balance summary across all imputations
 #>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
 #> prop.score  Distance      -0.0335       -0.0201      -0.0093
@@ -328,7 +329,6 @@ bal.tab(wt.out)
 #> nodegree      Binary       0.0155        0.0190       0.0236
 #> re74         Contin.      -0.0025        0.0037       0.0114
 #> re75         Contin.      -0.0119        0.0002       0.0171
-#> 
 #> Average effective sample sizes across imputations
 #>                 0   1
 #> Unadjusted 429.   185

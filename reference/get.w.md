@@ -72,7 +72,7 @@ get.w(x, ...)
   [`ps()`](https://rdrr.io/pkg/twang/man/ps.html) or
   [`mnps()`](https://rdrr.io/pkg/twang/man/mnps.html) in twang, e.g.,
   `"es.mean"`. If empty, will return weights from all stop method
-  available into a data.frame. Abbreviations allowed.
+  available into a data frame. Abbreviations allowed.
 
 - estimand:
 

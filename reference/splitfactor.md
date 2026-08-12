@@ -36,7 +36,7 @@ unsplitfactor(
 
 - data:
 
-  A `data.frame` containing the variables to be split or unsplit. In
+  A data frame containing the variables to be split or unsplit. In
   `splitfactor()`, can be a factor variable to be split.
 
 - var.name:
@@ -119,8 +119,8 @@ unsplitfactor(
 
 ## Value
 
-For `splitfactor()`, a `data.frame` containing the original data set
-with the newly created dummies. For `unsplitfactor()`. a `data.frame`
+For `splitfactor()`, a data frame containing the original data set with
+the newly created dummies. For `unsplitfactor()`. a data frame
 containing the original data set with the newly created factor
 variables.
 
@@ -130,7 +130,7 @@ If there are `NA`s in the variable to be split, the new variables
 created by `splitfactor()` will have `NA` where the original variable is
 `NA`.
 
-When using `unsplitfactor()` on a `data.frame` that was generated with
+When using `unsplitfactor()` on a data frame that was generated with
 `splitfactor()`, the arguments `dropped.na`, and `sep` are unnecessary.
 
 If `split.with` is supplied, the elements will be split in the same way

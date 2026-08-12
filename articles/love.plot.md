@@ -104,8 +104,11 @@ and loaded back into R to be used with
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md).
 See
 [`?var.names`](https://ngreifer.github.io/cobalt/reference/var.names.md)
-for more information. Because we only have a few variable names, we’ll
-just manually create a vector of names.
+for more information, and `?display-options` for the several ways
+`var.names` can be specified and for how to supply it to
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+once instead of to each display. Because we only have a few variable
+names, we’ll just manually create a vector of names.
 
 ``` r
 

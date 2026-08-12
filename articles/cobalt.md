@@ -12,14 +12,15 @@ when estimating the causal effect of a treatment ([Ho et al.
 2007](#ref-hoMatchingNonparametricPreprocessing2007)). Propensity scores
 and other related methods (e.g., coarsened exact matching, Mahalanobis
 distance matching, genetic matching) have become popular in the social
-and health sciences as tools for this purpose. Two excellent
+and health sciences as tools for this purpose. Some excellent
 introductions to propensity scores and other preprocessing methods are
-Stuart ([2010](#ref-stuartMatchingMethodsCausal2010)) and Austin
-([2011](#ref-austinIntroductionPropensityScore2011)), which describe
-them simply and clearly and point to other sources of knowledge. The
-logic and theory behind preprocessing will not be discussed here, and
-reader’s knowledge of the causal assumption of strong ignorability is
-assumed.
+Stuart ([2010](#ref-stuartMatchingMethodsCausal2010)), Austin
+([2011](#ref-austinIntroductionPropensityScore2011)), and Greifer and
+Stuart ([2021](#ref-greiferMatchingMethodsConfounder2021)), which
+describe them simply and clearly and point to other sources of
+knowledge. The logic and theory behind preprocessing will not be
+discussed here, and reader’s knowledge of the causal assumption of
+strong ignorability is assumed.
 
 Several packages in R exist to perform preprocessing and causal effect
 estimation, and some were reviewed by Keller and Tipton
@@ -152,17 +153,18 @@ Because there is no *a priori* way to know which conditioning method
 will work best for a given sample, users should try several methods, and
 these methods are spread across various packages; for example, full
 matching is available only in *MatchIt* and *optmatch*, generalized
-boosted modeling only in *twang*, covariate balancing propensity score
-weighting only in *CBPS*, genetic matching only in *MatchIt* and
-*Matching*, and entropy balancing only in *ebal*[^2]. If a user wants to
-compare these methods on their ability to generate balance in the
-sample, they cannot do so on the same metrics and with the same output.
-Each package computes balance statistics differently (if at all), and
-the relevant balance measures are in different places in each package.
-By using *cobalt* to assess balance across packages, users can be sure
-they are using a single, equivalent balance metric across methods, and
-the relevant balance statistics will be in the same place and computed
-the same way regardless of the conditioning package used.
+boosted modeling only in *WeightIt* and *twang*, covariate balancing
+propensity score weighting only in *WeightIt* and *CBPS*, genetic
+matching only in *MatchIt* and *Matching*, and entropy balancing only in
+*WeightIt* and *ebal*. If a user wants to compare these methods on their
+ability to generate balance in the sample, they cannot do so on the same
+metrics and with the same output. Each package computes balance
+statistics differently (if at all), and the relevant balance measures
+are in different places in each package. By using *cobalt* to assess
+balance across packages, users can be sure they are using a single,
+equivalent balance metric across methods, and the relevant balance
+statistics will be in the same place and computed the same way
+regardless of the conditioning package used.
 
 #### Flexibility
 
@@ -207,9 +209,13 @@ the handling of data generated with multiple imputation. These more
 advanced uses of *cobalt* are described in detail in
 [`vignette("segmented-data")`](https://ngreifer.github.io/cobalt/articles/segmented-data.md).
 In addition, *cobalt* includes tools for handling data sets with
-continuous and multi-category treatments. Data sets with longitudinal
-treatments, where time-varying confounding may be an issue, can be
-handled as well; these uses are described in
+continuous and multi-category treatments, and for assessing the balance
+of a censoring model, in which the units still under observation are
+compared to the sample they were drawn from rather than to a second
+treatment group. Data sets with longitudinal treatments, where
+time-varying confounding may be an issue, can be handled as well,
+including those in which units are censored between treatment periods;
+these uses are described in
 [`vignette("longitudinal-treat")`](https://ngreifer.github.io/cobalt/articles/longitudinal-treat.md).
 
 ## How To Use cobalt
@@ -432,7 +438,7 @@ bal.tab(treat ~ covs, data = lalonde,
     ## Adjusted     108.2     185
 
 Users can specify additional variables for which to display balance
-using the argument to `addl`, which can be supplied as a data.frame, a
+using the argument to `addl`, which can be supplied as a data frame, a
 formula containing variables, or a string of names of variables. Users
 can also add all two-way interactions between covariates, including
 those in `addl`, by specifying `int = TRUE`, and can add polynomials
@@ -546,7 +552,7 @@ The next options only affect display, not the calculation of any
 statistics. First is `disp`, which controls whether sample statistics
 for each covariate in each group are displayed. Options include
 `"means"` and `"sds"`, which will request group means and standard
-deviations, respectively[^3].
+deviations, respectively[^2].
 
 Next is `stats`, which controls which balance statistics are displayed.
 For binary and multi-category treatments, options include `"mean.diffs"`
@@ -787,7 +793,9 @@ bal.tab(treat ~ covs, data = lalonde,
 ```
 
     ## Balance by subclass
-    ##  - - - Subclass 1 - - - 
+    ## 
+    ## ─── Subclass 1 ───────────────────
+    ## 
     ##                Type Diff.Adj
     ## age         Contin.  -0.4889
     ## educ        Contin.   0.1324
@@ -797,7 +805,8 @@ bal.tab(treat ~ covs, data = lalonde,
     ## re74        Contin.  -0.2334
     ## re75        Contin.  -0.0435
     ## 
-    ##  - - - Subclass 2 - - - 
+    ## ─── Subclass 2 ───────────────────
+    ## 
     ##                Type Diff.Adj
     ## age         Contin.  -0.4423
     ## educ        Contin.   0.3102
@@ -807,7 +816,8 @@ bal.tab(treat ~ covs, data = lalonde,
     ## re74        Contin.   0.0584
     ## re75        Contin.   0.3445
     ## 
-    ##  - - - Subclass 3 - - - 
+    ## ─── Subclass 3 ───────────────────
+    ## 
     ##                Type Diff.Adj
     ## age         Contin.   0.4968
     ## educ        Contin.  -0.1031
@@ -817,7 +827,8 @@ bal.tab(treat ~ covs, data = lalonde,
     ## re74        Contin.  -0.1250
     ## re75        Contin.  -0.1912
     ## 
-    ##  - - - Subclass 4 - - - 
+    ## ─── Subclass 4 ───────────────────
+    ## 
     ##                Type Diff.Adj
     ## age         Contin.   0.2665
     ## educ        Contin.  -0.1616
@@ -827,7 +838,8 @@ bal.tab(treat ~ covs, data = lalonde,
     ## re74        Contin.  -0.1082
     ## re75        Contin.  -0.0307
     ## 
-    ##  - - - Subclass 5 - - - 
+    ## ─── Subclass 5 ───────────────────
+    ## 
     ##                Type Diff.Adj
     ## age         Contin.   0.2946
     ## educ        Contin.  -0.0757
@@ -836,6 +848,8 @@ bal.tab(treat ~ covs, data = lalonde,
     ## race_white   Binary   0.0000
     ## re74        Contin.  -0.0546
     ## re75        Contin.  -0.1770
+    ## 
+    ## ──────────────────────────────────
     ## 
     ## Balance measures across subclasses
     ##                Type Diff.Adj
@@ -846,7 +860,6 @@ bal.tab(treat ~ covs, data = lalonde,
     ## race_white   Binary  -0.0633
     ## re74        Contin.  -0.0923
     ## re75        Contin.  -0.0170
-    ## 
     ## Sample sizes by subclass
     ##           1  2  3  4  5 All
     ## Control 350 25 21 14 19 429
@@ -934,8 +947,8 @@ previously.
 
 The *WeightIt* package provides functions and utilities for estimating
 balancing weights and allows for the estimation of weights for binary,
-multi-category, and categorical treatments and both point and
-longitudinal treatments. It was designed to work seamlessly with
+multi-category, and categorical treatments; both point and longitudinal
+treatments; and censoring. It was designed to work seamlessly with
 *cobalt*, so using it with *cobalt* is very straightforward. Below is a
 simple example of using
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
@@ -1206,12 +1219,9 @@ using the argument to `var.names`, users can specify their own variable
 names to be used instead. To specify new variable names with
 `var.names`, the user must enter an object containing the new variable
 names and, optionally, the old variable names to replace. For options of
-how to do so, see the help file for
-[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
-with
-[`?love.plot`](https://ngreifer.github.io/cobalt/reference/love.plot.md).
-Below is an example, creating a publication-ready plot with a few other
-arguments to customize output:
+how to do so, see the help file for the display options with
+`?display-options`. Below is an example, creating a publication-ready
+plot with a few other arguments to customize output:
 
 ``` r
 
@@ -1248,6 +1258,46 @@ can be used to more easily create new variable names when many variables
 are present. See
 [`?var.names`](https://ngreifer.github.io/cobalt/reference/var.names.md)
 for details.
+
+`var.names` can also be supplied to
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+itself, in which case the names are used everywhere the resulting object
+is displayed—by [`print()`](https://rdrr.io/r/base/print.html),
+[`format()`](https://rdrr.io/r/base/format.html),
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html), and
+[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)—so
+a set of readable names need only be settled on once. Each of those
+still takes a `var.names` of its own, which adds to the one given to
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+and replaces any entry it names. Only the displayed names change; the
+variables are still stored, and still selected, under their own names.
+See `?display-options`.
+
+``` r
+
+b <- bal.tab(m.out, var.names = v)
+b
+```
+
+    ## Balance Measures
+    ##                        Type Diff.Adj
+    ## Propensity Score   Distance   0.0044
+    ## Age                 Contin.   0.2395
+    ## Years of Education  Contin.  -0.0161
+    ## Married              Binary   0.0595
+    ## Black                Binary   0.0054
+    ## Hispanic             Binary  -0.0054
+    ## White                Binary   0.0000
+    ## No Degree Earned     Binary   0.0054
+    ## Earnings 1974       Contin.  -0.0493
+    ## Earnings 1975       Contin.   0.0087
+    ## 
+    ## Sample sizes
+    ##                      Control Treated
+    ## All                   429.       185
+    ## Matched (ESS)          46.31     185
+    ## Matched (Unweighted)   82.       185
+    ## Unmatched             347.         0
 
 When the treatment variable is continuous,
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
@@ -1294,14 +1344,14 @@ requirement for causal inference.
 Bia and Mattei ([2008](#ref-biaStataPackageEstimation2008)) describe the
 use of the `gpscore` function in Stata, which appears to be effective
 for estimating and assessing dose-response functions for continuous
-treatments. In R, there are not many ways to estimate and condition on
-the propensity score in these contexts. It is possible, using the
-formulas described by Hirano and Imbens
+treatments. In R, there are a few ways to estimate and condition on the
+propensity score in these contexts. It is possible, using the formulas
+described by Hirano and Imbens
 ([2005](#ref-hiranoPropensityScoreContinuous2005)), to generate the
 propensity scores manually and perform weighting, subclassification, or
 covariate adjustment on them. The *WeightIt* package supports continuous
 treatments with a variety of options, including the CBPS method
-implemented in the *CBPS* package and described by Fong et al.
+described by Fong et al.
 ([2018](#ref-fongCovariateBalancingPropensity2018)), GBM as described by
 Zhu et al. ([2015](#ref-zhuBoostingAlgorithmEstimating2015)), and
 entropy balancing as described by Vegetabile et al.
@@ -1389,34 +1439,34 @@ bal.tab(W.out.c, stats = c("c", "k"), un = TRUE,
 
     ## Balance Measures
     ##                Type Corr.Un Corr.Adj        R.Threshold KS.Target.Adj
-    ## age         Contin.  0.1400  -0.0342     Balanced, <0.1        0.1675
-    ## educ        Contin.  0.0183   0.0177     Balanced, <0.1        0.0573
-    ## race_black   Binary -0.1405  -0.0041     Balanced, <0.1        0.1036
-    ## race_hispan  Binary  0.0616  -0.0040     Balanced, <0.1        0.0138
-    ## race_white   Binary  0.0978   0.0067     Balanced, <0.1        0.0898
-    ## married      Binary  0.3541  -0.0435     Balanced, <0.1        0.2881
-    ## nodegree     Binary -0.0705  -0.0301     Balanced, <0.1        0.0022
-    ## re74        Contin.  0.5520  -0.0676     Balanced, <0.1        0.3437
-    ## age²        Contin.  0.0998  -0.0449     Balanced, <0.1        0.1675
-    ## educ²       Contin.  0.0312   0.0264     Balanced, <0.1        0.0573
-    ## re74²       Contin.  0.4607  -0.1058 Not Balanced, >0.1        0.3437
-    ## age³        Contin.  0.0627  -0.0538     Balanced, <0.1        0.1675
-    ## educ³       Contin.  0.0361   0.0308     Balanced, <0.1        0.0573
-    ## re74³       Contin.  0.3790  -0.1121 Not Balanced, >0.1        0.3437
+    ## age         Contin.  0.1400  -0.0508     Balanced, <0.1        0.1447
+    ## educ        Contin.  0.0183   0.0285     Balanced, <0.1        0.0456
+    ## race_black   Binary -0.1405  -0.0166     Balanced, <0.1        0.1159
+    ## race_hispan  Binary  0.0616   0.0079     Balanced, <0.1        0.0094
+    ## race_white   Binary  0.0978   0.0112     Balanced, <0.1        0.1065
+    ## married      Binary  0.3541  -0.0852     Balanced, <0.1        0.2458
+    ## nodegree     Binary -0.0705  -0.0315     Balanced, <0.1        0.0067
+    ## re74        Contin.  0.5520  -0.1336 Not Balanced, >0.1        0.3108
+    ## age²        Contin.  0.0998  -0.0605     Balanced, <0.1        0.1447
+    ## educ²       Contin.  0.0312   0.0406     Balanced, <0.1        0.0456
+    ## re74²       Contin.  0.4607  -0.1803 Not Balanced, >0.1        0.3108
+    ## age³        Contin.  0.0627  -0.0676     Balanced, <0.1        0.1447
+    ## educ³       Contin.  0.0361   0.0469     Balanced, <0.1        0.0456
+    ## re74³       Contin.  0.3790  -0.1774 Not Balanced, >0.1        0.3108
     ## 
     ## Balance tally for treatment correlations
     ##                    count
-    ## Balanced, <0.1        12
-    ## Not Balanced, >0.1     2
+    ## Balanced, <0.1        11
+    ## Not Balanced, >0.1     3
     ## 
     ## Variable with the greatest treatment correlation
     ##  Variable Corr.Adj        R.Threshold
-    ##     re74³  -0.1121 Not Balanced, >0.1
+    ##     re74²  -0.1803 Not Balanced, >0.1
     ## 
     ## Effective sample sizes
     ##             Total
     ## Unadjusted 614.  
-    ## Adjusted    55.55
+    ## Adjusted    80.85
 
 We can also visually assess balance using
 [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md).
@@ -1446,14 +1496,14 @@ indicative of remaining dependence between treatment and the covariate.
 bal.plot(W.out.c, "re74", which = "both")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-20-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-21-1.png)
 
 ``` r
 
 bal.plot(W.out.c, "married", which = "both")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-20-2.png)
+![](cobalt_files/figure-html/unnamed-chunk-21-2.png)
 
 When balance has been achieved to a satisfactory level, users can
 present balance improvements in a Love plot using the
@@ -1470,7 +1520,7 @@ love.plot(W.out.c, stats = c("c", "ks"),
           var.order = "unadjusted", line = TRUE)
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-21-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-22-1.png)
 
 ### Using *cobalt* with multi-category treatments
 
@@ -1484,12 +1534,7 @@ of estimand to be examined. The ATE represents the causal effect of
 moving from one treatment group to another for all units in the
 population; the ATT represents the causal effect of moving from one
 treatment group to another “focal” treatment group for just the units
-that would have been in the focal treatment group. The way balance is
-assessed in these scenarios differs. For the ATE, all possible treatment
-pairs must be assessed for balance because all possible comparisons are
-potentially meaningful, but for the ATT, only treatment pairs that
-include the focal treatment group can be meaningfully compared, so
-balance needs only to be assessed in these pairs.
+that would have been in the focal treatment group.
 
 In *cobalt*, users can assess and present balance for multi-category
 treatments using
@@ -1512,7 +1557,7 @@ not too great, then imbalance for all pairwise comparisons will not be
 too great either. When the ATT is desired, a focal group must be
 specified (unless done so automatically for some methods), and only the
 treatment group comparisons that involve that focal group will be
-computed and displayed.
+computed and displayed by default.
 
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
 allows for the display of each pairwise treatment or the range of
@@ -1553,6 +1598,7 @@ details.
 bal.tab(W.out.mn, un = TRUE)
 ```
 
+    ## 
     ## Balance summary across all treatment pairs
     ##             Type Max.Diff.Un Max.Diff.Adj
     ## age      Contin.      0.3065       0.0557
@@ -1561,7 +1607,6 @@ bal.tab(W.out.mn, un = TRUE)
     ## nodegree  Binary      0.2187       0.0546
     ## re74     Contin.      0.6196       0.1527
     ## re75     Contin.      0.3442       0.1491
-    ## 
     ## Effective sample sizes
     ##             black hispan  white
     ## Unadjusted 243.    72.   299.  
@@ -1577,7 +1622,8 @@ bal.tab(W.out.mn, un = TRUE,
 
     ## Balance by treatment pair
     ## 
-    ##  - - - black (0) vs. hispan (1) - - - 
+    ## ─── black (0) vs. hispan (1) ────────────────────────────────────────────
+    ## 
     ## Balance Measures
     ##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj
     ## age      Contin.   26.0123   25.9167 -0.0101   26.6155   27.0006   0.0408
@@ -1592,7 +1638,8 @@ bal.tab(W.out.mn, un = TRUE,
     ## Unadjusted 243.    72.  
     ## Adjusted   138.38  54.99
     ## 
-    ##  - - - black (0) vs. white (1) - - - 
+    ## ─── black (0) vs. white (1) ─────────────────────────────────────────────
+    ## 
     ## Balance Measures
     ##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj
     ## age      Contin.   26.0123   28.8094  0.2963   26.6155   27.1412   0.0557
@@ -1607,7 +1654,8 @@ bal.tab(W.out.mn, un = TRUE,
     ## Unadjusted 243.   299.  
     ## Adjusted   138.38 259.59
     ## 
-    ##  - - - hispan (0) vs. white (1) - - - 
+    ## ─── hispan (0) vs. white (1) ────────────────────────────────────────────
+    ## 
     ## Balance Measures
     ##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj
     ## age      Contin.   25.9167   28.8094  0.3065   27.0006   27.1412   0.0149
@@ -1621,7 +1669,6 @@ bal.tab(W.out.mn, un = TRUE,
     ##            hispan  white
     ## Unadjusted  72.   299.  
     ## Adjusted    54.99 259.59
-    ##  - - - - - - - - - - - - - - - - - - - - - - - -
 
 We can also assess balance graphically. The same guidelines apply for
 multi-category treatments as do for binary treatments. Ideally,
@@ -1633,14 +1680,14 @@ covariate distributions will look similar across all treatment groups.
 bal.plot(W.out.mn, "age", which = "both")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-24-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-25-1.png)
 
 ``` r
 
 bal.plot(W.out.mn, "married", which = "both")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-24-2.png)
+![](cobalt_files/figure-html/unnamed-chunk-25-2.png)
 
 Finally, we can use
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
@@ -1657,7 +1704,160 @@ love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
           which.treat = .all, abs = FALSE)
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-25-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-26-1.png)
+
+### Using *cobalt* with censoring
+
+When some units drop out of a study before the outcome is measured, the
+sample that remains may differ systematically from the sample that
+started, and an analysis restricted to it can be biased even if
+treatment was randomly assigned. Inverse probability of censoring
+weights (IPCW) address this by weighting the units still under
+observation so that they resemble the sample as a whole ([Robins et al.
+1995](#ref-robinsAnalysisSemiparametricRegression1995); [Seaman and
+White 2013](#ref-seamanReviewInverseProbability2013)). Assessing whether
+the weights have succeeded is assessing whether, after weighting the
+units still under observation, they resemble the full sample they were
+drawn from. That full sample is the target, so it is never reweighted,
+and the comparison is between two overlapping samples rather than two
+disjoint ones.
+
+In *cobalt*, a censoring indicator is marked with
+[`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md), which
+distinguishes it from a treatment wherever a treatment would ordinarily
+go: on the left side of a formula, or as the argument to `treat`. The
+indicator follows the survival convention, in which `1` means the unit
+was censored and `0` means it is still under observation.
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+then compares two samples: the units with `C == 0`, carrying the
+censoring weights, against every unit at risk, carrying a weight of 1.
+Setting `un = TRUE` adds the same comparison before weighting, which is
+the imbalance the weights were estimated to remove. All the balance
+statistics available for binary treatments are available here, and the
+columns are named for the two samples rather than for treatment groups,
+so `M.Uncensored` and `M.Full` are their means and `Diff` is the
+difference between the full sample and the uncensored one.
+
+To demonstrate, we add an indicator of loss to follow-up to the
+`lalonde` data, so that `re78` is observed only for the units with
+`C == 0`. Older units and those with lower 1974 earnings are more likely
+to drop out. As with the continuous treatment example above, this is
+constructed rather than real, but the workflow is the one that would be
+used with a genuine dropout indicator.
+
+``` r
+
+data("lalonde", package = "cobalt")
+
+set.seed(100)
+lalonde$C <- rbinom(nrow(lalonde), 1,
+                    prob = plogis(-4 + .1 * lalonde$age -
+                                      .00003 * lalonde$re74))
+
+#Estimating inverse probability of censoring weights
+W.out.cens <- WeightIt::weightit(.cens(C) ~ age + educ + race + married +
+                                     nodegree + re74 + re75,
+                                 data = lalonde,
+                                 method = "glm")
+```
+
+[`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+accepts the `weightit` object directly. Note that the sample size table
+has a single column, because the target sample is the same in every row,
+and that `Uncensored` and `Censored` sum to `Full`.
+
+``` r
+
+#Assessing balance numerically
+bal.tab(W.out.cens, un = TRUE, disp = "m")
+```
+
+    ## Balance Measures
+    ##                 Type M.Uncensored.Un M.Full.Un Diff.Un M.Uncensored.Adj
+    ## prop.score  Distance          0.1783    0.2052  0.1818           0.2080
+    ## age          Contin.         25.6127   27.3632  0.1772          27.5011
+    ## educ         Contin.         10.3525   10.2687 -0.0319          10.2788
+    ## race_black    Binary          0.4119    0.3958 -0.0161           0.3954
+    ## race_hispan   Binary          0.1189    0.1173 -0.0016           0.1175
+    ## race_white    Binary          0.4693    0.4870  0.0177           0.4871
+    ## married       Binary          0.3934    0.4153  0.0219           0.4192
+    ## nodegree      Binary          0.6434    0.6303 -0.0131           0.6294
+    ## re74         Contin.       4261.4050 4557.5466  0.0457        4547.8372
+    ## re75         Contin.       2144.9218 2184.9382  0.0121        2183.8645
+    ##             M.Full.Adj Diff.Adj
+    ## prop.score      0.2052  -0.0186
+    ## age            27.3632  -0.0140
+    ## educ           10.2687  -0.0038
+    ## race_black      0.3958   0.0004
+    ## race_hispan     0.1173  -0.0003
+    ## race_white      0.4870  -0.0001
+    ## married         0.4153  -0.0039
+    ## nodegree        0.6303   0.0009
+    ## re74         4557.5466   0.0015
+    ## re75         2184.9382   0.0003
+    ## 
+    ## Effective sample sizes
+    ##             Total
+    ## Full       614.  
+    ## Uncensored 488.  
+    ## Adjusted   458.34
+    ## Censored   126.
+
+The units still under observation had lower values of `age` than the
+sample as a whole before weighting (a standardized mean difference of
+about .177), and the weights remove that difference. By default the
+standardization factor for standardized mean differences is the standard
+deviation in the full at-risk sample, which can be changed by setting
+`s.d.denom` to `"uncensored"` or to any of the values available for
+binary treatments.
+
+[`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+and
+[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+work as they do elsewhere.
+[`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+displays the weighted uncensored sample against the unweighted full
+sample, with the two labeled as such.
+
+``` r
+
+#Assessing balance graphically
+bal.plot(W.out.cens, "age", which = "both")
+```
+
+![](cobalt_files/figure-html/unnamed-chunk-29-1.png)
+
+``` r
+
+#Summarizing balance in a Love plot
+love.plot(W.out.cens, stats = c("m", "ks"),
+          thresholds = c(m = .05), binary = "std",
+          var.order = "unadjusted", line = TRUE)
+```
+
+![](cobalt_files/figure-html/unnamed-chunk-30-1.png)
+
+Weights estimated outside *WeightIt* can be supplied to the formula or
+data frame interfaces, exactly as with a treatment:
+
+``` r
+
+bal.tab(.cens(C) ~ age + educ + race + married + nodegree + re74 + re75,
+        data = lalonde, weights = W.out.cens$weights, un = TRUE)
+```
+
+`cluster`, `imp`, and `subclass` all apply. Subclassification deserves a
+note of its own: it is not just compatible with censoring but is itself
+a way of solving a censoring problem, in that within each subclass the
+units still under observation should resemble every at-risk unit in it.
+Supplying `subclass` produces a balance table for each subclass and a
+summary across them, in which a unit still under observation in subclass
+\\k\\ is weighted by \\n_k / n\_{k1}\\, the number of at-risk units in
+the subclass over the number of them still under observation. See
+`?class-bal.tab.cens` for the full set of arguments and the shape of the
+output, and
+[`vignette("longitudinal-treat")`](https://ngreifer.github.io/cobalt/articles/longitudinal-treat.md)
+for censoring that occurs between treatment periods.
 
 ### Comparing balancing methods
 
@@ -1712,7 +1912,7 @@ bal.plot(treat ~ age, data = lalonde,
          var.name = "age", which = "both")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-27-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-33-1.png)
 
 With
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md),
@@ -1733,7 +1933,7 @@ love.plot(treat ~ age + educ + married + race +
           line = TRUE)
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-28-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-34-1.png)
 
 Another way to compare weights from multiple objects is to call
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
@@ -1815,7 +2015,7 @@ bal.plot(m.out, "prog.score",
          which = "both")
 ```
 
-![](cobalt_files/figure-html/unnamed-chunk-30-1.png)
+![](cobalt_files/figure-html/unnamed-chunk-36-1.png)
 
 Although the prognostic score is sensitive to the outcome estimation
 model used, a defensible prognostic score model can yield valid
@@ -1849,8 +2049,8 @@ the standard deviation corresponding to the default for the method is
 the most appropriate.
 
 A key detail is that the standard deviation, no matter how it is
-computed, is always computed using the *unadjusted* sample[^4]. This is
-line with how *MatchIt* computes standardized mean differences[^5], and
+computed, is always computed using the *unadjusted* sample[^3]. This is
+line with how *MatchIt* computes standardized mean differences[^4], and
 is recommended by Stuart
 ([2008](#ref-stuartDevelopingPracticalRecommendations2008),
 [2010](#ref-stuartMatchingMethodsCausal2010)). One reason to favor the
@@ -2092,7 +2292,7 @@ be the same for both scenarios because both would yield the same degree
 of bias in the effect estimate. In addition, Ali et al.
 ([2014](#ref-aliPropensityScoreBalance2014)) found that the raw
 difference in proportion was a better predictor of bias than the
-standardized mean difference for binary variables[^6].
+standardized mean difference for binary variables[^5].
 
 *MatchIt* allows users to view either standardized mean differences for
 all covariates or raw differences for all covariates, and *twang* and
@@ -2160,7 +2360,7 @@ the two groups. Thus, an additional variable computed as the product of
 interaction between sex and age.
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
 produces this interaction term, which would otherwise be unobserved by
-the analyst[^7]. The interactions among levels of a single factor, which
+the analyst[^6]. The interactions among levels of a single factor, which
 always be equal to 0, are excluded in
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md).
 
@@ -2354,6 +2554,11 @@ in Cohort Studies of Causal Effects.” *Statistics in Medicine* 33 (10):
 Greifer, Noah. 2021. *WeightIt: Weighting for Covariate Balance in
 Observational Studies*.
 
+Greifer, Noah, and Elizabeth A Stuart. 2021. “Matching Methods for
+Confounder Adjustment: An Addition to the Epidemiologist’s Toolbox.”
+*Epidemiologic Reviews* 43 (1): 118–29.
+<https://doi.org/10.1093/epirev/mxab003>.
+
 Hainmueller, Jens. 2014. *Ebal: Entropy Reweighting to Create Balanced
 Samples*.
 
@@ -2424,6 +2629,12 @@ Beth Ann Griffin. 2016. “Toolkit for Weighting and Analysis of
 Nonequivalent Groups: A Tutorial for the Twang Package.” *R Vignette.
 RAND*.
 
+Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. 1995. “Analysis
+of Semiparametric Regression Models for Repeated Outcomes in the
+Presence of Missing Data.” *Journal of the American Statistical
+Association* 90 (429): 106–21.
+<https://doi.org/10.1080/01621459.1995.10476493>.
+
 Rosenbaum, Paul R., and Donald B. Rubin. 1985. “Constructing a Control
 Group Using Multivariate Matched Sampling Methods That Incorporate the
 Propensity Score.” *The American Statistician* 39 (1): 33–38.
@@ -2433,6 +2644,11 @@ Rubin, Donald B. 2001. “Using Propensity Scores to Help Design
 Observational Studies: Application to the Tobacco Litigation.” *Health
 Services and Outcomes Research Methodology* 2 (3-4): 169–88.
 <https://doi.org/10.1023/A:1020363010465>.
+
+Seaman, Shaun R., and Ian R. White. 2013. “Review of Inverse Probability
+Weighting for Dealing with Missing Data.” *Statistical Methods in
+Medical Research* 22 (3): 278–95.
+<https://doi.org/10.1177/0962280210395740>.
 
 Sekhon, Jasjeet S. 2011. “Multivariate and Propensity Score Matching
 Software with Automated Balance Optimization: The Matching Package for
@@ -2487,28 +2703,24 @@ Balancing Weights for Causal Inference and Missing Data*. Manual.
     *MatchIt*, *twang*, or *WeightIt* are missing. Such issues should be
     fixed soon.
 
-[^2]: *WeightIt* is a wrapper for *twang*, *CBPS*, *ebal*, and other
-    packages for point treatments, so it can perform their functions as
-    well.
-
-[^3]: Older versions used the arguments `disp.means` and `disp.sds`, and
+[^2]: Older versions used the arguments `disp.means` and `disp.sds`, and
     these are still allowed.
 
-[^4]: Unless common support is used in *Matching*, in which case the
+[^3]: Unless common support is used in *Matching*, in which case the
     standard deviation is computed using the remaining unadjusted
     sample, or `s.d.enom` is set to `"weighted"`, which uses the
     standard deviation computed in the weighted (or matched) sample.
 
-[^5]: It is important to note that both *twang* and *Matching* calculate
+[^4]: It is important to note that both *twang* and *Matching* calculate
     standardized mean differences using the standard deviation of the
     sample in question, not the unadjusted sample, though *CBPS* uses
     the standard deviation of the unadjusted sample.
 
-[^6]: Ali et al. (2014) compared the KS statistic to standardized mean
+[^5]: Ali et al. (2014) compared the KS statistic to standardized mean
     differences, but the KS statistic is equivalent to the raw
     difference in proportion for binary variables.
 
-[^7]: This value is a linear function of the other observed values, so
+[^6]: This value is a linear function of the other observed values, so
     it would in principle be able to be computed by the analyst, but it
     seems more valuable to explicitly include this “redundant
     calculation” for the sake of ease and completeness.

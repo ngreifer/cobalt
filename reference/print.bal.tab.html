@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,7 @@
 <span>  <span class="va">which.cluster</span>,</span>
 <span>  <span class="va">cluster.summary</span>,</span>
 <span>  <span class="va">cluster.fun</span>,</span>
+<span>  var.names <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">3L</span>, <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"digits"</span><span class="op">)</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -163,6 +164,10 @@
 
 <dt id="arg-cluster-fun">cluster.fun<a class="anchor" aria-label="anchor" href="#arg-cluster-fun"></a></dt>
 <dd><p><code>character</code>; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for details.</p></dd>
+
+
+<dt id="arg-var-names">var.names<a class="anchor" aria-label="anchor" href="#arg-var-names"></a></dt>
+<dd><p>an optional object providing alternate names for the variables, which will otherwise be displayed as they are stored. Entries given here add to those given in the original call to <code><a href="bal.tab.html">bal.tab()</a></code> and replace any entry they name. See <code><a href="display-options.html">display-options</a></code> for how to specify it.</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>

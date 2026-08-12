@@ -30,6 +30,8 @@
 <url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.weightit.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/balance-statistics.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/balance-summary.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/cens.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.cens.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.cluster.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.imp.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.msm.html</loc></url>
@@ -37,6 +39,7 @@
 <url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.subclass.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/cobalt-package.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/display-options.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/extract.bal.tab.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/f.build.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/get.w.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/index.html</loc></url>
@@ -45,6 +48,7 @@
 <url><loc>https://ngreifer.github.io/cobalt/reference/print.bal.tab.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/set.cobalt.options.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/splitfactor.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/treat-class.html</loc></url>
 <url><loc>https://ngreifer.github.io/cobalt/reference/var.names.html</loc></url>
 </urlset>
 

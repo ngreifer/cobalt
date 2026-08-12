@@ -5,20 +5,20 @@ numerically and graphically. The functions provide integration with the
 major R packages used for balancing covariates, including MatchIt,
 WeightIt, twang, CBPS, and many others, and support objects not made
 using these packages. They support binary, multi-category and continuous
-treatments, point and longitudinal treatments, and clustered and
-multiply imputed data.
+treatments; point and longitudinal treatments; censored data; and
+clustered and multiply imputed data.
 
 The main functions of cobalt are the following:
 
-- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md) -
-  generate tables of balance statistics before and after matching,
+- [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  – generate tables of balance statistics before and after matching,
   weighting, or subclassification
 
-- [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md) -
-  generate plots to assess balance visually on one covariate at a time
+- [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+  – generate plots to assess balance visually on one covariate at a time
 
-- [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md) -
-  generate plots to summarize and report balance statistics
+- [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+  – generate plots to summarize and report balance statistics
 
 Other functions include
 [`get.w()`](https://ngreifer.github.io/cobalt/reference/get.w.md) for

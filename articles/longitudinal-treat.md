@@ -2,19 +2,21 @@
 
 This is an introduction to the use of *cobalt* with longitudinal
 treatments. These occur when there are multiple treatment periods spaced
-over time, with the potential for time-dependent confounding to occur. A
-common way to estimate treatment effects in these scenarios is to use
-marginal structural models (MSM), weighted by balancing weights. The
-goal of applying weights is to simulate a sequential randomization
-design, where the probability of being assigned to treatment at each
-time point is independent of each unit’s prior covariate and treatment
-history. For introduction to MSMs in general, see Thoemmes and Ong
+over time, with the potential for time-dependent confounding and
+censoring to occur. A common way to estimate treatment effects in these
+scenarios is to use marginal structural models (MSMs), weighted by
+balancing weights. The goal of applying weights is to simulate a
+sequential randomization design, where the probability of being assigned
+to treatment at each time point is independent of each unit’s prior
+covariate and treatment history. For introduction to MSMs in general,
+see Thoemmes and Ong
 ([2016](#ref-thoemmesPrimerInverseProbability2016)), VanderWeele et al.
 ([2016](#ref-vanderweeleCausalInferenceLongitudinal2016)), Cole and
 Hernán ([2008](#ref-coleConstructingInverseProbability2008)), or Robins
 et al. ([2000](#ref-robinsMarginalStructuralModels2000)). The key issue
 addressed by this guide and *cobalt* in general is assessing balance
-before each treatment period to ensure the removal of confounding.
+before each treatment period to ensure the removal of confounding and
+bias due to censoring.
 
 In preprocessing for MSMs, three types of variables are relevant:
 baseline covariates, treatments, and intermediate outcomes/time-varying
@@ -32,7 +34,8 @@ Next we’ll use
 [`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md),
 and
 [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
-to assess and present balance.
+to assess and present balance. Finally, we’ll look at what changes when
+units are censored between treatment periods.
 
 ## Setup
 
@@ -64,13 +67,13 @@ The goal of balance assessment in this scenario is to ensure the
 following:
 
 1.  `A_1` is independent from `X1_0` and `X2_0`
-2.  `A_2` is independent from `X1_0`, `X2_0`, `A_1,`X1_1`, and`X2_1\`
-3.  `tx3` is independent from `X1_0`, `X2_0`, `A_1,`X1_1`,`X2_1`,`A_2,
-    `X1_2`, and `X2_2`
+2.  `A_2` is independent from `X1_0`, `X2_0`, `A_1`, `X1_1`, and `X2_1`
+3.  `A_3` is independent from `X1_0`, `X2_0`, `A_1`, `X1_1`, `X2_1`,
+    `A_2`, `X1_2`, and `X2_2`
 
 Note these conditions are different from and weaker than those described
 by Jackson ([2016](#ref-jacksonDiagnosticsConfoundingTimevarying2016)).
-See his `confoundr` package for implementing the diagnostics he
+See his *confoundr* package for implementing the diagnostics he
 describes.
 
 ## `bal.tab()`
@@ -83,7 +86,7 @@ The formula interface requires a list of formulas, one for each
 treatment, and a data set containing the relevant variables. The data
 set must be in the “wide” setup, where each time point receives its own
 columns and each unit has exactly one row of data. The formula interface
-is similar to the *WeightIt* input seen above. The data frame interface
+is similar to the *WeightIt* input seen below. The data frame interface
 requires a list of treatment values for each time point and a data frame
 or list of covariates for each time point. We’ll use the formula
 interface here.
@@ -99,6 +102,7 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
         data = msmdata)
 ```
 
+    ## 
     ## Balance summary across all time points
     ##        Times    Type Max.Diff.Un
     ## X1_0 1, 2, 3 Contin.      0.6897
@@ -109,15 +113,14 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
     ## X1_2       3 Contin.      0.4749
     ## X2_2       3  Binary      0.5945
     ## A_2        3  Binary      0.1620
-    ## 
     ## Sample sizes
-    ##  - Time 1
+    ##  - 1. Treatment: A_1
     ##     Control Treated
     ## All    3306    4194
-    ##  - Time 2
+    ##  - 2. Treatment: A_2
     ##     Control Treated
     ## All    3701    3799
-    ##  - Time 3
+    ##  - 3. Treatment: A_3
     ##     Control Treated
     ## All    4886    2614
 
@@ -145,7 +148,8 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
 
     ## Balance by Time Point
     ## 
-    ##  - - - Time: 1 - - - 
+    ## ─── 1. Treatment: A_1 
+    ## 
     ## Balance Measures
     ##         Type Diff.Un
     ## X1_0 Contin.  0.6897
@@ -155,7 +159,8 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
     ##     Control Treated
     ## All    3306    4194
     ## 
-    ##  - - - Time: 2 - - - 
+    ## ─── 2. Treatment: A_2 
+    ## 
     ## Balance Measures
     ##         Type Diff.Un
     ## X1_1 Contin.  0.8736
@@ -168,7 +173,8 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
     ##     Control Treated
     ## All    3701    3799
     ## 
-    ##  - - - Time: 3 - - - 
+    ## ─── 3. Treatment: A_3 
+    ## 
     ## Balance Measures
     ##         Type Diff.Un
     ## X1_2 Contin.  0.4749
@@ -183,7 +189,6 @@ bal.tab(list(A_1 ~ X1_0 + X2_0,
     ## Sample sizes
     ##     Control Treated
     ## All    4886    2614
-    ##  - - - - - - - - - - -
 
 Here we see balance by time point. At each time point, a `bal.tab`
 object is produced for that time point. These function just like regular
@@ -225,7 +230,8 @@ bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
 
     ## Balance by Time Point
     ## 
-    ##  - - - Time: 1 - - - 
+    ## ─── 1. Treatment: A_1 ───────────────────────
+    ## 
     ## Balance Measures
     ##         Type Diff.Un Diff.Adj
     ## X1_0 Contin.  0.6897   0.0026
@@ -236,7 +242,8 @@ bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
     ## Unadjusted 3306.    4194. 
     ## Adjusted    845.79   899.4
     ## 
-    ##  - - - Time: 2 - - - 
+    ## ─── 2. Treatment: A_2 ───────────────────────
+    ## 
     ## Balance Measures
     ##         Type Diff.Un Diff.Adj
     ## X1_1 Contin.  0.8736   0.0531
@@ -250,7 +257,8 @@ bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
     ## Unadjusted 3701.   3799.  
     ## Adjusted    912.87  829.87
     ## 
-    ##  - - - Time: 3 - - - 
+    ## ─── 3. Treatment: A_3 ───────────────────────
+    ## 
     ## Balance Measures
     ##         Type Diff.Un Diff.Adj
     ## X1_2 Contin.  0.4749   0.0643
@@ -266,7 +274,8 @@ bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
     ##            Control Treated
     ## Unadjusted 4886.   2614.  
     ## Adjusted   1900.26  600.12
-    ##  - - - - - - - - - - - 
+    ## 
+    ## ─────────────────────────────────────────────
     ## 
     ## Balance summary across all time points
     ##        Times    Type Max.Diff.Un Max.Diff.Adj
@@ -278,17 +287,16 @@ bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
     ## X1_2       3 Contin.      0.4749       0.0643
     ## X2_2       3  Binary      0.5945       0.0096
     ## A_2        3  Binary      0.1620       0.0054
-    ## 
     ## Effective sample sizes
-    ##  - Time 1
+    ##  - 1. Treatment: A_1
     ##            Control Treated
     ## Unadjusted 3306.    4194. 
     ## Adjusted    845.79   899.4
-    ##  - Time 2
+    ##  - 2. Treatment: A_2
     ##            Control Treated
     ## Unadjusted 3701.   3799.  
     ## Adjusted    912.87  829.87
-    ##  - Time 3
+    ##  - 3. Treatment: A_3
     ##            Control Treated
     ## Unadjusted 4886.   2614.  
     ## Adjusted   1900.26  600.12
@@ -365,6 +373,214 @@ love.plot(Wmsm, binary = "std", which.time = .all)
 
 ![](longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png)
 
+## Censoring
+
+Units often stop being observed partway through a study, which leaves
+later treatments and the outcome unrecorded for them. If dropout depends
+on treatment or covariate history, the units who remain are not
+representative of the sample that started, and weighting them to
+resemble it is the standard remedy ([Robins et al.
+1995](#ref-robinsAnalysisSemiparametricRegression1995); [Hernán et al.
+2000](#ref-hernanMarginalStructuralModels2000)). The censoring model
+that produces those weights sits in the sequence alongside the treatment
+models, and its balance is assessed at the point where the censoring
+occurs.
+
+A censoring indicator is marked with
+[`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md) and
+follows the survival convention, in which `1` means the unit was
+censored and `0` means it is still under observation. It goes in the
+list of models at the position where it happens. Below we add an
+indicator of dropout after treatment period 2, so that `A_3` is
+unobserved for the units it censors. Units with higher `X1_2` and those
+treated at period 2 are more likely to drop out.
+
+``` r
+
+set.seed(100)
+msmdata$C_2 <- rbinom(nrow(msmdata), 1,
+                      prob = plogis(-4 + .35 * msmdata$X1_2 +
+                                        .8 * msmdata$A_2))
+
+#A_3 is not observed for the units censored after period 2
+is.na(msmdata$A_3[msmdata$C_2 == 1]) <- TRUE
+```
+
+The list of formulas now has four entries for three treatment periods.
+The censoring model gets the same history as the treatment model that
+follows it.
+
+``` r
+
+bal.tab(list(A_1 ~ X1_0 + X2_0,
+             A_2 ~ X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0,
+             .cens(C_2) ~ X1_2 + X2_2 +
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0,
+             A_3 ~ X1_2 + X2_2 +
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0),
+        data = msmdata)
+```
+
+    ## Balance by Time Point
+    ## 
+    ## ─── 1. Treatment: A_1 
+    ## 
+    ## Balance Measures
+    ##         Type Diff.Un
+    ## X1_0 Contin.  0.6897
+    ## X2_0  Binary -0.3253
+    ## 
+    ## Sample sizes
+    ##     Control Treated
+    ## All    3306    4194
+    ## 
+    ## ─── 2. Treatment: A_2 
+    ## 
+    ## Balance Measures
+    ##         Type Diff.Un
+    ## X1_1 Contin.  0.8736
+    ## X2_1  Binary -0.2994
+    ## A_1   Binary  0.1267
+    ## X1_0 Contin.  0.5276
+    ## X2_0  Binary -0.0599
+    ## 
+    ## Sample sizes
+    ##     Control Treated
+    ## All    3701    3799
+    ## 
+    ## ─── 3. Censoring: C_2 
+    ## 
+    ## Balance Measures
+    ##         Type Diff.Un
+    ## X1_2 Contin.  0.1991
+    ## X2_2  Binary -0.0000
+    ## A_2   Binary  0.0606
+    ## X1_1 Contin.  0.1393
+    ## X2_1  Binary -0.0207
+    ## A_1   Binary  0.0206
+    ## X1_0 Contin.  0.0752
+    ## X2_0  Binary -0.0118
+    ## 
+    ## Sample sizes
+    ##            Total
+    ## Full        7500
+    ## Uncensored  6158
+    ## Censored    1342
+    ## 
+    ## ─── 4. Treatment: A_3 
+    ## 
+    ## Balance Measures
+    ##         Type Diff.Un
+    ## X1_2 Contin.  0.5003
+    ## X2_2  Binary -0.5841
+    ## A_2   Binary  0.1512
+    ## X1_1 Contin.  0.5622
+    ## X2_1  Binary -0.0437
+    ## A_1   Binary  0.0936
+    ## X1_0 Contin.  0.3534
+    ## X2_0  Binary -0.0375
+    ## 
+    ## Sample sizes
+    ##        0    1
+    ## All 4126 2032
+
+There is one table per entry, of whichever kind that entry’s model is.
+The first, second, and fourth are ordinary treatment balance tables; the
+third compares the units still under observation to the full sample at
+risk at that point, as described in the “Using *cobalt* with censoring”
+section of
+[`vignette("cobalt")`](https://ngreifer.github.io/cobalt/articles/cobalt.md).
+Its sample size table has a single column and reports how many units
+were at risk, how many remained, and how many were censored.
+
+Two things about the third and fourth tables are worth pointing out.
+First, the fourth table is computed among the 6158 units still under
+observation, not all 7500: a unit censored at period 2 has no treatment
+at period 3 and nothing left to balance. Which units those are is worked
+out from the censoring indicators themselves, so it makes no difference
+whether the data leaves `A_3` missing for them, as here, or records a
+value anyway. Second, no balance summary across time points is
+displayed, and neither is the collected table of sample sizes that
+normally accompanies it; each time point’s own table reports its sample
+sizes anyway. A censoring table and a treatment table describe different
+comparisons, so there is nothing meaningful to aggregate across them,
+just as there is nothing to aggregate across a mix of continuous and
+binary treatments. A list in which every entry is a censoring indicator
+is not a mixture and is summarized as usual.
+
+[`weightitMSM()`](https://ngreifer.github.io/WeightIt/reference/weightitMSM.html)
+takes the same list and fits the censoring model along with the
+treatment models, returning a single set of weights that is their
+product.
+
+``` r
+
+Wmsm.cens <- weightitMSM(list(A_1 ~ X1_0 + X2_0,
+                              A_2 ~ X1_1 + X2_1 +
+                                A_1 + X1_0 + X2_0,
+                              .cens(C_2) ~ X1_2 + X2_2 +
+                                A_2 + X1_1 + X2_1 +
+                                A_1 + X1_0 + X2_0,
+                              A_3 ~ X1_2 + X2_2 +
+                                A_2 + X1_1 + X2_1 +
+                                A_1 + X1_0 + X2_0),
+                         data = msmdata)
+
+bal.tab(Wmsm.cens, un = TRUE, which.time = 3)
+```
+
+    ## Balance by Time Point
+    ## 
+    ## ─── 3. Censoring: C_2 ───────
+    ## 
+    ## Balance Measures
+    ##         Type Diff.Un Diff.Adj
+    ## X1_2 Contin.  0.1991   0.0623
+    ## X2_2  Binary -0.0000  -0.0113
+    ## A_2   Binary  0.0606   0.0112
+    ## X1_1 Contin.  0.1393   0.0226
+    ## X2_1  Binary -0.0207   0.0106
+    ## A_1   Binary  0.0206   0.0657
+    ## X1_0 Contin.  0.0752  -0.0095
+    ## X2_0  Binary -0.0118  -0.0001
+    ## 
+    ## Effective sample sizes
+    ##            Total
+    ## Full        7500
+    ## Uncensored  6158
+    ## Adjusted    1495
+    ## Censored    1342
+
+Because the weights are the product across all four models, balance at
+any one time point is assessed with weights that include the others,
+censoring among them.
+
+[`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+and
+[`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+work here too. At a censoring time point,
+[`bal.plot()`](https://ngreifer.github.io/cobalt/reference/bal.plot.md)
+shows the weighted uncensored sample against the unweighted full sample
+rather than two treatment groups.
+
+``` r
+
+bal.plot(Wmsm.cens, var.name = "X1_2", which.time = 3,
+         which = "both")
+```
+
+![](longitudinal-treat_files/figure-html/unnamed-chunk-14-1.png)
+
+``` r
+
+love.plot(Wmsm.cens, binary = "std", which.time = .all)
+```
+
+![](longitudinal-treat_files/figure-html/unnamed-chunk-15-1.png)
+
 ## Other Packages
 
 Here we used *WeightIt* to generate our MSM weights, but *cobalt* is
@@ -393,6 +609,11 @@ Cole, Stephen R., and Miguel A Hernán. 2008. “Constructing Inverse
 Probability Weights for Marginal Structural Models.” *American Journal
 of Epidemiology* 168 (6): 656–64. <https://doi.org/10.1093/aje/kwn164>.
 
+Hernán, Miguel Ángel, Babette Brumback, and James M. Robins. 2000.
+“Marginal Structural Models to Estimate the Causal Effect of Zidovudine
+on the Survival of HIV-Positive Men.” *Epidemiology* 11 (5): 561–70.
+<https://doi.org/10.1097/00001648-200009000-00012>.
+
 Jackson, John W. 2016. “Diagnostics for Confounding of Time-Varying and
 Other Joint Exposures:” *Epidemiology* 27 (6): 859–69.
 <https://doi.org/10.1097/EDE.0000000000000547>.
@@ -401,6 +622,12 @@ Robins, James M., Miguel Ángel Hernán, and Babette Brumback. 2000.
 “Marginal Structural Models and Causal Inference in Epidemiology.”
 *Epidemiology* 11 (5): 550–60.
 <https://doi.org/10.1097/00001648-200009000-00011>.
+
+Robins, James M., Andrea Rotnitzky, and Lue Ping Zhao. 1995. “Analysis
+of Semiparametric Regression Models for Repeated Outcomes in the
+Presence of Missing Data.” *Journal of the American Statistical
+Association* 90 (429): 106–21.
+<https://doi.org/10.1080/01621459.1995.10476493>.
 
 Thoemmes, Felix J., and Anthony D. Ong. 2016. “A Primer on Inverse
 Probability of Treatment Weighting and Marginal Structural Models.”

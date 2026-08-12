@@ -80,6 +80,13 @@
 
 ## bal.tab() Classes
 
+- [`class-bal.tab.cens`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.cens.md)
+  :
+
+  Using
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  with a Censoring Indicator
+
 - [`class-bal.tab.cluster`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.cluster.md)
   :
 
@@ -131,6 +138,9 @@
 
 ## Helper Functions
 
+- [`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md) :
+  Mark a Censoring Indicator
+
 - [`col_w_mean()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
   [`col_w_sd()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
   [`col_w_smd()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
@@ -174,6 +184,10 @@
   :
 
   Extract Variable Names from `bal.tab` Objects
+
+- [`as.data.frame(`*`<bal.tab>`*`)`](https://ngreifer.github.io/cobalt/reference/extract.bal.tab.md)
+  [`format(`*`<bal.tab>`*`)`](https://ngreifer.github.io/cobalt/reference/extract.bal.tab.md)
+  : Extract a Balance Table for Further Use
 
 ## Data
 

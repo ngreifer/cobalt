@@ -214,7 +214,7 @@ col_w_dcorr(
 
   for all functions, additional arguments supplied to
   [`splitfactor()`](https://ngreifer.github.io/cobalt/reference/splitfactor.md)
-  when `mat` is a data.frame. `data`, `var.name`, `drop.first`, and
+  when `mat` is a data frame. `data`, `var.name`, `drop.first`, and
   `drop.level` are ignored; `drop.first` is automatically set to
   `"if2"`. For `col_w_ovl()`, other arguments passed to
   [`density()`](https://rdrr.io/r/stats/density.html) besides `x` and
