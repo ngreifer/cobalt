@@ -234,6 +234,13 @@ print(
 
   further arguments passed to or from other methods.
 
+## Value
+
+`x`, invisibly. [`print()`](https://rdrr.io/r/base/print.html) is called
+for the side effect of displaying the balance table and leaves the
+object as it was; the arguments above decide what is shown, not what is
+returned.
+
 ## Details
 
 Simply calling

@@ -35,6 +35,17 @@ get.cobalt.options(...)
   if `TRUE`, sets all cobalt options not named in `...` to their default
   values.
 
+## Value
+
+`set.cobalt.options()` is called for its side effect of setting options,
+and returns invisibly: the previous values of any options it returned to
+their defaults, as [`options()`](https://rdrr.io/r/base/options.html)
+gives them, or `NULL` if it returned none.
+
+`get.cobalt.options()` returns a named list with one entry per requested
+option, holding its current value, or `NULL` for an option that has not
+been set. Called with no arguments, it returns every available option.
+
 ## Details
 
 When an option is set to `NULL`, it is set to its default value. The

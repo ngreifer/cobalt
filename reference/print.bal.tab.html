@@ -185,6 +185,10 @@
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p><code>x</code>, invisibly. <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> is called for the side effect of displaying the balance table and leaves the object as it was; the arguments above decide what is shown, not what is returned.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Simply calling <code><a href="bal.tab.html">bal.tab()</a></code> will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> function automatically dispatches the correct method for the <code>bal.tab</code> object given.</p>
 <p>Any parameter used in <code><a href="bal.tab.html">bal.tab()</a></code> for calculations, such as <code>int</code>, <code>addl</code>, or <code>distance</code>, cannot be used with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to <code><a href="bal.tab.html">bal.tab()</a></code> must be performed.</p>

@@ -79,6 +79,11 @@
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p><code>set.cobalt.options()</code> is called for its side effect of setting options, and returns invisibly: the previous values of any options it returned to their defaults, as <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code> gives them, or <code>NULL</code> if it returned none.</p>
+<p><code>get.cobalt.options()</code> returns a named list with one entry per requested option, holding its current value, or <code>NULL</code> for an option that has not been set. Called with no arguments, it returns every available option.</p>
+    </div>
+    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>When an option is set to <code>NULL</code>, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed <a href="display-options.html">here</a>. Some others (e.g., <code>continuous</code> and <code>binary</code>) are described on the <code><a href="bal.tab.html">bal.tab()</a></code> help page.</p>
     </div>

@@ -96,6 +96,17 @@
 <p>For more information, check out the <em>cobalt</em> <a href="https://ngreifer.github.io/cobalt/">website</a>!</p>
 </div>
 <div class="section level3">
+<h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h3>
+<p>You can install the current stable version of <em>cobalt</em> from CRAN with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cobalt"</span><span class="op">)</span></span></code></pre></div>
+<p>You can install the development version of <em>cobalt</em> from <a href="https://github.com/ngreifer/cobalt" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"ngreifer/cobalt"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
 <h3 id="why-cobalt">Why cobalt?<a class="anchor" aria-label="anchor" href="#why-cobalt"></a>
 </h3>
 <p>Most of the major conditioning packages contain functions to assess balance; so why use <em>cobalt</em> at all? <em>cobalt</em> arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. In addition, <em>cobalt</em> has unique plotting capabilities that make use of <em>ggplot2</em> in R for balance assessment and reporting.</p>
@@ -107,7 +118,7 @@
 <h3 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h3>
 <p>Below are examples of <em>cobalt</em>’s primary functions:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -118,34 +129,34 @@
 <span></span>
 <span><span class="co">#Checking balance before and after matching:</span></span>
 <span><span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co">#&gt; Balance Measures</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;                 Type Diff.Un Diff.Adj        M.Threshold</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; distance    Distance  1.7941   0.9739                   </span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; age          Contin. -0.3094   0.0718     Balanced, &lt;0.1</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; educ         Contin.  0.0550  -0.1290 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; race_black    Binary  0.6404   0.3730 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; race_hispan   Binary -0.0827  -0.1568 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; race_white    Binary -0.5577  -0.2162 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; married       Binary -0.3236  -0.0216     Balanced, &lt;0.1</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; nodegree      Binary  0.1114   0.0703     Balanced, &lt;0.1</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; re74         Contin. -0.7211  -0.0505     Balanced, &lt;0.1</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; re75         Contin. -0.2903  -0.0257     Balanced, &lt;0.1</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; Balance tally for mean differences</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;                    count</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; Balanced, &lt;0.1         5</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; Not Balanced, &gt;0.1     4</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; Variable with the greatest mean difference</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;    Variable Diff.Adj        M.Threshold</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;  race_black    0.373 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Sample sizes</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;           Control Treated</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; All           429     185</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; Matched       185     185</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; Unmatched     244       0</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">#&gt; Balance Measures</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;                 Type Diff.Un Diff.Adj        M.Threshold</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; distance    Distance  1.7941   0.9739                   </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; age          Contin. -0.3094   0.0718     Balanced, &lt;0.1</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; educ         Contin.  0.0550  -0.1290 Not Balanced, &gt;0.1</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; race_black    Binary  0.6404   0.3730 Not Balanced, &gt;0.1</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; race_hispan   Binary -0.0827  -0.1568 Not Balanced, &gt;0.1</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; race_white    Binary -0.5577  -0.2162 Not Balanced, &gt;0.1</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; married       Binary -0.3236  -0.0216     Balanced, &lt;0.1</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; nodegree      Binary  0.1114   0.0703     Balanced, &lt;0.1</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; re74         Contin. -0.7211  -0.0505     Balanced, &lt;0.1</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; re75         Contin. -0.2903  -0.0257     Balanced, &lt;0.1</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; Balance tally for mean differences</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;                    count</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; Balanced, &lt;0.1         5</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; Not Balanced, &gt;0.1     4</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; Variable with the greatest mean difference</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt;    Variable Diff.Adj        M.Threshold</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;  race_black    0.373 Not Balanced, &gt;0.1</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; Sample sizes</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;           Control Treated</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; All           429     185</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; Matched       185     185</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; Unmatched     244       0</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Examining distributional balance with plots:</span></span>
 <span><span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"educ"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"distance"</span>,</span>
@@ -153,17 +164,15 @@
 <center>
 <img src="reference/figures/README-unnamed-chunk-3-1.png" data-display="inline"><img src="reference/figures/README-unnamed-chunk-3-2.png" data-display="inline">
 </center>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Generating a Love plot to report balance:</span></span>
 <span><span class="fu"><a href="reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>,</span>
 <span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>          binary <span class="op">=</span> <span class="st">"std"</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" alt="" style="display: block; margin: auto;"></p>
+<p><img src="reference/figures/README-unnamed-chunk-6-1.png" alt="" style="display: block; margin: auto;"></p>
 <p>Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: “Matching was performed using the <em>Matching</em> package (Sekhon, 2011), and covariate balance was assessed using <em>cobalt</em> (Greifer, 2026), both in R (R Core Team, 2026).” Use <code>citation("cobalt")</code> to generate a bibliographic reference for the <em>cobalt</em> package.</p>
-<p>Bugs appear in <em>cobalt</em> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="external-link uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <em>cobalt</em>, which may have removed a bug you’re experiencing, use the following code:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"ngreifer/cobalt"</span><span class="op">)</span></span></code></pre></div>
+<p>Bugs appear in <em>cobalt</em> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="external-link uri">https://github.com/ngreifer/cobalt/issues</a>.</p>
 </div>
 </div>
 </div>
