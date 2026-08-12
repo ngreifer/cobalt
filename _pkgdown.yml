@@ -1,8 +1,11 @@
 template:
   bootstrap: 5
+  light-switch: true
   math-rendering: mathjax
   bslib:
     primary: "#1B43A8"
+    secondary: "#B7C7E4"
+
 url: https://ngreifer.github.io/cobalt/
 
 reference:

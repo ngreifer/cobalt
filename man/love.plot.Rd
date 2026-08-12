@@ -89,13 +89,13 @@ Additionally, any of the \code{which.} arguments used with clustered or multiply
 \value{
 When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot()} provides automatically.
 
-When more than one type of balance statistic is requested, the plot is constructed using \code{\link[gridExtra:arrangeGrob]{gridExtra::arrangeGrob()}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
+When more than one type of balance statistic is requested, the plot is constructed using \code{\link[gridExtra:arrangeGrob]{gridExtra::arrangeGrob()}}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob()} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
 }
 \description{
 Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in \code{vignette("love.plot")}.
 }
 \details{
-\code{love.plot} can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding \code{which.} argument to \code{.none} will aggregate across that dimension. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See \code{vignette("segmented-data")} for examples.
+\code{love.plot()} can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding \code{which.} argument to \code{.none} will aggregate across that dimension. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See \code{vignette("segmented-data")} for examples.
 
 With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot.
 \subsection{Variable order using \code{var.order}}{
