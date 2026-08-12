@@ -872,13 +872,14 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                                                              yend = posneg[t] * Inf), 
                                                color = if (isTRUE(mirror)) "black" else colors[[t]])
           }
+          
           clear_null(out)
         }
+        
         ylab <- "Proportion"
         
         bp <- Reduce(init = ggplot2::ggplot(), "+", lapply(seq_len(nlevels.treat), geom_fun)) +
           ggplot2::scale_fill_manual(values = colors)
-        
       }
       else if (type %in% c("ecdf")) {
         
@@ -945,6 +946,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                                   kernel = kernel, n = n, trim = TRUE,
                                   outline.type = "full", stat = StatDensity2),
             NULL)
+          
           if (isTRUE(disp.means)) {
             out[[2L]] <- ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                mapping = aes(x = .data$var.mean,
@@ -953,8 +955,10 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                                                              yend = posneg[t] * Inf), 
                                                color = if (isTRUE(mirror)) "black" else colors[[t]])
           }
+          
           clear_null(out)
         }
+        
         ylab <- "Density"
         
         bp <- Reduce(init = ggplot2::ggplot(), "+", lapply(seq_len(nlevels.treat), geom_fun)) +
@@ -983,18 +987,21 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
   }
   
   #Themes
-  bp <- bp + ggplot2::theme(panel.background = element_rect(fill = "white", color = "black"),
-                            panel.border = element_rect(fill = NA, color = "black"),
-                            plot.background = element_blank(),
-                            legend.position = position,
-                            legend.key = element_rect(fill = "white", color = "black", linewidth = .25))
+  bp <- bp +
+    ggplot2::theme(panel.background = element_rect(fill = "white", color = "black"),
+                   panel.border = element_rect(fill = NA, color = "black"),
+                   plot.background = element_blank(),
+                   legend.position = position,
+                   legend.key = element_rect(fill = "white", color = "black", linewidth = .25))
   if (isTRUE(grid)) {
-    bp <- bp + ggplot2::theme(panel.grid.major = element_line(color = "gray87"),
-                              panel.grid.minor = element_line(color = "gray90"))
+    bp <- bp +
+      ggplot2::theme(panel.grid.major = element_line(color = "gray87"),
+                     panel.grid.minor = element_line(color = "gray90"))
   }
   else {
-    bp <- bp + ggplot2::theme(panel.grid.major = element_blank(),
-                              panel.grid.minor = element_blank())
+    bp <- bp +
+      ggplot2::theme(panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank())
   }
   
   if (is_not_null(facet)) {
@@ -1012,7 +1019,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
           arg::err("{.val which} must be in the facet formula when the {.arg which} argument refers to more than one sample")
         }
         
-        .b <- if (which %in% c("Adjusted Sample", "Unadjusted Sample")) tolower(which) else paste(which, "sample")
+        .b <- {
+          if (which %in% c("Adjusted Sample", "Unadjusted Sample")) tolower(which)
+          else paste(which, "sample")
+        }
+        
         arg::msg("displaying balance for the {(.b)}")
       }
     }
@@ -1050,8 +1061,9 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       facet.formula <- reformulate(facet, ".")
     }
     
-    bp <- bp + ggplot2::facet_grid(facet.formula, drop = FALSE,
-                                   scales = if ("subclass" %in% facet) "free_x" else "fixed")
+    bp <- bp +
+      ggplot2::facet_grid(facet.formula, drop = FALSE,
+                          scales = if ("subclass" %in% facet) "free_x" else "fixed")
   }
   
   bp

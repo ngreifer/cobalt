@@ -1909,7 +1909,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
         }
 
         return(TRUE)
-      }
+      } 
 
       if (is.function(test)) {
         arg::err("invalid type (function) for variable {.var {v}}")

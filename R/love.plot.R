@@ -36,10 +36,10 @@
 #' @returns
 #' When only one type of balance statistic is requested, the returned object is a standard `ggplot` object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what `love.plot()` provides automatically. 
 #' 
-#' When more than one type of balance statistic is requested, the plot is constructed using [gridExtra::arrangeGrob()] in `gridExtra`, which arranges multiple plots and their shared legend into one plot. Because the output of `arrangeGrob` is a `gtable` object, its features cannot be manipulated in the standard way. Use the `themes` argument to change theme elements of the component plots. The original plots are stored in the `"plots"` attribute of the output object.
+#' When more than one type of balance statistic is requested, the plot is constructed using [gridExtra::arrangeGrob()], which arranges multiple plots and their shared legend into one plot. Because the output of `arrangeGrob()` is a `gtable` object, its features cannot be manipulated in the standard way. Use the `themes` argument to change theme elements of the component plots. The original plots are stored in the `"plots"` attribute of the output object.
 #' 
 #' @details
-#' `love.plot` can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding `which.` argument to `.none` will aggregate across that dimension. When aggregating, an argument should be specified to `agg.fun` referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See `vignette("segmented-data")` for examples.
+#' `love.plot()` can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding `which.` argument to `.none` will aggregate across that dimension. When aggregating, an argument should be specified to `agg.fun` referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See `vignette("segmented-data")` for examples.
 #' 
 #' With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If `disp.subclass` is `TRUE`, each subclass will be displayed additionally as a number on the plot. 
 #' 
@@ -133,7 +133,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     stats <- NULL
   }
   
-  #Re-call bal.tab with disp.v.ratio or disp.ks if stats = "v" or "k".
+  #Re-call bal.tab
   if (typeof(.call[["x"]]) == "language") { #if x is not an object (i.e., is a function call)
     
     replace.args <- function(m) {
@@ -417,7 +417,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       B[one.level.facet] <- NULL
       
       if (sum(facet %nin% one.level.facet) > 1L) {
-        arg::err('at least one of {.or {.arg {paste.("which", facet)}}} must be {.val {quote(.none)}} or of length 1')
+        arg::err('at least one of {.or {.arg {paste.("which", facet)}}} must be {.val {quote(.none)}} or have length 1')
       }
       
       facet <- setdiff(facet, one.level.facet)
@@ -524,21 +524,18 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     original.sample.names[2L] <- "Adjusted"
   }
   
-  if (missing(sample.names)) {
-    sample.names <- NULL
-  }
-  else if (!is.character(sample.names)) {
-    arg::err("the argument to {.arg sample.names} must be a character vector")
-  }
-  else if (length(sample.names) %nin% c(ntypes, ntypes - 1L)) {
-    arg::err("the argument to {.arg sample.names} must contain as many names as there are sample types, or one fewer")
-  }
-  
-  if (is_null(sample.names)) {
+  if (missing(sample.names) || is_null(sample.names)) {
     sample.names <- original.sample.names
   }
-  else if (length(sample.names) == ntypes - 1L) {
-    sample.names <- c("Unadjusted", sample.names)
+  else {
+    arg::arg_character(sample.names)
+    
+    if (length(sample.names) == ntypes - 1L) {
+      sample.names <- c("Unadjusted", sample.names)
+    }
+    else if (length(sample.names) != ntypes) {
+      arg::err("the argument to {.arg sample.names} must contain as many names as there are sample types, or one fewer")
+    }
   }
   
   names(sample.names) <- original.sample.names
@@ -656,8 +653,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   #Title
   if (missing(title)) title <- "Covariate Balance"
   else title <- as.character(title)
-  # if (missing(subtitle)) subtitle <- as.character(subtitle)
-  
+
   #Process themes
   if (is_not_null(themes)) {
     if (!is.vector(themes, "list")) {
@@ -983,6 +979,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           SS[["max.stat"]][SS[["max.stat"]] < limits[[s]][1L]] <- limits[[s]][1L]
           SS[["min.stat"]][SS[["min.stat"]] < limits[[s]][1L]] <- limits[[s]][1L]
         }
+        
         if (any(SS[["mean.stat"]] > limits[[s]][2L], na.rm = TRUE)) {
           SS[["on.border"]][SS[["mean.stat"]] > limits[[s]][2L]] <- TRUE
           SS[["mean.stat"]][SS[["mean.stat"]] > limits[[s]][2L]] <- limits[[s]][2L]
@@ -997,6 +994,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           SS[["on.border"]][SS[["stat"]] < limits[[s]][1L]] <- TRUE
           SS[["stat"]][SS[["stat"]] < limits[[s]][1L]] <- limits[[s]][1L]
         }
+        
         if (any(SS[["stat"]] > limits[[s]][2L], na.rm = TRUE)) {
           SS[["on.border"]][SS[["stat"]] > limits[[s]][2L]] <- TRUE
           SS[["stat"]][SS[["stat"]] > limits[[s]][2L]] <- limits[[s]][2L]
@@ -1083,7 +1081,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
           stat = "identity",
           position = position.dodge,
           params = clear_null(point_params))
-      
     }
     else {
       if (is_not_null(sub.B)) {
@@ -1390,6 +1387,7 @@ ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
     left <- g[seq(min(tt), max(tt)), seq(1L, min(ll) - 1L)]
     right <- g[seq(min(tt), max(tt)), seq(max(ll) + 1L, ncol(g))]
     fg <- grid::nullGrob()
+    
     if (is_not_null(left)) {
       lg <- gtable::gtable_add_cols(left, grid::unit(1, "null"), 0)
       lg <- gtable::gtable_add_grob(lg, fg, 1, l = 1)
@@ -1481,6 +1479,7 @@ unpack_bal.tab <- function(b) {
         unpack_bal.tab_internal(i)
       })
   }
+  
   LinearizeNestedList <- function(NList, NameSep) {
     # LinearizeNestedList:
     #
