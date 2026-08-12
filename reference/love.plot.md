@@ -276,16 +276,16 @@ automatically.
 
 When more than one type of balance statistic is requested, the plot is
 constructed using
-[`gridExtra::arrangeGrob()`](https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html)
-in `gridExtra`, which arranges multiple plots and their shared legend
-into one plot. Because the output of `arrangeGrob` is a `gtable` object,
-its features cannot be manipulated in the standard way. Use the `themes`
-argument to change theme elements of the component plots. The original
-plots are stored in the `"plots"` attribute of the output object.
+[`gridExtra::arrangeGrob()`](https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html),
+which arranges multiple plots and their shared legend into one plot.
+Because the output of `arrangeGrob()` is a `gtable` object, its features
+cannot be manipulated in the standard way. Use the `themes` argument to
+change theme elements of the component plots. The original plots are
+stored in the `"plots"` attribute of the output object.
 
 ## Details
 
-`love.plot` can be used with clusters, imputations, and multi-category
+`love.plot()` can be used with clusters, imputations, and multi-category
 and longitudinal treatments in addition to the standard case. Setting
 the corresponding `which.` argument to `.none` will aggregate across
 that dimension. When aggregating, an argument should be specified to

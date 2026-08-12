@@ -5,15 +5,15 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Display Balance Statistics in a Love Plot — love.plot"><meta name="description" content='Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in vignette("love.plot").'><meta property="og:description" content='Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in vignette("love.plot").'><meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Display Balance Statistics in a Love Plot — love.plot"><meta name="description" content='Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in vignette("love.plot").'><meta property="og:description" content='Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in vignette("love.plot").'><meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.6.3.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">5.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,12 @@
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/ngreifer/cobalt/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch"><li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul></li>
       </ul></div>
 
 
@@ -195,11 +201,11 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>When only one type of balance statistic is requested, the returned object is a standard <code>ggplot</code> object that can be manipulated using <span class="pkg">ggplot2</span> syntax. This facilitates changing fonts, background colors, and features of the legend outside of what <code>love.plot()</code> provides automatically.</p>
-<p>When more than one type of balance statistic is requested, the plot is constructed using <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">gridExtra::arrangeGrob()</a></code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
+<p>When more than one type of balance statistic is requested, the plot is constructed using <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">gridExtra::arrangeGrob()</a></code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob()</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>love.plot</code> can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding <code>which.</code> argument to <code>.none</code> will aggregate across that dimension. When aggregating, an argument should be specified to <code>agg.fun</code> referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for examples.</p>
+    <p><code>love.plot()</code> can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding <code>which.</code> argument to <code>.none</code> will aggregate across that dimension. When aggregating, an argument should be specified to <code>agg.fun</code> referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for examples.</p>
 <p>With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If <code>disp.subclass</code> is <code>TRUE</code>, each subclass will be displayed additionally as a number on the plot.</p><div class="section">
 <h3 id="variable-order-using-var-order">Variable order using <code>var.order</code><a class="anchor" aria-label="anchor" href="#variable-order-using-var-order"></a></h3>
 
