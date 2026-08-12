@@ -328,6 +328,30 @@ test_that("invalid covariates and treatments are rejected", {
              "cannot be found")
 })
 
+test_that("a response variable is judged by whether it is bound, not by the error", {
+  #Both the class and the wording of the error R raises for a name with nothing bound to
+  #it are R's to change, and it has changed both: R-devel classes it `objectNotFoundError`
+  #rather than `simpleError`. Keying on the class sent every unbound response down the
+  #path meant for a name that exists but fails to evaluate, so `bal.tab(nope ~ age)` gave
+  #R's raw "object 'nope' not found" instead of saying which argument was at fault.
+  expect_false(cobalt:::.is_bound("nope", lalonde, globalenv()))
+  expect_true(cobalt:::.is_bound("treat", lalonde, globalenv()))
+
+  #A name that is bound but whose evaluation fails is still reported as it stands,
+  #whatever class that failure carries.
+  e <- new.env(parent = globalenv())
+  makeActiveBinding("boom",
+                    function() stop(rlang::error_cnd("weird_error", message = "kaboom")),
+                    e)
+
+  expect_true(cobalt:::.is_bound("boom", lalonde, e))
+  expect_err(bal.tab(as.formula("boom ~ age", env = e), data = lalonde), "kaboom")
+
+  #With no `data`, the formula's environment is what is searched.
+  expect_true(cobalt:::.is_bound("boom", e, e))
+  expect_false(cobalt:::.is_bound("nope", e, e))
+})
+
 test_that("malformed formulas are rejected informatively", {
   expect_err(bal.tab(nope ~ age, data = lalonde),
              "is not a variable in `data` or the global environment")

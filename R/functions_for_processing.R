@@ -1843,6 +1843,19 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
   rule1
 }
 
+#Is anything bound to the name `v` where evaluating the formula would look for it: a
+#column of `data`, or an object in the formula's environment or one of its parents?
+#
+#This is what distinguishes a name that does not exist from one that does but fails to
+#evaluate, without asking the error which it was.
+.is_bound <- function(v, data, env) {
+  if (!is.environment(data) && v %in% names(data)) {
+    return(TRUE)
+  }
+
+  exists(v, envir = env, inherits = TRUE)
+}
+
 #.get_C2
 get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
@@ -1881,15 +1894,23 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     resp.vars.mentioned <- as.character(rlang::f_lhs(tt))
     resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
       test <- tryCatch(eval(str2expression(v), data, env), error = function(e) e)
-      
-      if (inherits(test, "simpleError")) {
-        if (!identical(conditionMessage(test), sprintf("object '%s' not found", v))) {
+
+      if (inherits(test, "error")) {
+        #The case being looked for is a name with nothing bound to it, which is not the
+        #user's mistake to hear about: it means the formula names no response, and a
+        #response is optional. Any other failure is reported as it stands.
+        #
+        #Which one it is is settled by looking for the binding rather than by reading
+        #the error, whose class and wording are both R's to change and have changed:
+        #R-devel gives an unbound name an `objectNotFoundError` rather than a
+        #`simpleError`, and the message is translated.
+        if (.is_bound(v, data, env)) {
           arg::err("{conditionMessage(test)}")
         }
-        
+
         return(TRUE)
       }
-      
+
       if (is.function(test)) {
         arg::err("invalid type (function) for variable {.var {v}}")
       }
