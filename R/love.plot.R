@@ -1371,6 +1371,11 @@ gg_color_hue <- function(n) {
 ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
   #A thin version of egg:ggarrange
   
+  #This is the only thing \pkg{gtable} is used for, and it is reached only when more than
+  #one statistic is plotted, so it is asked for here rather than depended on.
+  rlang::check_installed("gtable (>= 0.3.6)",
+                         reason = "to arrange the plots for several statistics.")
+  
   gtable_frame <- function(g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
     panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]], fixed = TRUE), ]
     ll <- unique(panels$l)

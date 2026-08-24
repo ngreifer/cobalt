@@ -23,6 +23,8 @@
 
 * Changes
 
+  * *gtable* has moved from `Imports` to `Suggests`. It is used only to arrange the panels when `love.plot()` is given more than one statistic, and is now asked for at that point with `rlang::check_installed()`. In practice it will already be installed, since *ggplot2* and *gridExtra* both require it.
+
   * `var.names()` now reports the names a `bal.tab` object is displayed under rather than always the stored ones, so a set of names given to `bal.tab()` comes back out to be edited instead of written out again. The `old` column, and the names of the vector, are the stored names as before -- they are what a replacement is resolved against -- and only the `new` column, and the values of the vector, have changed. With no `var.names` applied the two agree, as they always did. `var.names()` also now reports a covariate that appears at only some time points of a longitudinal treatment, which it previously omitted because it read the names of the first time point alone.
   
   * The `Observations` component of a `bal.tab` object for a longitudinal treatment is now always present, where previously it was computed only when the balance summary across time points was. It is still displayed only alongside that summary, since it gathers in one place what each time point's own table has already reported.
