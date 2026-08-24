@@ -13,6 +13,7 @@
 ^\.github$
 ^\.DS_Store$
 ^CRAN-SUBMISSION$
+^cran-comments\.md$
 ^\.lintr$
 ^\.positai$
 ^\.claude$
