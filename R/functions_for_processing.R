@@ -1890,56 +1890,56 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
   tt <- try_arg(terms(f, data = data))
   
+  treat.name <- NULL
+  
   if (rlang::is_formula(tt, lhs = TRUE)) {
-    resp.vars.mentioned <- as.character(rlang::f_lhs(tt))
-    resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
-      test <- tryCatch(eval(str2expression(v), data, env), error = function(e) e)
-
+    #The whole left-hand side names one treatment, and it need not be a bare name:
+    #`lalonde$treat ~ x` and `` `my var` ~ x `` are both meant to work. It is therefore
+    #deparsed whole, and backtick-quoted where a bare name would not parse back. Reading
+    #it with `as.character()` split a call into its function and its arguments --
+    #`lalonde$treat` into `$`, `lalonde`, and `treat` -- and each piece was then parsed
+    #as if it were a variable of its own, which `$` is not; it also dropped the backticks
+    #a non-syntactic name needs to survive being written out and read back.
+    resp.var <- deparse1(rlang::f_lhs(tt), backtick = TRUE)
+    resp.expr <- str2expression(resp.var)
+    
+    test <- tryCatch(eval(resp.expr, data, env), error = function(e) e)
+    
+    resp.failed <- {
       if (inherits(test, "error")) {
-        #The case being looked for is a name with nothing bound to it, which is not the
-        #user's mistake to hear about: it means the formula names no response, and a
-        #response is optional. Any other failure is reported as it stands.
+        #A treatment that does not exist is not the user's mistake to hear about: it
+        #means the formula names none, which is allowed when one is supplied separately.
+        #Any other failure is reported as it stands.
         #
-        #Which one it is is settled by looking for the binding rather than by reading
-        #the error, whose class and wording are both R's to change and have changed:
-        #R-devel gives an unbound name an `objectNotFoundError` rather than a
-        #`simpleError`, and the message is translated.
-        if (.is_bound(v, data, env)) {
+        #Which one it is is settled by looking for the bindings the left-hand side needs
+        #rather than by reading the error, whose class and wording are both R's to change
+        #and have changed: R-devel gives an unbound name an `objectNotFoundError` rather
+        #than a `simpleError`, and the message is translated.
+        if (all(vapply(all.vars(resp.expr), .is_bound, logical(1L), data, env))) {
           arg::err("{conditionMessage(test)}")
         }
-
-        return(TRUE)
-      } 
-
-      if (is.function(test)) {
-        arg::err("invalid type (function) for variable {.var {v}}")
+        
+        TRUE
       }
-      
-      is_null(test)
-    }, logical(1L))
-    
-    if (any(resp.vars.failed)) {
-      if (is_not_null(treat)) {
-        tt <- delete.response(tt)
-      }
-      else if (data.specified) {
-        arg::err("the given response variable, {.var {resp.vars.mentioned}}, is not a variable in {.arg data} or the global environment")
+      else if (is.function(test)) {
+        arg::err("invalid type (function) for variable {.var {resp.var}}")
       }
       else {
-        arg::err("the given response variable, {.var {resp.vars.mentioned}}, is not a variable in the global environment")
+        is_null(test)
       }
     }
-  }
-  else {
-    resp.vars.failed <- TRUE
-  }
-  
-  if (all(resp.vars.failed)) {
-    treat.name <- NULL
-  }
-  else {
-    treat.name <- resp.vars.mentioned[!resp.vars.failed][1L]
-    treat <- eval(str2expression(treat.name), data, env)
+    
+    if (!resp.failed) {
+      treat.name <- resp.var
+      treat <- test
+    }
+    else if (is_null(treat)) {
+      if (data.specified) {
+        arg::err("the given response variable, {.var {resp.var}}, is not a variable in {.arg data} or the global environment")
+      }
+      
+      arg::err("the given response variable, {.var {resp.var}}, is not a variable in the global environment")
+    }
   }
   
   attr(treat, "treat.name") <- treat.name

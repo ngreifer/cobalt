@@ -45,6 +45,8 @@
 
 * Bug fixes
 
+  * Fixed a bug in which a formula whose left-hand side was an expression rather than a bare name, as in `bal.tab(lalonde$treat ~ ps)`, failed with `unexpected '$'`. The left-hand side was taken apart into its pieces -- `lalonde$treat` into `$`, `lalonde`, and `treat` -- and each was then read as a variable of its own. It is now evaluated whole, so any expression giving the treatment is accepted, as is a name that needs backticks.
+
   * `set.cobalt.options()` accepted `factor_sep` and `int_sep`, but nothing read them, so setting one had no effect. They are now honored.
 
   * Fixed a bug in which a longitudinal treatment combined with `cluster` or `imp` took its default `s.d.denom` from the wrapper rather than from the treatment, so a continuous longitudinal treatment with clusters or imputations failed with an error naming `"pooled"` as an unusable value.

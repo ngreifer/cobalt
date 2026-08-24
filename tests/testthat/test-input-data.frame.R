@@ -328,6 +328,65 @@ test_that("invalid covariates and treatments are rejected", {
              "cannot be found")
 })
 
+test_that("the response may be an expression rather than a bare name", {
+  ps <- seq_len(nrow(lalonde)) / nrow(lalonde)
+  treat <- lalonde$treat
+
+  ref <- bal.tab(treat ~ ps, s.d.denom = "pooled")
+
+  #The whole left-hand side names one treatment. It used to be taken apart, so
+  #`lalonde$treat` was read as three variables -- `$`, `lalonde`, and `treat` -- and
+  #parsing `$` as one of them failed before anything was computed.
+  for (f in list(lalonde$treat ~ ps,
+                 lalonde[["treat"]] ~ ps,
+                 factor(lalonde$treat) ~ ps)) {
+    b <- bal.tab(f, s.d.denom = "pooled")
+
+    expect_s3_class(b, "bal.tab.bin")
+    expect_equal(b$Balance, ref$Balance, info = deparse1(f))
+  }
+
+  #A name needing backticks has to keep them to survive being written out and read back.
+  d <- lalonde
+  names(d)[names(d) == "treat"] <- "my treat"
+
+  expect_identical(rownames(bal.tab(`my treat` ~ age, data = d,
+                                    s.d.denom = "pooled")$Balance),
+                   "age")
+})
+
+test_that("a formula needs no `data` when its variables are already reachable", {
+  treat <- lalonde$treat
+  age <- lalonde$age
+  educ <- lalonde$educ
+
+  ref <- bal.tab(lalonde[c("age", "educ")], treat = lalonde$treat, s.d.denom = "pooled")
+
+  #Variables found in the formula's environment rather than in `data`.
+  expect_equal(bal.tab(treat ~ age + educ, s.d.denom = "pooled")$Balance, ref$Balance)
+
+  #A covariate reached through `$` or `[[` is one covariate, named as it was written --
+  #not an invitation to expand the whole data frame it came from.
+  for (b in list(bal.tab(treat ~ lalonde$age, s.d.denom = "pooled"),
+                 bal.tab(lalonde$treat ~ lalonde$age, s.d.denom = "pooled"))) {
+    expect_identical(nrow(b$Balance), 1L)
+    expect_identical(rownames(b$Balance), "lalonde$age")
+    expect_equal(b$Balance$Diff.Un, ref$Balance$Diff.Un[rownames(ref$Balance) == "age"])
+  }
+
+  expect_identical(rownames(bal.tab(treat ~ lalonde[["age"]],
+                                    s.d.denom = "pooled")$Balance),
+                   'lalonde[["age"]]')
+
+  #`.` still expands to the rest of `data` and still leaves out the treatment, whichever
+  #way the treatment was named.
+  d <- lalonde[c("treat", "age", "educ")]
+
+  expect_identical(rownames(bal.tab(lalonde$treat ~ ., data = d,
+                                    s.d.denom = "pooled")$Balance),
+                   c("age", "educ"))
+})
+
 test_that("a response variable is judged by whether it is bound, not by the error", {
   #Both the class and the wording of the error R raises for a name with nothing bound to
   #it are R's to change, and it has changed both: R-devel classes it `objectNotFoundError`
