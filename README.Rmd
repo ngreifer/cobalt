@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/README-"
 )
-#if (!rlang::is_installed("MatchIt")) knitr::opts_chunk$set(eval = FALSE)
 ```
 # *cobalt*: Covariate Balance Tables and Plots <img src="man/figures/logo.png" align="right" width="150"/>
 
@@ -40,7 +39,6 @@ You can install the development version of *cobalt* from [GitHub](https://github
 # install.packages("pak")
 pak::pak("ngreifer/cobalt")
 ```
-
 
 ### Why cobalt?
 
