@@ -2,6 +2,8 @@
 
 ## *cobalt* 5.0.0
 
+CRAN release: 2026-08-25
+
 - New Features
 
   - Added support for assessing the balance of a censoring model. A
