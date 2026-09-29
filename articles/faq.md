@@ -536,7 +536,7 @@ Below are some of the reasons why SMDs might differ between *tableone*
 and *cobalt*:
 
 - *tableone* always uses the pooled standard deviation (i.e., the
-  standardizaton factor setting `s.d.denom = "pooled"`) as the
+  standardization factor setting `s.d.denom = "pooled"`) as the
   standardization factor, while *cobalt* determines the standardization
   factor based on the estimand (though by default or when the ATE is the
   estimand, the two should be aligned).

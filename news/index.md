@@ -1,5 +1,49 @@
 # Changelog
 
+## *cobalt* (development version)
+
+- Fixed a bug when computing KS statistics on continuous variables with
+  missingness in the predictors. Thanks to
+  [@alfie-b](https://github.com/alfie-b) for pointing it out.
+  ([\#97](https://github.com/ngreifer/cobalt/issues/97))
+
+- Fixed a bug in which treatment correlations for covariates with
+  missing values (in
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md),
+  [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md),
+  and
+  [`col_w_corr()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md))
+  used all units, including those missing the covariate, to compute the
+  standard deviation of the treatment and, for Spearman correlations,
+  its ranks. These now use only the units with the covariate observed,
+  so the correlations are the pairwise-complete ones.
+
+- [`col_w_dcov()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  and
+  [`col_w_dcorr()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  now respect `na.rm`. Previously, a covariate with any missing values
+  always had a distance covariance of `NA`, including in
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  with `stats = "distance.correlations"`.
+
+- Fixed a bug in which binary covariates with missing values were not
+  detected as binary by the `col_w_*()` functions and
+  [`bal.init()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  when `bin.vars` was not supplied, yielding an error.
+
+- Fixed bugs with `s.d.denom = "hedges"` and in
+  [`col_w_ovl()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  for covariates with missing values: the small-sample correction
+  counted the units missing the covariate, and the treatment group whose
+  bandwidth is used was chosen before those units were removed.
+
+- [`col_w_ks()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md),
+  [`col_w_ovl()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md),
+  and
+  [`col_w_vr()`](https://ngreifer.github.io/cobalt/reference/balance-summary.md)
+  now return `NA` for a covariate with no observed values in one of the
+  treatment groups rather than 0 or 1.
+
 ## *cobalt* 5.0.0
 
 CRAN release: 2026-08-25
@@ -156,6 +200,15 @@ CRAN release: 2026-08-25
 
 - Changes
 
+  - *gtable* has moved from `Imports` to `Suggests`. It is used only to
+    arrange the panels when
+    [`love.plot()`](https://ngreifer.github.io/cobalt/reference/love.plot.md)
+    is given more than one statistic, and is now asked for at that point
+    with
+    [`rlang::check_installed()`](https://rlang.r-lib.org/reference/is_installed.html).
+    In practice it will already be installed, since *ggplot2* and
+    *gridExtra* both require it.
+
   - [`var.names()`](https://ngreifer.github.io/cobalt/reference/var.names.md)
     now reports the names a `bal.tab` object is displayed under rather
     than always the stored ones, so a set of names given to
@@ -240,6 +293,14 @@ CRAN release: 2026-08-25
     objects fit with `version = "xgboost"`.
 
 - Bug fixes
+
+  - Fixed a bug in which a formula whose left-hand side was an
+    expression rather than a bare name, as in
+    `bal.tab(lalonde$treat ~ ps)`, failed with `unexpected '$'`. The
+    left-hand side was taken apart into its pieces – `lalonde$treat`
+    into `$`, `lalonde`, and `treat` – and each was then read as a
+    variable of its own. It is now evaluated whole, so any expression
+    giving the treatment is accepted, as is a name that needs backticks.
 
   - [`set.cobalt.options()`](https://ngreifer.github.io/cobalt/reference/set.cobalt.options.md)
     accepted `factor_sep` and `int_sep`, but nothing read them, so

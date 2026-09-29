@@ -318,7 +318,7 @@ col_w_dcorr(
   [`integrate()`](https://rdrr.io/r/stats/integrate.html) to calculate
   the area of overlap for continuous variables. If `FALSE`, a midpoint
   Riemann sum will be used instead. The Riemann sum is a little slower
-  and very slightly imprecise (unnoticibly in most contexts). When
+  and very slightly imprecise (unnoticeably in most contexts). When
   `TRUE`, [`integrate()`](https://rdrr.io/r/stats/integrate.html) will
   be tried, and if it fails, the Riemann sum will be used as a fallback.
   The default (`TRUE`) is to use
