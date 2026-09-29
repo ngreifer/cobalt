@@ -121,6 +121,51 @@ test_that("the continuous aggregators summarize the correlation columns", {
                                 bal.compute(bal.init(covs, f$tc, "p.mean"), weights = f$w))))
 })
 
+test_that("the aggregators summarize the bal.tab() columns when covariates have missing values", {
+  eps <- if (capabilities("long.double")) 1e-8 else 1e-1
+
+  #Two continuous covariates and one binary covariate with missing values. Each
+  #statistic must use only the units with its covariate observed, in `bal.init()`
+  #as in `bal.tab()`. `bal.tab()` adds a row flagging the missingness of each such
+  #covariate, which `bal.init()` has no counterpart for, so only the covariates'
+  #own rows are compared.
+  covs <- lalonde_mis[c("age", "re74", "re75", "married")]
+
+  expect_wrn({
+    bt <- bal.tab(covs, treat = lalonde_mis$treat, binary = "std", estimand = "ATE",
+                  weights = w_fixed,
+                  stats = c("mean.diffs", "ks.statistics", "ovl.coefficients"))
+  }, "Missing values exist in the covariates")
+
+  bt <- bt$Balance[names(covs), ]
+
+  columns <- c(smd = "Diff.Adj", ks = "KS.Adj", ovl = "OVL.Adj")
+
+  for (family in names(columns)) {
+    stat <- paste0(family, ".max")
+
+    expect_equal(bal.compute(bal.init(covs, lalonde_mis$treat, stat, estimand = "ATE"),
+                             weights = w_fixed),
+                 max(abs(bt[[columns[[family]]]])), tolerance = eps, info = stat)
+  }
+
+  expect_wrn({
+    bt <- bal.tab(covs, treat = lalonde_mis$re78, weights = w_fixed,
+                  stats = c("correlations", "spearman.correlations"))
+  }, "Missing values exist in the covariates")
+
+  bt <- bt$Balance[names(covs), ]
+
+  columns <- c(p = "Corr.Adj", s = "S.Corr.Adj")
+
+  for (family in names(columns)) {
+    stat <- paste0(family, ".max")
+
+    expect_equal(bal.compute(bal.init(covs, lalonde_mis$re78, stat), weights = w_fixed),
+                 max(abs(bt[[columns[[family]]]])), tolerance = eps, info = stat)
+  }
+})
+
 test_that("multi-category aggregators summarize the pairwise bal.tab() columns", {
   eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 

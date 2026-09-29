@@ -901,19 +901,16 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
     arg::err("{.arg treat} must be a continuous (numeric) variable")
   }
   
-  for (i in which(!bin.vars)) {
-    x[, i] <- rank(x[, i], na.last = "keep")
-  }
-  treat <- rank(treat, na.last = "keep")
+  ranks <- .spearman_ranks(x, treat, bin.vars)
   
   s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
   
-  denoms <- .compute_s.d.denom(x, treat = treat,
+  denoms <- .compute_s.d.denom(ranks[["mat"]], treat = ranks[["treat"]],
                                s.d.denom = s.d.denom, s.weights = s.weights,
                                bin.vars = bin.vars)
   
-  out <- list(treat = treat,
-              covs = x,
+  out <- list(treat = rank(treat, na.last = "keep"),
+              covs = ranks[["mat"]],
               bin.vars = bin.vars,
               s.weights = s.weights,
               s.d.denom = denoms)
@@ -1381,9 +1378,18 @@ pearson.corr.continuous <- function(init, weights = NULL) {
 }
 spearman.corr.continuous <- function(init, weights = NULL) {
   .check_init(init, "init_s")
+  
+  #`init$covs` and `init$treat` are already ranks. With missing covariate values, the
+  #treatment must be re-ranked among the units with each covariate observed, which
+  #`type = "spearman"` does; ranking the covariates again leaves them unchanged.
+  type <- {
+    if (anyNA(init$covs)) "spearman"
+    else "pearson"
+  }
+  
   col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
             bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-            std = TRUE)
+            std = TRUE, type = type)
 }
 r2.continuous <- function(init, weights = NULL) {
   .check_init(init, "init_r2")

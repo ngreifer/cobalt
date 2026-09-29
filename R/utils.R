@@ -483,6 +483,9 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
       means <- colSums(w[, bin.vars, drop = FALSE] * mat[, bin.vars, drop = FALSE], na.rm = na.rm)
       var[bin.vars] <- means * (1 - means)
     }
+    
+    #A column with no observed units with nonzero weight has no variance
+    is.na(var)[s == 0] <- TRUE
   }
   else {
     if (is_null(w)) w <- rep.int(1, nrow(mat))
@@ -733,7 +736,11 @@ is_binary_col <- function(dat, na.rm = TRUE) {
   
   apply(dat, 2L, is_binary)
 }
-is_0_1 <- function(x) {
+is_0_1 <- function(x, na.rm = TRUE) {
+  if (na.rm) {
+    x <- na.rem(x)
+  }
+  
   is_not_null(x) && 
     all(x == 1 | x == 0)
 }

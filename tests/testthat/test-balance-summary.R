@@ -58,6 +58,29 @@ test_that("col_w_smd() standardizes by the requested denominator", {
   expect_equal(col_w_smd(m, treat = tb, s.d.denom = c(1, 1)), raw)
 })
 
+test_that("`subset` restricts the units a statistic compares", {
+  m <- m2()
+  tb <- lalonde$treat
+  keep <- lalonde$age < 30
+  m_keep <- m[keep, , drop = FALSE]
+
+  #The standardization factor uses the whole sample even with `subset`, so the
+  #mean differences are compared unstandardized.
+  expect_equal(col_w_smd(m, treat = tb, std = FALSE, subset = keep),
+               col_w_smd(m_keep, treat = tb[keep], std = FALSE))
+
+  #A treatment that is not 0/1 has its treated level found among the units in
+  #`subset`.
+  tr <- ifelse(tb == 1, "b", "a")
+
+  expect_equal(col_w_vr(m, treat = tr, subset = keep),
+               col_w_vr(m_keep, treat = tr[keep]))
+  expect_equal(col_w_ks(m, treat = tb, subset = keep),
+               col_w_ks(m_keep, treat = tb[keep]))
+  expect_equal(col_w_cov(m, treat = lalonde$re78, subset = keep),
+               col_w_cov(m_keep, treat = lalonde$re78[keep]))
+})
+
 test_that("col_w_vr(), col_w_ks(), and col_w_ovl() return sensible ranges", {
   m <- m2()
   tb <- lalonde$treat
@@ -231,6 +254,19 @@ test_that("degenerate weights are reported informatively", {
              "at least one unit in each level of `treat` must have a nonzero weight")
   expect_err(col_w_ovl(m, treat = tb, weights = ifelse(tb == 1, 0, 1)),
              "at least one unit in each level of `treat` must have a nonzero weight")
+
+  #Only the weights of the units in `subset` count, since only those are used.
+  keep <- lalonde$age < 30
+  w_outside <- as.numeric(!keep)
+
+  expect_err(col_w_mean(m, weights = w_outside, subset = keep),
+             "at least one unit must have a nonzero weight")
+  expect_err(col_w_sd(m, weights = w_outside, subset = keep),
+             "at least two units must have nonzero weights")
+  expect_err(col_w_cov(m, treat = lalonde$re75, weights = w_outside, subset = keep),
+             "at least two units must have nonzero weights")
+  expect_err(col_w_smd(m, treat = tb, weights = ifelse(keep & tb == 1, 0, 1), subset = keep),
+             "at least one unit in each level of `treat` must have a nonzero weight")
 })
 
 test_that("statistics requiring a binary treatment reject other types", {
@@ -255,14 +291,142 @@ test_that("mismatched lengths and invalid `subset` are rejected", {
 })
 
 test_that("`na.rm` controls how missing values are treated", {
-  m <- as.matrix(lalonde_mis[c("age", "re74")])
+  #Two continuous covariates with different units missing, one binary covariate
+  #with missing values, and one complete covariate.
+  m <- as.matrix(lalonde_mis[c("age", "re74", "re75", "married")])
+  bin <- c(FALSE, FALSE, FALSE, TRUE)
+  has_NA <- colSums(is.na(m)) > 0
 
-  #With `na.rm = TRUE` (the default) a value is still produced.
-  expect_true(all(is.finite(col_w_mean(m, na.rm = TRUE))))
+  #The treatments travel with the unit-level arguments so that dropping units
+  #drops them from all of these together.
+  unit_args <- list(
+    unweighted = list(),
+    weights = list(weights = w_fixed),
+    s.weights = list(weights = w_fixed, s.weights = sw_fixed),
+    subset = list(weights = w_fixed, subset = sub_idx != 1L)
+  ) |>
+    lapply(c, list(tb = lalonde_mis$treat, tc = lalonde_mis$re78))
 
-  #With `na.rm = FALSE` the affected column is NA.
-  v <- col_w_mean(m, na.rm = FALSE)
-  expect_true(anyNA(v))
+  #Each statistic as a function of the covariates, their `bin.vars`, and the
+  #unit-level arguments. `treat` names the treatment in those arguments.
+  stat_fun <- function(f, treat = NULL, takes_bin.vars = TRUE, ...) {
+    fixed <- list(...)
+
+    function(m, b, u, ...) {
+      args <- c(list(m), fixed,
+                list(weights = u$weights, s.weights = u$s.weights, subset = u$subset),
+                list(...))
+
+      if (!is_null(treat)) {
+        args[["treat"]] <- u[[treat]]
+      }
+
+      if (takes_bin.vars) {
+        args[["bin.vars"]] <- b
+      }
+
+      do.call(f, args)
+    }
+  }
+
+  stat_funs <- list(
+    mean = stat_fun(col_w_mean, takes_bin.vars = FALSE),
+    sd = stat_fun(col_w_sd),
+    smd.pooled = stat_fun(col_w_smd, "tb", s.d.denom = "pooled"),
+    smd.treated = stat_fun(col_w_smd, "tb", s.d.denom = "treated"),
+    smd.all = stat_fun(col_w_smd, "tb", s.d.denom = "all"),
+    smd.weighted = stat_fun(col_w_smd, "tb", s.d.denom = "weighted"),
+    smd.hedges = stat_fun(col_w_smd, "tb", s.d.denom = "hedges"),
+    vr = stat_fun(col_w_vr, "tb"),
+    ks = stat_fun(col_w_ks, "tb"),
+    ovl = stat_fun(col_w_ovl, "tb"),
+    cov = stat_fun(col_w_cov, "tc"),
+    corr.all = stat_fun(col_w_corr, "tc", s.d.denom = "all"),
+    corr.weighted = stat_fun(col_w_corr, "tc", s.d.denom = "weighted"),
+    spearman.all = stat_fun(col_w_corr, "tc", s.d.denom = "all", type = "spearman"),
+    spearman.weighted = stat_fun(col_w_corr, "tc", s.d.denom = "weighted", type = "spearman"),
+    dcov = stat_fun(col_w_dcov, "tc", takes_bin.vars = FALSE),
+    dcorr.all = stat_fun(col_w_dcorr, "tc", takes_bin.vars = FALSE, s.d.denom = "all"),
+    dcorr.weighted = stat_fun(col_w_dcorr, "tc", takes_bin.vars = FALSE, s.d.denom = "weighted")
+  )
+
+  drop_units <- function(u, ok) {
+    lapply(u, function(x) x[ok])
+  }
+
+  for (s in names(stat_funs)) {
+    for (a in names(unit_args)) {
+      f <- stat_funs[[s]]
+      u <- unit_args[[a]]
+      info <- paste(s, a)
+
+      #With `na.rm = TRUE` (the default), each covariate's statistic is the one
+      #computed after dropping the units missing that covariate. Computing all four
+      #at once also checks that one covariate's missingness does not leak into
+      #another's statistic. `col_w_ks()` once dropped the missing values from the
+      #covariate but not from the weights, so each value was paired with another
+      #unit's weight (#97); correlations computed the treatment's standard
+      #deviation, and Spearman correlations its ranks, over every unit; and
+      #`col_w_dcov()` ignored `na.rm` altogether.
+      v <- f(m, bin, u)
+
+      v_dropped <- vapply(seq_len(ncol(m)), function(j) {
+        ok <- !is.na(m[, j])
+        f(m[ok, j, drop = FALSE], bin[j], drop_units(u, ok))
+      }, numeric(1L))
+
+      expect_equal(unname(v), v_dropped, info = info)
+      expect_true(all(is.finite(v)), info = info)
+
+      #With `na.rm = FALSE`, only the covariates with missing values are NA.
+      v_keep <- f(m, bin, u, na.rm = FALSE)
+
+      expect_true(all(is.na(v_keep[has_NA])), info = info)
+      expect_equal(v_keep[!has_NA], v[!has_NA], info = info)
+    }
+  }
+
+  #Unweighted correlations with continuous covariates are the pairwise-complete
+  #ones `cor()` computes.
+  cont <- m[, !bin]
+  tc <- lalonde_mis$re78
+
+  expect_equal(col_w_corr(cont, treat = tc),
+               drop(cor(cont, tc, use = "pairwise.complete.obs")))
+  expect_equal(col_w_corr(cont, treat = tc, type = "spearman"),
+               drop(cor(cont, tc, use = "pairwise.complete.obs", method = "spearman")))
+
+  #A binary covariate with missing values is still detected as binary.
+  expect_equal(col_w_sd(m), col_w_sd(m, bin.vars = bin))
+  expect_equal(col_w_ks(m, treat = lalonde_mis$treat),
+               col_w_ks(m, treat = lalonde_mis$treat, bin.vars = bin))
+})
+
+test_that("a covariate observed in only one treatment group has no statistic", {
+  tb <- lalonde$treat
+
+  for (g in 0:1) {
+    x <- lalonde$re75
+    is.na(x)[tb == g] <- TRUE
+
+    info <- paste("missing in group", g)
+
+    expect_true(is.na(col_w_smd(x, treat = tb)), info = info)
+    expect_true(is.na(col_w_vr(x, treat = tb)), info = info)
+    expect_true(is.na(col_w_ks(x, treat = tb)), info = info)
+    expect_true(is.na(col_w_ovl(x, treat = tb)), info = info)
+  }
+})
+
+test_that("col_w_ovl() takes the bandwidth from the smaller group among the observed units", {
+  #185 treated and 429 control units, but only 179 controls observed, so the
+  #smaller group changes once the missing units are dropped.
+  x <- lalonde$re75
+  tb <- lalonde$treat
+  is.na(x)[which(tb == 0)[1:250]] <- TRUE
+  ok <- !is.na(x)
+
+  expect_equal(col_w_ovl(x, treat = tb), col_w_ovl(x[ok], treat = tb[ok]))
 })
 
 # .bal_tab_col_spec() is the single source for balance-table columns. Three table

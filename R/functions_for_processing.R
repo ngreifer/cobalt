@@ -898,7 +898,9 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       arg::err("{.arg subset} must be a logical vector")
     }
     
-    if (is_null(treat)) {
+    #A matrix holds a continuous treatment's values for each covariate separately,
+    #as `.spearman_ranks()` produces when covariates have missing values.
+    if (is_null(treat) || is.matrix(treat)) {
       cont.treat <- TRUE
     }
     else {
@@ -950,12 +952,17 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     else if (s.d.denom == "hedges")
       denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars,
                             unique.treats, na.rm) {
-        df <- length(treat) - length(unique.treats)
-        (1 - 3 / (4 * df - 1))^-1 *
-          sqrt(Reduce("+", lapply(unique.treats,
-                                  function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, , drop = FALSE],
-                                                                              w = s.weights[treat == t],
-                                                                              bin.vars = bin.vars, na.rm = na.rm))) / df)
+        #Group sizes count only the units with each covariate observed
+        n <- lapply(unique.treats, function(t) colSums(!is.na(mat[treat == t, , drop = FALSE])))
+        df <- Reduce("+", n) - length(unique.treats)
+        
+        pooled_ss <- Reduce("+", lapply(seq_along(unique.treats), function(i) {
+          in_t <- treat == unique.treats[i]
+          (n[[i]] - 1) * col.w.v(mat[in_t, , drop = FALSE], w = s.weights[in_t],
+                                 bin.vars = bin.vars, na.rm = na.rm)
+        }))
+        
+        (1 - 3 / (4 * df - 1))^-1 * sqrt(pooled_ss / df)
       }
     else {
       arg::err("{.arg s.d.denom} is not an allowed value")
@@ -973,8 +980,22 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     
     if (cont.treat && is_not_null(treat)) {
+      #The treatment's standard deviation is computed over the same units as its
+      #covariance with each covariate, which excludes those missing the covariate.
+      if (is.matrix(treat)) {
+        treat <- treat[, to.sd, drop = FALSE]
+      }
+      else if (na.rm && anyNA(mat[, to.sd, drop = FALSE])) {
+        treat <- matrix(treat, nrow = NROW(mat), ncol = sum(to.sd))
+      }
+      
+      if (na.rm && is.matrix(treat)) {
+        is.na(treat)[is.na(mat[, to.sd, drop = FALSE])] <- TRUE
+      }
+      
       treat.sd <- denom.fun(mat = treat, treat = NULL, s.weights = s.weights,
-                            weighted.weights = weighted.weights, bin.vars = FALSE,
+                            weighted.weights = weighted.weights,
+                            bin.vars = rep.int(FALSE, NCOL(treat)),
                             unique.treats = NULL, na.rm = na.rm)
       denoms[to.sd] <- denoms[to.sd] * treat.sd
     }

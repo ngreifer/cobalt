@@ -12,3 +12,4 @@ tests/testthat/_problems
 tests/testthat/testthat-problems.rds
 _dev/golden
 CLAUDE.md
+.progress-runs

@@ -1,6 +1,20 @@
 *cobalt* News and Updates
 ======
 
+# *cobalt* (development version)
+
+* Fixed a bug when computing KS statistics on continuous variables with missingness in the predictors. Thanks to @alfie-b for pointing it out. (#97)
+
+* Fixed a bug in which treatment correlations for covariates with missing values (in `bal.tab()`, `bal.compute()`, and `col_w_corr()`) used all units, including those missing the covariate, to compute the standard deviation of the treatment and, for Spearman correlations, its ranks. These now use only the units with the covariate observed, so the correlations are the pairwise-complete ones.
+
+* `col_w_dcov()` and `col_w_dcorr()` now respect `na.rm`. Previously, a covariate with any missing values always had a distance covariance of `NA`, including in `bal.tab()` with `stats = "distance.correlations"`.
+
+* Fixed a bug in which binary covariates with missing values were not detected as binary by the `col_w_*()` functions and `bal.init()` when `bin.vars` was not supplied, yielding an error.
+
+* Fixed bugs with `s.d.denom = "hedges"` and in `col_w_ovl()` for covariates with missing values: the small-sample correction counted the units missing the covariate, and the treatment group whose bandwidth is used was chosen before those units were removed.
+
+* `col_w_ks()`, `col_w_ovl()`, and `col_w_vr()` now return `NA` for a covariate with no observed values in one of the treatment groups rather than 0 or 1.
+
 # *cobalt* 5.0.0
 
 * New Features

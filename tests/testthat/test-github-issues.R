@@ -223,3 +223,43 @@ test_that("(#89) love.plot() doesn't throw any error when manually removing rows
 
   expect_true("age" %in% levels(ggplot2::ggplot_build(p2)$plot$data$var))
 })
+
+test_that("(#97) col_w_ks() pairs each value with its own weight when a covariate has missing values", {
+  data("lalonde_mis")
+
+  x <- lalonde_mis$re74
+  tr <- lalonde_mis$treat
+  in1 <- !is.na(x) & tr == 1
+  in0 <- !is.na(x) & tr == 0
+
+  #The weighted KS statistic is the largest gap between the two groups' weighted
+  #ECDFs of the observed values. Unweighted, it is the two-sample KS statistic.
+  ecdf_gap <- function(w) {
+    grid <- sort(unique(x[in1 | in0]))
+
+    F1 <- vapply(grid, function(v) sum(w[in1 & x <= v]) / sum(w[in1]), numeric(1L))
+    F0 <- vapply(grid, function(v) sum(w[in0 & x <= v]) / sum(w[in0]), numeric(1L))
+
+    max(abs(F1 - F0))
+  }
+
+  w1 <- rep.int(1, length(x))
+
+  expect_equal(unname(col_w_ks(x, treat = tr)), ecdf_gap(w1))
+  expect_equal(unname(col_w_ks(x, treat = tr, weights = w_fixed)), ecdf_gap(w_fixed))
+  expect_equal(unname(col_w_ks(x, treat = tr, weights = w_fixed, s.weights = sw_fixed)),
+               ecdf_gap(w_fixed * sw_fixed))
+
+  #`bal.tab()` and `bal.compute()` compute their KS statistics with `col_w_ks()`.
+  expect_wrn({
+    b <- bal.tab(lalonde_mis["re74"], treat = tr, weights = w_fixed,
+                 stats = "ks.statistics", un = TRUE)
+  }, "Missing values exist in the covariates")
+
+  expect_equal(b$Balance["re74", "KS.Un"], ecdf_gap(w1))
+  expect_equal(b$Balance["re74", "KS.Adj"], ecdf_gap(w_fixed))
+
+  init <- bal.init(lalonde_mis["re74"], treat = tr, stat = "ks.max")
+
+  expect_equal(bal.compute(init, weights = w_fixed), ecdf_gap(w_fixed))
+})

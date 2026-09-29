@@ -130,7 +130,7 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
   
   weights <- weights * s.weights
   
-  if (all(weights == 0)) {
+  if (all(weights[subset] == 0)) {
     arg::err("at least one unit must have a nonzero weight to compute weighted means")
   }
   
@@ -154,7 +154,7 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
   
   weights <- weights * s.weights
   
-  if (sum(weights != 0) < 2L) {
+  if (sum(weights[subset] != 0) < 2L) {
     arg::err("at least two units must have nonzero weights to compute weighted standard deviations")
   }
   
@@ -197,22 +197,28 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
   #is combined with `s.weights`; otherwise it resolves to the product and
   #`.compute_s.d.denom()` applies `s.weights` to the denominator a second time.
   force(weighted.weights)
-
+  
   weights <- weights * s.weights
-
+  
   if (length(std) == 1L) {
     std <- rep.int(std, NCOL(mat))
   }
-
+  
   tval1_0 <- treat[1L]
   
-  if (all(weights[treat == tval1_0] == 0) || 
-      all(weights[treat != tval1_0] == 0)) {
+  if (all(weights[treat == tval1_0 & subset] == 0) || 
+      all(weights[treat != tval1_0 & subset] == 0)) {
     arg::err("at least one unit in each level of {.arg treat} must have a nonzero weight to compute weighted SMDs")
   }
   
-  m1 <- col.w.m(mat[treat == tval1_0 & subset, , drop = FALSE], weights[treat == tval1_0 & subset], na.rm = na.rm)
-  m0 <- col.w.m(mat[treat != tval1_0 & subset, , drop = FALSE], weights[treat != tval1_0 & subset], na.rm = na.rm)
+  t1 <- treat == tval1_0 & subset
+  t0 <- treat != tval1_0 & subset
+
+  m1 <- col.w.m(mat[t1, , drop = FALSE],
+                weights[t1], na.rm = na.rm)
+  m0 <- col.w.m(mat[t0, , drop = FALSE],
+                weights[t0], na.rm = na.rm)
+  
   diffs <- m1 - m0
   zeros <- check_if_zero(diffs)
   
@@ -290,9 +296,11 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     arg::err("at least two units in each level of {.arg treat} must have nonzero weights to compute weighted variance ratios")
   }
   
-  v1 <- col.w.v(mat[treat == tval1_0, , drop = FALSE], weights[treat == tval1_0],
+  t1 <- which(treat == tval1_0)
+  
+  v1 <- col.w.v(mat[t1, , drop = FALSE], weights[t1],
                 bin.vars = bin.vars, na.rm = na.rm)
-  v0 <- col.w.v(mat[treat != tval1_0, , drop = FALSE], weights[treat != tval1_0],
+  v0 <- col.w.v(mat[-t1, , drop = FALSE], weights[-t1],
                 bin.vars = bin.vars, na.rm = na.rm)
   
   v.ratios <- v1 / v0
@@ -303,7 +311,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
   else {
     tval1 <- {
       if (is_0_1(treat))  1
-      else get_treated_level(treat[subset])
+      else get_treated_level(treat)
     }
     
     if (tval1 != tval1_0) {
@@ -353,20 +361,53 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
   }
   
   if (!all(bin.vars)) {
-    weights_ <- weights
-    weights_[treat == tval1] <-  weights[treat == tval1] / sum(weights[treat == tval1])
-    weights_[treat != tval1] <- -weights[treat != tval1] / sum(weights[treat != tval1])
+    scale_weights_for_ks <- function(w, tr, tval1) {
+      weights_ <- numeric(length(w))
+      
+      tr1 <- which(tr == tval1)
+      
+      weights_[tr1] <-  w[tr1] / sum(w[tr1])
+      weights_[-tr1] <- -w[-tr1] / sum(w[-tr1])
+      
+      weights_
+    }
+    
+    vars_w_NA <- {
+      if (anyNA(mat[, !bin.vars])) apply(mat[, !bin.vars, drop = FALSE], 2L, anyNA)
+      else rep.int(FALSE, sum(!bin.vars))
+    }
+    
+    scaled_weights <- NULL
+    if (!all(vars_w_NA)) {
+      # If weights are the same for all variables (no missingness or na.rm = TRUE)
+      # scale weights. Otherwise do within each loop.
+      scaled_weights <- scale_weights_for_ks(weights, treat, tval1)
+    }
     
     ks[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2L, function(x) {
       if (anyNA(x)) {
-        if (na.rm) x <- na.rem(x)
-        else return(NA_real_)
+        if (!na.rm) {
+          return(NA_real_)
+        }
+        
+        x_ok <- which(!is.na(x))
+        
+        #A covariate observed in only one treatment group has no KS statistic
+        if (!any(treat[x_ok] == tval1) || all(treat[x_ok] == tval1)) {
+          return(NA_real_)
+        }
+        
+        x <- x[x_ok]
+        weights_ <- scale_weights_for_ks(weights[x_ok], treat[x_ok], tval1)
+      }
+      else {
+        weights_ <- scaled_weights %or% scale_weights_for_ks(weights, treat, tval1)
       }
       
       ordered.index <- order(x)
       cumv <- abs(cumsum(weights_[ordered.index]))[c(diff(x[ordered.index]) != 0, TRUE)]
       
-      if (is_null(cumv)) 0 else max(cumv)
+      max(cumv %or% 0)
     })
   }
   
@@ -424,20 +465,16 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
     arg::err("the sum of weights in each treatment group must be nonzero to compute weighted OVL statistics")
   }
   
-  unique.treat <- unique(treat, nmax = 2L)
-  t.sizes <- setNames(vapply(unique.treat, function(x) sum(treat == x), numeric(1L)),
-                      unique.treat)
-  smallest.t <- names(t.sizes)[which.min(t.sizes)]
   ovl <- setNames(numeric(ncol(mat)), colnames(mat))
   
   if (!all(bin.vars)) {
     arg::arg_flag(integrate)
-
+    
     #`steps` is also used when `integrate = TRUE` but `integrate()` fails and
     #the Riemann approximation is used as a fallback, so always check it.
     arg::arg_count(steps)
     arg::arg_gte(steps, 5)
-
+    
     bw <- ...get("bw", "nrd")
     
     A <- ...mget(setdiff(names(formals(density_neg_w_safe)),
@@ -453,9 +490,15 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
         if (!na.rm) {
           return(NA_real_)
         }
-        t <- treat[!is.na(x)]
-        w <- weights[!is.na(x)]
-        x <- x[!is.na(x)]
+        x_ok <- !is.na(x)
+        t <- treat[x_ok]
+        w <- weights[x_ok]
+        x <- x[x_ok]
+        
+        #A covariate observed in only one treatment group has no OVL statistic
+        if (!any(t == tval1) || all(t == tval1)) {
+          return(NA_real_)
+        }
       }
       else {
         t <- treat
@@ -470,7 +513,13 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
       
       x <- center(x) / sd(x)
       
-      A[["bw"]] <- bw_fun(x[t == smallest.t])
+      #The bandwidth comes from the smaller treatment group among the units used
+      in_smaller <- {
+        if (sum(t == tval1) <= sum(t != tval1)) t == tval1
+        else t != tval1
+      }
+      
+      A[["bw"]] <- bw_fun(x[in_smaller])
       
       min.c <- min(x) - 4 * A[["bw"]]
       max.c <- max(x) + 4 * A[["bw"]]
@@ -561,30 +610,34 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
   #is combined with `s.weights` below; otherwise it resolves to the product and
   #`.compute_s.d.denom()` applies `s.weights` to the denominator a second time.
   force(weighted.weights)
-
+  
   arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
-
+  
   if (length(std) == 1L) {
     std <- rep.int(std, NCOL(mat))
   }
-
+  
   type <- arg::match_arg(type, c("pearson", "spearman"))
   
   if (type == "spearman") {
-    for (i in which(!bin.vars)) {
-      mat[, i] <- rank(mat[, i], na.last = "keep")
-    }
-    treat <- rank(treat, na.last = "keep")
+    ranks <- .spearman_ranks(mat, treat, bin.vars, na.rm)
+    mat <- ranks[["mat"]]
+    treat <- ranks[["treat"]]
   }
   
   weights <- weights * s.weights
   
-  if (sum(weights != 0) <= 1) {
+  if (sum(weights[subset] != 0) <= 1) {
     arg::err("at least two units must have nonzero weights to compute weighted covariances")
   }
   
-  covars <- col.w.cov(mat[subset, , drop = FALSE], y = treat[subset],
+  treat_subset <- {
+    if (is.matrix(treat)) treat[subset, , drop = FALSE]
+    else treat[subset]
+  }
+  
+  covars <- col.w.cov(mat[subset, , drop = FALSE], y = treat_subset,
                       w = weights[subset], na.rm = na.rm)
   
   zeros <- check_if_zero(covars)
@@ -633,74 +686,100 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
   arg::arg_no_NA(treat)
   
   mat <- process_mat2(mat, ...)
-
+  
   arg::arg_logical(std)
   arg::arg_no_NA(std)
   if (length(std) %nin% c(1L, NCOL(mat))) {
     arg::err("{.arg std} must have length equal to 1 or the number of columns of {.arg mat}")
   }
-
+  
   if (length(std) == 1L) {
     std <- rep.int(std, NCOL(mat))
   }
-
+  
   check_arg_lengths(mat, treat, weights, s.weights, subset)
-
+  
   if (is_null(weights)) weights <- rep.int(1, NROW(mat))
   if (is_null(s.weights)) s.weights <- rep.int(1, NROW(mat))
-
+  
   arg::arg_numeric(weights)
   arg::arg_numeric(s.weights)
-
+  
   #`weighted.weights` defaults to `weights`, so force its promise before `weights`
   #is combined with `s.weights` below; otherwise it resolves to the product and the
   #`"weighted"` denominator applies `s.weights` a second time.
   force(weighted.weights)
-
-  s.weights <- s.weights / sum(s.weights)
-
+  
   arg::when_not_null(subset, arg::arg_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
   
-  weights <- weights * s.weights
-  
-  if (!all(subset)) {
-    weights[!subset] <- 0
-  }
-  
-  weights <- weights / sum(weights)
-  
-  Adist <- abs(outer(treat, treat, "-"))
-  Ameans <- colMeans(Adist)
-  AA <- Adist + mean(Ameans) - outer(Ameans, Ameans, "+")
-  
   if (any(std)) {
-    s.d.denom <- .get_s.d.denom.cont(s.d.denom, weights = list(weights),
+    s.d.denom <- .get_s.d.denom.cont(s.d.denom, weights = list(weights * s.weights),
                                      quietly = TRUE)
-    
-    weighted.weights <- weighted.weights * s.weights
-    weighted.weights <- weighted.weights / sum(weighted.weights)
-    
-    dvarA <- switch(s.d.denom,
-                    "all" = drop(t(s.weights) %*% (AA^2) %*% s.weights),
-                    "weighted" = drop(t(weighted.weights) %*% (AA^2) %*% weighted.weights))
   }
+  
+  #The normalized weights and the treatment's double-centered distance matrix over
+  #the units in `ok`. A covariate with missing values uses only the units with it
+  #observed, which changes all of these, so they are recomputed for it.
+  .dcov_units <- function(ok) {
+    sw <- s.weights[ok] / sum(s.weights[ok])
+    
+    w <- weights[ok] * sw
+    w[!subset[ok]] <- 0
+    w <- w / sum(w)
+    
+    Adist <- abs(outer(treat[ok], treat[ok], "-"))
+    Ameans <- colMeans(Adist)
+    AA <- Adist + mean(Ameans) - outer(Ameans, Ameans, "+")
+    
+    u <- list(w = w, AA = AA)
+    
+    if (any(std)) {
+      ww <- weighted.weights[ok] * sw
+      u[["ww"]] <- ww / sum(ww)
+      
+      u[["sw"]] <- sw
+      
+      u[["dvarA"]] <- switch(s.d.denom,
+                             "all" = drop(t(sw) %*% (AA^2) %*% sw),
+                             "weighted" = drop(t(u[["ww"]]) %*% (AA^2) %*% u[["ww"]]))
+    }
+    
+    u
+  }
+  
+  all_units <- .dcov_units(rep.int(TRUE, NROW(mat)))
   
   out <- vapply(seq_col(mat), function(i) {
-    Xdist <- abs(outer(mat[, i], mat[, i], "-"))
+    x <- mat[, i]
+    u <- all_units
+    
+    if (anyNA(x)) {
+      if (!na.rm) {
+        return(NA_real_)
+      }
+      
+      x_ok <- !is.na(x)
+      x <- x[x_ok]
+      u <- .dcov_units(x_ok)
+    }
+    
+    Xdist <- abs(outer(x, x, "-"))
     Xmeans <- colMeans(Xdist)
     Xgrand_mean <- mean(Xmeans)
     XX <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")
     
+    dcov <- drop(t(u[["w"]]) %*% (XX * u[["AA"]]) %*% u[["w"]])
+    
     if (!std[i]) {
-      return(sqrt(drop(t(weights) %*% (XX * AA) %*% weights)))
+      return(sqrt(dcov))
     }
     
     dvarX <- switch(s.d.denom,
-                    "all" = drop(t(s.weights) %*% (XX^2) %*% s.weights),
-                    "weighted" = drop(t(weighted.weights) %*% (XX^2) %*% weighted.weights))
+                    "all" = drop(t(u[["sw"]]) %*% (XX^2) %*% u[["sw"]]),
+                    "weighted" = drop(t(u[["ww"]]) %*% (XX^2) %*% u[["ww"]]))
     
-    sqrt(drop(t(weights) %*% (XX * AA) %*% weights) / sqrt(dvarX * dvarA))
+    sqrt(dcov / sqrt(dvarX * u[["dvarA"]]))
   }, numeric(1L))
   
   setNames(out, colnames(mat))
@@ -717,13 +796,37 @@ col_w_dcorr <- function(mat, treat, weights = NULL, s.d.denom = "all",
   eval.parent(.call)
 }
 
+#Ranks for Spearman correlations. Each covariate's correlation uses only the units
+#with it observed, and the treatment is ranked among those units, so with missing
+#covariate values (and `na.rm = TRUE`) the treatment ranks are a matrix with one
+#column per covariate.
+.spearman_ranks <- function(mat, treat, bin.vars, na.rm = TRUE) {
+  for (i in which(!bin.vars)) {
+    mat[, i] <- rank(mat[, i], na.last = "keep")
+  }
+  
+  if (!na.rm || !anyNA(mat)) {
+    return(list(mat = mat,
+                treat = rank(treat, na.last = "keep")))
+  }
+  
+  rank_treat_where_observed <- function(x) {
+    t <- treat
+    is.na(t)[is.na(x)] <- TRUE
+    rank(t, na.last = "keep")
+  }
+  
+  list(mat = mat,
+       treat = apply(mat, 2L, rank_treat_where_observed))
+}
+
 process_mat1 <- function(mat, ...) {
   needs.splitting <- FALSE
-
+  
   if (length(dim(mat)) > 2L) {
     arg::err("{.arg mat} must be a data frame or numeric matrix")
   }
-
+  
   if (!is.matrix(mat)) {
     if (is.numeric(mat)) {
       return(matrix(mat, ncol = 1L))
