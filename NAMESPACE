@@ -73,10 +73,12 @@ export(splitfactor)
 export(unsplitfactor)
 export(var.names)
 import(stats)
-importFrom(ggplot2,.data)
-importFrom(ggplot2,aes)
-importFrom(ggplot2,autoplot)
-importFrom(ggplot2,element_blank)
-importFrom(ggplot2,element_line)
-importFrom(ggplot2,element_rect)
-importFrom(ggplot2,element_text)
+importFrom(ggplot2,
+  .data,
+  aes,
+  autoplot,
+  element_blank,
+  element_line,
+  element_rect,
+  element_text
+)

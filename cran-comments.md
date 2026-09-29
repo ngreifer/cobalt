@@ -25,7 +25,7 @@ have collided.
 
 `mvGPS` does not call `.cens()` anywhere, so which of the two functions it ends
 up bound to makes no difference to it, and it installs and checks otherwise as
-before. I have notified its maintainer.
+before.
 
 The warning will resolve on its own shortly. *WeightIt*, which I also maintain,
 is being updated to re-export `cobalt::.cens()` rather than define its own copy,
