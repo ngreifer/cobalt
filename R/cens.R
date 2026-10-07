@@ -11,7 +11,7 @@
 #' @details
 #' Censoring is considered its own treatment type in \pkg{cobalt}, distinct from binary, multi-category, and continuous treatments. What matters is whether the units still under observation resemble the full sample once weighted. See [`class-bal.tab.cens`] for the output this produces and the arguments that control it.
 #'
-#' This function is deliberately identical in name and contract to `WeightIt::.cens()`, so that the same code works whichever package is attached; \pkg{cobalt} defines its own only to avoid depending on \pkg{WeightIt}. `bal.tab()` recognizes an indicator tagged by either.
+#' \pkg{WeightIt} re-exports this function, so `.cens()` is the same function whichever of the two packages is attached and an indicator tagged with either is the same object. \pkg{cobalt} owns it because [bal.tab()] needs the marker and cannot depend on \pkg{WeightIt}.
 #'
 #' @section Note on the coding convention:
 #' The survival convention is used: `1` means the unit is *censored* (drops out of observation) and `0` means it remains under observation. This is the opposite of an "observed" or "event" indicator.
@@ -54,9 +54,8 @@
   attr(out, "treat.type") <- "censoring"
   attr(out, "treat.name") <- treat.name
 
-  #See `?treat-class`: `treat` is the class every processed treatment has, and the one
-  #`WeightIt::.cens()` uses, so an indicator tagged by either package is accepted by
-  #both.
+  #See `?treat-class`: `treat` is the class every processed treatment has, and
+  #`cobalt.treat` the transitional alias its `[` method is also registered on.
   set_class(out, c("cobalt.treat", "treat"), .replace = FALSE, .last = FALSE)
 }
 

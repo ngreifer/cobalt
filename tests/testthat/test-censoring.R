@@ -66,6 +66,35 @@ test_that(".cens() tags an indicator without changing its values", {
   expect_err(.cens(rep(NA, 10L)), "no non-missing values")
 })
 
+test_that("`[` preserves a treatment's attributes under either class", {
+  #`treat` is the shared class and `cobalt.treat` a transitional alias (see `?treat-class`),
+  #so the method is registered on both and every shape a treatment can arrive in has to
+  #survive subsetting. The third is the shape \pkg{WeightIt} moves to once it stops setting
+  #the alias; losing an attribute there would show up as wrong column names rather than as
+  #an error.
+  t <- process_treat(lalonde$treat)
+  present <- Filter(function(a) is_not_null(attr(t, a)), TREAT_ATTRS)
+
+  expect_true(length(present) > 0L)
+
+  for (cl in list(c("cobalt.treat", "treat"), "treat", "cobalt.treat")) {
+    sub <- `class<-`(t, c(cl, "factor"))[1:10]
+
+    for (a in present) {
+      expect_identical(attr(sub, a), attr(t, a))
+    }
+  }
+})
+
+test_that("WeightIt re-exports this .cens(), rather than defining its own", {
+  skip_if_not_installed("WeightIt", "2.1.0")
+
+  #One function, not two. This is the condition `base::library()` applies when deciding
+  #whether to report a masked object, so it is also the regression test for the masking
+  #message that attaching both packages used to print.
+  expect_identical(WeightIt::.cens, cobalt::.cens)
+})
+
 test_that("censoring balance is the uncensored sample against the full one", {
   covs <- lalonde[c("age", "educ", "race")]
   w <- cens_w()

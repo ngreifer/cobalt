@@ -3,6 +3,8 @@
 
 # *cobalt* (development version)
 
+* The `[` method for `treat` objects is now registered on the `treat` class as well as on `cobalt.treat`. This is internal, but it has one visible consequence: a user who still has *WeightIt* 2.0.0 installed will see R report that `[.treat` has been overwritten when *WeightIt* is attached. Updating to *WeightIt* 2.1.0 or later, which registers no such method, removes the message.
+
 * Fixed a bug when computing KS statistics on continuous variables with missingness in the predictors. Thanks to @alfie-b for pointing it out. (#97)
 
 * Fixed a bug in which treatment correlations for covariates with missing values (in `bal.tab()`, `bal.compute()`, and `col_w_corr()`) used all units, including those missing the covariate, to compute the standard deviation of the treatment and, for Spearman correlations, its ranks. These now use only the units with the covariate observed, so the correlations are the pairwise-complete ones.

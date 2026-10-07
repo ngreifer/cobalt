@@ -154,13 +154,23 @@ one either.
 
 ## Things to remember
 
-1. **`[.cobalt.treat`, not `[.treat`.** WeightIt 2.0.0 registers its own `[.treat`. Two
-   packages registering the same method means whichever loads second overwrites the other
-   *and R says so on the console* — on every `library(WeightIt)`, since it imports cobalt.
-   Dispatching one class earlier avoids the collision without giving up the shared `treat`
-   class; when WeightIt adopts this class the extra layer can go. Relatedly, the class has
-   to come **first** in `class(x)`: a binary treatment is a factor underneath, and
-   `[.factor` would otherwise win and drop every attribute.
+1. **`[.treat` and `[.cobalt.treat`, the same method under two names.** WeightIt 2.0.0
+   registered its own `[.treat`, and two packages registering the same method means
+   whichever loads second overwrites the other *and R says so on the console* — on every
+   `library(WeightIt)`, since it imports cobalt. `cobalt.treat` was introduced to dispatch
+   one class earlier and sidestep that. WeightIt 2.1.0 registers no `[` at all, so `treat`
+   is safe to claim again and the method is now registered on both.
+
+   The alias is not redundant while WeightIt still *sets* `cobalt.treat` on its treatments,
+   which 2.1.0 does. A user who has cobalt-new and the long-superseded WeightIt 2.0.0 still
+   gets the overwrite message, and with it an overwritten `[.treat` that copies four of the
+   five attributes; an object carrying `cobalt.treat` finds the alias first and is
+   unaffected. Dropping the alias now would hand cobalt's own tables to that method, which
+   is the one shape of this change that breaks silently rather than loudly — see
+   `cens-transition.md` for the ordering and the test that pins it.
+
+   Relatedly, the class has to come **first** in `class(x)`: a binary treatment is a factor
+   underneath, and `[.factor` would otherwise win and drop every attribute.
 2. **`subset_X()` is what does the stacking.** It takes indices and nothing stops an index
    from repeating, so `subset_X(X, c(uncensored, at.risk))` stacks every per-unit slot the
    same way, including slots added later. Do not replace this with hand-written `rbind()`s

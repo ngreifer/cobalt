@@ -20,7 +20,7 @@ Inside a formula the marker is stripped before the formula is processed, so \cod
 \details{
 Censoring is considered its own treatment type in \pkg{cobalt}, distinct from binary, multi-category, and continuous treatments. What matters is whether the units still under observation resemble the full sample once weighted. See \code{\link{class-bal.tab.cens}} for the output this produces and the arguments that control it.
 
-This function is deliberately identical in name and contract to \code{WeightIt::.cens()}, so that the same code works whichever package is attached; \pkg{cobalt} defines its own only to avoid depending on \pkg{WeightIt}. \code{bal.tab()} recognizes an indicator tagged by either.
+\pkg{WeightIt} re-exports this function, so \code{.cens()} is the same function whichever of the two packages is attached and an indicator tagged with either is the same object. \pkg{cobalt} owns it because \code{\link[=bal.tab]{bal.tab()}} needs the marker and cannot depend on \pkg{WeightIt}.
 }
 \section{Note on the coding convention}{
 

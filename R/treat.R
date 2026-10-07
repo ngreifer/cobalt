@@ -17,9 +17,9 @@
 #'
 #' `[` preserves all of them, so a subset of a `treat` is still a `treat`.
 #'
-#' [.cens()] is the only way to build one directly; it returns a censoring indicator. `WeightIt::.cens()` returns an object with the same class and a compatible `treat.type`, so an indicator tagged by either package is accepted here.
+#' [.cens()] is the only way to build one directly; it returns a censoring indicator. `WeightIt::.cens()` is this same function, re-exported there, so an indicator tagged with either package attached is the same object.
 #'
-#' The class is shared, so carrying it means only "this is a treatment", not "this carries the attributes above": \pkg{WeightIt} tags its own treatments with it and supplies `treat.type` alone, and even \pkg{cobalt}'s [.cens()] has no group names until the treatment is processed. Anything that reads `treat_names` or `treat_vals` therefore has to check for them rather than for the class, and process the treatment when they are absent.
+#' The class is shared, so carrying it means only "this is a treatment", not "this carries the attributes above": \pkg{WeightIt} tags its own treatments with this class deliberately, and supplies `treat.type` alone, and even \pkg{cobalt}'s [.cens()] has no group names until the treatment is processed. Anything that reads `treat_names` or `treat_vals` therefore has to check for them rather than for the class, and process the treatment when they are absent.
 #'
 #' @seealso
 #' * [.cens()]
@@ -27,19 +27,26 @@
 #'
 NULL
 
-#Every attribute a `treat` carries. `[.cobalt.treat` copies each one, so a new
-#attribute added here survives subsetting without anything else changing.
+#Every attribute a `treat` carries. `[.treat` copies each one, so a new attribute added
+#here survives subsetting without anything else changing.
 TREAT_ATTRS <- c("treat.type", "treat.name", "treat_names", "treat_vals",
                  "group_labels")
 
-#The method is registered on `cobalt.treat` rather than on `treat`, even though `treat`
-#is the shared class. \pkg{WeightIt} 2.0.0 registers its own `[.treat`, and two packages
-#registering the same method means whichever loads second overwrites the other and R
-#says so out loud -- on every `library(WeightIt)`, since it imports cobalt. Dispatching
-#one class earlier avoids that without giving up the shared contract; when WeightIt
-#adopts this class the extra layer can go.
-#' @exportS3Method `[` cobalt.treat
-`[.cobalt.treat` <- function(x, ...) {
+#Registered on both classes, which are two names for the same contract. `treat` is the
+#shared one and the one to keep; `cobalt.treat` is a transitional alias, introduced
+#because \pkg{WeightIt} 2.0.0 registered its own `[.treat` and two packages registering
+#the same method means whichever loads second overwrites the other, out loud, on every
+#`library(WeightIt)`. WeightIt 2.1.0 no longer registers one, so `treat` is safe to claim
+#again; the alias stays until WeightIt stops setting `cobalt.treat` on its treatments,
+#because an object carrying it finds the alias first and so is unaffected by an old
+#WeightIt overwriting `[.treat`. Dropping the alias before then would hand cobalt's own
+#objects to that overwritten method, which copies four of the five attributes.
+#
+#The class also has to come first in `class(x)`: a binary or multi-category treatment is
+#a factor underneath, and `[.factor` would otherwise win and drop every attribute.
+#' @exportS3Method `[` treat
+#' @rawNamespace S3method("[",cobalt.treat,"[.treat")
+`[.treat` <- function(x, ...) {
   y <- NextMethod("[")
 
   for (a in TREAT_ATTRS) {
@@ -213,7 +220,7 @@ process_treat <- function(treat, ..., keep_values = FALSE, .missing.okay = FALSE
     # attr(treat, "keep_values") <- keep_values
   }
 
-  #The class goes first so that `[.cobalt.treat` is reached before `[.factor`; a binary
+  #The class goes first so that `[.treat` is reached before `[.factor`; a binary
   #or multi-category treatment is a factor underneath, and `[.factor` would drop every
   #attribute the class exists to carry. The method calls `NextMethod()`, so the factor
   #method still runs and the levels still survive.
