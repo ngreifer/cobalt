@@ -138,10 +138,8 @@ bal.plot(m.out, var.name = "distance",
 
 <center>
 
-<img src="man/figures/README-unnamed-chunk-3-1.png"
-data-display="inline" />
-<img src="man/figures/README-unnamed-chunk-3-2.png"
-data-display="inline" />
+<img src="man/figures/README-bal-plot-1.png" data-display="inline" />
+<img src="man/figures/README-bal-plot-2.png" data-display="inline" />
 </center>
 
 ``` r
@@ -152,7 +150,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
           var.order = "unadjusted")
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" style="display: block; margin: auto;" />
+<img src="man/figures/README-love-plot-1.png" alt="" style="display: block; margin: auto;" />
 
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using

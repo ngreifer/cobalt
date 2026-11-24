@@ -67,18 +67,18 @@ m.out <- MatchIt::matchit(treat ~ age + educ + race + married +
 bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
 ```
 
-```{r, fig.show='hide', fig.width=4, fig.height=4, collapse=T}
+```{r bal-plot, fig.show='hide', fig.width=4, fig.height=3.5, collapse=T}
 #Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "distance",
          mirror = TRUE, type = "histogram")
 ```
 <center>
-![](man/figures/README-unnamed-chunk-3-1.png){ display=inline } ![](man/figures/README-unnamed-chunk-3-2.png){ display=inline }
+![](man/figures/README-bal-plot-1.png){ display=inline } ![](man/figures/README-bal-plot-2.png){ display=inline }
 </center>
 
 
-```{r}
+```{r love-plot}
 #Generating a Love plot to report balance:
 love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
           thresholds = c(m = .1, v = 2), abs = TRUE, 
