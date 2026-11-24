@@ -59,6 +59,8 @@ bc_fixture <- function() {
 }
 
 test_that("the .mean/.max/.rms aggregators summarize the bal.tab() columns", {
+  skip_if_not_installed("patrick")
+
   eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 
   f <- bc_fixture()
@@ -71,21 +73,23 @@ test_that("the .mean/.max/.rms aggregators summarize the bal.tab() columns", {
 
   columns <- c(smd = "Diff.Adj", ks = "KS.Adj", ovl = "OVL.Adj")
 
-  for (family in names(columns)) {
-    v <- bt[[columns[[family]]]]
+  patrick::with_parameters_test_that(
+    "{family}.{agg}",
+    {
+      v <- bt[[columns[[family]]]]
 
-    #`mean` and `max` are taken over absolute values; `rms` squares first, so the
-    #sign drops out on its own.
-    expected <- c(mean = mean(abs(v)), max = max(abs(v)), rms = sqrt(mean(v^2)))
+      #`mean` and `max` are taken over absolute values; `rms` squares first, so the
+      #sign drops out on its own.
+      expected <- c(mean = mean(abs(v)), max = max(abs(v)), rms = sqrt(mean(v^2)))
 
-    for (agg in names(expected)) {
-      stat <- paste0(family, ".", agg)
-
-      expect_equal(bal.compute(bal.init(f$covs, f$tb, stat, estimand = "ATE"),
+      expect_equal(bal.compute(bal.init(f$covs, f$tb, paste0(family, ".", agg),
+                                        estimand = "ATE"),
                                weights = f$w),
-                   expected[[agg]], tolerance = eps, info = stat)
-    }
-  }
+                   expected[[agg]], tolerance = eps)
+    },
+    .cases = expand.grid(agg = c("mean", "max", "rms"), family = names(columns),
+                         stringsAsFactors = FALSE)
+  )
 })
 
 test_that("the continuous aggregators summarize the correlation columns", {
@@ -102,23 +106,27 @@ test_that("the continuous aggregators summarize the correlation columns", {
   #in the class and the shape of the output, so pin both.
   columns <- c(p = "Corr.Adj", s = "S.Corr.Adj")
 
-  for (family in names(columns)) {
-    v <- bt[[columns[[family]]]]
-    expected <- c(mean = mean(abs(v)), max = max(abs(v)), rms = sqrt(mean(v^2)))
-
-    for (agg in names(expected)) {
-      stat <- paste0(family, ".", agg)
-
-      expect_equal(bal.compute(bal.init(covs, f$tc, stat), weights = f$w),
-                   expected[[agg]], tolerance = eps, info = stat)
-    }
-  }
-
   #The Spearman statistics must actually differ from the Pearson ones -- they were
   #once computed identically because of a bad loop index, which no shape or class
   #check would have caught.
   expect_false(isTRUE(all.equal(bal.compute(bal.init(covs, f$tc, "s.mean"), weights = f$w),
                                 bal.compute(bal.init(covs, f$tc, "p.mean"), weights = f$w))))
+
+  skip_if_not_installed("patrick")
+
+  patrick::with_parameters_test_that(
+    "{family}.{agg}",
+    {
+      v <- bt[[columns[[family]]]]
+      expected <- c(mean = mean(abs(v)), max = max(abs(v)), rms = sqrt(mean(v^2)))
+
+      expect_equal(bal.compute(bal.init(covs, f$tc, paste0(family, ".", agg)),
+                               weights = f$w),
+                   expected[[agg]], tolerance = eps)
+    },
+    .cases = expand.grid(agg = c("mean", "max", "rms"), family = names(columns),
+                         stringsAsFactors = FALSE)
+  )
 })
 
 test_that("the aggregators summarize the bal.tab() columns when covariates have missing values", {
@@ -167,6 +175,8 @@ test_that("the aggregators summarize the bal.tab() columns when covariates have 
 })
 
 test_that("multi-category aggregators summarize the pairwise bal.tab() columns", {
+  skip_if_not_installed("patrick")
+
   eps <- if (capabilities("long.double")) 1e-8 else 1e-1
 
   f <- bc_fixture()
@@ -179,35 +189,26 @@ test_that("multi-category aggregators summarize the pairwise bal.tab() columns",
 
   columns <- c(smd = "Diff.Adj", ks = "KS.Adj")
 
-  for (family in names(columns)) {
-    #Pairwise statistics pool every pair's covariates into one vector before
-    #aggregating, so `max` is over all pairs at once, not per pair.
-    v <- unlist(lapply(bt, function(i) i$Balance[[columns[[family]]]]))
-    expected <- c(mean = mean(abs(v)), max = max(abs(v)), rms = sqrt(mean(v^2)))
+  patrick::with_parameters_test_that(
+    "{family}.{agg}",
+    {
+      #Pairwise statistics pool every pair's covariates into one vector before
+      #aggregating, so `max` is over all pairs at once, not per pair.
+      v <- unlist(lapply(bt, function(i) i$Balance[[columns[[family]]]]))
+      expected <- c(mean = mean(abs(v)), max = max(abs(v)), rms = sqrt(mean(v^2)))
 
-    for (agg in names(expected)) {
-      stat <- paste0(family, ".", agg)
-
-      expect_equal(bal.compute(bal.init(covs, f$tm, stat, estimand = "ATE"),
+      expect_equal(bal.compute(bal.init(covs, f$tm, paste0(family, ".", agg),
+                                        estimand = "ATE"),
                                weights = f$w),
-                   expected[[agg]], tolerance = eps, info = stat)
-    }
-  }
+                   expected[[agg]], tolerance = eps)
+    },
+    .cases = expand.grid(agg = c("mean", "max", "rms"), family = names(columns),
+                         stringsAsFactors = FALSE)
+  )
 })
 
 test_that("bal.compute() is unchanged by transformations the statistics ignore", {
   f <- bc_fixture()
-
-  #Weights enter every statistic as a ratio, so a constant multiple cannot matter.
-  #A refactor that starts normalizing by `sum(w)` in one place but not another
-  #shows up here.
-  for (stat in c("smd.mean", "ks.max", "ovl.mean", "energy.dist", "mahalanobis")) {
-    init <- bal.init(f$covs, f$tb, stat)
-
-    expect_equal(bal.compute(init, weights = f$w),
-                 bal.compute(init, weights = f$w * 7),
-                 info = stat)
-  }
 
   #The Mahalanobis distance is invariant to any rescaling and shifting of the
   #covariates, because it standardizes by the covariance itself. This is a genuine
@@ -232,6 +233,22 @@ test_that("bal.compute() is unchanged by transformations the statistics ignore",
                bal.compute(bal.init(f$num_covs, f$tb, "ks.max"), weights = f$w))
   expect_equal(bal.compute(bal.init(logged, f$tc, "s.mean"), weights = f$w),
                bal.compute(bal.init(f$num_covs, f$tc, "s.mean"), weights = f$w))
+
+  skip_if_not_installed("patrick")
+
+  #Weights enter every statistic as a ratio, so a constant multiple cannot matter.
+  #A refactor that starts normalizing by `sum(w)` in one place but not another
+  #shows up here.
+  patrick::with_parameters_test_that(
+    "weights times a constant: {stat}",
+    {
+      init <- bal.init(f$covs, f$tb, stat)
+
+      expect_equal(bal.compute(init, weights = f$w),
+                   bal.compute(init, weights = f$w * 7))
+    },
+    stat = c("smd.mean", "ks.max", "ovl.mean", "energy.dist", "mahalanobis")
+  )
 })
 
 test_that("bal.compute() reaches its optimum at perfect balance", {
@@ -351,21 +368,22 @@ test_that("bal.init() records what it was given", {
 
   expect_s3_class(init, "bal.init")
 
+  skip_if_not_installed("patrick")
+
   #`print()` must name the statistic; the phrase table behind it has been missing
   #entries before, which produced an empty line rather than an error.
-  for (stat in available.stats("binary")) {
-    out <- capture.output(print(bal.init(f$num_covs, f$tb, stat)))
+  treats <- list(binary = f$tb, continuous = f$tc)
 
-    expect_true(any(nzchar(trimws(out))), info = stat)
-    expect_false(any(grepl("NA", out, fixed = TRUE)), info = stat)
-  }
+  patrick::with_parameters_test_that(
+    "print() names {treat.type} {stat}",
+    {
+      out <- capture.output(print(bal.init(f$num_covs, treats[[treat.type]], stat)))
 
-  for (stat in available.stats("continuous")) {
-    out <- capture.output(print(bal.init(f$num_covs, f$tc, stat)))
-
-    expect_true(any(nzchar(trimws(out))), info = stat)
-    expect_false(any(grepl("NA", out, fixed = TRUE)), info = stat)
-  }
+      expect_true(any(nzchar(trimws(out))))
+      expect_false(any(grepl("NA", out, fixed = TRUE)))
+    },
+    .cases = stat_cases(c("binary", "continuous"))
+  )
 })
 
 test_that("bal.compute() returns 0 for unweighted target balance statistics", {
@@ -545,4 +563,139 @@ test_that("bal.compute() works with pairwise = FALSE", {
   expect_equal(bal.compute(init, weights = w),
                mean(abs(unlist(lapply(baltab, function(i) i$Balance$KS.Adj)))),
                tolerance = eps)
+})
+test_that("bal.compute() with a matrix of weights matches computing each column", {
+  skip_if_not_installed("patrick")
+
+  f <- bc_fixture()
+
+  W <- cbind(f$w, runif(length(f$w)), 1)
+  W[1:20, 2L] <- 0
+
+  treats <- list(binary = f$tb, multinomial = f$tm, continuous = f$tc, target = NULL)
+
+  #`energy.dist`, `kernel.dist`, and `distance.cov`/`distance.cor` compute all columns
+  #at once and the rest loop over them; either way each value must be the one the
+  #column gives on its own.
+  patrick::with_parameters_test_that(
+    "{treat.type}: {stat}",
+    {
+      #`tm` is race, so race is dropped from the covariates it is balanced on
+      covs <- {
+        if (treat.type == "multinomial") f$covs[names(f$covs) != "race"]
+        else f$covs
+      }
+
+      init <- bal.init(covs, treats[[treat.type]], stat, s.weights = f$sw)
+
+      expect_equal(bal.compute(init, weights = W),
+                   apply(W, 2L, function(w) bal.compute(init, weights = w)),
+                   tolerance = 1e-10)
+    },
+    .cases = stat_cases(c("binary", "multinomial", "continuous", "target"))
+  )
+
+  patrick::with_parameters_test_that(
+    "multinomial energy.dist: {config}",
+    {
+      init <- do.call("bal.init", c(list(f$num_covs, f$tm, "energy.dist"), args))
+
+      expect_equal(bal.compute(init, weights = W),
+                   apply(W, 2L, function(w) bal.compute(init, weights = w)),
+                   tolerance = 1e-10)
+    },
+    patrick::cases(
+      list(config = "estimand = NULL", args = list(estimand = NULL)),
+      list(config = "ATE, improved = FALSE", args = list(estimand = "ATE", improved = FALSE)),
+      list(config = "ATT, focal = black", args = list(estimand = "ATT", focal = "black"))
+    )
+  )
+})
+
+test_that("bal.compute() names matrix results by column and accepts a single column", {
+  f <- bc_fixture()
+
+  init <- bal.init(f$covs, f$tb, "energy.dist")
+
+  W <- cbind(a = f$w, b = 1)
+
+  out <- bal.compute(init, weights = W)
+  expect_named(out, c("a", "b"))
+  expect_length(out, 2L)
+
+  expect_equal(unname(bal.compute(init, weights = W[, "a", drop = FALSE])),
+               bal.compute(init, weights = f$w))
+
+  expect_null(names(bal.compute(init, weights = unname(W))))
+})
+
+test_that("bal.compute() rejects invalid weights", {
+  f <- bc_fixture()
+  n <- length(f$w)
+
+  init <- bal.init(f$covs, f$tb, "smd.mean")
+
+  expect_err(bal.compute(init, weights = f$w[-1]), "one value for each unit")
+  expect_err(bal.compute(init, weights = cbind(f$w, f$w)[-1, ]), "one row for each unit")
+  expect_err(bal.compute(init, weights = matrix(numeric(0), nrow = n)), "at least one column")
+  expect_err(bal.compute(init, weights = replace(f$w, 3, NA)), "NA")
+  expect_err(bal.compute(init, weights = replace(f$w, 3, Inf)), "infinite")
+  expect_err(bal.compute(init, weights = as.character(f$w)), "must be numeric")
+  expect_err(bal.compute(init, weights = data.frame(f$w)), "vector or a matrix")
+  expect_err(bal.compute(init, weights = array(1, c(n, 2, 2))), "vector or a matrix")
+
+  #The target statistics have the same number of units as the covariates
+  init <- bal.init(f$covs, stat = "energy.dist")
+  expect_err(bal.compute(init, weights = f$w[-1]), "one value for each unit")
+})
+
+test_that("energy.dist, kernel.dist, and distance.cor match their definitions", {
+  f <- bc_fixture()
+
+  #All-continuous covariates with no sampling weights, so the scaling `bal.init()`
+  #applies is the usual standardization
+  X <- scale(as.matrix(f$num_covs))
+  D <- as.matrix(dist(X))
+  n <- nrow(D)
+
+  w <- f$w
+  a1 <- w * (f$tb == 1) / sum(w[f$tb == 1])
+  a0 <- w * (f$tb == 0) / sum(w[f$tb == 0])
+  s <- rep(1 / n, n)
+
+  edist <- function(u, v) -drop(t(u - v) %*% D %*% (u - v))
+
+  expect_equal(bal.compute(bal.init(f$num_covs, f$tb, "energy.dist"), weights = w),
+               edist(a1, a0))
+
+  expect_equal(bal.compute(bal.init(f$num_covs, f$tb, "energy.dist", estimand = "ATE"),
+                           weights = w),
+               edist(a1, s) + edist(a0, s) + edist(a1, a0))
+
+  expect_equal(bal.compute(bal.init(f$num_covs, f$tb, "energy.dist", estimand = "ATT",
+                                    improved = FALSE),
+                           weights = w),
+               edist(a1, s * (f$tb == 1) * n / sum(f$tb == 1)) +
+                 edist(a0, s * (f$tb == 1) * n / sum(f$tb == 1)))
+
+  expect_equal(bal.compute(bal.init(f$num_covs, stat = "energy.dist"), weights = w),
+               edist(w / sum(w), s))
+
+  #Kernel distance: Gaussian kernel with the median distance as the bandwidth
+  K <- exp(-D^2 / median(D))
+  tw <- a1 - a0
+  expect_equal(bal.compute(bal.init(f$num_covs, f$tb, "kernel.dist"), weights = w),
+               sqrt(drop(t(tw) %*% K %*% tw)))
+
+  #Distance correlation: double-centered distance matrices of the covariates and of
+  #the treatment, with the weights in the outer product
+  H <- diag(n) - 1 / n
+  XX <- H %*% D %*% H
+  AA <- H %*% as.matrix(dist(f$tc)) %*% H
+  wn <- w / sum(w)
+  dcor2 <- drop(t(wn) %*% (XX * AA) %*% wn) /
+    sqrt(drop(t(s) %*% (XX^2) %*% s) * drop(t(s) %*% (AA^2) %*% s))
+
+  expect_equal(bal.compute(bal.init(f$num_covs, f$tc, "distance.cor"), weights = w),
+               sqrt(dcor2))
 })

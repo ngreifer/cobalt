@@ -153,3 +153,13 @@ skip_if_slow <- function() {
 
   invisible(NULL)
 }
+
+#A case table for `patrick::with_parameters_test_that()` with one row for each
+#statistic `available.stats()` lists for each of `treat.types`, in that order.
+stat_cases <- function(treat.types) {
+  rows <- lapply(treat.types, function(tt) {
+    data.frame(treat.type = tt, stat = available.stats(tt))
+  })
+
+  do.call("rbind", rows)
+}

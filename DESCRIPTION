@@ -43,6 +43,7 @@ Suggests:
     gtable (>= 0.3.6),
     knitr,
     rmarkdown,
+    patrick (>= 0.3.0),
     testthat (>= 3.0.0)
 License: GPL (>=2)
 Language: en-US

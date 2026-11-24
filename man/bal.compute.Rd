@@ -23,7 +23,7 @@ available.stats(treat.type = "binary")
 
 \item{...}{other arguments used to specify options for the balance statistic. See Details for which arguments are allowed with each balance statistic. Ignored for the \code{bal.init} method of \code{bal.compute()}.}
 
-\item{weights}{a vector of balancing weights to compute the weighted statistics.}
+\item{weights}{a vector of balancing weights to compute the weighted statistics, or a matrix with one column for each set of weights, in which case the statistic is computed for each column. Must contain one value (or, for a matrix, one row) for each unit and cannot contain missing or infinite values. If \code{NULL} (the default), the statistic is computed in the unweighted sample (i.e., using only \code{s.weights}).}
 
 \item{treat}{a vector containing the treatment variable. Can be \code{NULL} to compute target balance statistics.}
 
@@ -34,7 +34,7 @@ available.stats(treat.type = "binary")
 \item{treat.type}{string; the treatment type, either \code{"binary"}, \code{"multinomial"}, \code{"continuous"}, or \code{"target"}. Abbreviations allowed.}
 }
 \value{
-For \code{bal.compute()}, a single numeric value. For \code{bal.init()}, a \code{bal.init} object containing the components created in the initialization and the function used to compute the balance statistic. For \code{available.stats()}, a character vector of available statistics.
+For \code{bal.compute()}, a single numeric value or, when \code{weights} is a matrix, a numeric vector with one value for each column of \code{weights}, named with its column names. For \code{bal.init()}, a \code{bal.init} object containing the components created in the initialization and the function used to compute the balance statistic. For \code{available.stats()}, a character vector of available statistics.
 }
 \description{
 These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. \code{bal.compute()} computes a scalar balance statistics from the supplied inputs. \code{bal.init()} initializes the input so that when \code{bal.compute()} is used on the output along with a set of weights, the computation of the balance statistic is fast. \code{vignette("optimizing-balance")} provides an overview and more examples of how to use these functions. \code{available.stats()} returns the balance statistics available for the given treatment type.
@@ -78,6 +78,8 @@ The distance covariance or distance correlation, respectively, between the scale
 }
 
 Although statistics can be computed directly using \code{bal.compute()} alone, the intended workflow is to use \code{bal.init()} to initialize a \code{bal.init} object, which can then be passed to \code{bal.compute()} many times with different sets of weights, thereby minimizing the processing that \code{bal.init()} does because it is only done once. In contrast, using \code{bal.compute()} on covariates directly (i.e., using the default method) calls \code{bal.init()} internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of \code{bal.compute()} can be a quick shortcut to avoid having to create a \code{bal.init} object first.
+
+When many sets of weights are to be compared (e.g., the weights at each iteration of a boosting algorithm), they can be supplied together as the columns of a matrix to \code{weights}. For most statistics, this is equivalent to calling \code{bal.compute()} on each column separately. For \code{energy.dist}, \code{kernel.dist}, \code{distance.cov}, and \code{distance.cor}, it is considerably faster, because the statistic for every column is computed in a single matrix product. Note that these statistics require \code{bal.init()} to store an \eqn{n \times n} matrix, so their memory use grows with the square of the sample size (about 500MB with 8000 units).
 }
 \examples{
 \dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}

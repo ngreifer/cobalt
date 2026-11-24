@@ -12,6 +12,15 @@ t_cont <- function() lalonde$re75
 
 covs_num <- function() lalonde[c("age", "educ", "re74")]
 
+#`treat = NULL` selects target balance.
+t_of <- function(treat.type) {
+  switch(treat.type,
+         binary = t_bin(),
+         multinomial = t_multi(),
+         continuous = t_cont(),
+         target = NULL)
+}
+
 test_that("available.stats() reports the documented statistics per treatment type", {
   expect_type(available.stats("binary"), "character")
 
@@ -25,60 +34,27 @@ test_that("available.stats() reports the documented statistics per treatment typ
   expect_err(available.stats("bogus"), "`treat.type` should be one of")
 })
 
-test_that("every binary statistic initialises and computes a finite value", {
-  x <- covs_num()
-  treat <- t_bin()
+test_that("every statistic initialises and computes a finite value", {
+  skip_if_not_installed("patrick")
 
-  for (s in available.stats("binary")) {
-    init <- bal.init(x, treat = treat, stat = s)
-    expect_s3_class(init, "bal.init")
-    expect_identical(attr(init, "stat"), s)
-    expect_identical(attr(init, "treat.type"), "binary")
-
-    val <- bal.compute(init)
-    expect_true(is.numeric(val) && length(val) == 1L && is.finite(val),
-                label = sprintf("bal.compute(%s)", s))
-
-    #Supplying weights must also work and stay finite.
-    val_w <- bal.compute(init, weights = w_fixed)
-    expect_true(is.finite(val_w), label = sprintf("bal.compute(%s, weights=)", s))
-  }
-})
-
-test_that("every multi-category statistic initialises and computes a finite value", {
-  x <- covs_num()
-  treat <- t_multi()
-
-  for (s in available.stats("multinomial")) {
-    init <- bal.init(x, treat = treat, stat = s)
-    expect_identical(attr(init, "treat.type"), "multinomial")
-    expect_true(is.finite(bal.compute(init)), label = s)
-    expect_true(is.finite(bal.compute(init, weights = w_fixed)), label = s)
-  }
-})
-
-test_that("every continuous statistic initialises and computes a finite value", {
-  x <- covs_num()
-  treat <- t_cont()
-
-  for (s in available.stats("continuous")) {
-    init <- bal.init(x, treat = treat, stat = s)
-    expect_identical(attr(init, "treat.type"), "continuous")
-    expect_true(is.finite(bal.compute(init)), label = s)
-    expect_true(is.finite(bal.compute(init, weights = w_fixed)), label = s)
-  }
-})
-
-test_that("every target statistic initialises and computes a finite value", {
   x <- covs_num()
 
-  for (s in available.stats("target")) {
-    #`treat = NULL` selects target balance.
-    init <- bal.init(x, treat = NULL, stat = s)
-    expect_identical(attr(init, "treat.type"), "target")
-    expect_true(is.finite(bal.compute(init)), label = s)
-    expect_true(is.finite(bal.compute(init, weights = w_fixed)), label = s)
-  }
+  patrick::with_parameters_test_that(
+    "{treat.type}: {stat}",
+    {
+      init <- bal.init(x, treat = t_of(treat.type), stat = stat)
+      expect_s3_class(init, "bal.init")
+      expect_identical(attr(init, "stat"), stat)
+      expect_identical(attr(init, "treat.type"), treat.type)
+
+      val <- bal.compute(init)
+      expect_true(is.numeric(val) && length(val) == 1L && is.finite(val))
+
+      #Supplying weights must also work and stay finite.
+      expect_true(is.finite(bal.compute(init, weights = w_fixed)))
+    },
+    .cases = stat_cases(c("binary", "multinomial", "continuous", "target"))
+  )
 })
 
 test_that("bal.compute() dispatches on a raw covariate set as well as a bal.init", {
@@ -98,19 +74,21 @@ test_that("bal.compute() dispatches on a raw covariate set as well as a bal.init
 })
 
 test_that("print.bal.init() reports the treatment type and statistic", {
+  skip_if_not_installed("patrick")
+
   x <- covs_num()
 
   #Every statistic must have a phrase; `r2.2` and `r2.3` were once missing.
-  for (s in available.stats("binary")) {
-    out <- squish(capture.output(print(bal.init(x, treat = t_bin(), stat = s))))
-    expect_match(out, "A `bal.init` object", fixed = TRUE)
-    expect_match(out, "treatment type: binary", fixed = TRUE)
-    expect_match(out, sprintf("statistic: %s", s), fixed = TRUE)
-  }
-
-  for (s in available.stats("continuous")) {
-    expect_no_error(capture.output(print(bal.init(x, treat = t_cont(), stat = s))))
-  }
+  patrick::with_parameters_test_that(
+    "{treat.type}: {stat}",
+    {
+      out <- squish(capture.output(print(bal.init(x, treat = t_of(treat.type), stat = stat))))
+      expect_match(out, "A `bal.init` object", fixed = TRUE)
+      expect_match(out, sprintf("treatment type: %s", treat.type), fixed = TRUE)
+      expect_match(out, sprintf("statistic: %s", stat), fixed = TRUE)
+    },
+    .cases = stat_cases(c("binary", "continuous"))
+  )
 })
 
 test_that("the r2 family accepts poly and int options", {
@@ -137,23 +115,33 @@ test_that("the r2 family accepts poly and int options", {
 })
 
 test_that("smd, ks, and ovl accept estimand, focal, and pairwise", {
+  skip_if_not_installed("patrick")
+
   x <- covs_num()
 
-  for (s in c("smd.mean", "ks.max", "ovl.mean")) {
-    for (e in c("ATE", "ATT", "ATC")) {
-      expect_true(is.finite(bal.compute(bal.init(x, treat = t_bin(), stat = s,
-                                                 estimand = e))), label = paste(s, e))
-    }
-  }
+  patrick::with_parameters_test_that(
+    "binary: {stat}, estimand = {estimand}",
+    {
+      expect_true(is.finite(bal.compute(bal.init(x, treat = t_bin(), stat = stat,
+                                                 estimand = estimand))))
+    },
+    .cases = expand.grid(estimand = c("ATE", "ATT", "ATC"),
+                         stat = c("smd.mean", "ks.max", "ovl.mean"),
+                         stringsAsFactors = FALSE)
+  )
 
   #For multi-category treatments, `focal` selects the reference group and
   #`pairwise = FALSE` compares each group to the target.
-  for (s in c("smd.mean", "ks.mean", "ovl.mean")) {
-    expect_true(is.finite(bal.compute(bal.init(x, treat = t_multi(), stat = s,
-                                               estimand = "ATT", focal = "white"))))
-    expect_true(is.finite(bal.compute(bal.init(x, treat = t_multi(), stat = s,
-                                               pairwise = FALSE))))
-  }
+  patrick::with_parameters_test_that(
+    "multi-category: {stat}",
+    {
+      expect_true(is.finite(bal.compute(bal.init(x, treat = t_multi(), stat = stat,
+                                                 estimand = "ATT", focal = "white"))))
+      expect_true(is.finite(bal.compute(bal.init(x, treat = t_multi(), stat = stat,
+                                                 pairwise = FALSE))))
+    },
+    stat = c("smd.mean", "ks.mean", "ovl.mean")
+  )
 })
 
 test_that("ovl accepts integrate and steps", {
@@ -246,7 +234,7 @@ test_that("bal.compute() validates weights against the init object", {
   init <- bal.init(covs_num(), treat = t_bin(), stat = "smd.mean")
 
   expect_err(bal.compute(init, weights = w_fixed[-1L]),
-             "must have the same number of units")
+             "must have one value for each unit")
 })
 
 # ---------------------------------------------------------------------------
@@ -254,19 +242,19 @@ test_that("bal.compute() validates weights against the init object", {
 # the statistic registry carries.
 
 test_that("each statistic's function builds its own init when not given one", {
+  skip_if_not_installed("patrick")
+
   #`bal.init()` always constructs the init and stores the computing function on
   #the object, so `bal.compute()` never exercises the fallback inside each
   #registry entry. Calling it directly must give the same answer.
   x <- covs_num()
 
-  treats <- list(binary = t_bin(), multinomial = t_multi(), continuous = t_cont(),
-                 target = NULL)
+  patrick::with_parameters_test_that(
+    "{treat.type} / {stat}",
+    {
+      treat <- t_of(treat.type)
 
-  for (tt in names(treats)) {
-    treat <- treats[[tt]]
-
-    for (s in available.stats(tt)) {
-      init <- bal.init(x, treat = treat, stat = s)
+      init <- bal.init(x, treat = treat, stat = stat)
       fun <- attr(init, "fun")
 
       #`l1.med` bins the covariates at random, so both calls need the same seed
@@ -278,26 +266,36 @@ test_that("each statistic's function builds its own init when not given one", {
       set.seed(11L)
       built <- fun(covs = x, treat = treat, weights = NULL)
 
-      expect_equal(built, via_init,
-                   info = sprintf("%s / %s", tt, s))
-    }
-  }
+      expect_equal(built, via_init)
+    },
+    .cases = stat_cases(c("binary", "multinomial", "continuous", "target"))
+  )
 })
 
 test_that("s.weights are honored by every statistic, not just smd", {
+  skip_if_not_installed("patrick")
+
   x <- covs_num()
 
-  for (s in c("ks.max", "ovl.mean", "energy.dist", "mahalanobis", "r2.2")) {
-    plain <- bal.compute(x, treat = t_bin(), stat = s)
-    weighted <- bal.compute(x, treat = t_bin(), stat = s, s.weights = sw_fixed)
-    expect_true(is.finite(weighted), label = s)
-    expect_false(isTRUE(all.equal(plain, weighted)), label = s)
-  }
+  patrick::with_parameters_test_that(
+    "binary: {stat}",
+    {
+      plain <- bal.compute(x, treat = t_bin(), stat = stat)
+      weighted <- bal.compute(x, treat = t_bin(), stat = stat, s.weights = sw_fixed)
+      expect_true(is.finite(weighted))
+      expect_false(isTRUE(all.equal(plain, weighted)))
+    },
+    stat = c("ks.max", "ovl.mean", "energy.dist", "mahalanobis", "r2.2")
+  )
 
-  for (s in c("p.mean", "s.max", "distance.cov")) {
-    expect_true(is.finite(bal.compute(x, treat = t_cont(), stat = s,
-                                      s.weights = sw_fixed)), label = s)
-  }
+  patrick::with_parameters_test_that(
+    "continuous: {stat}",
+    {
+      expect_true(is.finite(bal.compute(x, treat = t_cont(), stat = stat,
+                                        s.weights = sw_fixed)))
+    },
+    stat = c("p.mean", "s.max", "distance.cov")
+  )
 })
 
 test_that("focal applies to binary treatments and estimand to energy.dist", {

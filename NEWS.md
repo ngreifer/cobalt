@@ -3,6 +3,10 @@
 
 # *cobalt* (development version)
 
+* `bal.compute()` now accepts a matrix of weights with one column for each set of weights and returns one value for each column. For `energy.dist`, `kernel.dist`, `distance.cov`, and `distance.cor`, this is considerably faster than computing each column separately, which is useful when selecting among many candidate sets of weights, as `WeightIt::weightit()` does with `method = "gbm"`. The `weights` argument is now also checked for the right number of units and for missing and infinite values.
+
+* `bal.init()` uses about half the memory it did with `energy.dist`, `kernel.dist`, `distance.cov`, and `distance.cor`, and `bal.compute()` is about twice as fast with them.
+
 * The `[` method for `treat` objects is now registered on the `treat` class as well as on `cobalt.treat`. This is internal, but it has one visible consequence: a user who still has *WeightIt* 2.0.0 installed will see R report that `[.treat` has been overwritten when *WeightIt* is attached. Updating to *WeightIt* 2.1.0 or later, which registers no such method, removes the message.
 
 * Fixed a bug when computing KS statistics on continuous variables with missingness in the predictors. Thanks to @alfie-b for pointing it out. (#97)

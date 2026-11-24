@@ -4,14 +4,14 @@
 #' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. `bal.compute()` computes a scalar balance statistics from the supplied inputs. `bal.init()` initializes the input so that when `bal.compute()` is used on the output along with a set of weights, the computation of the balance statistic is fast. `vignette("optimizing-balance")` provides an overview and more examples of how to use these functions. `available.stats()` returns the balance statistics available for the given treatment type.
 #' 
 #' @param x for `bal.compute()`, a `bal.init` object created by `bal.init()` or a matrix or data frame containing the covariates. For `bal.init()`, a matrix or data frame containing the covariates.
-#' @param weights a vector of balancing weights to compute the weighted statistics.
+#' @param weights a vector of balancing weights to compute the weighted statistics, or a matrix with one column for each set of weights, in which case the statistic is computed for each column. Must contain one value (or, for a matrix, one row) for each unit and cannot contain missing or infinite values. If `NULL` (the default), the statistic is computed in the unweighted sample (i.e., using only `s.weights`).
 #' @param treat a vector containing the treatment variable. Can be `NULL` to compute target balance statistics.
 #' @param stat string; the name of the statistic to compute. See Details.
 #' @param s.weights optional; a vector of sampling weights.
 #' @param ... other arguments used to specify options for the balance statistic. See Details for which arguments are allowed with each balance statistic. Ignored for the `bal.init` method of `bal.compute()`.
 #' @param treat.type string; the treatment type, either `"binary"`, `"multinomial"`, `"continuous"`, or `"target"`. Abbreviations allowed.
 #' 
-#' @returns For `bal.compute()`, a single numeric value. For `bal.init()`, a `bal.init` object containing the components created in the initialization and the function used to compute the balance statistic. For `available.stats()`, a character vector of available statistics.
+#' @returns For `bal.compute()`, a single numeric value or, when `weights` is a matrix, a numeric vector with one value for each column of `weights`, named with its column names. For `bal.init()`, a `bal.init` object containing the components created in the initialization and the function used to compute the balance statistic. For `available.stats()`, a character vector of available statistics.
 #' 
 #' @details 
 #' The following list contains the allowable balance statistics that can be supplied to `bal.init()` or the default method of `bal.compute()`, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance. Target balance refers to the similarity between a sample and the same sample but weighted.
@@ -52,6 +52,8 @@
 #' }
 #' 
 #' Although statistics can be computed directly using `bal.compute()` alone, the intended workflow is to use `bal.init()` to initialize a `bal.init` object, which can then be passed to `bal.compute()` many times with different sets of weights, thereby minimizing the processing that `bal.init()` does because it is only done once. In contrast, using `bal.compute()` on covariates directly (i.e., using the default method) calls `bal.init()` internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of `bal.compute()` can be a quick shortcut to avoid having to create a `bal.init` object first.
+#' 
+#' When many sets of weights are to be compared (e.g., the weights at each iteration of a boosting algorithm), they can be supplied together as the columns of a matrix to `weights`. For most statistics, this is equivalent to calling `bal.compute()` on each column separately. For `energy.dist`, `kernel.dist`, `distance.cov`, and `distance.cor`, it is considerably faster, because the statistic for every column is computed in a single matrix product. Note that these statistics require `bal.init()` to store an \eqn{n \times n} matrix, so their memory use grows with the square of the sample size (about 500MB with 8000 units).
 #' 
 #' @seealso [`balance-summary`], [bal.tab()]
 #' 
@@ -121,7 +123,22 @@ bal.compute.bal.init <- function(x,
                                  ...) {
   fun <- .attr(x, "fun")
   
-  fun(init = x, weights = weights)
+  weights <- .process_bal.compute_weights(weights, .attr(x, "n"))
+  
+  if (!is.matrix(weights)) {
+    return(fun(init = x, weights = weights))
+  }
+  
+  #These statistics compute all columns of `weights` at once
+  out <- {
+    if (inherits(x, c("init_energy.dist", "init_kernel.dist", "init_distance.cov")))
+      fun(init = x, weights = weights)
+    else
+      vapply(seq_col(weights), function(j) fun(init = x, weights = weights[, j]),
+             numeric(1L))
+  }
+  
+  setNames(out, colnames(weights))
 }
 
 #' @rdname bal.compute
@@ -169,6 +186,10 @@ bal.init <- function(x,
   attr(out, "fun") <- init$fun
   attr(out, "treat.type") <- treat.type
   attr(out, "stat") <- stat
+  attr(out, "n") <- {
+    if (is_null(treat)) NROW(x)
+    else length(treat)
+  }
   
   set_class(out, "bal.init", .replace = FALSE, .last = FALSE)
 }
@@ -707,16 +728,20 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
   
   s.weights_n <- s.weights / sum(s.weights)
   
+  dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
+  
+  #`P` holds the distance matrix until it is turned into `-d * tcrossprod(U)` below
+  P <- dist(dist.covs) |>
+    .dist_to_matrix()
+  
+  n <- nrow(P)
+  
   if (is_null(treat)) {
-    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
+    U <- matrix(1 / n, nrow = n)
     
-    d <- unname(as.matrix(dist(dist.covs)))
-    
-    n <- length(s.weights)
-    
-    P <- -d / (n^2)
-    q <- drop(s.weights_n %*% d) * 2 / n
-    k <- -sum(q * s.weights_n) * n / 2
+    ds <- drop(crossprod(P, s.weights_n))
+    q <- ds * 2 / n
+    k <- -sum(ds * s.weights_n)
     
     unique.treats <- focal <- NULL
   }
@@ -739,11 +764,6 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
       estimand <- f.e[["estimand"]]
     }
     
-    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
-    
-    d <- unname(as.matrix(dist(dist.covs)))
-    
-    n <- length(treat)
     unique.treats <- levels(treat)
     
     treat_t <- vapply(unique.treats, function(t) treat == t, logical(n))
@@ -752,43 +772,45 @@ init_energy.dist <- function(x, treat = NULL, s.weights = NULL, estimand = NULL,
     treat_n_t <- vapply(unique.treats, function(t) treat_t[, t] / n_t[t],
                         numeric(n))
     
+    .col_diff <- function(x) x[, 1L] - x[, 2L]
+    all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
+    pair_diffs <- vapply(all_pairs, function(p) .col_diff(treat_n_t[, p, drop = FALSE]),
+                         numeric(n))
+    
     if (is_null(estimand)) {
-      .col_diff <- function(x) x[, 1L] - x[, 2L]
-      all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
-      nn <- tcrossprod(vapply(all_pairs, function(p) .col_diff(treat_n_t[, p, drop = FALSE]),
-                              numeric(n)))
+      U <- pair_diffs
       
-      P <- -d * nn
       q <- rep.int(0, n)
       k <- 0
     }
     else if (is_null(focal)) {
       arg::arg_flag(improved)
       
-      nn <- tcrossprod(treat_n_t)
-      
-      if (improved) {
-        .col_diff <- function(x) x[, 1L] - x[, 2L]
-        all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
-        nn <- nn + tcrossprod(vapply(all_pairs, function(p) .col_diff(treat_n_t[, p, drop = FALSE]),
-                                     numeric(n)))
+      U <- {
+        if (improved) cbind(treat_n_t, pair_diffs)
+        else treat_n_t
       }
       
-      P <- -d * nn
-      q <- drop(s.weights_n %*% d) * 2 * rowSums(treat_n_t)
-      k <- - length(n_t) * drop(s.weights_n %*% d %*% s.weights_n)
+      ds <- drop(crossprod(P, s.weights_n))
+      q <- ds * 2 * rowSums(treat_n_t)
+      k <- -length(n_t) * sum(ds * s.weights_n)
     }
     else {
-      nn <- tcrossprod(treat_n_t)
+      U <- treat_n_t
+      
       in_focal <- treat == focal
+      s.weights_n_f <- s.weights * in_focal / sum(s.weights[in_focal])
       
-      s.weights_n_f <- s.weights[in_focal]
-      s.weights_n_f <- s.weights_n_f / sum(s.weights_n_f)
-      
-      P <- -d * nn
-      q <- drop(s.weights_n_f %*% d[in_focal, , drop = FALSE]) * 2 * rowSums(treat_n_t)
-      k <- -length(n_t) * drop(s.weights_n_f %*% d[in_focal, in_focal, drop = FALSE] %*% s.weights_n_f)
+      ds <- drop(crossprod(P, s.weights_n_f))
+      q <- ds * 2 * rowSums(treat_n_t)
+      k <- -length(n_t) * sum(ds * s.weights_n_f)
     }
+  }
+  
+  #Equivalent to `P <- -d * tcrossprod(U)`, one column at a time so no other n x n
+  #matrix is created
+  for (j in seq_col(P)) {
+    P[, j] <- -P[, j] * drop(U %*% U[j, ])
   }
   
   out <- list(P = P,
@@ -832,9 +854,17 @@ init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
   
   dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
   
-  d <- unname(as.matrix(dist(dist.covs)))
+  d <- dist(dist.covs)
   
-  K <- exp(-(d^2) / median(d))
+  med <- .median_dist_matrix(d)
+  
+  K <- .dist_to_matrix(d)
+  
+  rm(d)
+  
+  for (j in seq_col(K)) {
+    K[, j] <- exp(-(K[, j]^2) / med)
+  }
   
   T_star <- numeric(length(treat))
   T_star[treat == 1] <- 1 / sum(treat == 1)
@@ -982,34 +1012,39 @@ init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
   
   dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
   
-  Xdist <- dist(dist.covs) |>
-    as.matrix() |>
-    unname()
+  P <- dist(dist.covs) |>
+    .dist_to_matrix()
   
-  n <- length(treat)
-  
-  Adist <- dist(treat / sqrt(col.w.v(treat, s.weights))) |>
-    as.matrix() |>
-    unname()
-  
-  Xmeans <- colMeans(Xdist)
+  Xmeans <- colMeans(P)
   Xgrand_mean <- mean(Xmeans)
-  XX <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")
   
-  Ameans <- colMeans(Adist)
+  a <- treat / sqrt(col.w.v(treat, s.weights))
+  
+  Ameans <- vapply(a, function(a_j) mean(abs(a - a_j)), numeric(1L))
   Agrand_mean <- mean(Ameans)
-  AA <- Adist + Agrand_mean - outer(Ameans, Ameans, "+")
   
-  if (std) {
-    Adenom <- sqrt(drop(t(s.weights) %*% (AA^2) %*% s.weights))
-    Xdenom <- sqrt(drop(t(s.weights) %*% (XX^2) %*% s.weights))
-    denom <- Adenom * Xdenom
-  }
-  else {
-    denom <- 1
+  Xdenom2 <- Adenom2 <- 0
+  
+  #`P` is filled one column at a time with the product of the double-centered covariate
+  #and treatment distance matrices, so neither is ever stored in full
+  for (j in seq_col(P)) {
+    XX_j <- P[, j] + Xgrand_mean - (Xmeans + Xmeans[j])
+    AA_j <- abs(a - a[j]) + Agrand_mean - (Ameans + Ameans[j])
+    
+    if (std) {
+      Xdenom2 <- Xdenom2 + s.weights[j] * sum(s.weights * XX_j^2)
+      Adenom2 <- Adenom2 + s.weights[j] * sum(s.weights * AA_j^2)
+    }
+    
+    P[, j] <- XX_j * AA_j
   }
   
-  out <- list(P = XX * AA,
+  denom <- {
+    if (std) sqrt(Adenom2) * sqrt(Xdenom2)
+    else 1
+  }
+  
+  out <- list(P = P,
               denom = denom,
               s.weights = s.weights,
               treat = treat)
@@ -1211,32 +1246,32 @@ mahalanobis.binary <- function(init, weights = NULL) {
 energy.dist.binary <- function(init, weights = NULL) {
   .check_init(init, "init_energy.dist")
   
-  weights <- {
-    if (is_null(weights)) init[["s.weights"]]
-    else weights * init[["s.weights"]]
+  W <- {
+    if (is_null(weights)) as.matrix(init[["s.weights"]])
+    else as.matrix(weights * init[["s.weights"]])
   }
   
   for (t in init[["unique.treats"]]) {
-    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / mean_fast(weights[init[["treat"]] == t])
+    in_t <- init[["treat"]] == t
+    W[in_t, ] <- W[in_t, , drop = FALSE] / rep(colMeans(W[in_t, , drop = FALSE]), each = sum(in_t))
   }
   
-  drop(weights %*% init[["P"]] %*% weights) + sum(init[["q"]] * weights) + init[["k"]]
+  .col_quad_forms(init[["P"]], W) + drop(crossprod(init[["q"]], W)) + init[["k"]]
 }
 kernel.dist.binary <- function(init, weights = NULL) {
   .check_init(init, "init_kernel.dist")
   
-  weights <- {
-    if (is_null(weights)) init[["s.weights"]]
-    else weights * init[["s.weights"]]
+  W <- {
+    if (is_null(weights)) as.matrix(init[["s.weights"]])
+    else as.matrix(weights * init[["s.weights"]])
   }
   
   for (t in 0:1) {
-    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / mean_fast(weights[init[["treat"]] == t])
+    in_t <- init[["treat"]] == t
+    W[in_t, ] <- W[in_t, , drop = FALSE] / rep(colMeans(W[in_t, , drop = FALSE]), each = sum(in_t))
   }
   
-  T_weights <- init[["T_star"]] * weights
-  
-  drop(sqrt(T_weights %*% init[["K"]] %*% T_weights))
+  sqrt(.col_quad_forms(init[["K"]], init[["T_star"]] * W))
 }
 r2.binary <- function(init, weights = NULL) {
   .check_init(init, "init_r2")
@@ -1409,20 +1444,19 @@ r2.continuous <- function(init, weights = NULL) {
 distance.cov.continuous <- function(init, weights = NULL) {
   .check_init(init, "init_distance.cov")
   
-  weights <- {
-    if (is_null(weights)) init[["s.weights"]]
-    else weights * init[["s.weights"]]
+  W <- {
+    if (is_null(weights)) as.matrix(init[["s.weights"]])
+    else as.matrix(weights * init[["s.weights"]])
   }
   
-  weights <- weights / sum(weights)
+  W <- W / rep(colSums(W), each = nrow(W))
   
-  dcov <- drop(t(weights) %*% init[["P"]] %*% weights)
+  dcov <- .col_quad_forms(init[["P"]], W)
   
-  if (dcov <= 0) {
-    return(0)
-  }
+  out <- sqrt(pmax(dcov, 0) / init[["denom"]])
+  out[which(dcov <= 0)] <- 0
   
-  sqrt(dcov / init[["denom"]])
+  out
 }
 ## target
 smd.target <- function(init, weights = NULL) {
@@ -1463,14 +1497,14 @@ mahalanobis.target <- function(init, weights = NULL) {
 energy.dist.target <- function(init, weights = NULL) {
   .check_init(init, "init_energy.dist")
   
-  weights <- {
-    if (is_null(weights)) init[["s.weights"]]
-    else weights * init[["s.weights"]]
+  W <- {
+    if (is_null(weights)) as.matrix(init[["s.weights"]])
+    else as.matrix(weights * init[["s.weights"]])
   }
   
-  weights <- weights / mean_fast(weights)
+  W <- W / rep(colMeans(W), each = nrow(W))
   
-  drop(weights %*% init[["P"]] %*% weights) + sum(init[["q"]] * weights) + init[["k"]]
+  .col_quad_forms(init[["P"]], W) + drop(crossprod(init[["q"]], W)) + init[["k"]]
 }
 
 bal_criterion <- function(treat.type, criterion) {
@@ -1960,4 +1994,88 @@ bal_criterion <- function(treat.type, criterion) {
   arg::arg_supplied(init)
   arg::arg_supplied(init_class)
   arg::arg_is(init, init_class)
+}
+
+.process_bal.compute_weights <- function(weights, n) {
+  if (is_null(weights) && !is.matrix(weights)) {
+    return(NULL)
+  }
+  
+  arg::arg_or(weights,
+              arg::arg_vector,
+              arg::arg_matrix)
+  arg::arg_numeric(weights, .msg = "{.arg weights} must be numeric")
+  arg::arg_no_NA(weights)
+  
+  if (!all(is.finite(weights))) {
+    arg::err("{.arg weights} cannot contain infinite values")
+  }
+  
+  if (is.matrix(weights)) {
+    if (ncol(weights) == 0L) {
+      arg::err("{.arg weights} must have at least one column")
+    }
+    
+    if (nrow(weights) != n) {
+      arg::err("{.arg weights} must have one row for each unit ({n}) when supplied as a matrix")
+    }
+  }
+  else if (length(weights) != n) {
+    arg::err("{.arg weights} must have one value for each unit ({n})")
+  }
+  
+  weights
+}
+
+#A full symmetric matrix from a `dist` object, avoiding the temporary n x n matrices
+#`as.matrix.dist()` creates
+.dist_to_matrix <- function(d) {
+  n <- attr(d, "Size")
+  
+  m <- matrix(0, n, n)
+  
+  k <- 0
+  for (j in seq_len(n - 1L)) {
+    i <- (j + 1L):n
+    v <- d[k + seq_along(i)]
+    m[i, j] <- v
+    m[j, i] <- v
+    k <- k + length(i)
+  }
+  
+  m
+}
+
+#`median()` of the full matrix `.dist_to_matrix(d)`, which has `n` zeros on the diagonal
+#and each entry of `d` twice, computed without forming it
+.median_dist_matrix <- function(d) {
+  n <- attr(d, "Size")
+  N <- n^2
+  
+  pos <- {
+    if (N %% 2 == 1) (N + 1) / 2
+    else N / 2 + 0:1
+  }
+  
+  off_diag <- pos > n
+  d_pos <- ceiling((pos[off_diag] - n) / 2)
+  
+  vals <- numeric(length(pos))
+  vals[off_diag] <- sort(as.vector(d), partial = unique(d_pos))[d_pos]
+  
+  mean(vals)
+}
+
+#`colSums(V * (M %*% V))` for each column of `V`, in chunks of columns so that
+#`M %*% V` stays small when `V` has many columns
+.col_quad_forms <- function(M, V) {
+  chunk_size <- max(1L, floor(2^23 / nrow(V)))
+  chunks <- split(seq_col(V), ceiling(seq_col(V) / chunk_size))
+  
+  out <- lapply(chunks, function(cols) {
+    v <- V[, cols, drop = FALSE]
+    colSums(v * (M %*% v))
+  })
+  
+  unlist(out, use.names = FALSE)
 }
