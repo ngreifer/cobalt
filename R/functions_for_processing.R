@@ -2376,6 +2376,22 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   .C_rename(C, co.names)
 }
 
+#Drops the missingness indicators that are 0 for every unit in `rows`, the units the
+#balance table will be computed on. Such an indicator records values missing only among
+#units outside the table -- in a longitudinal treatment, units censored earlier.
+.C_drop_absent_na <- function(C, rows) {
+  na.ind <- vapply(.attr(C, "co.names"), function(x) "na" %in% x[["type"]], logical(1L))
+
+  if (!any(na.ind)) {
+    return(C)
+  }
+
+  absent <- na.ind
+  absent[na.ind] <- colSums(C[rows, na.ind, drop = FALSE]) == 0
+
+  .C_keep(C, !absent)
+}
+
 #Attaches `co.names` and derives the column names from it.
 .C_rename <- function(C, co.names) {
   if (is_not_null(co.names)) {

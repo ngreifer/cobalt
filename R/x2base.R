@@ -110,12 +110,32 @@ x2base <- function(x, ...) {
   X[["s.d.denom"]] <- .stats[["s.d.denom"]]
   X[["call"]] <- .call
   
-  #A longitudinal method holds lists of data frames, which `anyNA()` only descends
-  #into when asked.
-  missings <- {
-    if (.msm) anyNA(X[["covs.list"]], recursive = TRUE) ||
-      anyNA(X[["addl.list"]], recursive = TRUE)
-    else anyNA(X[["covs"]]) || anyNA(X[["addl"]])
+  #Each time point of a longitudinal treatment is assessed among the units still under
+  #observation entering it. A unit censored earlier was never measured afterwards, so a
+  #value it lacks is not missing from that time point's table: it neither prompts the
+  #warning nor gets a missingness indicator.
+  if (.msm) {
+    at.risk <- .msm_at_risk(X[["treat.list"]])
+
+    for (i in c("covs.list", "addl.list")) {
+      for (ti in seq_along(X[[i]])) {
+        if (is_not_null(X[[i]][[ti]])) {
+          X[[i]][[ti]] <- .C_drop_absent_na(X[[i]][[ti]], at.risk[[ti]])
+        }
+      }
+    }
+
+    missing_at_risk <- function(C, rows) {
+      is_not_null(C) && anyNA(C[rows, , drop = FALSE])
+    }
+
+    missings <- any(vapply(seq_along(at.risk), function(ti) {
+      missing_at_risk(X[["covs.list"]][[ti]], at.risk[[ti]]) ||
+        missing_at_risk(X[["addl.list"]][[ti]], at.risk[[ti]])
+    }, logical(1L)))
+  }
+  else {
+    missings <- anyNA(X[["covs"]]) || anyNA(X[["addl"]])
   }
   
   if (missings) {

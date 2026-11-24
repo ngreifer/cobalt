@@ -11,6 +11,8 @@
 
 * Fixed a bug when computing KS statistics on continuous variables with missingness in the predictors. Thanks to @alfie-b for pointing it out. (#97)
 
+* Fixed a bug in `bal.tab()` with longitudinal treatments in which covariates missing only for units censored at an earlier time point produced a warning and missingness indicators at later time points, where those units are not at risk and so do not appear in the balance table. (#98)
+
 * Fixed a bug in which treatment correlations for covariates with missing values (in `bal.tab()`, `bal.compute()`, and `col_w_corr()`) used all units, including those missing the covariate, to compute the standard deviation of the treatment and, for Spearman correlations, its ranks. These now use only the units with the covariate observed, so the correlations are the pairwise-complete ones.
 
 * `col_w_dcov()` and `col_w_dcorr()` now respect `na.rm`. Previously, a covariate with any missing values always had a distance covariance of `NA`, including in `bal.tab()` with `stats = "distance.correlations"`.
