@@ -1,7 +1,7 @@
 *cobalt* News and Updates
 ======
 
-# *cobalt* (development version)
+# *cobalt* 5.1.0
 
 * `bal.compute()` now accepts a matrix of weights with one column for each set of weights and returns one value for each column. For `energy.dist`, `kernel.dist`, `distance.cov`, and `distance.cor`, this is considerably faster than computing each column separately, which is useful when selecting among many candidate sets of weights, as `WeightIt::weightit()` does with `method = "gbm"`. The `weights` argument is now also checked for the right number of units and for missing and infinite values.
 
