@@ -45,12 +45,11 @@ weighted. See
 [`class-bal.tab.cens`](https://ngreifer.github.io/cobalt/reference/class-bal.tab.cens.md)
 for the output this produces and the arguments that control it.
 
-This function is deliberately identical in name and contract to
-[`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html),
-so that the same code works whichever package is attached; cobalt
-defines its own only to avoid depending on WeightIt.
+WeightIt re-exports this function, so `.cens()` is the same function
+whichever of the two packages is attached and an indicator tagged with
+either is the same object. cobalt owns it because
 [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
-recognizes an indicator tagged by either.
+needs the marker and cannot depend on WeightIt.
 
 ## Note on the coding convention
 

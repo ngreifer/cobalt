@@ -2,10 +2,41 @@
 
 ## *cobalt* (development version)
 
+- [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  now accepts a matrix of weights with one column for each set of
+  weights and returns one value for each column. For `energy.dist`,
+  `kernel.dist`, `distance.cov`, and `distance.cor`, this is
+  considerably faster than computing each column separately, which is
+  useful when selecting among many candidate sets of weights, as
+  [`WeightIt::weightit()`](https://ngreifer.github.io/WeightIt/reference/weightit.html)
+  does with `method = "gbm"`. The `weights` argument is now also checked
+  for the right number of units and for missing and infinite values.
+
+- [`bal.init()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  uses about half the memory it did with `energy.dist`, `kernel.dist`,
+  `distance.cov`, and `distance.cor`, and
+  [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
+  is about twice as fast with them.
+
+- The `[` method for `treat` objects is now registered on the `treat`
+  class as well as on `cobalt.treat`. This is internal, but it has one
+  visible consequence: a user who still has *WeightIt* 2.0.0 installed
+  will see R report that `[.treat` has been overwritten when *WeightIt*
+  is attached. Updating to *WeightIt* 2.1.0 or later, which registers no
+  such method, removes the message.
+
 - Fixed a bug when computing KS statistics on continuous variables with
   missingness in the predictors. Thanks to
   [@alfie-b](https://github.com/alfie-b) for pointing it out.
   ([\#97](https://github.com/ngreifer/cobalt/issues/97))
+
+- Fixed a bug in
+  [`bal.tab()`](https://ngreifer.github.io/cobalt/reference/bal.tab.md)
+  with longitudinal treatments in which covariates missing only for
+  units censored at an earlier time point produced a warning and
+  missingness indicators at later time points, where those units are not
+  at risk and so do not appear in the balance table.
+  ([\#98](https://github.com/ngreifer/cobalt/issues/98))
 
 - Fixed a bug in which treatment correlations for covariates with
   missing values (in
@@ -72,7 +103,7 @@ CRAN release: 2026-08-25
     frame of covariates.
     [`cobalt::.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md)
     is deliberately identical to
-    [`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html)
+    [`WeightIt::.cens()`](https://ngreifer.github.io/cobalt/reference/cens.html)
     so that the same code works whichever package is attached; *cobalt*
     defines its own only to avoid depending on *WeightIt*. See
     [`?.cens`](https://ngreifer.github.io/cobalt/reference/cens.md) and
@@ -269,7 +300,7 @@ CRAN release: 2026-08-25
     and values of its groups, and how those groups label the columns of
     a balance table. `[` preserves all of it, so a subset of a treatment
     is still one. This is the same class
-    [`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html)
+    [`WeightIt::.cens()`](https://ngreifer.github.io/cobalt/reference/cens.html)
     returns, so an indicator tagged by either package is accepted by
     both.
 

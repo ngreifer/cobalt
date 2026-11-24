@@ -311,11 +311,6 @@ bal.plot(m.out, "distance", which = "both", mirror = TRUE,
 
 #Entropy balancing with a continuous treatment
 library(WeightIt)
-#> 
-#> Attaching package: ‘WeightIt’
-#> The following object is masked from ‘package:cobalt’:
-#> 
-#>     .cens
 w.out <- weightit(re75 ~ age + I(age^2) + educ + 
                     race + married + nodegree,
                   data = lalonde, method = "ebal")

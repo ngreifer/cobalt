@@ -41,13 +41,14 @@ The attributes are
 
 [`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md) is the
 only way to build one directly; it returns a censoring indicator.
-[`WeightIt::.cens()`](https://ngreifer.github.io/WeightIt/reference/dot-cens.html)
-returns an object with the same class and a compatible `treat.type`, so
-an indicator tagged by either package is accepted here.
+[`WeightIt::.cens()`](https://ngreifer.github.io/cobalt/reference/cens.html)
+is this same function, re-exported there, so an indicator tagged with
+either package attached is the same object.
 
 The class is shared, so carrying it means only "this is a treatment",
 not "this carries the attributes above": WeightIt tags its own
-treatments with it and supplies `treat.type` alone, and even cobalt's
+treatments with this class deliberately, and supplies `treat.type`
+alone, and even cobalt's
 [`.cens()`](https://ngreifer.github.io/cobalt/reference/cens.md) has no
 group names until the treatment is processed. Anything that reads
 `treat_names` or `treat_vals` therefore has to check for them rather

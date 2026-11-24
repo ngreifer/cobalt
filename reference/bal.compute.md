@@ -44,7 +44,12 @@ available.stats(treat.type = "binary")
 
 - weights:
 
-  a vector of balancing weights to compute the weighted statistics.
+  a vector of balancing weights to compute the weighted statistics, or a
+  matrix with one column for each set of weights, in which case the
+  statistic is computed for each column. Must contain one value (or, for
+  a matrix, one row) for each unit and cannot contain missing or
+  infinite values. If `NULL` (the default), the statistic is computed in
+  the unweighted sample (i.e., using only `s.weights`).
 
 - treat:
 
@@ -66,10 +71,12 @@ available.stats(treat.type = "binary")
 
 ## Value
 
-For `bal.compute()`, a single numeric value. For `bal.init()`, a
-`bal.init` object containing the components created in the
-initialization and the function used to compute the balance statistic.
-For `available.stats()`, a character vector of available statistics.
+For `bal.compute()`, a single numeric value or, when `weights` is a
+matrix, a numeric vector with one value for each column of `weights`,
+named with its column names. For `bal.init()`, a `bal.init` object
+containing the components created in the initialization and the function
+used to compute the balance statistic. For `available.stats()`, a
+character vector of available statistics.
 
 ## Details
 
@@ -220,6 +227,16 @@ When speed isn't of interest or to calculate a balance statistic outside
 the context of balance optimization, the default method of
 `bal.compute()` can be a quick shortcut to avoid having to create a
 `bal.init` object first.
+
+When many sets of weights are to be compared (e.g., the weights at each
+iteration of a boosting algorithm), they can be supplied together as the
+columns of a matrix to `weights`. For most statistics, this is
+equivalent to calling `bal.compute()` on each column separately. For
+`energy.dist`, `kernel.dist`, `distance.cov`, and `distance.cor`, it is
+considerably faster, because the statistic for every column is computed
+in a single matrix product. Note that these statistics require
+`bal.init()` to store an \\n \times n\\ matrix, so their memory use
+grows with the square of the sample size (about 500MB with 8000 units).
 
 ## See also
 
