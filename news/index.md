@@ -1,6 +1,6 @@
 # Changelog
 
-## *cobalt* (development version)
+## *cobalt* 5.1.0
 
 - [`bal.compute()`](https://ngreifer.github.io/cobalt/reference/bal.compute.md)
   now accepts a matrix of weights with one column for each set of

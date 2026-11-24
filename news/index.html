@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">5.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">5.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,8 +54,8 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="cobalt-development-version">
-<em>cobalt</em> (development version)<a class="anchor" aria-label="anchor" href="#cobalt-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="5.1.0" id="cobalt-510">
+<em>cobalt</em> 5.1.0<a class="anchor" aria-label="anchor" href="#cobalt-510"></a></h2>
 <ul><li><p><code><a href="../reference/bal.compute.html">bal.compute()</a></code> now accepts a matrix of weights with one column for each set of weights and returns one value for each column. For <code>energy.dist</code>, <code>kernel.dist</code>, <code>distance.cov</code>, and <code>distance.cor</code>, this is considerably faster than computing each column separately, which is useful when selecting among many candidate sets of weights, as <code><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">WeightIt::weightit()</a></code> does with <code>method = "gbm"</code>. The <code>weights</code> argument is now also checked for the right number of units and for missing and infinite values.</p></li>
 <li><p><code><a href="../reference/bal.compute.html">bal.init()</a></code> uses about half the memory it did with <code>energy.dist</code>, <code>kernel.dist</code>, <code>distance.cov</code>, and <code>distance.cor</code>, and <code><a href="../reference/bal.compute.html">bal.compute()</a></code> is about twice as fast with them.</p></li>
 <li><p>The <code>[</code> method for <code>treat</code> objects is now registered on the <code>treat</code> class as well as on <code>cobalt.treat</code>. This is internal, but it has one visible consequence: a user who still has <em>WeightIt</em> 2.0.0 installed will see R report that <code>[.treat</code> has been overwritten when <em>WeightIt</em> is attached. Updating to <em>WeightIt</em> 2.1.0 or later, which registers no such method, removes the message.</p></li>
